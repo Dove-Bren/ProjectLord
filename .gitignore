@@ -1,0 +1,10 @@
+.git
+.vs
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+ProjectLord.sln
+.vsconfig
+
+Content/StarterContent/
