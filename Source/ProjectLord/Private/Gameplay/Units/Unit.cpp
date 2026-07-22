@@ -11,8 +11,8 @@ AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
     WanderRadius = 1000;
-    Sight = 500;
-    AttackRange = 50;
+    Sight = 1000;
+    AttackRange = 100;
 
     Level = 1;
     Team = EUnitTeam::Monster;
