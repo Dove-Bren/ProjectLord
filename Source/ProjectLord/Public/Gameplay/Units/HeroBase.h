@@ -30,7 +30,12 @@ public:
     UFUNCTION(BlueprintPure)
     float GetHeroXPPercent() const { return FMath::Clamp((float)GetHeroXP() / (float)GetHeroMaxXP(), 0.0f, 1.0f); }
 
+    virtual void BeginPlay() override;
+
 protected:
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
     // How much gold this hero has
     UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta = (ClampMin = 0))

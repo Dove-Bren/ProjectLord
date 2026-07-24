@@ -99,9 +99,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<ULordUnitAttributeSet> LordUnitAttributeSet;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
-
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
     double WanderRadius;
 

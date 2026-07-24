@@ -8,7 +8,6 @@
 
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
-#include "Gameplay/Combat/Ability/LordHeroAttributeSet.h"
 #include "Gameplay/Units/AI/UnitController.h"
 
 AUnit::AUnit() : ACharacter()
@@ -31,7 +30,6 @@ AUnit::AUnit() : ACharacter()
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
     LordUnitAttributeSet = CreateDefaultSubobject<ULordUnitAttributeSet>(TEXT("LordUnitAttributeSet"));
-    LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));
 }
 
 void AUnit::BeginPlay()
@@ -48,9 +46,6 @@ void AUnit::BeginPlay()
         }
 
         // TODO: effects (for base stats)
-
-        // Make sure to prompt attribute set to recalc depending attributes
-        LordHeroAttributeSet->Init(LordUnitAttributeSet, true);
 
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
             .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
