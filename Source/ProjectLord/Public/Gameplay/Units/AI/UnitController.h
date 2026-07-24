@@ -9,6 +9,7 @@
 #include "UnitController.generated.h"
 
 class UBehaviorTree;
+class AUnit;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AUnitController : public AAIController
@@ -22,4 +23,7 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure)
     UBehaviorTree* GetBehaviorTree() const;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintPure)
+    AUnit* GetTargetUnit() const;
 };

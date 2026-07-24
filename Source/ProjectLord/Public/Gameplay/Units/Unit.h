@@ -12,6 +12,13 @@
 #include "Unit.generated.h"
 
 class AUnitController;
+class UAbilitySystemComponent;
+class ULordUnitAttributeSet;
+class ULordHeroAttributeSet;
+class UGameplayAbility;
+
+struct FGameplayAbilitySpec;
+struct FGameplayAbilitySpecHandle;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AUnit : public ACharacter
@@ -62,6 +69,10 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
     void AttackUnit(AUnit* TargetUnit);
 
+public:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(EEndPlayReason::Type Reason) override;
+
 protected:
 
     UFUNCTION(BlueprintNativeEvent)
@@ -70,6 +81,26 @@ protected:
     // Return the combined Defenses of this unit. This includes all active effects, equipment, etc.
     UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Combat")
     FDefenses GetDefenses() const;
+
+    UFUNCTION(BlueprintNativeEvent, Category = "Ability")
+    FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
+
+    // From the given array of available attack availabilities, select which one the unit would prefer to use.
+    // The default implementation picks the most damaging ability.
+    // Overrides could do something like check if a certain high-priority ability is available and use that,
+    // and otherwise fall back to default.
+    // Note abilities in param are shallow copies and should not be cached or mutated
+    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
+    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+    TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<ULordUnitAttributeSet> LordUnitAttributeSet;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
     double WanderRadius;
@@ -95,16 +126,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Team")
     EUnitTeam Team;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+    TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 
 private:
-    // Used internally to track if an attack is charging/animating
-    UPROPERTY()//Category = "Combat"
-    bool bIsAttacking;
-
-    // Similarly to bIsAttacking, used internally to remember information about an attack in progress
-    UPROPERTY()//Category = "Combat"
-    TObjectPtr<AUnit> AttackTargetUnit;
-
-    FTimerHandle TempAttackTimerHandle;
 
 };

@@ -2,6 +2,10 @@
 
 #include "Gameplay/Units/AI/UnitController.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+
+#include "Gameplay/Units/Unit.h"
+
 AUnitController::AUnitController()
 {
 }
@@ -18,4 +22,11 @@ UBehaviorTree* AUnitController::GetBehaviorTree_Implementation() const
 {
 	checkf(false, TEXT("Controller did not implement GetBehaviorTree"));
 	return nullptr;
+}
+
+AUnit* AUnitController::GetTargetUnit_Implementation() const
+{
+	const auto BB = GetBlackboardComponent();
+	auto TargetObj = BB->GetValueAsObject(TEXT("AttackTargetUnit"));
+	return Cast<AUnit>(TargetObj);
 }
