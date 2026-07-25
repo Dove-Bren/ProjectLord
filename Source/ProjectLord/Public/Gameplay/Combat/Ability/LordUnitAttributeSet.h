@@ -66,6 +66,9 @@ protected:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Sight, Category = "Attributes|AI Characteristics")
     FGameplayAttributeData Sight = 1000;
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttackRange, Category = "Attributes|AI Characteristics")
+    FGameplayAttributeData AttackRange = 100;
+
     UFUNCTION()
     virtual void OnRep_Level(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, Level)
 
@@ -102,6 +105,9 @@ protected:
     UFUNCTION()
     virtual void OnRep_Sight(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, Sight)
 
+    UFUNCTION()
+    virtual void OnRep_AttackRange(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, AttackRange)
+
 
 public:
 
@@ -121,6 +127,7 @@ public:
 
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, WanderRadius);
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, Sight);
+    ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, AttackRange);
 
 };
 

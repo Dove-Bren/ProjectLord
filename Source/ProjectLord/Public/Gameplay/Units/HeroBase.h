@@ -8,6 +8,8 @@
 
 #include "HeroBase.generated.h"
 
+class ULordHeroAttributeSet;
+
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public AUnit
 {

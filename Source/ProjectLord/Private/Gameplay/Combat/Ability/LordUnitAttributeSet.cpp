@@ -24,6 +24,7 @@ void ULordUnitAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME(ULordUnitAttributeSet, WanderRadius);
 	DOREPLIFETIME(ULordUnitAttributeSet, Sight);
+	DOREPLIFETIME(ULordUnitAttributeSet, AttackRange);
 }
 
 void ULordUnitAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
