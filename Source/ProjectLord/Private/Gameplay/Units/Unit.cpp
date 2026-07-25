@@ -8,6 +8,7 @@
 
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
+#include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Units/AI/UnitController.h"
 
 AUnit::AUnit() : ACharacter()
@@ -30,6 +31,30 @@ AUnit::AUnit() : ACharacter()
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
     LordUnitAttributeSet = CreateDefaultSubobject<ULordUnitAttributeSet>(TEXT("LordUnitAttributeSet"));
+}
+
+TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)
+{
+    TArray<UUnitAbility*> Abilities;
+
+    if (ensure(AbilitySystemComponent))
+    {
+        TArray<FGameplayAbilitySpecHandle> AllAbilities;
+        AbilitySystemComponent->GetAllAbilities(AllAbilities);
+        for (const auto& Handle : AllAbilities)
+        {
+            auto Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(Handle);
+            if (auto Ability = Cast<UUnitAbility>(Spec->Ability))
+            {
+                if (bIncludeHidden || !Ability->IsHidden())
+                {
+                    Abilities.Add(Ability);
+                }
+            }
+        }
+    }
+
+    return Abilities;
 }
 
 void AUnit::BeginPlay()

@@ -8,6 +8,7 @@
 
 #include "Gameplay/Combat/CombatTypes.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "Gameplay/Combat/Ability/UnitAbility.h" // Including instead of forward declared to make dropdowns populate right
 
 #include "Unit.generated.h"
 
@@ -15,7 +16,6 @@ class AUnitController;
 class UAbilitySystemComponent;
 class ULordUnitAttributeSet;
 class ULordHeroAttributeSet;
-class UGameplayAbility;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -68,6 +68,10 @@ public:
     // Attack the passed in unit as this unit
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
     void AttackUnit(AUnit* TargetUnit);
+
+    // Get all Unit Abilities this Unit has access to
+    UFUNCTION(BlueprintPure, Category="Ability")
+    TArray<UUnitAbility*> GetUnitAbilities(bool bIncludeHidden = false);
 
 public:
     virtual void BeginPlay() override;
@@ -124,7 +128,7 @@ protected:
     EUnitTeam Team;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-    TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
+    TArray<TSubclassOf<UUnitAbility>> DefaultAbilities;
 
 private:
 
