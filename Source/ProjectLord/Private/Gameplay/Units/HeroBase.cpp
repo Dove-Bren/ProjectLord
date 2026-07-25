@@ -1,4 +1,4 @@
-﻿// Copyright (c) Skyler Manzanares. All Rights Reserved.
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
 #include "Gameplay/Units/HeroBase.h"
 

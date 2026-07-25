@@ -28,7 +28,7 @@ $ClassName = Split-Path $RelativePath -Leaf
 
 # Generate header
 $HeaderContent = @"
-// Copyright (c) Skyler Manzanares. All Rights Reserved.
+// Copyright (c) Project Contributors. All Rights Reserved.
 
 #pragma once
 
@@ -50,7 +50,7 @@ $IncludePath = "$RelativePath.h"
 
 # Generate cpp
 $CppContent = @"
-// Copyright (c) Skyler Manzanares. All Rights Reserved.
+// Copyright (c) Project Contributors. All Rights Reserved.
 
 #include "$IncludePath"
 

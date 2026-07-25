@@ -1,3 +1,3 @@
-﻿// Copyright (c) Skyler Manzanares. All Rights Reserved.
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
 #include "Gameplay/Combat/Ability/AbilityEnums.h"
