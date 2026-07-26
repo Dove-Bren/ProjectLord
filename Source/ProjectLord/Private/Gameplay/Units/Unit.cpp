@@ -12,6 +12,8 @@
 #include "Gameplay/Units/AI/UnitController.h"
 #include "Gameplay/Units/UnitBaseAttributes.h"
 
+#define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
+
 AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
@@ -75,6 +77,12 @@ void AUnit::BeginPlay()
                     {
                         OnDeath();
                     }
+                });
+
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetMovementAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    GetCharacterMovement()->MaxWalkSpeed = MOVEMENT_STAT_TO_UE_SPEED(ChangeData.NewValue);
                 });
 
         // Setup base attributes with variation.
