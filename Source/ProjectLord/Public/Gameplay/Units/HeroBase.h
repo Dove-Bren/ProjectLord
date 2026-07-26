@@ -46,4 +46,6 @@ protected:
     // How much XP this hero has accumulated so far this level
     UPROPERTY(EditDefaultsOnly, Category = "Stats", Meta = (ClampMin = 0))
     int HeroXP;
+
+    virtual void SetupBaseAttributes() override;
 };

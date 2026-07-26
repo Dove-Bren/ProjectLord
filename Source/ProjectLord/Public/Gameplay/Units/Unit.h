@@ -96,6 +96,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
     TArray<TSubclassOf<UUnitAbility>> DefaultAbilities;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
+    TObjectPtr<UDataTable> ClassAttributeDefaults;
+
+    virtual void SetupBaseAttributes();
+
 private:
 
 };

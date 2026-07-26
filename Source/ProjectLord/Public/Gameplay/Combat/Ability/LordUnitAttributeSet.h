@@ -12,6 +12,11 @@
         GAMEPLAYATTRIBUTE_REPNOTIFY(Class, Field, OldValue);\
     }
 
+#define ROUND_ATTRIB_TO_INT_CONCAT_INNER(a, b) a##b
+#define ROUND_ATTRIB_TO_INT_CONCAT(a, b) ROUND_ATTRIB_TO_INT_CONCAT_INNER(a, b)
+#define ROUND_ATTRIB_TO_INT(AttributeToMatch) \
+    if (Attribute == ROUND_ATTRIB_TO_INT_CONCAT(Get, ROUND_ATTRIB_TO_INT_CONCAT(AttributeToMatch, Attribute))()) { NewValue = FMath::RoundToInt(NewValue); }
+
 UCLASS()
 class PROJECTLORD_API ULordUnitAttributeSet : public UAttributeSet
 {
@@ -23,6 +28,7 @@ public:
     virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
     virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
     virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+    virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
 protected:
 

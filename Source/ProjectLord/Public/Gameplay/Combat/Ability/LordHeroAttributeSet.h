@@ -26,6 +26,7 @@ public:
     virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
     virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
     virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+    virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
 protected:
 
@@ -94,7 +95,8 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Intelligence);
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Stamina);
 
-    virtual void Init(ULordUnitAttributeSet* UnitAttribs, bool bInitUnitValues = true);
+    virtual void Init(ULordUnitAttributeSet* UnitAttribs);
+    virtual void UpdateDerivedUnitValues();
     virtual void UpdateAfterLevelup();
 
 protected:

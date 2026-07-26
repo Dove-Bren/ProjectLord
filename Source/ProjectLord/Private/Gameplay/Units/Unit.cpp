@@ -10,6 +10,7 @@
 #include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Units/AI/UnitController.h"
+#include "Gameplay/Units/UnitBaseAttributes.h"
 
 AUnit::AUnit() : ACharacter()
 {
@@ -70,11 +71,15 @@ void AUnit::BeginPlay()
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
             .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
                 {
-                    if (IsAlive() && ChangeData.NewValue <= 0)
+                    if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
                     {
                         OnDeath();
                     }
                 });
+
+        // Setup base attributes with variation.
+        // TODO: how does this interact with saved games?
+        SetupBaseAttributes();
     }
 }
 
@@ -192,4 +197,34 @@ const int AUnit::PickPreferredAttackAbility_Implementation(const TArray<FGamepla
     }
 
     return MaxIndex;
+}
+
+void AUnit::SetupBaseAttributes()
+{
+    if (IsValid(ClassAttributeDefaults))
+    {
+        FString Context = TEXT("DefaultUnitAttributeIter");
+        ClassAttributeDefaults->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
+            {
+                if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
+                {
+                    UE_LOG(LogTemp, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
+                        *GetDebugName(this),
+                        *Key.ToString(),
+                        *Value.Attribute.AttributeName
+                        );
+                    return;
+                }
+
+                double AttributeValue = Value.BaseValue;
+                if (Value.Variation > 0)
+                {
+                    const int Variation = FMath::FloorToInt(Value.Variation);
+                    AttributeValue += FMath::RandRange(-Variation, Variation);
+                }
+
+                AbilitySystemComponent->SetNumericAttributeBase(Value.Attribute, AttributeValue);
+
+            });
+    }
 }

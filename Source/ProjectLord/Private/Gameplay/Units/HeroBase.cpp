@@ -24,7 +24,16 @@ int AHeroBase::GetHeroMaxXP() const
 void AHeroBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AHeroBase::SetupBaseAttributes()
+{
+	// Make sure to set up association first
+	LordHeroAttributeSet->Init(LordUnitAttributeSet);
+
+	// Let base class take care of setting up base values
+	Super::SetupBaseAttributes();
 
 	// Make sure to prompt attribute set to recalc dependent attributes
-	LordHeroAttributeSet->Init(LordUnitAttributeSet, true);
+	LordHeroAttributeSet->UpdateDerivedUnitValues();
 }
