@@ -1,4 +1,4 @@
-﻿// Copyright (c) Skyler Manzanares. All Rights Reserved.
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
 #pragma once
 
@@ -7,6 +7,8 @@
 #include "Gameplay/Units/Unit.h"
 
 #include "HeroBase.generated.h"
+
+class ULordHeroAttributeSet;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public AUnit
@@ -30,7 +32,12 @@ public:
     UFUNCTION(BlueprintPure)
     float GetHeroXPPercent() const { return FMath::Clamp((float)GetHeroXP() / (float)GetHeroMaxXP(), 0.0f, 1.0f); }
 
+    virtual void BeginPlay() override;
+
 protected:
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
     // How much gold this hero has
     UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta = (ClampMin = 0))
@@ -39,4 +46,6 @@ protected:
     // How much XP this hero has accumulated so far this level
     UPROPERTY(EditDefaultsOnly, Category = "Stats", Meta = (ClampMin = 0))
     int HeroXP;
+
+    virtual void SetupBaseAttributes() override;
 };

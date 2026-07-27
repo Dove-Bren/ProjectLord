@@ -1,4 +1,4 @@
-﻿// Copyright (c) Skyler Manzanares. All Rights Reserved.
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
 #include "Gameplay/Units/Unit.h"
 
@@ -8,17 +8,15 @@
 
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
-#include "Gameplay/Combat/Ability/LordHeroAttributeSet.h"
+#include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Units/AI/UnitController.h"
+#include "Gameplay/Units/UnitBaseAttributes.h"
+
+#define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 
 AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
-    WanderRadius = 1000;
-    Sight = 1000;
-    AttackRange = 100;
-
-    Level = 1;
     Team = EUnitTeam::Monster;
 
     // Adjust character stuff
@@ -31,7 +29,30 @@ AUnit::AUnit() : ACharacter()
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
     LordUnitAttributeSet = CreateDefaultSubobject<ULordUnitAttributeSet>(TEXT("LordUnitAttributeSet"));
-    LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));
+}
+
+TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)
+{
+    TArray<UUnitAbility*> Abilities;
+
+    if (ensure(AbilitySystemComponent))
+    {
+        TArray<FGameplayAbilitySpecHandle> AllAbilities;
+        AbilitySystemComponent->GetAllAbilities(AllAbilities);
+        for (const auto& Handle : AllAbilities)
+        {
+            auto Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(Handle);
+            if (auto Ability = Cast<UUnitAbility>(Spec->Ability))
+            {
+                if (bIncludeHidden || !Ability->IsHidden())
+                {
+                    Abilities.Add(Ability);
+                }
+            }
+        }
+    }
+
+    return Abilities;
 }
 
 void AUnit::BeginPlay()
@@ -49,17 +70,24 @@ void AUnit::BeginPlay()
 
         // TODO: effects (for base stats)
 
-        // Make sure to prompt attribute set to recalc depending attributes
-        LordHeroAttributeSet->Init(LordUnitAttributeSet, true);
-
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
             .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
                 {
-                    if (IsAlive() && ChangeData.NewValue <= 0)
+                    if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
                     {
                         OnDeath();
                     }
                 });
+
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetMovementAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    GetCharacterMovement()->MaxWalkSpeed = MOVEMENT_STAT_TO_UE_SPEED(ChangeData.NewValue);
+                });
+
+        // Setup base attributes with variation.
+        // TODO: how does this interact with saved games?
+        SetupBaseAttributes();
     }
 }
 
@@ -79,29 +107,43 @@ AUnitController* AUnit::GetUnitController() const
     return Cast<AUnitController>(GetController());
 }
 
+bool AUnit::IsDead() const
+{
+    bool bIgnored;
+    int Health = FMath::TruncToInt(AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetHealthAttribute(), bIgnored));
+    return Health <= 0;
+}
+
 bool AUnit::IsCloseEnoughToAttack(const AUnit* OtherUnit) const
 {
-    return this->GetDistanceTo(OtherUnit) <= AttackRange;
+    bool bIgnored;
+    return this->GetDistanceTo(OtherUnit) <= AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetAttackRangeAttribute(), bIgnored);
+}
+
+int AUnit::GetDefenseFor(EDamageType InType) const
+{
+    FGameplayAttribute Attribute;
+    switch (InType)
+    {
+    case EDamageType::Melee:
+        Attribute = LordUnitAttributeSet->GetMeleeDefenseAttribute();
+        break;
+    case EDamageType::Ranged:
+        Attribute = LordUnitAttributeSet->GetRangedDefenseAttribute();
+        break;
+    case EDamageType::Magic:
+        Attribute = LordUnitAttributeSet->GetMagicDefenseAttribute();
+        break;
+    default:
+        return 0;
+    }
+    bool bIgnored;
+    return FMath::TruncToInt(AbilitySystemComponent->GetGameplayAttributeValue(Attribute, bIgnored));
 }
 
 bool AUnit::CanAttack_Implementation() const
 {
     return !AbilitySystemComponent->HasMatchingGameplayTag(ULordGameplayTags::UnitStateAttacking());
-}
-
-void AUnit::DamageUnit_Implementation(FAttackDamage InDamage)
-{
-    if (IsAlive())
-    {
-        const int Defense = GetDefenseFor(InDamage.DamageType);
-        const int TotalDamage = FMath::Clamp(InDamage.Amount - Defense, 0, MaxHealth);
-        Health = FMath::Clamp(Health - TotalDamage, 0, MaxHealth); // TODO setter?
-
-        if (IsDead())
-        {
-            OnDeath();
-        }
-    }
 }
 
 void AUnit::AttackUnit_Implementation(AUnit* TargetUnit)
@@ -121,11 +163,6 @@ void AUnit::OnDeath_Implementation()
 {
     UE_LOG(LogTemp, Warning, TEXT("Unit did not override OnDeath!"));
     this->Destroy();
-}
-
-FDefenses AUnit::GetDefenses_Implementation() const
-{
-    return BaseDefense;
 }
 
 FGameplayAbilitySpecHandle AUnit::GetPreferredAttackAbility_Implementation() const
@@ -168,4 +205,34 @@ const int AUnit::PickPreferredAttackAbility_Implementation(const TArray<FGamepla
     }
 
     return MaxIndex;
+}
+
+void AUnit::SetupBaseAttributes()
+{
+    if (IsValid(ClassAttributeDefaults))
+    {
+        FString Context = TEXT("DefaultUnitAttributeIter");
+        ClassAttributeDefaults->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
+            {
+                if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
+                {
+                    UE_LOG(LogTemp, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
+                        *GetDebugName(this),
+                        *Key.ToString(),
+                        *Value.Attribute.AttributeName
+                        );
+                    return;
+                }
+
+                double AttributeValue = Value.BaseValue;
+                if (Value.Variation > 0)
+                {
+                    const int Variation = FMath::FloorToInt(Value.Variation);
+                    AttributeValue += FMath::RandRange(-Variation, Variation);
+                }
+
+                AbilitySystemComponent->SetNumericAttributeBase(Value.Attribute, AttributeValue);
+
+            });
+    }
 }

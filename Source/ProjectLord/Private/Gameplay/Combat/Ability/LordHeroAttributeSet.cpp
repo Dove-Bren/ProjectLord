@@ -1,4 +1,4 @@
-﻿// Copyright (c) Skyler Manzanares. All Rights Reserved.
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
 #include "Gameplay/Combat/Ability/LordHeroAttributeSet.h"
 
@@ -31,13 +31,24 @@ void ULordHeroAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
+	ROUND_ATTRIB_TO_INT(MaxMana);
+	ROUND_ATTRIB_TO_INT(Mana);
+
+	ROUND_ATTRIB_TO_INT(StartingHealth);
+	ROUND_ATTRIB_TO_INT(ExtraHealthPerLevel);
+
+	ROUND_ATTRIB_TO_INT(Strength);
+	ROUND_ATTRIB_TO_INT(Agility);
+	ROUND_ATTRIB_TO_INT(Intelligence);
+	ROUND_ATTRIB_TO_INT(Stamina);
+
 	// Clamp Mana to their maxes
 	if (Attribute == GetManaAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0, GetMaxMana());
 	}
 
-	// Clamp Characteristics to 1+ since some math formulas assume they are positive
+	// Clamp Characteristics to 1+ ints since some math formulas assume they are positive
 	if (Attribute == GetStrengthAttribute()
 		|| Attribute == GetAgilityAttribute()
 		|| Attribute == GetIntelligenceAttribute()
@@ -81,16 +92,34 @@ void ULordHeroAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
 	}
 }
 
-void ULordHeroAttributeSet::Init(ULordUnitAttributeSet* InUnitAttribs, bool bInitUnitValues)
+void ULordHeroAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	this->UnitAttribs = InUnitAttribs;
-	if (bInitUnitValues)
-	{
-		// Health and Mana are based on Stamina and Intelligence...
-		// Proc the 'post attribute change' for these
-		PostAttributeChange(GetStaminaAttribute(), 0, GetStamina());
-		PostAttributeChange(GetIntelligenceAttribute(), 0, GetIntelligence());
-	}
+	Super::PreAttributeBaseChange(Attribute, NewValue);
+
+	ROUND_ATTRIB_TO_INT(MaxMana);
+	ROUND_ATTRIB_TO_INT(Mana);
+
+	ROUND_ATTRIB_TO_INT(StartingHealth);
+	ROUND_ATTRIB_TO_INT(ExtraHealthPerLevel);
+
+	ROUND_ATTRIB_TO_INT(Strength);
+	ROUND_ATTRIB_TO_INT(Agility);
+	ROUND_ATTRIB_TO_INT(Intelligence);
+	ROUND_ATTRIB_TO_INT(Stamina);
+}
+
+void ULordHeroAttributeSet::Init(ULordUnitAttributeSet* InUnitAttribs)
+{
+	ensure(!UnitAttribs.IsValid());
+	UnitAttribs = InUnitAttribs;
+}
+
+void ULordHeroAttributeSet::UpdateDerivedUnitValues()
+{
+	// Health and Mana are based on Stamina and Intelligence...
+	// Proc the 'post attribute change' for these
+	PostAttributeChange(GetStaminaAttribute(), 0, GetStamina());
+	PostAttributeChange(GetIntelligenceAttribute(), 0, GetIntelligence());
 }
 
 void ULordHeroAttributeSet::UpdateAfterLevelup()
@@ -101,8 +130,10 @@ void ULordHeroAttributeSet::UpdateAfterLevelup()
 
 int ULordHeroAttributeSet::CalculateBaseHealth() const
 {
-	return GetStartingHealth() // Starting amount
-		+ ((GetStamina() + GetExtraHealthPerLevel()) * (UnitAttribs->GetLevel() - 1)) // Amount-per-level (stamina + bonus) * number of level ups
+	const float StaminaValue = GetStamina();
+	return GetStartingHealth() // Base amount
+		+ FMath::RoundToInt(StaminaValue * 3.5)
+		+ ((StaminaValue + GetExtraHealthPerLevel()) * (UnitAttribs->GetLevel() - 1)) // Amount-per-level (stamina + bonus) * number of level ups
 		;
 }
 
