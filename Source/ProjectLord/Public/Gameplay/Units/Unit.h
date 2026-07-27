@@ -15,6 +15,7 @@
 class AUnitController;
 class UAbilitySystemComponent;
 class ULordUnitAttributeSet;
+class UVMUnit;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -102,5 +103,10 @@ protected:
     virtual void SetupBaseAttributes();
 
 private:
+    UPROPERTY()
+    TObjectPtr<UVMUnit> UnitVM;
 
+public:
+    UFUNCTION(BlueprintCallable, Category="UI|ViewModels")
+    UVMUnit* GetUnitVM();
 };

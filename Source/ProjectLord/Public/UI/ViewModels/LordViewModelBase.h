@@ -8,6 +8,13 @@
 
 #include "LordViewModelBase.generated.h"
 
+template<typename T>
+T* CreateLordVM(UObject* Outer)
+{
+	T* ViewModel = NewObject<T>(Outer);
+	return ViewModel;
+};
+
 UCLASS()
 class PROJECTLORD_API UVMLordBase : public UMVVMViewModelBase
 {

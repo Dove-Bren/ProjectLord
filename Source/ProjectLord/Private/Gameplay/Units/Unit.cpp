@@ -11,6 +11,7 @@
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Units/AI/UnitController.h"
 #include "Gameplay/Units/UnitBaseAttributes.h"
+#include "UI/ViewModels/Units/UnitViewModel.h"
 
 #define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 
@@ -235,4 +236,20 @@ void AUnit::SetupBaseAttributes()
 
             });
     }
+}
+
+UVMUnit* AUnit::GetUnitVM()
+{
+    if (UnitVM)
+    {
+        return UnitVM;
+    }
+
+    UnitVM = UVMUnit::CreateForUnit(this);
+    UnitVM->InitializeAttributeListeners(AbilitySystemComponent, LordUnitAttributeSet);
+
+    // Note: For now, team is only ever set on construction of the AUnit.
+    UnitVM->SetUnitTeam(Team);
+
+    return UnitVM;
 }
