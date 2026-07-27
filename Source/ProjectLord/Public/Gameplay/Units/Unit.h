@@ -64,6 +64,9 @@ public:
     UFUNCTION(BlueprintPure, Category="Ability")
     TArray<UUnitAbility*> GetUnitAbilities(bool bIncludeHidden = false);
 
+    UFUNCTION(BlueprintCallable, Category = "Actor")
+    void FaceUnit(AUnit* OtherUnit);
+
 public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
