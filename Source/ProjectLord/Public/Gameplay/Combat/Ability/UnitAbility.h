@@ -9,6 +9,7 @@
 #include "UnitAbility.generated.h"
 
 class UTexture2D;
+class AUnit;
 
 // Base class specialization for Unit Abilities, which have extra details for showing in the UI etc.
 UCLASS(Blueprintable)
@@ -37,4 +38,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     bool bHidden;
+
+    UFUNCTION(BlueprintPure, Category = "Ability|Unit")
+    AUnit* GetOwnerUnit() const;
+    
+    UFUNCTION(BlueprintPure, Category = "Ability|Unit")
+    AUnit* GetOwnerTarget(bool bOnlyAlive = true) const;
 };

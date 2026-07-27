@@ -56,6 +56,14 @@ TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)
     return Abilities;
 }
 
+void AUnit::FaceUnit(AUnit* OtherUnit)
+{
+    // Face target
+    auto Diff = OtherUnit->GetActorLocation() - GetActorLocation();
+    Diff.Z = 0;
+    SetActorRotation(Diff.Rotation());
+}
+
 void AUnit::BeginPlay()
 {
     Super::BeginPlay();
@@ -152,7 +160,11 @@ void AUnit::AttackUnit_Implementation(AUnit* TargetUnit)
     FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility();
     if (AttackAbility.IsValid())
     {
-        if (!AbilitySystemComponent->TryActivateAbility(AttackAbility))
+        if (AbilitySystemComponent->TryActivateAbility(AttackAbility))
+        {
+            FaceUnit(TargetUnit);
+        }
+        else
         {
             UE_LOG(LogTemp, Warning, TEXT("Failed to activate ability"));
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to activate ability"));
