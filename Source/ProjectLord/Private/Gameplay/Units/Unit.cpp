@@ -30,6 +30,8 @@ AUnit::AUnit() : ACharacter()
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
     LordUnitAttributeSet = CreateDefaultSubobject<ULordUnitAttributeSet>(TEXT("LordUnitAttributeSet"));
+
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)

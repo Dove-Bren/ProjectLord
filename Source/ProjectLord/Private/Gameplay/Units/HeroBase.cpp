@@ -5,7 +5,7 @@
 #include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
 #include "Gameplay/Combat/Ability/LordHeroAttributeSet.h"
 
-AHeroBase::AHeroBase() : AUnit()
+AHeroBase::AHeroBase() : ACreature()
 {
 	Team = EUnitTeam::Player1;
 	Gold = 0;

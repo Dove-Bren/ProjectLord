@@ -2,7 +2,7 @@
 
 #include "Gameplay/Units/MonsterBase.h"
 
-AMonsterBase::AMonsterBase() : AUnit()
+AMonsterBase::AMonsterBase() : ACreature()
 {
 	Team = EUnitTeam::Monster;
 	Gold = 5;

@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 
-#include "Gameplay/Units/Unit.h"
+#include "Gameplay/Units/Creature.h"
 
 #include "HeroBase.generated.h"
 
 class ULordHeroAttributeSet;
 
 UCLASS(Blueprintable)
-class PROJECTLORD_API AHeroBase : public AUnit
+class PROJECTLORD_API AHeroBase : public ACreature
 {
     GENERATED_BODY()
 
