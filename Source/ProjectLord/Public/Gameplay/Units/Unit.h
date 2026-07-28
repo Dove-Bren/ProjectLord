@@ -103,6 +103,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
 
+    virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();
 
 private:

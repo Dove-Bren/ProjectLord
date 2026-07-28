@@ -10,6 +10,7 @@
 
 class ABuilding;
 class UCreatureType;
+class UCreatureAttributeSet;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ACreature : public AUnit
@@ -35,4 +36,13 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<ABuilding> HomeBuilding;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;
+
+    virtual void RegisterAttributes() override;
+
+public:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(EEndPlayReason::Type Reason) override;
 };

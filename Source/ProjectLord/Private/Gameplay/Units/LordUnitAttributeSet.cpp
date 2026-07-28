@@ -16,13 +16,10 @@ void ULordUnitAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(ULordUnitAttributeSet, RangedDefense);
 	DOREPLIFETIME(ULordUnitAttributeSet, MagicDefense);
 
-	DOREPLIFETIME(ULordUnitAttributeSet, Movement);
-
 	DOREPLIFETIME(ULordUnitAttributeSet, BonusMeleeDamage);
 	DOREPLIFETIME(ULordUnitAttributeSet, BonusRangedDamage);
 	DOREPLIFETIME(ULordUnitAttributeSet, BonusMagicDamage);
 
-	DOREPLIFETIME(ULordUnitAttributeSet, WanderRadius);
 	DOREPLIFETIME(ULordUnitAttributeSet, Sight);
 	DOREPLIFETIME(ULordUnitAttributeSet, AttackRange);
 }

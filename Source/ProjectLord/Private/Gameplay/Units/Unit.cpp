@@ -13,8 +13,6 @@
 #include "Gameplay/Units/UnitBaseAttributes.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 
-#define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
-
 AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
@@ -81,20 +79,7 @@ void AUnit::BeginPlay()
 
         // TODO: effects (for base stats)
 
-        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
-            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
-                {
-                    if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
-                    {
-                        OnDeath();
-                    }
-                });
-
-        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetMovementAttribute())
-            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
-                {
-                    GetCharacterMovement()->MaxWalkSpeed = MOVEMENT_STAT_TO_UE_SPEED(ChangeData.NewValue);
-                });
+        RegisterAttributes();
 
         // Setup base attributes with variation.
         // TODO: how does this interact with saved games?
@@ -220,6 +205,18 @@ const int AUnit::PickPreferredAttackAbility_Implementation(const TArray<FGamepla
     }
 
     return MaxIndex;
+}
+
+void AUnit::RegisterAttributes()
+{
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
+        .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+            {
+                if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
+                {
+                    OnDeath();
+                }
+            });
 }
 
 void AUnit::SetupBaseAttributes()

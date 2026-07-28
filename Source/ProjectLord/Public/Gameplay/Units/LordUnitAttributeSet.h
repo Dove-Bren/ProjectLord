@@ -50,10 +50,6 @@ protected:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MagicDefense, Category = "Attributes|Defense")
     FGameplayAttributeData MagicDefense = 0;
 
-    // How fast the unit moves
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Movement, Category = "Attributes|Characteristics")
-    FGameplayAttributeData Movement = 3;
-
     // Bonus melee damage, like from equipment or class abilities
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BonusMeleeDamage, Category = "Attributes|Combat Modifiers")
     FGameplayAttributeData BonusMeleeDamage = 0;
@@ -65,9 +61,6 @@ protected:
     // Bonus magic damage, like from equipment or class abilities
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BonusMagicDamage, Category = "Attributes|Combat Modifiers")
     FGameplayAttributeData BonusMagicDamage = 0;
-
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WanderRadius, Category = "Attributes|AI Characteristics")
-    FGameplayAttributeData WanderRadius = 1000;
 
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Sight, Category = "Attributes|AI Characteristics")
     FGameplayAttributeData Sight = 1000;
@@ -94,9 +87,6 @@ protected:
     virtual void OnRep_MagicDefense(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, MagicDefense)
 
     UFUNCTION()
-    virtual void OnRep_Movement(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, Movement)
-
-    UFUNCTION()
     virtual void OnRep_BonusMeleeDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, BonusMeleeDamage)
 
     UFUNCTION()
@@ -104,9 +94,6 @@ protected:
 
     UFUNCTION()
     virtual void OnRep_BonusMagicDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, BonusMagicDamage)
-
-    UFUNCTION()
-    virtual void OnRep_WanderRadius(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, WanderRadius)
 
     UFUNCTION()
     virtual void OnRep_Sight(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordUnitAttributeSet, Sight)
@@ -125,13 +112,10 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, RangedDefense);
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, MagicDefense);
 
-    ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, Movement);
-
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, BonusMeleeDamage);
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, BonusRangedDamage);
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, BonusMagicDamage);
 
-    ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, WanderRadius);
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, Sight);
     ATTRIBUTE_ACCESSORS_BASIC(ULordUnitAttributeSet, AttackRange);
 
