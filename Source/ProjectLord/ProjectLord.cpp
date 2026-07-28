@@ -11,6 +11,8 @@ void FProjectLordModule::StartupModule()
 
 	// New StringTables need to be added here
 	LOCTABLE_FROMFILE_GAME("Ability", "AnyOldNamespace", "Localization/ST_Ability.csv");
+	LOCTABLE_FROMFILE_GAME("Creature", "ProjectLord", "Localization/ST_Creature.csv");
+	LOCTABLE_FROMFILE_GAME("Building", "ProjectLord", "Localization/ST_Building.csv");
 }
 
 

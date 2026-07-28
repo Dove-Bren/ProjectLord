@@ -9,6 +9,7 @@
 #include "Creature.generated.h"
 
 class ABuilding;
+class UCreatureType;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ACreature : public AUnit
@@ -18,6 +19,7 @@ class PROJECTLORD_API ACreature : public AUnit
 public:
     ACreature();
 
+    UCreatureType* GetCreatureType() const { return CreatureType; }
     ABuilding* GetHomeBuilding() const { return HomeBuilding.IsValid() ? HomeBuilding.Get() : nullptr; }
 
     UFUNCTION(BlueprintPure)
@@ -28,6 +30,9 @@ public:
 
 
 protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature")
+    TObjectPtr<UCreatureType> CreatureType;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<ABuilding> HomeBuilding;
 };

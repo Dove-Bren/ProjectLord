@@ -9,6 +9,7 @@
 #include "Building.generated.h"
 
 class ACreature;
+class UBuildingType;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public AUnit
@@ -18,6 +19,7 @@ class PROJECTLORD_API ABuilding : public AUnit
 public:
     ABuilding();
 
+    UBuildingType* GetBuildingType() const { return BuildingType; }
     const TArray<ACreature*> GetBuildingResidents() const { return Residents; }
     const TArray<ACreature*> GetBuildingVisitors() const { return Visitors; }
 
@@ -56,10 +58,10 @@ public:
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    FText BuildingName;
+    TObjectPtr<UBuildingType> BuildingType;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    FText BuildingDescription;
+    FText BuildingCustomName;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bSupportsLevel;
