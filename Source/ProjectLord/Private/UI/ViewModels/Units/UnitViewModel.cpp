@@ -3,7 +3,7 @@
 #include "UI/ViewModels/Units/UnitViewModel.h"
 
 #include "AbilitySystemComponent.h"
-#include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
+#include "Gameplay/Units/LordUnitAttributeSet.h"
 #include "Gameplay/Units/Unit.h"
 
 

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Combat/Ability/LordHeroAttributeSet.h"
+#include "Gameplay/Units/LordHeroAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
 
-#include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
+#include "Gameplay/Units/LordUnitAttributeSet.h"
 
 void ULordHeroAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

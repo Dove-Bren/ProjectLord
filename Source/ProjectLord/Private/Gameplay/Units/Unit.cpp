@@ -7,7 +7,7 @@
 #include "AbilitySystemComponent.h"
 
 #include "Gameplay/LordGameplayTags.h"
-#include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
+#include "Gameplay/Units/LordUnitAttributeSet.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Units/AI/UnitController.h"
 #include "Gameplay/Units/UnitBaseAttributes.h"

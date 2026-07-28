@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Combat/Ability/LordUnitAttributeSet.h"
+#include "Gameplay/Units/LordUnitAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
 
