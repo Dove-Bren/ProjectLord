@@ -2,6 +2,11 @@
 
 #include "Gameplay/Units/HeroEquipment.h"
 
+UHeroItemDef::UHeroItemDef()
+{
+	
+}
+
 void UHeroItemStack::Init(UHeroItemDef* InItemDef, int InCount)
 {
 	check(IsValid(InItemDef));

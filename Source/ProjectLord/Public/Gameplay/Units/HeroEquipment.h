@@ -6,6 +6,7 @@
 #include "HeroEquipment.generated.h"
 
 class UTexture2D;
+struct FUnitBaseAttributes;
 
 UENUM(BlueprintType)
 enum class EEquipmentTier : uint8
@@ -23,6 +24,8 @@ class PROJECTLORD_API UHeroItemDef : public UPrimaryDataAsset
 
 public:
 
+    UHeroItemDef();
+
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     FText GetItemName() const { return ItemName; }
 
@@ -36,7 +39,7 @@ public:
     bool GetCanStack() const { return bCanStack; }
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
-    UDataTable* GetAttributesToApply() const { return AttributesToApply; }
+    TArray<FUnitBaseAttributes> GetAttributesToApply() const { return AttributesToApply; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
@@ -48,8 +51,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     TObjectPtr<UTexture2D> ItemIcon;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
-    TObjectPtr<UDataTable> AttributesToApply;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
+    TArray<FUnitBaseAttributes> AttributesToApply;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     bool bCanStack;
