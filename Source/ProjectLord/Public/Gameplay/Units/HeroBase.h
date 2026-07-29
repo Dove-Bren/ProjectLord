@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 
 #include "Gameplay/Units/Creature.h"
+#include "Gameplay/Units/HeroEquipment.h"
 
 #include "HeroBase.generated.h"
 
 class ULordHeroAttributeSet;
 class UHeroInventory;
-class UHeroEquipmentMap;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public ACreature
@@ -42,7 +42,7 @@ protected:
     TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    TObjectPtr<UHeroEquipmentMap> EquipmentTypes;
+    FHeroEquipmentMap EquipmentTypes;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;

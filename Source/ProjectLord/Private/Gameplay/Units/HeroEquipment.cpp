@@ -20,37 +20,32 @@ UHeroInventory::UHeroInventory()
 	Armor = EEquipmentTier::Starter;
 }
 
-void UHeroInventory::InitInventory(const UHeroEquipmentMap* InEquipmentDefMap)
+void UHeroInventory::InitInventory(FHeroEquipmentMap InEquipmentDefMap)
 {
-	check(InEquipmentDefMap);
 	EquipmentDefMap = InEquipmentDefMap;
 }
 
 UHeroItemStack* UHeroInventory::GetWeaponAsStack() const
 {
-	check(IsValid(EquipmentDefMap));
-	auto Def = EquipmentDefMap->GetWeaponForTier(Weapon);
+	auto Def = EquipmentDefMap.GetWeaponForTier(Weapon);
 	return MakeThrowawayStack(GetWorld(), Def, 1);
 }
 
 UHeroItemStack* UHeroInventory::GetArmorAsStack() const
 {
-	check(IsValid(EquipmentDefMap));
-	auto Def = EquipmentDefMap->GetArmorForTier(Armor);
+	auto Def = EquipmentDefMap.GetArmorForTier(Armor);
 	return MakeThrowawayStack(GetWorld(), Def, 1);
 }
 
 UHeroItemStack* UHeroInventory::GetHealthPotionsAsStack() const
 {
-	check(IsValid(EquipmentDefMap));
-	auto Def = EquipmentDefMap->HealthPotion;
+	auto Def = EquipmentDefMap.HealthPotion;
 	return MakeThrowawayStack(GetWorld(), Def, 1);
 }
 
 UHeroItemStack* UHeroInventory::GetManaPotionsAsStack() const
 {
-	check(IsValid(EquipmentDefMap));
-	auto Def = EquipmentDefMap->GetWeaponForTier(Weapon);
+	auto Def = EquipmentDefMap.ManaPotion;
 	return MakeThrowawayStack(GetWorld(), Def, 1);
 }
 

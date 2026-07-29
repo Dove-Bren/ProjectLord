@@ -90,8 +90,8 @@ protected:
     int Count;
 };
 
-UCLASS(BlueprintType)
-class PROJECTLORD_API UHeroEquipmentMap : public UObject
+USTRUCT(BlueprintType)
+struct PROJECTLORD_API FHeroEquipmentMap
 {
     GENERATED_BODY()
 
@@ -178,7 +178,7 @@ public:
 
     UHeroInventory();
 
-    void InitInventory(const UHeroEquipmentMap* EquipmentDefMap);
+    void InitInventory(FHeroEquipmentMap EquipmentDefMap);
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
     EEquipmentTier GetWeaponTier() const { return Weapon; }
@@ -264,7 +264,7 @@ protected:
     TArray<UHeroItemStack*> ExtraSlots;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory|Definition")
-    TObjectPtr<const UHeroEquipmentMap> EquipmentDefMap;
+    FHeroEquipmentMap EquipmentDefMap;
 
 private:
 
