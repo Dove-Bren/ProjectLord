@@ -8,8 +8,9 @@
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
-#include "Gameplay/Units/Creature.h"
+#include "Gameplay/Units/Unit.h"
 #include "Gameplay/Units/Building.h"
+#include "Gameplay/Units/AI/UnitController.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -49,32 +50,32 @@ EUnitTeam UCombatComponent::GetTeam() const
     /*if (!TeamGetter.IsSet())
     {
         auto Owner = GetOwner();
-        if (auto Creature = Cast<ACreature>(Owner))
+        if (auto Unit = Cast<AUnit>(Owner))
         {
-            TeamGetter = [WeakCreature = TWeakObjectPtr(Creature)]() -> EUnitTeam { return WeakCreature->GetTeam(); };
+            TeamGetter = [WeakUnit = TWeakObjectPtr(Unit)]() -> EUnitTeam { return WeakUnit->GetTeam(); };
         }
         if (auto Building = Cast<ABuilding>(Owner))
         {
             TeamGetter = [WeakBuilding = TWeakObjectPtr(Building)]() -> EUnitTeam { return WeakBuilding->GetTeam(); };
         }
 
-        ensureMsgf(false, TEXT("Owning Actor (%s) is neither a creature or a building"), *GetNameSafe(Owner));
+        ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
         TeamGetter = []() { return EUnitTeam::Monster; };
     }
 
     return (TeamGetter.GetValue())();*/
 
     auto Owner = GetOwner();
-    if (auto Creature = Cast<ACreature>(Owner))
+    if (auto Unit = Cast<AUnit>(Owner))
     {
-        return Creature->GetTeam();
+        return Unit->GetTeam();
     }
     if (auto Building = Cast<ABuilding>(Owner))
     {
         return Building->GetTeam();
     }
 
-    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a creature or a building"), *GetNameSafe(Owner));
+    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
     return EUnitTeam::Monster;
 }
 
@@ -84,19 +85,39 @@ UAbilitySystemComponent* UCombatComponent::GetAbilitySubsystemComponent() const
     return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner);
 }
 
+UCombatComponent* UCombatComponent::GetCombatTarget() const
+{
+    auto Owner = GetOwner();
+    if (auto Unit = Cast<AUnit>(Owner))
+    {
+        auto UnitController = Unit->GetUnitController();
+        if (ensure(UnitController))
+        {
+            return UnitController->GetTargetComponent();
+        }
+    }
+    if (auto Building = Cast<ABuilding>(Owner))
+    {
+        // TODO
+    }
+
+    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
+    return nullptr;
+}
+
 UCombatAttributeSet* UCombatComponent::GetCombatAttributeSet() const
 {
     auto Owner = GetOwner();
-    if (auto Creature = Cast<ACreature>(Owner))
+    if (auto Unit = Cast<AUnit>(Owner))
     {
-        return Creature->GetCombatAttributeSet();
+        return Unit->GetCombatAttributeSet();
     }
     if (auto Building = Cast<ABuilding>(Owner))
     {
         return Building->GetCombatAttributeSet();
     }
 
-    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a creature or a building"), *GetNameSafe(Owner));
+    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
     return nullptr;
 }
 
@@ -132,10 +153,10 @@ bool UCombatComponent::IsDead() const
     return Health <= 0;
 }
 
-bool UCombatComponent::IsCloseEnoughToAttack(const AUnit* OtherUnit) const
+bool UCombatComponent::IsCloseEnoughToAttack(const UCombatComponent* OtherCombatComponent) const
 {
     bool bIgnored;
-    return GetOwner()->GetDistanceTo(OtherUnit) <= GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetAttackRangeAttribute(), bIgnored);
+    return GetOwner()->GetDistanceTo(OtherCombatComponent->GetOwner()) <= GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetAttackRangeAttribute(), bIgnored);
 }
 
 int UCombatComponent::GetDefenseFor(EDamageType InType) const

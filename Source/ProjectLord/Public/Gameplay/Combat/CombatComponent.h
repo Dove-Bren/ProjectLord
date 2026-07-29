@@ -40,7 +40,7 @@ public:
     bool IsAlive() const { return !IsDead(); }
 
     UFUNCTION(BlueprintPure, Category = "Combat")
-    bool IsCloseEnoughToAttack(const AUnit* OtherUnit) const;
+    bool IsCloseEnoughToAttack(const UCombatComponent* OtherCombatComponent) const;
 
     UFUNCTION(BlueprintPure, Category = "Combat|State")
     bool CanAttack() const;
@@ -73,6 +73,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Combat")
     UAbilitySystemComponent* GetAbilitySubsystemComponent() const;
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    UCombatComponent* GetCombatTarget() const;
 
     UCombatAttributeSet* GetCombatAttributeSet() const;
 

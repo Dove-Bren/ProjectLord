@@ -4,7 +4,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 
-#include "Gameplay/Units/Unit.h"
+#include "Gameplay/Combat/CombatComponent.h"
 
 AUnitController::AUnitController()
 {
@@ -24,9 +24,9 @@ UBehaviorTree* AUnitController::GetBehaviorTree_Implementation() const
 	return nullptr;
 }
 
-AUnit* AUnitController::GetTargetUnit_Implementation() const
+UCombatComponent* AUnitController::GetTargetComponent_Implementation() const
 {
 	const auto BB = GetBlackboardComponent();
-	auto TargetObj = BB->GetValueAsObject(TEXT("AttackTargetUnit"));
-	return Cast<AUnit>(TargetObj);
+	auto TargetComp = BB->GetValueAsObject(TEXT("AttackTargetCombatComponent"));
+	return Cast<UCombatComponent>(TargetComp);
 }

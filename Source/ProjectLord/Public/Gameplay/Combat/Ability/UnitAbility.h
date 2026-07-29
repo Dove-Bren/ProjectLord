@@ -9,9 +9,10 @@
 #include "UnitAbility.generated.h"
 
 class UTexture2D;
-class AUnit;
+class UCombatComponent;
 
 // Base class specialization for Unit Abilities, which have extra details for showing in the UI etc.
+// TODO: Rename to UCombatAbility
 UCLASS(Blueprintable)
 class PROJECTLORD_API UUnitAbility : public UGameplayAbility
 {
@@ -39,9 +40,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     bool bHidden;
 
-    UFUNCTION(BlueprintPure, Category = "Ability|Unit")
-    AUnit* GetOwnerUnit() const;
+    UFUNCTION(BlueprintPure, Category = "Ability|Combat")
+    UCombatComponent* GetOwnerComponent() const;
     
-    UFUNCTION(BlueprintPure, Category = "Ability|Unit")
-    AUnit* GetOwnerTarget(bool bOnlyAlive = true) const;
+    UFUNCTION(BlueprintPure, Category = "Ability|Combat")
+    UCombatComponent* GetOwnerTarget(bool bOnlyAlive = true) const;
 };

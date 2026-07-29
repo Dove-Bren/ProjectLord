@@ -124,6 +124,9 @@ private:
     UFUNCTION()
     void HandleDeath();
 
+    UFUNCTION()
+    void HandleAttack(AActor* Target, UCombatComponent* TargetComponent);
+
 public:
     UFUNCTION(BlueprintCallable, Category="UI|ViewModels")
     UVMUnit* GetUnitVM();

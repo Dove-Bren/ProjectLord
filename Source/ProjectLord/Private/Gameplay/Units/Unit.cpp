@@ -80,6 +80,7 @@ void AUnit::BeginPlay()
     SetupBaseAttributes();
 
     CombatComponent->OnDeath.AddDynamic(this, &AUnit::HandleDeath);
+    CombatComponent->OnAttack.AddDynamic(this, &AUnit::HandleAttack);
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
@@ -109,7 +110,7 @@ bool AUnit::IsCloseEnoughToAttack(const AUnit* OtherUnit) const
 {
     /*bool bIgnored;
     return this->GetDistanceTo(OtherUnit) <= AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetAttackRangeAttribute(), bIgnored);*/
-    return CombatComponent->IsCloseEnoughToAttack(OtherUnit);
+    return CombatComponent->IsCloseEnoughToAttack(OtherUnit->CombatComponent);
 }
 
 int AUnit::GetDefenseFor(EDamageType InType) const
@@ -237,6 +238,11 @@ void AUnit::HandleDeath()
 {
     // Rebroadcast
     OnDeath();
+}
+
+void AUnit::HandleAttack(AActor* Target, UCombatComponent* TargetComponent)
+{
+    FaceActor(Target);
 }
 
 UVMUnit* AUnit::GetUnitVM()
