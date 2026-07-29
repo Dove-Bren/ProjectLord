@@ -10,8 +10,10 @@
 
 class ABuilding;
 class UCreatureType;
+class UCombatAttributeSet;
 class UCreatureAttributeSet;
 
+// A Unit that moves
 UCLASS(Blueprintable)
 class PROJECTLORD_API ACreature : public AUnit
 {
@@ -28,6 +30,9 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void SetHomeBuilding(ABuilding* Building) { HomeBuilding = Building; }
+
+    UFUNCTION(BlueprintPure)
+    UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }
 
 
 protected:

@@ -3,7 +3,7 @@
 #include "UI/ViewModels/Units/UnitViewModel.h"
 
 #include "AbilitySystemComponent.h"
-#include "Gameplay/Units/LordUnitAttributeSet.h"
+#include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Units/Unit.h"
 
 
@@ -18,7 +18,7 @@ UVMUnit* UVMUnit::CreateForUnit(AUnit* Unit)
     return UnitVM;
 }
 
-void UVMUnit::InitializeAttributeListeners(UAbilitySystemComponent* Component, ULordUnitAttributeSet* Attributes)
+void UVMUnit::InitializeAttributeListeners(UAbilitySystemComponent* Component, UCombatAttributeSet* Attributes)
 {
     // TODO: Simplify boilerplate
     bool bFound;

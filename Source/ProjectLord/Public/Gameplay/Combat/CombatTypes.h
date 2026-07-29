@@ -13,3 +13,11 @@ enum class EDamageType : uint8
     Ranged,
     Magic,
 };
+
+UENUM(BlueprintType)
+enum class EUnitTeam : uint8
+{
+    Monster,
+    Player1,
+    Player2,
+};
