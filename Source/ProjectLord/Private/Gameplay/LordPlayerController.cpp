@@ -9,6 +9,8 @@
 
 ALordPlayerController::ALordPlayerController()
 {
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
 }
 
 void ALordPlayerController::BeginPlay()
@@ -40,4 +42,52 @@ EUnitTeam ALordPlayerController::GetTeam() const
 	}
 
 	return EUnitTeam::Player1;
+}
+
+void ALordPlayerController::SetSelection(USelectionComponent* InSelection)
+{
+	ClearSelection(); // To issue deselect callbacks
+	Selection = InSelection->Select();
+}
+
+void ALordPlayerController::ClearSelection()
+{
+	if (HasSelection())
+	{
+		if (Selection->SelectedComponent.IsValid())
+		{
+			Selection->SelectedComponent->Deselect();
+		}
+	}
+	Selection = NullOpt;
+}
+
+void ALordPlayerController::OnMouseClick(bool bRightButton)
+{
+	if (!bRightButton)
+	{
+		FHitResult HitResult;
+		if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Pawn), true, HitResult)
+			&& IsValid(HitResult.GetActor())
+			&& CanSelect(HitResult.GetActor())
+			)
+		{
+			// CanSelect was called already, so should have a selection component
+			USelectionComponent* ClickedSelection = HitResult.GetActor()->GetComponentByClass<USelectionComponent>();
+			if (ensure(ClickedSelection))
+			{
+				SetSelection(ClickedSelection);
+			}
+
+		}
+		else
+		{
+			ClearSelection();
+		}
+	}
+}
+
+bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
+{
+	return IsValid(ClickedActor->GetComponentByClass<USelectionComponent>());
 }
