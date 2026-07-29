@@ -13,6 +13,7 @@ class UCreatureType;
 class UCombatAttributeSet;
 class UCreatureAttributeSet;
 
+// A Unit that moves
 UCLASS(Blueprintable)
 class PROJECTLORD_API ACreature : public AUnit
 {
@@ -31,9 +32,6 @@ public:
     void SetHomeBuilding(ABuilding* Building) { HomeBuilding = Building; }
 
     UFUNCTION(BlueprintPure)
-    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
-
-    UFUNCTION(BlueprintPure)
     UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }
 
 
@@ -44,21 +42,10 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<ABuilding> HomeBuilding;
 
-    // MOVE HERE
-    /*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;*/
-
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;
 
-    /*MOVE HERE UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
-    TObjectPtr<UDataTable> ClassAttributeDefaults;*/
-
-    UFUNCTION()
-    void HandleDeath();
-
-    virtual void RegisterAttributes();
-    virtual void SetupBaseAttributes();
+    virtual void RegisterAttributes() override;
 
 public:
     virtual void BeginPlay() override;

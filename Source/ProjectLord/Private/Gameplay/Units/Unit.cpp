@@ -27,6 +27,8 @@ AUnit::AUnit() : ACharacter()
     AbilitySystemComponent->SetIsReplicated(true);
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
+    CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>(TEXT("CombatAttributeSet"));
+
     CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -57,10 +59,10 @@ TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)
     return Abilities;*/
 }
 
-void AUnit::FaceUnit(AUnit* OtherUnit)
+void AUnit::FaceActor(AActor* OtherActor)
 {
     // Face target
-    auto Diff = OtherUnit->GetActorLocation() - GetActorLocation();
+    auto Diff = OtherActor->GetActorLocation() - GetActorLocation();
     Diff.Z = 0;
     SetActorRotation(Diff.Rotation());
 }
@@ -73,11 +75,21 @@ void AUnit::BeginPlay()
     {
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
     }
+
+    RegisterAttributes();
+    SetupBaseAttributes();
+
+    CombatComponent->OnDeath.AddDynamic(this, &AUnit::HandleDeath);
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
 {
     Super::EndPlay(Reason);
+
+    if (IsValid(CombatComponent))
+    {
+        CombatComponent->OnDeath.RemoveAll(this);
+    }
 }
 
 AUnitController* AUnit::GetUnitController() const
@@ -133,7 +145,7 @@ void AUnit::AttackUnit_Implementation(AUnit* TargetUnit)
     auto TargetComponent = TargetUnit->CombatComponent;
     if (CombatComponent->AttackUnit(TargetComponent))
     {
-        FaceUnit(TargetUnit);
+        FaceActor(TargetUnit);
     }
 }
 
@@ -185,6 +197,47 @@ FGameplayAbilitySpecHandle AUnit::GetPreferredAttackAbility_Implementation() con
 //
 //    return MaxIndex;
 //}
+
+void AUnit::RegisterAttributes()
+{
+    ;
+}
+
+void AUnit::SetupBaseAttributes()
+{
+    if (IsValid(ClassAttributeDefaults))
+    {
+        FString Context = TEXT("DefaultUnitAttributeIter");
+        ClassAttributeDefaults->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
+            {
+                if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
+                {
+                    UE_LOG(LogTemp, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
+                        *GetDebugName(this),
+                        *Key.ToString(),
+                        *Value.Attribute.AttributeName
+                    );
+                    return;
+                }
+
+                double AttributeValue = Value.BaseValue;
+                if (Value.Variation > 0)
+                {
+                    const int Variation = FMath::FloorToInt(Value.Variation);
+                    AttributeValue += FMath::RandRange(-Variation, Variation);
+                }
+
+                AbilitySystemComponent->SetNumericAttributeBase(Value.Attribute, AttributeValue);
+
+            });
+    }
+}
+
+void AUnit::HandleDeath()
+{
+    // Rebroadcast
+    OnDeath();
+}
 
 UVMUnit* AUnit::GetUnitVM()
 {

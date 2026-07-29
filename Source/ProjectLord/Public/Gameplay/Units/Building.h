@@ -57,7 +57,7 @@ public:
     FVector GetBuildingEntrance() const;
 
     UFUNCTION(BlueprintPure)
-    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
+    UCombatAttributeSet* GetBuildingCombatAttributeSet() const { return BuildingCombatAttributeSet; }
 
 protected:
 

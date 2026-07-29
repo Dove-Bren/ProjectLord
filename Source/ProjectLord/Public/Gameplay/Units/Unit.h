@@ -71,7 +71,10 @@ public:
     TArray<UUnitAbility*> GetUnitAbilities(bool bIncludeHidden = false);
 
     UFUNCTION(BlueprintCallable, Category = "Actor")
-    void FaceUnit(AUnit* OtherUnit);
+    void FaceActor(AActor* OtherActor);
+
+    UFUNCTION(BlueprintPure)
+    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
 
 public:
     virtual void BeginPlay() override;
@@ -105,21 +108,21 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EUnitTeam Team;
 
-    // REMOVE
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-    TArray<TSubclassOf<UUnitAbility>> DefaultAbilities;
-
-    // MOVE
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
 
-    // MOVE
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+
+    virtual void RegisterAttributes();
+    virtual void SetupBaseAttributes();
 
 private:
     UPROPERTY()
     TObjectPtr<UVMUnit> UnitVM;
+
+    UFUNCTION()
+    void HandleDeath();
 
 public:
     UFUNCTION(BlueprintCallable, Category="UI|ViewModels")
