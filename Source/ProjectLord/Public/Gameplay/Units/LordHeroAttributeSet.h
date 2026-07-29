@@ -8,7 +8,7 @@
 
 #include "LordHeroAttributeSet.generated.h"
 
-class ULordUnitAttributeSet;
+class UCombatAttributeSet;
 
 #define DEF_REP_ATTRIBUTE(Class, Field) \
     {\
@@ -95,14 +95,14 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Intelligence);
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Stamina);
 
-    virtual void Init(ULordUnitAttributeSet* UnitAttribs);
+    virtual void Init(UCombatAttributeSet* CombatAttribs);
     virtual void UpdateDerivedUnitValues();
     virtual void UpdateAfterLevelup();
 
 protected:
 
     UPROPERTY(VisibleAnywhere)
-    TWeakObjectPtr<ULordUnitAttributeSet> UnitAttribs;
+    TWeakObjectPtr<UCombatAttributeSet> CombatAttribs;
 
     int CalculateBaseHealth() const;
     int CalculateBaseMana() const;

@@ -4,7 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 
-#include "Gameplay/Units/LordUnitAttributeSet.h"
+#include "Gameplay/Attributes/CombatAttributeSet.h"
 
 void ULordHeroAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -108,10 +108,10 @@ void ULordHeroAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Att
 	ROUND_ATTRIB_TO_INT(Stamina);
 }
 
-void ULordHeroAttributeSet::Init(ULordUnitAttributeSet* InUnitAttribs)
+void ULordHeroAttributeSet::Init(UCombatAttributeSet* InCombatAttribs)
 {
-	ensure(!UnitAttribs.IsValid());
-	UnitAttribs = InUnitAttribs;
+	ensure(!CombatAttribs.IsValid());
+	CombatAttribs = InCombatAttribs;
 }
 
 void ULordHeroAttributeSet::UpdateDerivedUnitValues()
@@ -133,7 +133,7 @@ int ULordHeroAttributeSet::CalculateBaseHealth() const
 	const float StaminaValue = GetStamina();
 	return GetStartingHealth() // Base amount
 		+ FMath::RoundToInt(StaminaValue * 3.5)
-		+ ((StaminaValue + GetExtraHealthPerLevel()) * (UnitAttribs->GetLevel() - 1)) // Amount-per-level (stamina + bonus) * number of level ups
+		+ ((StaminaValue + GetExtraHealthPerLevel()) * (CombatAttribs->GetLevel() - 1)) // Amount-per-level (stamina + bonus) * number of level ups
 		;
 }
 
@@ -141,14 +141,14 @@ int ULordHeroAttributeSet::CalculateBaseMana() const
 {
 	// Note that mana uses same start + bonus amounts as health
 	return GetStartingHealth() // Starting amount
-		+ ((GetIntelligence() + GetExtraHealthPerLevel()) * (UnitAttribs->GetLevel() - 1)) // Amount-per-level (int + bonus) * number of level ups
+		+ ((GetIntelligence() + GetExtraHealthPerLevel()) * (CombatAttribs->GetLevel() - 1)) // Amount-per-level (int + bonus) * number of level ups
 		;
 }
 
 void ULordHeroAttributeSet::ResetBaseHealth()
 {
 	const int ExpectedValue = CalculateBaseHealth();
-	UnitAttribs->SetMaxHealth(ExpectedValue);
+	CombatAttribs->SetMaxHealth(ExpectedValue);
 }
 
 void ULordHeroAttributeSet::ResetBaseMana()

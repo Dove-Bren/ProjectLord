@@ -26,6 +26,15 @@ void UCombatComponent::BeginPlay()
         {
             AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
         }
+
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetHealthAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
+                    {
+                        BroadcastDeath();
+                    }
+                });
 	}
 }
 

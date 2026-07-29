@@ -16,6 +16,7 @@ class AUnitController;
 class UAbilitySystemComponent;
 class UCombatComponent;
 class ULordUnitAttributeSet;
+class UCombatAttributeSet;
 class UVMUnit;
 
 struct FGameplayAbilitySpec;
@@ -114,6 +115,10 @@ protected:
     // MOVE
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
+
+    // MOVE
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
 private:
     UPROPERTY()

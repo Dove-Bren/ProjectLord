@@ -89,7 +89,7 @@ protected:
     FVector BuildingEntranceOffset;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building|Attributes")
-    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+    TObjectPtr<UCombatAttributeSet> BuildingCombatAttributeSet; // RENAME
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;

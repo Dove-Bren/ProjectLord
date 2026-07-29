@@ -44,8 +44,9 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<ABuilding> HomeBuilding;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+    // MOVE HERE
+    /*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;*/
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;
