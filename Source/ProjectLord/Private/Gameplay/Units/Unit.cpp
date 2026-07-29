@@ -3,6 +3,7 @@
 #include "Gameplay/Units/Unit.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
 
@@ -11,6 +12,7 @@
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Units/AI/UnitController.h"
 #include "Gameplay/Units/UnitBaseAttributes.h"
+#include "UI/WidgetBlueprintClassRegistry.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 
 AUnit::AUnit() : ACharacter()
@@ -85,6 +87,9 @@ void AUnit::BeginPlay()
         // TODO: how does this interact with saved games?
         SetupBaseAttributes();
     }
+
+    // TODO: We can make it so this only shows up on mouseover (Issue #25)
+    AddHealthbarWidget();
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
@@ -249,11 +254,11 @@ void AUnit::SetupBaseAttributes()
     }
 }
 
-UVMUnit* AUnit::GetUnitVM()
+void AUnit::InitUnitVM()
 {
-    if (UnitVM)
+    if (IsValid(UnitVM))
     {
-        return UnitVM;
+        return;
     }
 
     UnitVM = UVMUnit::CreateForUnit(this);
@@ -261,6 +266,36 @@ UVMUnit* AUnit::GetUnitVM()
 
     // Note: For now, team is only ever set on construction of the AUnit.
     UnitVM->SetUnitTeam(Team);
+}
 
-    return UnitVM;
+void AUnit::AddHealthbarWidget()
+{
+    if (IsValid(HealthbarWidgetComponent))
+    {
+        return;
+    }
+
+    // If we're adding a healthbar, we're gonna need to make sure the VM is good to go.
+    InitUnitVM();
+
+    HealthbarWidgetComponent = Cast<UWidgetComponent>(
+        AddComponentByClass(UWidgetComponent::StaticClass(), true, FTransform::Identity, true));
+
+    HealthbarWidgetComponent->AttachToComponent(GetCapsuleComponent(),
+        FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+    HealthbarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+
+    if (const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
+        ensure(WidgetBlueprints))
+    {
+        HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget);
+        HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
+    }
+    FinishAddComponent(HealthbarWidgetComponent, true, FTransform::Identity);
+    HealthbarWidgetComponent->Activate();
+
+    UUserWidget* Widget = HealthbarWidgetComponent->GetWidget();
+
+    // TODO: This is where we could pass in the reference to AUnit to the widget,
+    // but we don't have a C++ base class to use.
 }

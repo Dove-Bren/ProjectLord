@@ -16,6 +16,7 @@ class AUnitController;
 class UAbilitySystemComponent;
 class ULordUnitAttributeSet;
 class UVMUnit;
+class UWidgetComponent;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -107,10 +108,12 @@ protected:
     virtual void SetupBaseAttributes();
 
 private:
-    UPROPERTY()
-    TObjectPtr<UVMUnit> UnitVM;
+    void InitUnitVM();
+    void AddHealthbarWidget();
 
-public:
-    UFUNCTION(BlueprintCallable, Category="UI|ViewModels")
-    UVMUnit* GetUnitVM();
+    UPROPERTY()
+    TObjectPtr<UWidgetComponent> HealthbarWidgetComponent;
+
+    UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+    TObjectPtr<UVMUnit> UnitVM;
 };
