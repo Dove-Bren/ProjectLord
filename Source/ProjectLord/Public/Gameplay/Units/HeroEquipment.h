@@ -235,10 +235,33 @@ public:
 
     // Modifications
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
+    void SetWeaponTier(EEquipmentTier WeaponTier);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
+    void SetArmorTier(EEquipmentTier ArmorTier);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
+    void AddHealthPotions(int Count);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
+    void DeductHealthPotion();
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
+    void AddManaPotions(int Count);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
+    void DeductManaPotion();
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Gold")
+    int AddPersonalGold(int Amount);
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory|Gold")
+    int AddGuildGold(int Amount);
+
     UFUNCTION(BlueprintCallable, Category = "Inventory|ExtraItems")
     bool AddExtraItem(UHeroItemStack* ExtraItem);
 
-    
 
 protected:
 

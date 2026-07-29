@@ -62,6 +62,52 @@ UHeroItemStack* UHeroInventory::FindItem(const UHeroItemDef* ItemDef) const
 	return nullptr;
 }
 
+void UHeroInventory::SetWeaponTier(EEquipmentTier WeaponTier)
+{
+	Weapon = WeaponTier;
+}
+
+void UHeroInventory::SetArmorTier(EEquipmentTier ArmorTier)
+{
+	Armor = ArmorTier;
+}
+
+void UHeroInventory::AddHealthPotions(int Count)
+{
+	ensure(Count > 0);
+	HealthPotions += Count;
+}
+
+void UHeroInventory::DeductHealthPotion()
+{
+	ensure(HealthPotions > 0);
+	HealthPotions--;
+}
+
+void UHeroInventory::AddManaPotions(int Count)
+{
+	ensure(Count > 0);
+	ManaPotions += Count;
+}
+
+void UHeroInventory::DeductManaPotion()
+{
+	ensure(ManaPotions > 0);
+	ManaPotions--;
+}
+
+int UHeroInventory::AddPersonalGold(int Amount)
+{
+	PersonalGold = FMath::Max(0, PersonalGold + Amount);
+	return PersonalGold;
+}
+
+int UHeroInventory::AddGuildGold(int Amount)
+{
+	GuildGold = FMath::Max(0, GuildGold + Amount);
+	return GuildGold;
+}
+
 bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
 {
 	// Look for existing stack first

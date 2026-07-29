@@ -47,10 +47,6 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;
 
-    // How much gold this hero has
-    UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta = (ClampMin = 0))
-    int Gold; // Pack into inventory?
-
     // How much XP this hero has accumulated so far this level
     UPROPERTY(EditDefaultsOnly, Category = "Stats", Meta = (ClampMin = 0))
     int HeroXP;
