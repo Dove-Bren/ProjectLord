@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/PlayerController.h"
-#include "Gameplay/Units/UnitTypes.h"
+#include "Gameplay/Combat/CombatTypes.h"
 
 #include "LordPlayerController.generated.h"
 

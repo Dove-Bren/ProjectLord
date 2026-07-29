@@ -2,8 +2,8 @@
 
 #include "Gameplay/Units/HeroBase.h"
 
-#include "Gameplay/Units/LordUnitAttributeSet.h"
-#include "Gameplay/Units/LordHeroAttributeSet.h"
+#include "Gameplay/Attributes/CombatAttributeSet.h"
+#include "Gameplay/Attributes/LordHeroAttributeSet.h"
 
 AHeroBase::AHeroBase() : ACreature()
 {
@@ -17,7 +17,7 @@ AHeroBase::AHeroBase() : ACreature()
 int AHeroBase::GetHeroMaxXP() const
 {
 	bool bIgnored;
-	const int Level = FMath::Clamp((int) AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetLevelAttribute(), bIgnored), 1, 9999);
+	const int Level = FMath::Clamp((int) AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored), 1, 9999);
 	return 100 + Level * 20;
 }
 
@@ -28,8 +28,8 @@ void AHeroBase::BeginPlay()
 
 void AHeroBase::SetupBaseAttributes()
 {
-	// Make sure to set up association first
-	LordHeroAttributeSet->Init(LordUnitAttributeSet);
+	// Make sure to set up association early
+	LordHeroAttributeSet->Init(CombatAttributeSet);
 
 	// Let base class take care of setting up base values
 	Super::SetupBaseAttributes();

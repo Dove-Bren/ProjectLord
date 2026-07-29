@@ -14,11 +14,10 @@
 
 class AUnitController;
 class UAbilitySystemComponent;
+class UCombatComponent;
 class ULordUnitAttributeSet;
+class UCombatAttributeSet;
 class UVMUnit;
-
-struct FGameplayAbilitySpec;
-struct FGameplayAbilitySpecHandle;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AUnit : public ACharacter
@@ -33,40 +32,19 @@ public:
     AUnitController* GetUnitController() const;
 
     UFUNCTION(BlueprintPure)
+    EUnitTeam GetTeam() const { return Team; }
+
+    UFUNCTION(BlueprintPure)
     bool IsDead() const;
 
     UFUNCTION(BlueprintPure)
     bool IsAlive() const { return !IsDead(); }
 
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    bool IsCloseEnoughToAttack(const AUnit* OtherUnit) const;
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Combat|State")
-    bool CanAttack() const;
-
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetDefenseFor(EDamageType InType) const;
-    
-    // TODO: Remove and make callers use attribute system?
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetMeleeDefense() const { return GetDefenseFor(EDamageType::Melee); }
-
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetRangedDefense() const { return GetDefenseFor(EDamageType::Ranged); }
-
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetMagicDefense() const { return GetDefenseFor(EDamageType::Magic); }
-
-    // Attack the passed in unit as this unit
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
-    void AttackUnit(AUnit* TargetUnit);
-
-    // Get all Unit Abilities this Unit has access to
-    UFUNCTION(BlueprintPure, Category="Ability")
-    TArray<UUnitAbility*> GetUnitAbilities(bool bIncludeHidden = false);
-
     UFUNCTION(BlueprintCallable, Category = "Actor")
-    void FaceUnit(AUnit* OtherUnit);
+    void FaceActor(AActor* OtherActor);
+
+    UFUNCTION(BlueprintPure)
+    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
 
 public:
     virtual void BeginPlay() override;
@@ -74,34 +52,24 @@ public:
 
 protected:
 
+    // REMOVE
     UFUNCTION(BlueprintNativeEvent)
     void OnDeath();
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Ability")
-    FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
-
-    // From the given array of available attack availabilities, select which one the unit would prefer to use.
-    // The default implementation picks the most damaging ability.
-    // Overrides could do something like check if a certain high-priority ability is available and use that,
-    // and otherwise fall back to default.
-    // Note abilities in param are shallow copies and should not be cached or mutated
-    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
-    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
+    TObjectPtr<UCombatComponent> CombatComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TObjectPtr<ULordUnitAttributeSet> LordUnitAttributeSet;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EUnitTeam Team;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-    TArray<TSubclassOf<UUnitAbility>> DefaultAbilities;
-
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
     virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();
@@ -109,6 +77,12 @@ protected:
 private:
     UPROPERTY()
     TObjectPtr<UVMUnit> UnitVM;
+
+    UFUNCTION()
+    void HandleDeath();
+
+    UFUNCTION()
+    void HandleAttack(AActor* Target, UCombatComponent* TargetComponent);
 
 public:
     UFUNCTION(BlueprintCallable, Category="UI|ViewModels")

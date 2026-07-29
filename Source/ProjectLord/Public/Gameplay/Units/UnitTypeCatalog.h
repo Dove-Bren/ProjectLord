@@ -6,7 +6,6 @@
 #include "UnitTypeCatalog.generated.h"
 
 class UCreatureType;
-class UBuildingType;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UUnitTypeCatalog : public UGameInstanceSubsystem
@@ -22,13 +21,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Creature Type")
 	TArray<UCreatureType*> GetCreatureTypes() const { check(!bLoadingCreatureTypes); return CreatureTypes; }
 
-	UFUNCTION(BlueprintPure, Category = "Building Type")
-	TArray<UBuildingType*> GetBuildingTypes() const { check(!bLoadingBuildingTypes); return BuildingTypes; }
-
 private:
 	TArray<UCreatureType*> CreatureTypes;
-	TArray<UBuildingType*> BuildingTypes;
 
 	bool bLoadingCreatureTypes;
-	bool bLoadingBuildingTypes;
 };

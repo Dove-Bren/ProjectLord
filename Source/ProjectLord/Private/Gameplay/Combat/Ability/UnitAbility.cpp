@@ -2,29 +2,23 @@
 
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 
-#include "Gameplay/Units/Unit.h"
-#include "Gameplay/Units/AI/UnitController.h"
+#include "Gameplay/Combat/CombatComponent.h"
 
-AUnit* UUnitAbility::GetOwnerUnit() const
+UCombatComponent* UUnitAbility::GetOwnerComponent() const
 {
-	return Cast<AUnit>(GetOwningActorFromActorInfo());
+	AActor* Owner = GetOwningActorFromActorInfo();
+	return Owner->GetComponentByClass<UCombatComponent>();
 }
 
-AUnit* UUnitAbility::GetOwnerTarget(bool bOnlyAlive) const
+UCombatComponent* UUnitAbility::GetOwnerTarget(bool bOnlyAlive) const
 {
-	auto Owner = GetOwnerUnit();
+	auto Owner = GetOwnerComponent();
 	if (!ensure(IsValid(Owner)))
 	{
 		return nullptr;
 	}
 
-	auto OwnerController = Owner->GetUnitController();
-	if (!ensure(IsValid(OwnerController)))
-	{
-		return nullptr;
-	}
-
-	auto Target = OwnerController->GetTargetUnit();
+	auto Target = Owner->GetCombatTarget();
 	return IsValid(Target) && (!bOnlyAlive || Target->IsAlive())
 		? Target
 		: nullptr;

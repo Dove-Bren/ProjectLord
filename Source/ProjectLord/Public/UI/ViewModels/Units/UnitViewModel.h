@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "UI/ViewModels/LordViewModelBase.h"
 
-#include "Gameplay/Units/UnitTypes.h"
+#include "Gameplay/Combat/CombatTypes.h"
 
 #include "UnitViewModel.generated.h"
 
 class AUnit;
 class UAbilitySystemComponent;
-class ULordUnitAttributeSet;
+class UCombatAttributeSet;
 
 UCLASS()
 class PROJECTLORD_API UVMUnit : public UVMLordBase
@@ -27,7 +27,7 @@ public:
 private:
 	static UVMUnit* CreateForUnit(AUnit* Unit);
 
-	virtual void InitializeAttributeListeners(UAbilitySystemComponent* Component, ULordUnitAttributeSet* Attributes);
+	virtual void InitializeAttributeListeners(UAbilitySystemComponent* Component, UCombatAttributeSet* Attributes);
 
 	// The unit that this view model represents
 	UPROPERTY()
