@@ -4,6 +4,7 @@
 #include "Engine/AssetManager.h"
 
 #include "AssetHelper.h"
+#include "LordLogging.h"
 #include "Gameplay/Units/UnitTypes.h"
 
 static FPrimaryAssetType CreatureTypeAssetType = FPrimaryAssetType(TEXT("CreatureType"));
