@@ -43,33 +43,6 @@ public:
     UFUNCTION(BlueprintPure)
     bool IsAlive() const { return !IsDead(); }
 
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    bool IsCloseEnoughToAttack(const AUnit* OtherUnit) const;
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Combat|State")
-    bool CanAttack() const;
-
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetDefenseFor(EDamageType InType) const;
-    
-    // TODO: Remove and make callers use attribute system?
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetMeleeDefense() const { return GetDefenseFor(EDamageType::Melee); }
-
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetRangedDefense() const { return GetDefenseFor(EDamageType::Ranged); }
-
-    UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetMagicDefense() const { return GetDefenseFor(EDamageType::Magic); }
-
-    // Attack the passed in unit as this unit
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
-    void AttackUnit(AUnit* TargetUnit);
-
-    // Get all Unit Abilities this Unit has access to
-    UFUNCTION(BlueprintPure, Category="Ability")
-    TArray<UUnitAbility*> GetUnitAbilities(bool bIncludeHidden = false);
-
     UFUNCTION(BlueprintCallable, Category = "Actor")
     void FaceActor(AActor* OtherActor);
 
@@ -85,19 +58,6 @@ protected:
     // REMOVE
     UFUNCTION(BlueprintNativeEvent)
     void OnDeath();
-
-    // REMOVE
-    UFUNCTION(BlueprintNativeEvent, Category = "Ability")
-    FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
-
-    // REMOVE
-    // From the given array of available attack availabilities, select which one the unit would prefer to use.
-    // The default implementation picks the most damaging ability.
-    // Overrides could do something like check if a certain high-priority ability is available and use that,
-    // and otherwise fall back to default.
-    // Note abilities in param are shallow copies and should not be cached or mutated
-    /*UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
-    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;*/
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
