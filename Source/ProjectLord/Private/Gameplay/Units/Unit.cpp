@@ -197,7 +197,7 @@ UVMUnit* AUnit::GetUnitVM()
     }
 
     UnitVM = UVMUnit::CreateForUnit(this);
-    UnitVM->InitializeAttributeListeners(AbilitySystemComponent, LordUnitAttributeSet);
+    UnitVM->InitializeAttributeListeners(AbilitySystemComponent, CombatAttributeSet);
 
     // Note: For now, team is only ever set on construction of the AUnit.
     UnitVM->SetUnitTeam(Team);
