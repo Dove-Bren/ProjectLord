@@ -9,6 +9,7 @@
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Units/LordUnitAttributeSet.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h"
+#include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/AI/UnitController.h"
 #include "Gameplay/Units/UnitBaseAttributes.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
@@ -29,12 +30,15 @@ AUnit::AUnit() : ACharacter()
 
     LordUnitAttributeSet = CreateDefaultSubobject<ULordUnitAttributeSet>(TEXT("LordUnitAttributeSet"));
 
+    CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
+
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)
 {
-    TArray<UUnitAbility*> Abilities;
+    return CombatComponent->GetCombatAbilities(bIncludeHidden);
+    /*TArray<UUnitAbility*> Abilities;
 
     if (ensure(AbilitySystemComponent))
     {
@@ -53,7 +57,7 @@ TArray<UUnitAbility*> AUnit::GetUnitAbilities(bool bIncludeHidden)
         }
     }
 
-    return Abilities;
+    return Abilities;*/
 }
 
 void AUnit::FaceUnit(AUnit* OtherUnit)
@@ -71,31 +75,12 @@ void AUnit::BeginPlay()
     if (ensure(AbilitySystemComponent))
     {
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
-
-        for (auto& Ability : DefaultAbilities)
-        {
-            AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
-        }
-
-        // TODO: effects (for base stats)
-
-        RegisterAttributes();
-
-        // Setup base attributes with variation.
-        // TODO: how does this interact with saved games?
-        SetupBaseAttributes();
     }
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
 {
     Super::EndPlay(Reason);
-
-    if (ensure(AbilitySystemComponent))
-    {
-        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
-            .RemoveAll(this);
-    }
 }
 
 AUnitController* AUnit::GetUnitController() const
@@ -105,20 +90,22 @@ AUnitController* AUnit::GetUnitController() const
 
 bool AUnit::IsDead() const
 {
-    bool bIgnored;
+    /*bool bIgnored;
     int Health = FMath::TruncToInt(AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetHealthAttribute(), bIgnored));
-    return Health <= 0;
+    return Health <= 0;*/
+    return CombatComponent->IsDead();
 }
 
 bool AUnit::IsCloseEnoughToAttack(const AUnit* OtherUnit) const
 {
-    bool bIgnored;
-    return this->GetDistanceTo(OtherUnit) <= AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetAttackRangeAttribute(), bIgnored);
+    /*bool bIgnored;
+    return this->GetDistanceTo(OtherUnit) <= AbilitySystemComponent->GetGameplayAttributeValue(LordUnitAttributeSet->GetAttackRangeAttribute(), bIgnored);*/
+    return CombatComponent->IsCloseEnoughToAttack(OtherUnit);
 }
 
 int AUnit::GetDefenseFor(EDamageType InType) const
 {
-    FGameplayAttribute Attribute;
+    /*FGameplayAttribute Attribute;
     switch (InType)
     {
     case EDamageType::Melee:
@@ -134,28 +121,22 @@ int AUnit::GetDefenseFor(EDamageType InType) const
         return 0;
     }
     bool bIgnored;
-    return FMath::TruncToInt(AbilitySystemComponent->GetGameplayAttributeValue(Attribute, bIgnored));
+    return FMath::TruncToInt(AbilitySystemComponent->GetGameplayAttributeValue(Attribute, bIgnored));*/
+    return CombatComponent->GetDefenseFor(InType);
 }
 
 bool AUnit::CanAttack_Implementation() const
 {
-    return !AbilitySystemComponent->HasMatchingGameplayTag(ULordGameplayTags::UnitStateAttacking());
+    //return !AbilitySystemComponent->HasMatchingGameplayTag(ULordGameplayTags::UnitStateAttacking());
+    return CombatComponent->CanAttack();
 }
 
 void AUnit::AttackUnit_Implementation(AUnit* TargetUnit)
 {
-    FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility();
-    if (AttackAbility.IsValid())
+    auto TargetComponent = TargetUnit->CombatComponent;
+    if (CombatComponent->AttackUnit(TargetComponent))
     {
-        if (AbilitySystemComponent->TryActivateAbility(AttackAbility))
-        {
-            FaceUnit(TargetUnit);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Failed to activate ability"));
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to activate ability"));
-        }
+        FaceUnit(TargetUnit);
     }
 }
 
@@ -167,87 +148,46 @@ void AUnit::OnDeath_Implementation()
 
 FGameplayAbilitySpecHandle AUnit::GetPreferredAttackAbility_Implementation() const
 {
-    // Should be SpecHandles, but GAS leaks the internal class here
-    FGameplayTagContainer TagContainer(ULordGameplayTags::AbilityTypeAttack());
-    TArray<FGameplayAbilitySpec*> AvailableAbilities;
-    AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
+    //// Should be SpecHandles, but GAS leaks the internal class here
+    //FGameplayTagContainer TagContainer(ULordGameplayTags::AbilityTypeAttack());
+    //TArray<FGameplayAbilitySpec*> AvailableAbilities;
+    //AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
 
-    if (!AvailableAbilities.IsEmpty())
-    {
-        // Make copy of specs so that they can be passed into UFUNCTION.
-        // Note this mimics what "UAbilitySystemComponent::TryActivateAbilitiesByTag" does.
-        TArray<FGameplayAbilitySpec> AbilitiesCopy;
-        AbilitiesCopy.Reserve(AvailableAbilities.Num());
-        Algo::Transform(AvailableAbilities, AbilitiesCopy, [](FGameplayAbilitySpec* SpecPtr) { return *SpecPtr; });
+    //if (!AvailableAbilities.IsEmpty())
+    //{
+    //    // Make copy of specs so that they can be passed into UFUNCTION.
+    //    // Note this mimics what "UAbilitySystemComponent::TryActivateAbilitiesByTag" does.
+    //    TArray<FGameplayAbilitySpec> AbilitiesCopy;
+    //    AbilitiesCopy.Reserve(AvailableAbilities.Num());
+    //    Algo::Transform(AvailableAbilities, AbilitiesCopy, [](FGameplayAbilitySpec* SpecPtr) { return *SpecPtr; });
 
-        int Selected = PickPreferredAttackAbility(AbilitiesCopy);
-        if (Selected >= 0 && Selected < AvailableAbilities.Num())
-        {
-            return AvailableAbilities[Selected]->Handle;
-        }
-    }
+    //    int Selected = PickPreferredAttackAbility(AbilitiesCopy);
+    //    if (Selected >= 0 && Selected < AvailableAbilities.Num())
+    //    {
+    //        return AvailableAbilities[Selected]->Handle;
+    //    }
+    //}
 
-    return FGameplayAbilitySpecHandle(); // Invalid handle
+    //return FGameplayAbilitySpecHandle(); // Invalid handle
+    return CombatComponent->GetPreferredAttackAbility();
 }
 
-const int AUnit::PickPreferredAttackAbility_Implementation(const TArray<FGameplayAbilitySpec>& AttackAbilities) const
-{
-    int MaxIndex = -1;
-    int MaxLevel = MIN_int32;
-    for (int i = 0; i < AttackAbilities.Num(); i++)
-    {
-        const auto& Ability = AttackAbilities[i];
-        if (Ability.Level > MaxLevel)
-        {
-            MaxLevel = Ability.Level;
-            MaxIndex = i;
-        }
-    }
-
-    return MaxIndex;
-}
-
-void AUnit::RegisterAttributes()
-{
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LordUnitAttributeSet->GetHealthAttribute())
-        .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
-            {
-                if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
-                {
-                    OnDeath();
-                }
-            });
-}
-
-void AUnit::SetupBaseAttributes()
-{
-    if (IsValid(ClassAttributeDefaults))
-    {
-        FString Context = TEXT("DefaultUnitAttributeIter");
-        ClassAttributeDefaults->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
-            {
-                if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
-                {
-                    UE_LOG(LogTemp, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
-                        *GetDebugName(this),
-                        *Key.ToString(),
-                        *Value.Attribute.AttributeName
-                        );
-                    return;
-                }
-
-                double AttributeValue = Value.BaseValue;
-                if (Value.Variation > 0)
-                {
-                    const int Variation = FMath::FloorToInt(Value.Variation);
-                    AttributeValue += FMath::RandRange(-Variation, Variation);
-                }
-
-                AbilitySystemComponent->SetNumericAttributeBase(Value.Attribute, AttributeValue);
-
-            });
-    }
-}
+//const int AUnit::PickPreferredAttackAbility_Implementation(const TArray<FGameplayAbilitySpec>& AttackAbilities) const
+//{
+//    int MaxIndex = -1;
+//    int MaxLevel = MIN_int32;
+//    for (int i = 0; i < AttackAbilities.Num(); i++)
+//    {
+//        const auto& Ability = AttackAbilities[i];
+//        if (Ability.Level > MaxLevel)
+//        {
+//            MaxLevel = Ability.Level;
+//            MaxIndex = i;
+//        }
+//    }
+//
+//    return MaxIndex;
+//}
 
 UVMUnit* AUnit::GetUnitVM()
 {

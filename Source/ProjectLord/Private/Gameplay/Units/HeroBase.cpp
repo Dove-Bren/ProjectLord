@@ -28,7 +28,7 @@ void AHeroBase::BeginPlay()
 
 void AHeroBase::SetupBaseAttributes()
 {
-	// Make sure to set up association first
+	// Make sure to set up association early
 	LordHeroAttributeSet->Init(LordUnitAttributeSet);
 
 	// Let base class take care of setting up base values

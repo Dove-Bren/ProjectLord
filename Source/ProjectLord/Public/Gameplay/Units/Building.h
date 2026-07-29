@@ -10,6 +10,7 @@
 
 class ACreature;
 class UBuildingType;
+class UCombatAttributeSet;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public AUnit
@@ -55,6 +56,9 @@ public:
     UFUNCTION(BlueprintPure)
     FVector GetBuildingEntrance() const;
 
+    UFUNCTION(BlueprintPure)
+    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
@@ -83,6 +87,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     FVector BuildingEntranceOffset;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building|Attributes")
+    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;

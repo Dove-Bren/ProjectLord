@@ -10,6 +10,7 @@
 
 class ABuilding;
 class UCreatureType;
+class UCombatAttributeSet;
 class UCreatureAttributeSet;
 
 UCLASS(Blueprintable)
@@ -29,6 +30,12 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetHomeBuilding(ABuilding* Building) { HomeBuilding = Building; }
 
+    UFUNCTION(BlueprintPure)
+    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
+
+    UFUNCTION(BlueprintPure)
+    UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }
+
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature")
@@ -38,9 +45,19 @@ protected:
     TWeakObjectPtr<ABuilding> HomeBuilding;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;
 
-    virtual void RegisterAttributes() override;
+    /*MOVE HERE UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
+    TObjectPtr<UDataTable> ClassAttributeDefaults;*/
+
+    UFUNCTION()
+    void HandleDeath();
+
+    virtual void RegisterAttributes();
+    virtual void SetupBaseAttributes();
 
 public:
     virtual void BeginPlay() override;

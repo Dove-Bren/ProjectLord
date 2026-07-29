@@ -14,6 +14,7 @@
 
 class AUnitController;
 class UAbilitySystemComponent;
+class UCombatComponent;
 class ULordUnitAttributeSet;
 class UVMUnit;
 
@@ -31,6 +32,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     AUnitController* GetUnitController() const;
+
+    UFUNCTION(BlueprintPure)
+    EUnitTeam GetTeam() const { return Team; }
 
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
@@ -74,19 +78,25 @@ public:
 
 protected:
 
+    // REMOVE
     UFUNCTION(BlueprintNativeEvent)
     void OnDeath();
 
+    // REMOVE
     UFUNCTION(BlueprintNativeEvent, Category = "Ability")
     FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
 
+    // REMOVE
     // From the given array of available attack availabilities, select which one the unit would prefer to use.
     // The default implementation picks the most damaging ability.
     // Overrides could do something like check if a certain high-priority ability is available and use that,
     // and otherwise fall back to default.
     // Note abilities in param are shallow copies and should not be cached or mutated
-    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
-    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;
+    /*UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
+    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;*/
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
+    TObjectPtr<UCombatComponent> CombatComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -97,14 +107,13 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EUnitTeam Team;
 
+    // REMOVE
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
     TArray<TSubclassOf<UUnitAbility>> DefaultAbilities;
 
+    // MOVE
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
-
-    virtual void RegisterAttributes();
-    virtual void SetupBaseAttributes();
 
 private:
     UPROPERTY()
