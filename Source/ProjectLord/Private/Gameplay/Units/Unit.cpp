@@ -7,11 +7,10 @@
 #include "AbilitySystemComponent.h"
 
 #include "Gameplay/LordGameplayTags.h"
-#include "Gameplay/Units/LordUnitAttributeSet.h"
+#include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/AI/UnitController.h"
-#include "Gameplay/Units/UnitBaseAttributes.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 
 AUnit::AUnit() : ACharacter()
@@ -27,8 +26,6 @@ AUnit::AUnit() : ACharacter()
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
     AbilitySystemComponent->SetIsReplicated(true);
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
-
-    LordUnitAttributeSet = CreateDefaultSubobject<ULordUnitAttributeSet>(TEXT("LordUnitAttributeSet"));
 
     CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
 

@@ -102,9 +102,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TObjectPtr<ULordUnitAttributeSet> LordUnitAttributeSet;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EUnitTeam Team;
 

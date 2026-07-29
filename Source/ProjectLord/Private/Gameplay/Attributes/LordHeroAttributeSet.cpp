@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Units/LordHeroAttributeSet.h"
+#include "Gameplay/Attributes/LordHeroAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
 

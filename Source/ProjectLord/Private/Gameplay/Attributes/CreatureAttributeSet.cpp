@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Units/CreatureAttributeSet.h"
+#include "Gameplay/Attributes/CreatureAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
 

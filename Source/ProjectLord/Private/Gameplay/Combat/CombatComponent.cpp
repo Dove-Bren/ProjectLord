@@ -7,7 +7,7 @@
 
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
-#include "Gameplay/Units/UnitBaseAttributes.h"
+#include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/Building.h"
 

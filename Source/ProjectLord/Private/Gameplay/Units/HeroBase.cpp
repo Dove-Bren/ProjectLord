@@ -3,7 +3,7 @@
 #include "Gameplay/Units/HeroBase.h"
 
 #include "Gameplay/Attributes/CombatAttributeSet.h"
-#include "Gameplay/Units/LordHeroAttributeSet.h"
+#include "Gameplay/Attributes/LordHeroAttributeSet.h"
 
 AHeroBase::AHeroBase() : ACreature()
 {
