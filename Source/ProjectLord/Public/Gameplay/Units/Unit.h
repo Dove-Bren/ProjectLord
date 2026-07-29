@@ -18,6 +18,7 @@ class UCombatComponent;
 class ULordUnitAttributeSet;
 class UCombatAttributeSet;
 class UVMUnit;
+class USelectionComponent;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AUnit : public ACharacter
@@ -70,6 +71,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<USelectionComponent> SelectionComponent;
 
     virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();

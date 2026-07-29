@@ -15,6 +15,7 @@ class UCombatAttributeSet;
 class UAbilitySystemComponent;
 class UCombatComponent;
 class ABuildingController;
+class USelectionComponent;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn
@@ -112,6 +113,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<USelectionComponent> SelectionComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;

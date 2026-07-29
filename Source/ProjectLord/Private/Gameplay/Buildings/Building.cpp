@@ -6,6 +6,7 @@
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
+#include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Combat/CombatComponent.h"
 
@@ -22,6 +23,9 @@ ABuilding::ABuilding()
     CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>(TEXT("CombatAttributeSet"));
 
     CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
+
+    SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
+    SelectionComponent->SetSelectable(true);
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
