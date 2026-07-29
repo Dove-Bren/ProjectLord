@@ -52,4 +52,13 @@ protected:
     int HeroXP;
 
     virtual void SetupBaseAttributes() override;
+
+    virtual void HandleInventoryChange();
+
+private:
+    void UnapplyInventoryAttributes();
+    void ApplyInventoryAttributes();
+
+    TArray<UHeroItemDef*> LastAppliedInventoryDefs;
+
 };

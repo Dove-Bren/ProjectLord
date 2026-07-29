@@ -4,6 +4,7 @@
 
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
+#include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Units/HeroEquipment.h"
 
 AHeroBase::AHeroBase() : ACreature()
@@ -26,6 +27,7 @@ void AHeroBase::BeginPlay()
 {
 	Super::BeginPlay();
 	Inventory->InitInventory(EquipmentTypes);
+	HandleInventoryChange();
 }
 
 void AHeroBase::SetupBaseAttributes()
@@ -38,4 +40,60 @@ void AHeroBase::SetupBaseAttributes()
 
 	// Make sure to prompt attribute set to recalc dependent attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
+}
+
+void AHeroBase::HandleInventoryChange()
+{
+	UnapplyInventoryAttributes();
+
+	// Cache inventory
+	LastAppliedInventoryDefs.Empty();
+
+	LastAppliedInventoryDefs.Add(Inventory->GetWeaponAsStack()->GetItemDef());
+	LastAppliedInventoryDefs.Add(Inventory->GetArmorAsStack()->GetItemDef());
+	for (const auto ExtraStack : Inventory->GetExtraSlots())
+	{
+		LastAppliedInventoryDefs.Add(ExtraStack->GetItemDef());
+	}
+
+	// Apply attributes
+	ApplyInventoryAttributes();
+}
+
+void AHeroBase::UnapplyInventoryAttributes()
+{
+	for (const auto Def : LastAppliedInventoryDefs)
+	{
+		for (auto& AttributeMod : Def->GetAttributesToApply())
+		{
+			if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeMod.Attribute))
+			{
+				continue; // Not an error;
+			}
+
+			// Don't support variation from items
+			ensure(AttributeMod.Variation == 0);
+
+			AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, -AttributeMod.BaseValue);
+		}
+	}
+}
+
+void AHeroBase::ApplyInventoryAttributes()
+{
+	for (const auto Def : LastAppliedInventoryDefs)
+	{
+		for (auto& AttributeMod : Def->GetAttributesToApply())
+		{
+			if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeMod.Attribute))
+			{
+				continue; // Not an error;
+			}
+
+			// Don't support variation from items
+			ensure(AttributeMod.Variation == 0);
+
+			AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, AttributeMod.BaseValue);
+		}
+	}
 }

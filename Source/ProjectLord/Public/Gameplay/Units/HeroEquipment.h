@@ -169,6 +169,8 @@ public:
 
 };
 
+DECLARE_MULTICAST_DELEGATE(FOnInventoryItemsChanged);
+
 UCLASS(BlueprintType)
 class PROJECTLORD_API UHeroInventory : public UObject
 {
@@ -179,6 +181,8 @@ public:
     UHeroInventory();
 
     void InitInventory(FHeroEquipmentMap EquipmentDefMap);
+
+    FOnInventoryItemsChanged OnInventoryItemsChanged;
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
     EEquipmentTier GetWeaponTier() const { return Weapon; }

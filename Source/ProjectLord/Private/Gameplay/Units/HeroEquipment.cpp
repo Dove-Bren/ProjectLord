@@ -64,12 +64,20 @@ UHeroItemStack* UHeroInventory::FindItem(const UHeroItemDef* ItemDef) const
 
 void UHeroInventory::SetWeaponTier(EEquipmentTier WeaponTier)
 {
-	Weapon = WeaponTier;
+	if (WeaponTier != Weapon)
+	{
+		Weapon = WeaponTier;
+		OnInventoryItemsChanged.Broadcast();
+	}
 }
 
 void UHeroInventory::SetArmorTier(EEquipmentTier ArmorTier)
 {
-	Armor = ArmorTier;
+	if (ArmorTier != Armor)
+	{
+		Armor = ArmorTier;
+		OnInventoryItemsChanged.Broadcast();
+	}
 }
 
 void UHeroInventory::AddHealthPotions(int Count)
@@ -130,6 +138,7 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
 	}
 
 	ExtraSlots.Add(ExtraItem);
+	OnInventoryItemsChanged.Broadcast();
 	return true;
 }
 
