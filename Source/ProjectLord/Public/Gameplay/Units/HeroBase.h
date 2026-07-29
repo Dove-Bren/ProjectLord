@@ -9,6 +9,8 @@
 #include "HeroBase.generated.h"
 
 class ULordHeroAttributeSet;
+class UHeroInventory;
+class UHeroEquipmentMap;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public ACreature
@@ -17,9 +19,6 @@ class PROJECTLORD_API AHeroBase : public ACreature
 
 public:
     AHeroBase();
-
-    UFUNCTION(BlueprintPure)
-    int GetGold() const { return Gold; }
 
     UFUNCTION(BlueprintPure)
     int GetHeroXP() const { return HeroXP; }
@@ -32,12 +31,21 @@ public:
     UFUNCTION(BlueprintPure)
     float GetHeroXPPercent() const { return FMath::Clamp((float)GetHeroXP() / (float)GetHeroMaxXP(), 0.0f, 1.0f); }
 
+    UFUNCTION(BlueprintPure, Category = "Inventory")
+    UHeroInventory* GetInventory() { return Inventory; }
+
     virtual void BeginPlay() override;
 
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    TObjectPtr<UHeroEquipmentMap> EquipmentTypes;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
+    TObjectPtr<UHeroInventory> Inventory;
 
     // How much gold this hero has
     UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta = (ClampMin = 0))

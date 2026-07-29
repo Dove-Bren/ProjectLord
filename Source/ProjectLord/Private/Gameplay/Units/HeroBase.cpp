@@ -4,6 +4,7 @@
 
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
+#include "Gameplay/Units/HeroEquipment.h"
 
 AHeroBase::AHeroBase() : ACreature()
 {
@@ -12,6 +13,7 @@ AHeroBase::AHeroBase() : ACreature()
 	HeroXP = 0;
 
 	LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));
+	Inventory = CreateDefaultSubobject<UHeroInventory>(TEXT("Hero Inventory"));
 }
 
 int AHeroBase::GetHeroMaxXP() const
@@ -24,6 +26,7 @@ int AHeroBase::GetHeroMaxXP() const
 void AHeroBase::BeginPlay()
 {
 	Super::BeginPlay();
+	Inventory->InitInventory(EquipmentTypes);
 }
 
 void AHeroBase::SetupBaseAttributes()
