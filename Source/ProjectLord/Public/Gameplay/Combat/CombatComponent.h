@@ -7,7 +7,6 @@
 
 #include "Gameplay/Combat/Ability/UnitAbility.h" // Including instead of forward declared to make dropdowns populate right
 #include "Gameplay/Combat/CombatTypes.h"
-#include "Gameplay/Units/UnitTypes.h"
 
 #include "CombatComponent.generated.h"
 

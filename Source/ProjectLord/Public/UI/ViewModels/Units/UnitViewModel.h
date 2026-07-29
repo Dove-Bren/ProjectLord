@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/ViewModels/LordViewModelBase.h"
 
-#include "Gameplay/Units/UnitTypes.h"
+#include "Gameplay/Combat/CombatTypes.h"
 
 #include "UnitViewModel.generated.h"
 

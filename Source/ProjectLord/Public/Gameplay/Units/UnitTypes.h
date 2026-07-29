@@ -11,14 +11,6 @@ class UStaticMesh;
 class ACreature;
 class ABuilding;
 
-UENUM(BlueprintType)
-enum class EUnitTeam : uint8
-{
-	Monster,
-	Player1,
-	Player2,
-};
-
 UCLASS(BlueprintType)
 class PROJECTLORD_API UCreatureType : public UPrimaryDataAsset
 {
