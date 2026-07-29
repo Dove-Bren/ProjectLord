@@ -5,6 +5,7 @@
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
 
 AHeroBase::AHeroBase() : ACreature()
@@ -20,7 +21,7 @@ int AHeroBase::GetHeroMaxXP() const
 {
 	bool bIgnored;
 	const int Level = FMath::Clamp((int) AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored), 1, 9999);
-	return 100 + Level * 20;
+	return 10 + ((Level-1) * 5);
 }
 
 void AHeroBase::BeginPlay()
@@ -28,6 +29,8 @@ void AHeroBase::BeginPlay()
 	Super::BeginPlay();
 	Inventory->InitInventory(EquipmentTypes);
 	HandleInventoryChange();
+
+	CombatComponent->OnAttack.AddDynamic(this, &AHeroBase::OnAttack);
 }
 
 void AHeroBase::SetupBaseAttributes()
@@ -96,4 +99,36 @@ void AHeroBase::ApplyInventoryAttributes()
 			AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, AttributeMod.BaseValue);
 		}
 	}
+}
+
+void AHeroBase::AddHeroXP(int Amount)
+{
+	if (!ensure(Amount > 0))
+	{
+		return;
+	}
+
+	HeroXP += Amount;
+	if (HeroXP >= GetHeroMaxXP())
+	{
+		DoLevelUp();
+	}
+}
+
+void AHeroBase::DoLevelUp_Implementation()
+{
+	HeroXP = 0;
+
+	bool bIgnored;
+	const int Level = AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored);
+	AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetLevelAttribute(), Level + 1);
+
+	// Update derived attributes
+	LordHeroAttributeSet->UpdateDerivedUnitValues();
+}
+
+void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent)
+{
+	// TEST amount; should prob just be 1
+	AddHeroXP(GetHeroMaxXP() / 2);
 }

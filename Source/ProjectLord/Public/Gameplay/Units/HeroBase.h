@@ -55,10 +55,18 @@ protected:
 
     virtual void HandleInventoryChange();
 
+    void AddHeroXP(int Amount);
+
+    UFUNCTION(BlueprintNativeEvent, Category = "Hero")
+    void DoLevelUp();
+
 private:
     void UnapplyInventoryAttributes();
     void ApplyInventoryAttributes();
 
     TArray<UHeroItemDef*> LastAppliedInventoryDefs;
+
+    UFUNCTION()
+    void OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
 
 };
