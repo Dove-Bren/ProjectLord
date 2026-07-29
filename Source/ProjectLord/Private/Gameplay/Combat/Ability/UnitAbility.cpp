@@ -3,7 +3,6 @@
 #include "Gameplay/Combat/Ability/UnitAbility.h"
 
 #include "Gameplay/Combat/CombatComponent.h"
-#include "Gameplay/Units/AI/UnitController.h"
 
 UCombatComponent* UUnitAbility::GetOwnerComponent() const
 {

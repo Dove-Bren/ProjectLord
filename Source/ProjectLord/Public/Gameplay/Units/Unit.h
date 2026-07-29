@@ -19,9 +19,6 @@ class ULordUnitAttributeSet;
 class UCombatAttributeSet;
 class UVMUnit;
 
-struct FGameplayAbilitySpec;
-struct FGameplayAbilitySpecHandle;
-
 UCLASS(Blueprintable)
 class PROJECTLORD_API AUnit : public ACharacter
 {

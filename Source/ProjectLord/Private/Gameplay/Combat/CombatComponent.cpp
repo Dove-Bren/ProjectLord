@@ -6,11 +6,11 @@
 #include "AbilitySystemGlobals.h"
 
 #include "Gameplay/LordGameplayTags.h"
+#include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Units/Unit.h"
-#include "Gameplay/Units/Building.h"
-#include "Gameplay/Units/AI/UnitController.h"
 
 UCombatComponent::UCombatComponent()
 {

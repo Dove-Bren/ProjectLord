@@ -1,25 +1,17 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Units/Unit.h"
+#include "Gameplay/Buildings/Building.h"
 
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
 
 #include "Gameplay/LordGameplayTags.h"
-#include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Combat/CombatComponent.h"
-#include "UI/ViewModels/Units/UnitViewModel.h"
 
-AUnit::AUnit() : ACharacter()
+ABuilding::ABuilding()
 {
     // Set up defaults
     Team = EUnitTeam::Monster;
-
-    // Adjust character stuff
-    GetCapsuleComponent()->InitCapsuleSize(22.0f, 50.0f);
-    GetCharacterMovement()->bUseControllerDesiredRotation = true;
 
     // GAS
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
@@ -33,15 +25,44 @@ AUnit::AUnit() : ACharacter()
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
-void AUnit::FaceActor(AActor* OtherActor)
+bool ABuilding::RemoveResident(const ACreature* Resident)
 {
-    // Face target
-    auto Diff = OtherActor->GetActorLocation() - GetActorLocation();
-    Diff.Z = 0;
-    SetActorRotation(Diff.Rotation());
+	return Residents.RemoveAll([Resident](ACreature* const InResident) { return Resident == InResident; }) > 0;
 }
 
-void AUnit::BeginPlay()
+void ABuilding::RemoveAllResidents()
+{
+	Residents.Empty();
+}
+
+bool ABuilding::AddResident(ACreature* Resident)
+{
+	// TODO: Verify there is space
+	Residents.Add(Resident);
+	return true;
+}
+
+void ABuilding::RemoveAllVisitors()
+{
+	Visitors.Empty();
+}
+
+void ABuilding::AddVisitor(ACreature* Visitor)
+{
+	Visitors.Add(Visitor);
+}
+
+void ABuilding::RemoveVisitor(const ACreature* Visitor)
+{
+	Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; });
+}
+
+FVector ABuilding::GetBuildingEntrance() const
+{
+	return GetActorLocation() + BuildingEntranceOffset;
+}
+
+void ABuilding::BeginPlay()
 {
     Super::BeginPlay();
 
@@ -50,14 +71,12 @@ void AUnit::BeginPlay()
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
     }
 
-    RegisterAttributes();
     SetupBaseAttributes();
 
-    CombatComponent->OnDeath.AddDynamic(this, &AUnit::HandleDeath);
-    CombatComponent->OnAttack.AddDynamic(this, &AUnit::HandleAttack);
+    CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
 }
 
-void AUnit::EndPlay(EEndPlayReason::Type Reason)
+void ABuilding::EndPlay(EEndPlayReason::Type Reason)
 {
     Super::EndPlay(Reason);
 
@@ -67,33 +86,12 @@ void AUnit::EndPlay(EEndPlayReason::Type Reason)
     }
 }
 
-AUnitController* AUnit::GetUnitController() const
+void ABuilding::SetupBaseAttributes()
 {
-    return Cast<AUnitController>(GetController());
-}
-
-bool AUnit::IsDead() const
-{
-    return CombatComponent->IsDead();
-}
-
-void AUnit::OnDeath_Implementation()
-{
-    UE_LOG(LogTemp, Warning, TEXT("Unit did not override OnDeath!"));
-    this->Destroy();
-}
-
-void AUnit::RegisterAttributes()
-{
-    ;
-}
-
-void AUnit::SetupBaseAttributes()
-{
-    if (IsValid(ClassAttributeDefaults))
+    if (IsValid(BuildingAttributeValues))
     {
         FString Context = TEXT("DefaultUnitAttributeIter");
-        ClassAttributeDefaults->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
+        BuildingAttributeValues->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
             {
                 if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
                 {
@@ -118,29 +116,25 @@ void AUnit::SetupBaseAttributes()
     }
 }
 
-void AUnit::HandleDeath()
+ABuildingController* ABuilding::GetBuildingController() const
 {
-    // Rebroadcast
-    OnDeath();
+    return Cast<ABuildingController>(GetController());
 }
 
-void AUnit::HandleAttack(AActor* Target, UCombatComponent* TargetComponent)
+void ABuilding::HandleDeath()
 {
-    FaceActor(Target);
-}
+    // TODO: Spawn break effects
 
-UVMUnit* AUnit::GetUnitVM()
-{
-    if (UnitVM)
+    // TODO: Eject and vacate!
+    for (auto& Visitor : Visitors)
     {
-        return UnitVM;
+
     }
 
-    UnitVM = UVMUnit::CreateForUnit(this);
-    UnitVM->InitializeAttributeListeners(AbilitySystemComponent, CombatAttributeSet);
+    for (auto& Resident : Residents)
+    {
 
-    // Note: For now, team is only ever set on construction of the AUnit.
-    UnitVM->SetUnitTeam(Team);
+    }
 
-    return UnitVM;
+    this->Destroy();
 }

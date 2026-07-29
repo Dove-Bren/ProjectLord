@@ -4,8 +4,6 @@
 
 #include "Net/UnrealNetwork.h"
 
-#include "Gameplay/Units/Building.h"
-
 ALordPlayerState::ALordPlayerState()
 {
     PlayerTeam = EUnitTeam::Player1; // Could grab GameInstance and 'claim' next available player team?
