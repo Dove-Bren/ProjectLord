@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
 
+#include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
@@ -79,7 +80,7 @@ bool AUnit::IsDead() const
 
 void AUnit::OnDeath_Implementation()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Unit did not override OnDeath!"));
+    UE_LOG(LordUnit, Warning, TEXT("Unit did not override OnDeath!"));
     this->Destroy();
 }
 
@@ -97,7 +98,7 @@ void AUnit::SetupBaseAttributes()
             {
                 if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
                 {
-                    UE_LOG(LogTemp, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
+                    UE_LOG(LordUnit, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
                         *GetDebugName(this),
                         *Key.ToString(),
                         *Value.Attribute.AttributeName

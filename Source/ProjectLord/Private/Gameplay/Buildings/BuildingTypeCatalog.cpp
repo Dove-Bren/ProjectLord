@@ -4,6 +4,7 @@
 #include "Engine/AssetManager.h"
 
 #include "AssetHelper.h"
+#include "LordLogging.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
 
 static FPrimaryAssetType BuildingTypeAssetType = FPrimaryAssetType(TEXT("BuildingType"));
@@ -15,7 +16,7 @@ void UBuildingTypeCatalog::Initialize(FSubsystemCollectionBase& Collection)
 	GetPrimaryAssetsOfType<UBuildingType>(BuildingTypeAssetType, [this](TArray<UBuildingType*> Results) {
 		BuildingTypes = Results;
 		bLoadingBuildingTypes = false;
-		UE_LOG(LogTemp, Log, TEXT("Loaded %d Building Types"), BuildingTypes.Num());
+		UE_LOG(LordBuilding, Log, TEXT("Loaded %d Building Types"), BuildingTypes.Num());
 	});
 }
 

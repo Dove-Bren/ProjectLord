@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 
+#include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
@@ -197,7 +198,7 @@ bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
         }
         else
         {
-            UE_LOG(LogTemp, Warning, TEXT("Failed to activate ability"));
+            UE_LOG(LordCombat, Warning, TEXT("Failed to activate ability"));
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to activate ability"));
         }
     }

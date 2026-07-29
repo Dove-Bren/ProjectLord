@@ -16,7 +16,7 @@ void UUnitTypeCatalog::Initialize(FSubsystemCollectionBase& Collection)
 	GetPrimaryAssetsOfType<UCreatureType>(CreatureTypeAssetType, [this](TArray<UCreatureType*> Results) {
 		CreatureTypes = Results;
 		bLoadingCreatureTypes = false;
-		UE_LOG(LogTemp, Log, TEXT("Loaded %d Creature Types"), CreatureTypes.Num());
+		UE_LOG(LordUnit, Log, TEXT("Loaded %d Creature Types"), CreatureTypes.Num());
 	});
 }
 

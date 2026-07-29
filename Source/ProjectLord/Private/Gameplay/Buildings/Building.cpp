@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 
+#include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Combat/CombatComponent.h"
@@ -90,12 +91,12 @@ void ABuilding::SetupBaseAttributes()
 {
     if (IsValid(BuildingAttributeValues))
     {
-        FString Context = TEXT("DefaultUnitAttributeIter");
+        FString Context = TEXT("DefaultBuildingAttributeIter");
         BuildingAttributeValues->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
             {
                 if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
                 {
-                    UE_LOG(LogTemp, Error, TEXT("Unit [%s]'s base attribute specifies a value for [%s]%s, but unit does not have that attribute"),
+                    UE_LOG(LordBuilding, Error, TEXT("Building [%s]'s base attribute specifies a value for [%s]%s, but building does not have that attribute"),
                         *GetDebugName(this),
                         *Key.ToString(),
                         *Value.Attribute.AttributeName
