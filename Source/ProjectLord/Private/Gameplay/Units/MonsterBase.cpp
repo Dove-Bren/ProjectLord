@@ -4,6 +4,6 @@
 
 AMonsterBase::AMonsterBase() : ACreature()
 {
-	Team = EUnitTeam::Monster;
+	Team = EGameTeam::Monster;
 	Gold = 5;
 }

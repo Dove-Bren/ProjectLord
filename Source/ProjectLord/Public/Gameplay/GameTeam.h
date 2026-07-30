@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CombatTypes.generated.h"
+#include "GameTeam.generated.h"
 
 UENUM(BlueprintType)
-enum class EDamageType : uint8
+enum class EGameTeam : uint8
 {
-    System,
-    Melee,
-    Ranged,
-    Magic,
+    Monster,
+    Player1,
+    Player2,
+    Neutral,
 };

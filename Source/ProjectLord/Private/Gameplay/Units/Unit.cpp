@@ -21,7 +21,7 @@
 AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
-    Team = EUnitTeam::Monster;
+    Team = EGameTeam::Monster;
 
     // Adjust character stuff
     GetCapsuleComponent()->InitCapsuleSize(22.0f, 50.0f);
@@ -152,7 +152,7 @@ void AUnit::InitUnitVM()
     UnitVM->InitializeAttributeListeners(AbilitySystemComponent, CombatAttributeSet);
 
     // Note: For now, team is only ever set on construction of the AUnit.
-    UnitVM->SetUnitTeam(Team);
+    UnitVM->SetTeam(Team);
 }
 
 void AUnit::AddHealthbarWidget()

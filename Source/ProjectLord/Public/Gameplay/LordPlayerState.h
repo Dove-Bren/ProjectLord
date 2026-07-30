@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 
-#include "Gameplay/Combat/CombatTypes.h"
+#include "Gameplay/GameTeam.h"
 
 #include "LordPlayerState.generated.h"
 
@@ -22,7 +22,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     UFUNCTION(BlueprintPure)
-    EUnitTeam GetPlayerTeam() const { return PlayerTeam; }
+    EGameTeam GetPlayerTeam() const { return PlayerTeam; }
 
     UFUNCTION(BlueprintPure)
     int GetPlayerGold() const { return Gold; }
@@ -36,7 +36,7 @@ public:
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
-    EUnitTeam PlayerTeam;
+    EGameTeam PlayerTeam;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
     int Gold;

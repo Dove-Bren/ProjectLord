@@ -10,7 +10,7 @@
 
 AHeroBase::AHeroBase() : ACreature()
 {
-	Team = EUnitTeam::Player1;
+	Team = EGameTeam::Player1;
 	HeroXP = 0;
 
 	LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));

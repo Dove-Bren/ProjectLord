@@ -15,7 +15,7 @@
 ABuilding::ABuilding()
 {
     // Set up defaults
-    Team = EUnitTeam::Monster;
+    Team = EGameTeam::Monster;
     MaxLevel = 1;
     BuildingLevel = 1; // TODO: Building, could set this to 0 to denote that it hasn't been built yet
 

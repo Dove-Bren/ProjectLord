@@ -6,7 +6,7 @@
 
 ALordPlayerState::ALordPlayerState()
 {
-    PlayerTeam = EUnitTeam::Player1; // Could grab GameInstance and 'claim' next available player team?
+    PlayerTeam = EGameTeam::Player1; // Could grab GameInstance and 'claim' next available player team?
     Gold = 0;
 }
 

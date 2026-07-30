@@ -6,7 +6,7 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Gameplay/SelectionComponent.h" // For FSelectionData in optional
-#include "Gameplay/Combat/CombatTypes.h"
+#include "Gameplay/GameTeam.h"
 
 #include "LordPlayerController.generated.h"
 
@@ -27,7 +27,7 @@ public:
     ALordPlayerState* GetLordPlayerState() const;
 
     UFUNCTION(BlueprintPure)
-    EUnitTeam GetTeam() const;
+    EGameTeam GetTeam() const;
 
     UFUNCTION(BlueprintPure, Category = "Selection")
     bool HasSelection() const { return Selection.IsSet(); };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
+#include "Gameplay/GameTeam.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h" // Including instead of forward declared to make dropdowns populate right
 #include "Gameplay/Combat/CombatTypes.h"
 
@@ -68,7 +69,7 @@ public:
 
     // Convenience Accessors
     UFUNCTION(BlueprintPure, Category = "Combat")
-    EUnitTeam GetTeam() const;
+    EGameTeam GetTeam() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")
     UAbilitySystemComponent* GetAbilitySubsystemComponent() const;

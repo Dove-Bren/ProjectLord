@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Gameplay/Buildings/BuildingTypes.h"
-#include "Gameplay/Combat/CombatTypes.h"
+#include "Gameplay/GameTeam.h"
 
 #include "Building.generated.h"
 
@@ -35,7 +35,7 @@ public:
     ABuildingController* GetBuildingController() const;
 
     UFUNCTION(BlueprintPure)
-    EUnitTeam GetTeam() const { return Team; }
+    EGameTeam GetTeam() const { return Team; }
 
     // Note: Does not clean up references on the Creature
     UFUNCTION(BlueprintCallable)
@@ -126,7 +126,7 @@ protected:
     TObjectPtr<UDataTable> BuildingAttributeValues;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
-    EUnitTeam Team;
+    EGameTeam Team;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;

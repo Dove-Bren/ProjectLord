@@ -33,7 +33,7 @@ ALordPlayerState* ALordPlayerController::GetLordPlayerState() const
 	return GetPlayerState<ALordPlayerState>();
 }
 
-EUnitTeam ALordPlayerController::GetTeam() const
+EGameTeam ALordPlayerController::GetTeam() const
 {
 	const auto State = GetLordPlayerState();
 	if (ensure(State))
@@ -41,7 +41,7 @@ EUnitTeam ALordPlayerController::GetTeam() const
 		return State->GetPlayerTeam();
 	}
 
-	return EUnitTeam::Player1;
+	return EGameTeam::Player1;
 }
 
 void ALordPlayerController::SetSelection(USelectionComponent* InSelection)

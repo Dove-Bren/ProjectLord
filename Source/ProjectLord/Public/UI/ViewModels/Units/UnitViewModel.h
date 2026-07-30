@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/ViewModels/LordViewModelBase.h"
 
-#include "Gameplay/Combat/CombatTypes.h"
+#include "Gameplay/GameTeam.h"
 
 #include "UnitViewModel.generated.h"
 
@@ -22,7 +22,7 @@ public:
 	int GetMaxHealth() const { return MaxHealth; }
 	int GetHealth() const { return Health; }
 
-	EUnitTeam GetUnitTeam() const { return UnitTeam; }
+	EGameTeam GetTeam() const { return Team; }
 
 private:
 	static UVMUnit* CreateForUnit(AUnit* Unit);
@@ -42,8 +42,8 @@ private:
 	void SetHealth(int InHealth) { UE_MVVM_SET_PROPERTY_VALUE(Health, InHealth); }
 
 	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Team", meta = (AllowPrivateAccess = true))
-	EUnitTeam UnitTeam;
-	void SetUnitTeam(EUnitTeam InUnitTeam) { UE_MVVM_SET_PROPERTY_VALUE(UnitTeam, InUnitTeam); }
+	EGameTeam Team;
+	void SetTeam(EGameTeam InTeam) { UE_MVVM_SET_PROPERTY_VALUE(Team, InTeam); }
 
 	friend class AUnit;
 };

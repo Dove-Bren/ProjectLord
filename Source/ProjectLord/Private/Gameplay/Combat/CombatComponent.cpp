@@ -45,7 +45,7 @@ void UCombatComponent::EndPlay(EEndPlayReason::Type Reason)
     Super::EndPlay(Reason);
 }
 
-EUnitTeam UCombatComponent::GetTeam() const
+EGameTeam UCombatComponent::GetTeam() const
 {
     // Could cache a getter to avoid the conditionals most of the time, but then can't be const...
     /*if (!TeamGetter.IsSet())
@@ -53,15 +53,15 @@ EUnitTeam UCombatComponent::GetTeam() const
         auto Owner = GetOwner();
         if (auto Unit = Cast<AUnit>(Owner))
         {
-            TeamGetter = [WeakUnit = TWeakObjectPtr(Unit)]() -> EUnitTeam { return WeakUnit->GetTeam(); };
+            TeamGetter = [WeakUnit = TWeakObjectPtr(Unit)]() -> EGameTeam { return WeakUnit->GetTeam(); };
         }
         if (auto Building = Cast<ABuilding>(Owner))
         {
-            TeamGetter = [WeakBuilding = TWeakObjectPtr(Building)]() -> EUnitTeam { return WeakBuilding->GetTeam(); };
+            TeamGetter = [WeakBuilding = TWeakObjectPtr(Building)]() -> EGameTeam { return WeakBuilding->GetTeam(); };
         }
 
         ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
-        TeamGetter = []() { return EUnitTeam::Monster; };
+        TeamGetter = []() { return EGameTeam::Monster; };
     }
 
     return (TeamGetter.GetValue())();*/
@@ -77,7 +77,7 @@ EUnitTeam UCombatComponent::GetTeam() const
     }
 
     ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
-    return EUnitTeam::Monster;
+    return EGameTeam::Monster;
 }
 
 UAbilitySystemComponent* UCombatComponent::GetAbilitySubsystemComponent() const

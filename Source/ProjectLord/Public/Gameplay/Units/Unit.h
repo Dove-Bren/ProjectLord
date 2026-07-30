@@ -6,7 +6,7 @@
 
 #include "GameFramework/Character.h"
 
-#include "Gameplay/Combat/CombatTypes.h"
+#include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/UnitTypes.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h" // Including instead of forward declared to make dropdowns populate right
 
@@ -37,7 +37,7 @@ public:
     AUnitController* GetUnitController() const;
 
     UFUNCTION(BlueprintPure)
-    EUnitTeam GetTeam() const { return Team; }
+    EGameTeam GetTeam() const { return Team; }
 
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
@@ -68,7 +68,7 @@ protected:
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
-    EUnitTeam Team;
+    EGameTeam Team;
 
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
