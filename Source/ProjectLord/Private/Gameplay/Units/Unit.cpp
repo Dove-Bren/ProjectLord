@@ -9,10 +9,7 @@
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
-#include "Gameplay/Units/LordUnitAttributeSet.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h"
-#include "Gameplay/Units/AI/UnitController.h"
-#include "Gameplay/Units/UnitBaseAttributes.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
