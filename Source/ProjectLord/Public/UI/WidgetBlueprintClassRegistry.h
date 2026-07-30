@@ -20,5 +20,5 @@ public:
 
     // The small healthbar that appears over units in the world
     UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Units")
-    TSubclassOf<UUserWidget> UnitMiniHealthBarWidget;
+    TSoftClassPtr<class UHealthBarBase> UnitMiniHealthBarWidget;
 };

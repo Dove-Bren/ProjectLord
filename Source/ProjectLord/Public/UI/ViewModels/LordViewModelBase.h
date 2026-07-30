@@ -11,7 +11,7 @@
 template<typename T>
 T* CreateLordVM(UObject* Outer)
 {
-	T* ViewModel = NewObject<T>(Outer);
+	T* ViewModel = NewObject<T>(Outer, T::StaticClass());
 	return ViewModel;
 };
 

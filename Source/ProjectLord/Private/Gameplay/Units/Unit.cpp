@@ -10,12 +10,13 @@
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/Combat/Ability/UnitAbility.h"
+#include "UI/Units/HealthBarBase.h"
+#include "UI/ViewModels/Units/UnitViewModel.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/UnitBaseAttributes.h"
 #include "Gameplay/Combat/CombatComponent.h"
-#include "UI/ViewModels/Units/UnitViewModel.h"
 
 AUnit::AUnit() : ACharacter()
 {
@@ -174,14 +175,14 @@ void AUnit::AddHealthbarWidget()
     if (const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
         ensure(WidgetBlueprints))
     {
-        HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget);
+        HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget.Get());
         HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
     }
     FinishAddComponent(HealthbarWidgetComponent, true, FTransform::Identity);
     HealthbarWidgetComponent->Activate();
 
-    UUserWidget* Widget = HealthbarWidgetComponent->GetWidget();
-
-    // TODO: This is where we could pass in the reference to AUnit to the widget,
-    // but we don't have a C++ base class to use.
+    if (UHealthBarBase* Widget = Cast<UHealthBarBase>(HealthbarWidgetComponent->GetWidget()))
+    {
+        Widget->ReceiveUnitVM(UnitVM);
+    }
 }
