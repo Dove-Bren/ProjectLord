@@ -115,7 +115,7 @@ void AHeroBase::AddHeroXP(int Amount)
 	}
 }
 
-void AHeroBase::DoLevelUp_Implementation()
+void AHeroBase::DoLevelUp()
 {
 	HeroXP = 0;
 
@@ -125,6 +125,7 @@ void AHeroBase::DoLevelUp_Implementation()
 
 	// Update derived attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
+	OnLevelUp();
 }
 
 void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent)

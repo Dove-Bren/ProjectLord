@@ -57,8 +57,10 @@ protected:
 
     void AddHeroXP(int Amount);
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Hero")
     void DoLevelUp();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    void OnLevelUp();
 
 private:
     void UnapplyInventoryAttributes();
