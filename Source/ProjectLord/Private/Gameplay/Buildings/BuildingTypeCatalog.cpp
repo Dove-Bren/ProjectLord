@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Units/UnitTypeCatalog.h"
+#include "Gameplay/Buildings/BuildingTypeCatalog.h"
 #include "Engine/AssetManager.h"
 
 #include "AssetHelper.h"
