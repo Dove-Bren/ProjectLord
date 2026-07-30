@@ -162,6 +162,12 @@ void AUnit::AddHealthbarWidget()
         return;
     }
 
+    const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
+    if (!ensure(WidgetBlueprints) || !ensure(WidgetBlueprints->UnitMiniHealthBarWidget.IsValid()))
+    {
+        return;
+    }
+
     // If we're adding a healthbar, we're gonna need to make sure the VM is good to go.
     InitUnitVM();
 
@@ -171,13 +177,9 @@ void AUnit::AddHealthbarWidget()
     HealthbarWidgetComponent->AttachToComponent(GetCapsuleComponent(),
         FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HealthbarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+    HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
+    HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget.Get());
 
-    if (const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
-        ensure(WidgetBlueprints))
-    {
-        HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget.Get());
-        HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
-    }
     FinishAddComponent(HealthbarWidgetComponent, true, FTransform::Identity);
     HealthbarWidgetComponent->Activate();
 
