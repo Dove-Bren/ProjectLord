@@ -9,7 +9,7 @@
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
-#include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Combat/CombatComponent.h"
 
 ABuilding::ABuilding()
@@ -142,7 +142,7 @@ void ABuilding::SetupBaseAttributes()
     if (IsValid(BuildingAttributeValues))
     {
         FString Context = TEXT("DefaultBuildingAttributeIter");
-        BuildingAttributeValues->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
+        BuildingAttributeValues->ForeachRow<FAttributeBaseValue>(Context, [this](const FName& Key, const FAttributeBaseValue& Value)
             {
                 if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
                 {

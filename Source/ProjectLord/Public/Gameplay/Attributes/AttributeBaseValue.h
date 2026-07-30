@@ -6,10 +6,10 @@
 #include "Engine/DataTable.h"
 #include "AttributeSet.h"
 
-#include "UnitBaseAttributes.generated.h"
+#include "AttributeBaseValue.generated.h"
 
 USTRUCT(BlueprintType)
-struct PROJECTLORD_API FUnitBaseAttributes : public FTableRowBase
+struct PROJECTLORD_API FAttributeBaseValue : public FTableRowBase
 {
     GENERATED_BODY()
 

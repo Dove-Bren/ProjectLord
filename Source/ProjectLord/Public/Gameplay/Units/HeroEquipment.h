@@ -6,7 +6,7 @@
 #include "HeroEquipment.generated.h"
 
 class UTexture2D;
-struct FUnitBaseAttributes;
+struct FAttributeBaseValue;
 
 UENUM(BlueprintType)
 enum class EEquipmentTier : uint8
@@ -39,7 +39,7 @@ public:
     bool GetCanStack() const { return bCanStack; }
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
-    TArray<FUnitBaseAttributes> GetAttributesToApply() const { return AttributesToApply; }
+    TArray<FAttributeBaseValue> GetAttributesToApply() const { return AttributesToApply; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
@@ -52,7 +52,7 @@ protected:
     TObjectPtr<UTexture2D> ItemIcon;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
-    TArray<FUnitBaseAttributes> AttributesToApply;
+    TArray<FAttributeBaseValue> AttributesToApply;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     bool bCanStack;

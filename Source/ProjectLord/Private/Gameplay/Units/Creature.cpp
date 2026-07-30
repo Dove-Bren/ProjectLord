@@ -8,7 +8,7 @@
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CreatureAttributeSet.h"
-#include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Attributes/AttributeBaseValue.h"
 
 #define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 

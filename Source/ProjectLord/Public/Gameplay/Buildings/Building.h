@@ -122,7 +122,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     FVector BuildingEntranceOffset;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
+    UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> BuildingAttributeValues;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")

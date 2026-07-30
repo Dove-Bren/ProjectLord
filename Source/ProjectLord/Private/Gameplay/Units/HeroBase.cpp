@@ -4,7 +4,7 @@
 
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
-#include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
 

@@ -70,7 +70,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.UnitBaseAttributes"))
+    UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")

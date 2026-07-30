@@ -15,7 +15,7 @@
 #include "UI/WidgetBlueprintClassRegistry.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
-#include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Combat/CombatComponent.h"
 
 AUnit::AUnit() : ACharacter()
@@ -105,7 +105,7 @@ void AUnit::SetupBaseAttributes()
     if (IsValid(ClassAttributeDefaults))
     {
         FString Context = TEXT("DefaultUnitAttributeIter");
-        ClassAttributeDefaults->ForeachRow<FUnitBaseAttributes>(Context, [this](const FName& Key, const FUnitBaseAttributes& Value)
+        ClassAttributeDefaults->ForeachRow<FAttributeBaseValue>(Context, [this](const FName& Key, const FAttributeBaseValue& Value)
             {
                 if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
                 {

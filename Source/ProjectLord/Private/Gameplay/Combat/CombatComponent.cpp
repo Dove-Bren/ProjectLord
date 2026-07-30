@@ -9,7 +9,7 @@
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
-#include "Gameplay/Attributes/UnitBaseAttributes.h"
+#include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Units/Unit.h"
 
