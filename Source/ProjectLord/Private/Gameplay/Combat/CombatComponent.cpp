@@ -122,9 +122,9 @@ UCombatAttributeSet* UCombatComponent::GetCombatAttributeSet() const
     return nullptr;
 }
 
-TArray<UUnitAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden)
+TArray<UCombatAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden)
 {
-    TArray<UUnitAbility*> Abilities;
+    TArray<UCombatAbility*> Abilities;
 
     auto AbilitySystemComponent = GetAbilitySubsystemComponent();
     if (ensure(AbilitySystemComponent))
@@ -134,7 +134,7 @@ TArray<UUnitAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden)
         for (const auto& Handle : AllAbilities)
         {
             auto Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(Handle);
-            if (auto Ability = Cast<UUnitAbility>(Spec->Ability))
+            if (auto Ability = Cast<UCombatAbility>(Spec->Ability))
             {
                 if (bIncludeHidden || !Ability->IsHidden())
                 {

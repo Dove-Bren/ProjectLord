@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 
 #include "Gameplay/GameTeam.h"
-#include "Gameplay/Combat/Ability/UnitAbility.h" // Including instead of forward declared to make dropdowns populate right
+#include "Gameplay/Combat/Ability/CombatAbility.h" // Including instead of forward declared to make dropdowns populate right
 #include "Gameplay/Combat/CombatTypes.h"
 
 #include "CombatComponent.generated.h"
@@ -64,7 +64,7 @@ public:
 
     // Get all Unit Abilities this Unit has access to
     UFUNCTION(BlueprintPure, Category = "Combat|Ability")
-    TArray<UUnitAbility*> GetCombatAbilities(bool bIncludeHidden = false);
+    TArray<UCombatAbility*> GetCombatAbilities(bool bIncludeHidden = false);
 
 
     // Convenience Accessors
@@ -103,7 +103,7 @@ protected:
     const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-    TArray<TSubclassOf<UUnitAbility>> DefaultAbilities;
+    TArray<TSubclassOf<UCombatAbility>> DefaultAbilities;
 
 public:
 

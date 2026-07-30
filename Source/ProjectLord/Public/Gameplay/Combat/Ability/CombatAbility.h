@@ -6,15 +6,14 @@
 
 #include "Abilities/GameplayAbility.h"
 
-#include "UnitAbility.generated.h"
+#include "CombatAbility.generated.h"
 
 class UTexture2D;
 class UCombatComponent;
 
 // Base class specialization for Unit Abilities, which have extra details for showing in the UI etc.
-// TODO: Rename to UCombatAbility
 UCLASS(Blueprintable)
-class PROJECTLORD_API UUnitAbility : public UGameplayAbility
+class PROJECTLORD_API UCombatAbility : public UGameplayAbility
 {
     GENERATED_BODY()
 

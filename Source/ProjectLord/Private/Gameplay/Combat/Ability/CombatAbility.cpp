@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Combat/Ability/UnitAbility.h"
+#include "Gameplay/Combat/Ability/CombatAbility.h"
 
 #include "Gameplay/Combat/CombatComponent.h"
 
-UCombatComponent* UUnitAbility::GetOwnerComponent() const
+UCombatComponent* UCombatAbility::GetOwnerComponent() const
 {
 	AActor* Owner = GetOwningActorFromActorInfo();
 	return Owner->GetComponentByClass<UCombatComponent>();
 }
 
-UCombatComponent* UUnitAbility::GetOwnerTarget(bool bOnlyAlive) const
+UCombatComponent* UCombatAbility::GetOwnerTarget(bool bOnlyAlive) const
 {
 	auto Owner = GetOwnerComponent();
 	if (!ensure(IsValid(Owner)))

@@ -8,7 +8,7 @@
 
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/UnitTypes.h"
-#include "Gameplay/Combat/Ability/UnitAbility.h" // Including instead of forward declared to make dropdowns populate right
+#include "Gameplay/Combat/Ability/CombatAbility.h" // Including instead of forward declared to make dropdowns populate right
 
 #include "Unit.generated.h"
 

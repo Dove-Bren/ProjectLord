@@ -9,7 +9,6 @@
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
-#include "Gameplay/Combat/Ability/UnitAbility.h"
 #include "UI/Units/HealthBarBase.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
