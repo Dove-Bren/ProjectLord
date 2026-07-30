@@ -180,7 +180,7 @@ void AUnit::AddHealthbarWidget()
     HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
     HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget.Get());
 
-    FinishAddComponent(HealthbarWidgetComponent, true, FTransform::Identity);
+    FinishAddComponent(HealthbarWidgetComponent, true, FTransform{FVector{0.f, 0.f, -100.f}});
     HealthbarWidgetComponent->Activate();
 
     if (UHealthBarBase* Widget = Cast<UHealthBarBase>(HealthbarWidgetComponent->GetWidget()))
