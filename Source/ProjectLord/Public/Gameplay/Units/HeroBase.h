@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 
 #include "Gameplay/Units/Creature.h"
+#include "Gameplay/Units/HeroEquipment.h"
 
 #include "HeroBase.generated.h"
 
 class ULordHeroAttributeSet;
+class UHeroInventory;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public ACreature
@@ -17,9 +19,6 @@ class PROJECTLORD_API AHeroBase : public ACreature
 
 public:
     AHeroBase();
-
-    UFUNCTION(BlueprintPure)
-    int GetGold() const { return Gold; }
 
     UFUNCTION(BlueprintPure)
     int GetHeroXP() const { return HeroXP; }
@@ -32,6 +31,9 @@ public:
     UFUNCTION(BlueprintPure)
     float GetHeroXPPercent() const { return FMath::Clamp((float)GetHeroXP() / (float)GetHeroMaxXP(), 0.0f, 1.0f); }
 
+    UFUNCTION(BlueprintPure, Category = "Inventory")
+    UHeroInventory* GetInventory() { return Inventory; }
+
     virtual void BeginPlay() override;
 
 protected:
@@ -39,13 +41,34 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
-    // How much gold this hero has
-    UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta = (ClampMin = 0))
-    int Gold; // Pack into inventory?
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    FHeroEquipmentMap EquipmentTypes;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
+    TObjectPtr<UHeroInventory> Inventory;
 
     // How much XP this hero has accumulated so far this level
     UPROPERTY(EditDefaultsOnly, Category = "Stats", Meta = (ClampMin = 0))
     int HeroXP;
 
     virtual void SetupBaseAttributes() override;
+
+    virtual void HandleInventoryChange();
+
+    void AddHeroXP(int Amount);
+
+    void DoLevelUp();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    void OnLevelUp();
+
+private:
+    void UnapplyInventoryAttributes();
+    void ApplyInventoryAttributes();
+
+    TArray<UHeroItemDef*> LastAppliedInventoryDefs;
+
+    UFUNCTION()
+    void OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
+
 };
