@@ -89,8 +89,9 @@ private:
     UPROPERTY()
     TObjectPtr<UWidgetComponent> HealthbarWidgetComponent;
 
-    UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+    UPROPERTY()
     TObjectPtr<UVMUnit> UnitVM;
+
     UFUNCTION()
     void HandleDeath();
 
@@ -98,6 +99,6 @@ private:
     void HandleAttack(AActor* Target, UCombatComponent* TargetComponent);
 
 public:
-    UFUNCTION(BlueprintCallable, Category="UI|ViewModels")
-    UVMUnit* GetUnitVM();
+    UFUNCTION(BlueprintPure, Category="UI|ViewModels")
+    UVMUnit* GetUnitVM() const { return UnitVM; }
 };
