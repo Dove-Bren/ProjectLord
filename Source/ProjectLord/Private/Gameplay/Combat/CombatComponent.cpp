@@ -106,6 +106,15 @@ UCombatComponent* UCombatComponent::GetCombatTarget() const
     return nullptr;
 }
 
+void UCombatComponent::NotifyOfAbilityHit(UCombatComponent* HitCombatComponent)
+{
+    auto HitActor = HitCombatComponent->GetOwner();
+    if (IsValid(HitActor))
+    {
+        BroadcastAttackLand(HitActor, HitCombatComponent);
+    }
+}
+
 UCombatAttributeSet* UCombatComponent::GetCombatAttributeSet() const
 {
     auto Owner = GetOwner();
@@ -258,4 +267,10 @@ void UCombatComponent::BroadcastAttack(AActor* Target, UCombatComponent* TargetC
 {
     OnAttack.Broadcast(Target, TargetCombatComponent);
     ReceiveOnAttack(Target, TargetCombatComponent);
+}
+
+void UCombatComponent::BroadcastAttackLand(AActor* Target, UCombatComponent* TargetCombatComponent)
+{
+    OnAttackLand.Broadcast(Target, TargetCombatComponent);
+    ReceiveOnAttackLand(Target, TargetCombatComponent);
 }

@@ -18,6 +18,7 @@ struct FGameplayAbilitySpecHandle;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UCombatComponent : public UActorComponent
@@ -32,6 +33,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnAttack OnAttack;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnAttackLand OnAttackLand;
 
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
@@ -77,10 +81,16 @@ public:
     UFUNCTION(BlueprintPure, Category = "Combat")
     UCombatComponent* GetCombatTarget() const;
 
+    UFUNCTION(BlueprintCallable, Category = "Combat Events")
+    void NotifyOfAbilityHit(UCombatComponent* HitCombatComponent);
+
     UCombatAttributeSet* GetCombatAttributeSet() const;
 
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attack"))
     void ReceiveOnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
+
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attack Land"))
+    void ReceiveOnAttackLand(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
 
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Death"))
     void ReceiveOnDeath();
@@ -93,6 +103,7 @@ protected:
 
     void BroadcastDeath();
     void BroadcastAttack(AActor* Target, UCombatComponent* TargetCombatComponent);
+    void BroadcastAttackLand(AActor* Target, UCombatComponent* TargetCombatComponent);
 
     // From the given array of available attack availabilities, select which one the unit would prefer to use.
     // The default implementation picks the most damaging ability.

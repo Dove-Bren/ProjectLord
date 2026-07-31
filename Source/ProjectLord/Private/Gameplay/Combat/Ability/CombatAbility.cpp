@@ -24,3 +24,17 @@ UCombatComponent* UCombatAbility::GetOwnerTarget(bool bOnlyAlive) const
 		: nullptr;
 }
 
+void UCombatAbility::ReportAbilityHit(UCombatComponent* HitComponent)
+{
+	if (!ensure(HitComponent))
+	{
+		return;
+	}
+
+	auto Owner = GetOwnerComponent();
+	if (ensure(IsValid(Owner)))
+	{
+		Owner->NotifyOfAbilityHit(HitComponent);
+	}
+}
+

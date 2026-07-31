@@ -44,4 +44,7 @@ protected:
     
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     UCombatComponent* GetOwnerTarget(bool bOnlyAlive = true) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Ability|Combat")
+    void ReportAbilityHit(UCombatComponent* HitComponent);
 };

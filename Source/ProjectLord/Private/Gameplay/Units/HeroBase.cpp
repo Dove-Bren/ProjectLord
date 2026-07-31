@@ -30,7 +30,7 @@ void AHeroBase::BeginPlay()
 	Inventory->InitInventory(EquipmentTypes);
 	HandleInventoryChange();
 
-	CombatComponent->OnAttack.AddDynamic(this, &AHeroBase::OnAttack);
+	CombatComponent->OnAttackLand.AddDynamic(this, &AHeroBase::OnAttack);
 }
 
 void AHeroBase::SetupBaseAttributes()
