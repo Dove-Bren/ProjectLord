@@ -7,6 +7,8 @@
 
 #include "SelectionComponent.generated.h"
 
+class USelectionAction;
+
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
 DECLARE_MULTICAST_DELEGATE(FOnDeselected);
 
@@ -25,9 +27,8 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TWeakObjectPtr<USelectionComponent> SelectedComponent;
 
-    // TODO
-    //UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    //TArray<USelectionAction*> AvailableActions;
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TArray<USelectionAction*> AvailableActions;
 
 };
 
@@ -38,6 +39,8 @@ class PROJECTLORD_API USelectionComponent : public UActorComponent
 
 public:
     USelectionComponent();
+
+    virtual void BeginPlay() override;
 
     FOnSelected OnSelected;
     FOnDeselected OnDeselected;
@@ -56,11 +59,13 @@ public:
 
 protected:
 
-    // TODO
-    /*UPROPERTY(EditDefaultsOnly, Category = "Selection")
-    TArray<USelectionAction*> Actions;*/
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
+    TArray<TSubclassOf<USelectionAction>> Actions;
 
-    UPROPERTY(VisibleInstanceOnly, Category = "Selection")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Selection")
+    TArray<USelectionAction*> ActionInstances;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
     bool bSelectable;
 
 };

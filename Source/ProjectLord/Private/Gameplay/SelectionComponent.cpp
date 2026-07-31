@@ -9,11 +9,26 @@ USelectionComponent::USelectionComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void USelectionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	for (auto& ActionClass : Actions)
+	{
+		ActionInstances.Add(
+			NewObject<USelectionAction>(this, ActionClass)
+		);
+	}
+}
+
 FSelectionData USelectionComponent::Select()
 {
 	OnSelected.Broadcast();
 
-	return FSelectionData(this);
+	FSelectionData SelectData(this);
+	SelectData.AvailableActions.Append(ActionInstances);
+
+	return SelectData;
 }
 
 void USelectionComponent::Deselect()
