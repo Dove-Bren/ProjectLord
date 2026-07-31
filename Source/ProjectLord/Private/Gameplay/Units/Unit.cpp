@@ -162,7 +162,8 @@ void AUnit::AddHealthbarWidget()
     }
 
     const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
-    if (!ensure(WidgetBlueprints) || !ensure(WidgetBlueprints->UnitMiniHealthBarWidget.IsValid()))
+    const TSubclassOf<UHealthBarBase> HealthBarWidgetClass = WidgetBlueprints ? WidgetBlueprints->UnitMiniHealthBarWidget.LoadSynchronous() : nullptr;
+    if (!ensure(WidgetBlueprints) || !ensure(HealthBarWidgetClass))
     {
         return;
     }
@@ -177,7 +178,7 @@ void AUnit::AddHealthbarWidget()
         FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     HealthbarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
     HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
-    HealthbarWidgetComponent->SetWidgetClass(WidgetBlueprints->UnitMiniHealthBarWidget.Get());
+    HealthbarWidgetComponent->SetWidgetClass(HealthBarWidgetClass);
 
     FinishAddComponent(HealthbarWidgetComponent, true, FTransform{FVector{0.f, 0.f, -100.f}});
     HealthbarWidgetComponent->Activate();
