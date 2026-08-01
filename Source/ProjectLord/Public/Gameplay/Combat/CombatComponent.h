@@ -19,6 +19,7 @@ struct FGameplayAbilitySpecHandle;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UCombatComponent : public UActorComponent
@@ -36,6 +37,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnAttackLand OnAttackLand;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTargetChange OnTargetChange;
 
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
@@ -79,7 +83,7 @@ public:
     UAbilitySystemComponent* GetAbilitySubsystemComponent() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")
-    UCombatComponent* GetCombatTarget() const;
+    UCombatComponent* GetCombatTarget() const { return TargetComponent; }
 
     UFUNCTION(BlueprintCallable, Category = "Combat Events")
     void NotifyOfAbilityHit(UCombatComponent* HitCombatComponent);
@@ -98,6 +102,8 @@ public:
     UFUNCTION(BlueprintNativeEvent, Category = "Ability")
     FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
 
+    void SetTarget(UCombatComponent* InTarget);
+
 
 protected:
 
@@ -115,6 +121,12 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
     TArray<TSubclassOf<UCombatAbility>> DefaultAbilities;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    TObjectPtr<UCombatComponent> TargetComponent;
+
+    UFUNCTION()
+    void OnOwnerPossessed(APawn* Pawn, AController* OldController, AController* NewController);
 
 public:
 

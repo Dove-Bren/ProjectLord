@@ -5,78 +5,63 @@
 #include "CoreMinimal.h"
 #include "UI/ViewModels/LordViewModelBase.h"
 
-#include "Gameplay/Combat/CombatTypes.h"
+#include "Gameplay/GameTeam.h"
 
 #include "SelectionViewModel.generated.h"
 
-USTRUCT(BlueprintType)
-struct PROJECTLORD_API FSelectionProperties
+class UVMAction;
+class UVMCombatData;
+class UVMGold;
+class UVMLevel;
+class UVMProgressQueue;
+class USelectionComponent;
+class UTexture2D;
+
+UCLASS(BlueprintType)
+class PROJECTLORD_API UVMSelection : public UVMLordBase
 {
     GENERATED_BODY()
 
 public:
-    FSelectionProperties() {};
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bHasGold = false;
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    FText SelectionName;
+    void SetSelectionName(FText Name) { UE_MVVM_SET_PROPERTY_VALUE(SelectionName, Name); }
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bHasAction = false;
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    EGameTeam Team;
+    void SetTeam(EGameTeam InTeam) { UE_MVVM_SET_PROPERTY_VALUE(Team, InTeam); }
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bHasCombatData = false;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bHasLevel = false;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    bool bProgressQueue = false;
-
-    static FSelectionProperties MakeChest() { FSelectionProperties Ret; Ret.bHasGold = true; return Ret; }
-    static FSelectionProperties MakeCivilian() { FSelectionProperties Ret; Ret.bHasAction = true; Ret.bHasCombatData = true; return Ret; }
-    static FSelectionProperties MakeHero() { FSelectionProperties Ret; Ret.bHasGold = true; Ret.bHasAction = true; Ret.bHasCombatData = true; Ret.bHasLevel = true; return Ret; }
-    static FSelectionProperties MakeMonster() { FSelectionProperties Ret; Ret.bHasGold = true; Ret.bHasAction = true; Ret.bHasCombatData = true; return Ret; }
-    static FSelectionProperties MakeBasicBuilding() { FSelectionProperties Ret; Ret.bHasGold = true; Ret.bHasCombatData = true; return Ret; } // Note: Buildings don't show level
-    static FSelectionProperties MakeGuildBuilding() { FSelectionProperties Ret; Ret.bHasGold = true; Ret.bHasCombatData = true; Ret.bProgressQueue = true; return Ret; }
-
-    bool operator==(const FSelectionProperties& Other) const = default;
-};
-
-// Base VM class for anything selectable
-UCLASS(Abstract)
-class PROJECTLORD_API USelectionViewModel : public UVMLordBase
-{
-    GENERATED_BODY()
-
-public:
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    TObjectPtr<UTexture2D> Icon;
+    void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
     
-    FSelectionProperties GetSelectionProperties() const { return SelectionProperties; }
-    EUnitTeam GetTeam() const { return Team; }
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMGold> GoldVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMAction> ActionVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMCombatData> CombatDataVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMLevel> LevelVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMProgressQueue> ProgressQueueVM;
+
+    bool GetOnSelectionChange() const { return OnSelectionChange; }
+
+    void Reset(bool bTriggerUpdate = true);
+    void TriggerSelectionChange() { UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnSelectionChange); }
 
 protected:
 
-    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection")
-    FSelectionProperties SelectionProperties;
-    void SetSelectionProperties(FSelectionProperties InProperties) { UE_MVVM_SET_PROPERTY_VALUE(SelectionProperties, InProperties); }
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Trigger")
+    bool OnSelectionChange;
 
-    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection")
-    EUnitTeam Team;
-    void SetTeam(EUnitTeam InTeam) { UE_MVVM_SET_PROPERTY_VALUE(Team, InTeam); }
+    UPROPERTY(BlueprintReadOnly, Category = "Selection")
+    TObjectPtr<USelectionComponent> SelectionComponent;
 
-private:
-    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection")
-    TObjectPtr<USelectionComponent*> SelectionComponent;
-
-};
-
-UCLASS(Abstract)
-class PROJECTLORD_API UUnitSelectionViewModel : public USelectionViewModel
-{
-    int GetGold() const;
-
-protected:
-
-    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection")
-    int Gold;
-    void SetGold();//
 };

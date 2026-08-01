@@ -15,6 +15,10 @@
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "UI/ViewModels/SelectionViewModel.h"
+#include "UI/ViewModels/Generic/CombatDataViewModel.h"
+#include "UI/ViewModels/Generic/GoldViewModel.h"
+#include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 ABuilding::ABuilding()
 {
@@ -156,6 +160,20 @@ void ABuilding::BeginPlay()
     }
 
     QueueComponent->OnActionReady.AddDynamic(this, &ABuilding::OnQueueActionReady);
+
+    // Set up selection Data
+    {
+        // All of this never changes
+        SelectionComponent->SetTeam(GetTeam());
+        SelectionComponent->SetName(GetBuildingName());
+        SelectionComponent->SetIcon(GetBuildingType()->BuildingIcon);
+
+        SelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
+
+            /*CombatDataViewModel.h"
+#include "UI/ViewModels/Generic/GoldViewModel.h"
+"UI/ViewModels/Generic/ProgressQueueViewModel*/
+    }
 }
 
 void ABuilding::EndPlay(EEndPlayReason::Type Reason)
@@ -226,6 +244,17 @@ void ABuilding::SetupBaseGoods()
 ABuildingController* ABuilding::GetBuildingController() const
 {
     return Cast<ABuildingController>(GetController());
+}
+
+FText ABuilding::GetBuildingName() const
+{
+    if (!BuildingCustomName.IsEmpty())
+    {
+        return BuildingCustomName;
+    }
+
+    auto Def = GetBuildingType();
+    return Def->BuildingName;
 }
 
 int ABuilding::GetBuildingHealth() const

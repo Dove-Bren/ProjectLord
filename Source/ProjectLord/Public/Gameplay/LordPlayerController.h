@@ -12,6 +12,7 @@
 
 class UInputMappingContext;
 class ALordPlayerState;
+class UVMSelection;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
@@ -39,7 +40,10 @@ public:
     void SetSelection(USelectionComponent* Selection);
 
     UFUNCTION(BlueprintCallable, Category = "Selection")
-    void ClearSelection();
+    void ClearSelection(bool bBroadcast = true);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName="OnSelectionChange"))
+    void BP_OnSelectionChange();
 
 protected:
 
@@ -51,5 +55,10 @@ protected:
 
     TOptional<FSelectionData> Selection;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMSelection> SelectionVM;
+
     bool CanSelect(const AActor* ClickedActor) const;
+
+    void OnSelectionChange();
 };

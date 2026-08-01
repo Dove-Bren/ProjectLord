@@ -1,0 +1,92 @@
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UI/ViewModels/LordViewModelBase.h"
+
+#include "CombatDataViewModel.generated.h"
+
+class UCombatComponent;
+
+UCLASS(BlueprintType)
+class PROJECTLORD_API UVMCombatData: public UVMLordBase
+{
+    GENERATED_BODY()
+
+public:
+    int GetHealth() const { return Health; }
+    int GetMaxHealth() const { return MaxHealth; }
+
+    int GetMeleeDefense() const { return MeleeDefense; }
+    int GetRangedDefense() const { return RangedDefense; }
+    int GetMagicDefense() const { return MagicDefense; }
+
+    int GetBonusMeleeDamage() const { return BonusMeleeDamage; }
+    int GetBonusRangedDamage() const { return BonusRangedDamage; }
+    int GetBonusMagicDamage() const { return BonusMagicDamage; }
+
+    float GetSight() const { return Sight; }
+    float GetAttackRange() const { return AttackRange; }
+
+    UCombatComponent* GetTarget() const { return Target; }
+
+    virtual void Init(UCombatComponent* Component);
+
+    static UVMCombatData* Make(UObject* Outer, UCombatComponent* Component)
+    {
+        auto VM = CreateLordVM<UVMCombatData>(Outer);
+        VM->Init(Component);
+        return VM;
+    }
+
+protected:
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int Health;
+    void SetHealth(int InHealth) { UE_MVVM_SET_PROPERTY_VALUE(Health, InHealth); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int MaxHealth;
+    void SetMaxHealth(int InMaxHealth) { UE_MVVM_SET_PROPERTY_VALUE(MaxHealth, InMaxHealth); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int MeleeDefense;
+    void SetMeleeDefense(int InMeleeDefense) { UE_MVVM_SET_PROPERTY_VALUE(MeleeDefense, InMeleeDefense); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int RangedDefense;
+    void SetRangedDefense(int InRangedDefense) { UE_MVVM_SET_PROPERTY_VALUE(RangedDefense, InRangedDefense); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int MagicDefense;
+    void SetMagicDefense(int InMagicDefense) { UE_MVVM_SET_PROPERTY_VALUE(MagicDefense, InMagicDefense); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int BonusMeleeDamage;
+    void SetBonusMeleeDamage(int InBonusMeleeDamage) { UE_MVVM_SET_PROPERTY_VALUE(BonusMeleeDamage, InBonusMeleeDamage); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int BonusRangedDamage;
+    void SetBonusRangedDamage(int InBonusRangedDamage) { UE_MVVM_SET_PROPERTY_VALUE(BonusRangedDamage, InBonusRangedDamage); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int BonusMagicDamage;
+    void SetBonusMagicDamage(int InBonusMagicDamage) { UE_MVVM_SET_PROPERTY_VALUE(BonusMagicDamage, InBonusMagicDamage); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    float Sight;
+    void SetSight(float InSight) { UE_MVVM_SET_PROPERTY_VALUE(Sight, InSight); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    float AttackRange;
+    void SetAttackRange(float InAttackRange) { UE_MVVM_SET_PROPERTY_VALUE(AttackRange, InAttackRange); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    UCombatComponent* Target;
+    void SetTarget(UCombatComponent* InTarget) { UE_MVVM_SET_PROPERTY_VALUE(Target, InTarget); }
+
+    UFUNCTION()
+    void OnTargetChange(UCombatComponent* InTarget) { SetTarget(InTarget); }
+
+};

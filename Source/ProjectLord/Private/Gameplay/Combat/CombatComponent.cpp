@@ -38,6 +38,16 @@ void UCombatComponent::BeginPlay()
                     }
                 });
 	}
+
+    if (auto OwnerPawn = Cast<APawn>(GetOwner()))
+    {
+        OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UCombatComponent::OnOwnerPossessed);
+        if (auto OwnerController = OwnerPawn->GetController<AUnitController>())
+        {
+            OnOwnerPossessed(OwnerPawn, nullptr, OwnerController);
+        }
+        
+    }
 }
 
 void UCombatComponent::EndPlay(EEndPlayReason::Type Reason)
@@ -86,25 +96,25 @@ UAbilitySystemComponent* UCombatComponent::GetAbilitySubsystemComponent() const
     return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner);
 }
 
-UCombatComponent* UCombatComponent::GetCombatTarget() const
-{
-    auto Owner = GetOwner();
-    if (auto Unit = Cast<AUnit>(Owner))
-    {
-        auto UnitController = Unit->GetUnitController();
-        if (ensure(UnitController))
-        {
-            return UnitController->GetTargetComponent();
-        }
-    }
-    if (auto Building = Cast<ABuilding>(Owner))
-    {
-        // TODO
-    }
-
-    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
-    return nullptr;
-}
+//UCombatComponent* UCombatComponent::GetCombatTarget() const
+//{
+//    auto Owner = GetOwner();
+//    if (auto Unit = Cast<AUnit>(Owner))
+//    {
+//        auto UnitController = Unit->GetUnitController();
+//        if (ensure(UnitController))
+//        {
+//            return UnitController->GetTargetComponent();
+//        }
+//    }
+//    if (auto Building = Cast<ABuilding>(Owner))
+//    {
+//        // TODO
+//    }
+//
+//    ensureMsgf(false, TEXT("Owning Actor (%s) is neither a Unit or a building"), *GetNameSafe(Owner));
+//    return nullptr;
+//}
 
 void UCombatComponent::NotifyOfAbilityHit(UCombatComponent* HitCombatComponent)
 {
@@ -257,6 +267,15 @@ const int UCombatComponent::PickPreferredAttackAbility_Implementation(const TArr
     return MaxIndex;
 }
 
+void UCombatComponent::SetTarget(UCombatComponent* InTarget)
+{
+    if (TargetComponent != InTarget)
+    {
+        TargetComponent = InTarget;
+        OnTargetChange.Broadcast(TargetComponent);
+    }
+}
+
 void UCombatComponent::BroadcastDeath()
 {
     OnDeath.Broadcast();
@@ -273,4 +292,18 @@ void UCombatComponent::BroadcastAttackLand(AActor* Target, UCombatComponent* Tar
 {
     OnAttackLand.Broadcast(Target, TargetCombatComponent);
     ReceiveOnAttackLand(Target, TargetCombatComponent);
+}
+
+void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldController, AController* InNewController)
+{
+    auto OldController = Cast<AUnitController>(InOldController);
+    auto NewController = Cast<AUnitController>(InNewController);
+    if (OldController)
+    {
+        OldController->OnAITargetChange.RemoveAll(this);
+    }
+    if (NewController)
+    {
+        NewController->OnAITargetChange.AddUObject(this, &UCombatComponent::SetTarget);
+    }
 }

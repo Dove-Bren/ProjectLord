@@ -6,6 +6,7 @@
 #include "InputMappingContext.h"
 
 #include "Gameplay/LordPlayerState.h"
+#include "UI/ViewModels/SelectionViewModel.h"
 
 ALordPlayerController::ALordPlayerController()
 {
@@ -24,6 +25,9 @@ void ALordPlayerController::BeginPlay()
 			Subsystem->AddMappingContext(StartingInputContext, 0);
 		}
 	}
+
+	// Set up VM
+	SelectionVM = CreateLordVM<UVMSelection>(this);
 }
 
 ALordPlayerState* ALordPlayerController::GetLordPlayerState() const
@@ -46,11 +50,12 @@ EGameTeam ALordPlayerController::GetTeam() const
 
 void ALordPlayerController::SetSelection(USelectionComponent* InSelection)
 {
-	ClearSelection(); // To issue deselect callbacks
+	ClearSelection(false); // To issue deselect callbacks
 	Selection = InSelection->Select();
+	OnSelectionChange();
 }
 
-void ALordPlayerController::ClearSelection()
+void ALordPlayerController::ClearSelection(bool bBroadcast)
 {
 	if (HasSelection())
 	{
@@ -60,6 +65,10 @@ void ALordPlayerController::ClearSelection()
 		}
 	}
 	Selection = NullOpt;
+	if (bBroadcast)
+	{
+		OnSelectionChange();
+	}
 }
 
 void ALordPlayerController::OnMouseClick(bool bRightButton)
@@ -90,4 +99,29 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
 {
 	return IsValid(ClickedActor->GetComponentByClass<USelectionComponent>());
+}
+
+void ALordPlayerController::OnSelectionChange()
+{
+	// Update VM
+	bool bHasNewData = HasSelection();
+	SelectionVM->Reset(!bHasNewData);
+	if (bHasNewData)
+	{
+		auto Selected = GetSelection();
+
+		SelectionVM->SetIcon(Selected.Icon);
+		SelectionVM->SetSelectionName(Selected.Name);
+		SelectionVM->SetTeam(Selected.Team);
+
+		SelectionVM->ActionVM = Selected.ActionVM;
+		SelectionVM->CombatDataVM = Selected.CombatDataVM;
+		SelectionVM->GoldVM = Selected.GoldVM;
+		SelectionVM->LevelVM = Selected.LevelVM;
+		SelectionVM->ProgressQueueVM = Selected.QueueVM;
+
+		SelectionVM->TriggerSelectionChange();
+	}
+
+	BP_OnSelectionChange();
 }

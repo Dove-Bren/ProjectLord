@@ -38,6 +38,9 @@ public:
     ABuildingController* GetBuildingController() const;
 
     UFUNCTION(BlueprintPure)
+    FText GetBuildingName() const;
+
+    UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
 
     // Note: Does not clean up references on the Creature
