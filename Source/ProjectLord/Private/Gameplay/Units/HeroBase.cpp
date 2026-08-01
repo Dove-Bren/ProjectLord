@@ -2,6 +2,8 @@
 
 #include "Gameplay/Units/HeroBase.h"
 
+#include "GameplayEffect.h"
+#include "Gameplay/GameGood.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
@@ -132,4 +134,48 @@ void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComp
 {
 	// TEST amount; should prob just be 1
 	AddHeroXP(GetHeroMaxXP() / 2);
+}
+
+bool AHeroBase::CanApply(const UGameGood* Good) const
+{
+	// If good has an item, return true;
+	// This should be where we look at item caps maybe, but leaving
+	// it off for now.
+	// Either this will have to return false (too many health potions already!)
+	// or the AI will have to decide it doesn't want anymore if it already
+	// has enough
+	if (IsValid(Good->GetItemDef()))
+	{
+		return true;
+	}
+
+	// Else check if we already have the ability
+	auto Ability = Good->GetAbility();
+	if (IsValid(Ability))
+	{
+		return false;
+	}
+
+	auto AbilityHandle = AbilitySystemComponent->FindAbilitySpecFromClass(Ability);
+	if (AbilityHandle)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void AHeroBase::Apply(const UGameGood* Good)
+{
+	if (IsValid(Good->GetItemDef()))
+	{
+		auto Stack = UHeroItemStack::Make(this, Good->GetItemDef(), 1);
+		GetInventory()->Add(Stack);
+	}
+
+	auto Ability = Good->GetAbility();
+	if (IsValid(Ability))
+	{
+		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
+	}
 }

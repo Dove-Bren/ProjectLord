@@ -26,6 +26,8 @@ enum class EEquipmentTier : uint8
     SecondTier,
     ThirdTier,
     FourthTier,
+
+    Invalid
 };
 
 UCLASS(Blueprintable)
@@ -303,7 +305,7 @@ public:
     int AddGuildGold(int Amount);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|ExtraItems")
-    bool AddExtraItem(UHeroItemStack* ExtraItem);
+    bool Add(UHeroItemStack* Item);
 
 
 protected:
@@ -328,6 +330,14 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
+
+    /*bool ItemIsWeapon(const UHeroItemStack* Item) const;
+    EEquipmentTier GetWeaponTier(const UHeroItemStack* Item) const;
+    bool ItemIsArmor(const UHeroItemStack* Item) const;
+    EEquipmentTier GetArmorTier(const UHeroItemStack* Item) const;
+    bool ItemIsHealthPotion(const UHeroItemStack* Item) const;
+    bool ItemIsManaPotion(const UHeroItemStack* Item) const;*/
+    bool AddExtraItem(UHeroItemStack* ExtraItem);
 
 private:
 

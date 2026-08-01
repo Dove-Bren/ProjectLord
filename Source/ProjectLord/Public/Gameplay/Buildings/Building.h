@@ -18,6 +18,8 @@ class ABuildingController;
 class USelectionComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
+class UGameGood;
+struct FGoodOffer;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn
@@ -75,6 +77,12 @@ public:
     UFUNCTION(BlueprintPure)
     UStaticMesh* GetBuildingMesh() const;
 
+    UFUNCTION(BlueprintPure)
+    const TArray<FGoodOffer>& GetGoods() const { return Goods; }
+
+    UFUNCTION(BlueprintPure)
+    bool HasGood(UGameGood* GoodType) const;
+
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
@@ -125,6 +133,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> BuildingAttributeValues;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Building|Definition")
+    TArray<FGoodOffer> DefaultGoods;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;
 
@@ -154,7 +165,8 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
     TArray<ACreature*> Visitors;
 
-    // TODO: Goods/services
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
+    TArray<FGoodOffer> Goods;
 
     // TODO: Actions (like queue a hero recruit, start building upgrade, research something...)
 
@@ -162,6 +174,7 @@ protected:
     //ACreature* SpawnCreature(UCreatureType);
 
     virtual void SetupBaseAttributes();
+    virtual void SetupBaseGoods();
 
     int GetBuildingHealth() const;
     int GetBuildingMaxHealth() const;

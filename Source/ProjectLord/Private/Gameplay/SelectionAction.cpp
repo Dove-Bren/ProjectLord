@@ -65,6 +65,37 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionCon
 	return Super::CanPerform_Implementation(Context);
 }
 
+bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
+{
+	if (!Super::CanPerform_Implementation(Context))
+	{
+		return false;
+	}
+
+	// Check if building has good already
+	ABuilding* BuildingOwner = GetBuilding(Context);
+
+	// TODO #41 check the queue, too!
+
+	return !BuildingOwner->HasGood(GetGood().Good);
+}
+
+bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext& Context)
+{
+	auto Building = GetBuilding(Context);
+	if (!ensure(Building))
+	{
+		return false;
+	}
+
+	Context.PlayerState->AddGold(-GetGoldCost());
+
+	// TODO #41 - Building Queues
+	//Building->QueueResearchGood(GetGood());
+
+	return true;
+}
+
 bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
 	// TODO #41 - Building Queues

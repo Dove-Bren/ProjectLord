@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "LordLogging.h"
+#include "Gameplay/GameGood.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
@@ -91,6 +92,19 @@ UStaticMesh* ABuilding::GetBuildingMesh() const
     return nullptr;
 }
 
+bool ABuilding::HasGood(UGameGood* GoodType) const
+{
+    for (const auto& Good : Goods)
+    {
+        if (Good.Good == GoodType)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void ABuilding::BeginPlay()
 {
     Super::BeginPlay();
@@ -164,6 +178,14 @@ void ABuilding::SetupBaseAttributes()
                 AbilitySystemComponent->SetNumericAttributeBase(Value.Attribute, AttributeValue);
 
             });
+    }
+}
+
+void ABuilding::SetupBaseGoods()
+{
+    for (const auto& Good : DefaultGoods)
+    {
+        Goods.Add(Good);
     }
 }
 

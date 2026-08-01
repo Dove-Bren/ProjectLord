@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+#include "Gameplay/GameGood.h"
+
 #include "SelectionAction.generated.h"
 
 class UTexture2D;
@@ -111,24 +113,25 @@ public:
     ABuilding* GetBuilding(const FSelectionActionContext& Context) const;
 };
 
-// TODO: #42 Need building goods
-//UCLASS(Blueprintable, Abstract)
-//class PROJECTLORD_API UResearchGoodPurchase : public UBuildingBasedPurchase
-//{
-//    GENERATED_BODY()
-//
-//public:
-//
-//    // Make sure building doesn't already have it
-//    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
-//
-//    UFUNCTION(BlueprintPure, Category = "Selection|Action")
-//    ABuilding* GetBuilding(const FSelectionActionContext& Context) const;
-//
-//protected:
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
-//    FBuildingGood Good;
-//};
+UCLASS(Blueprintable, Abstract)
+class PROJECTLORD_API UResearchGoodPurchase : public UBuildingBasedPurchase
+{
+    GENERATED_BODY()
+
+public:
+
+    // Make sure building doesn't already have it
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
+
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
+
+    UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
+    FGoodOffer GetGood() const { return Good; }
+
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
+    FGoodOffer Good;
+};
 
 UCLASS(Blueprintable, Abstract)
 class PROJECTLORD_API URecruitUnitPurchase : public UBuildingBasedPurchase

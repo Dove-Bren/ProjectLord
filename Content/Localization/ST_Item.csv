@@ -65,3 +65,7 @@ ItemDef.ARM_Magic_Tier3.Name,"Masterwork Cloth Armor",
 ItemDef.ARM_Magic_Tier3.Desc,"Improves protection against all types of attacks",
 ItemDef.ARM_Magic_Tier4.Name,"Expert Cloth Armor",
 ItemDef.ARM_Magic_Tier4.Desc,"Improves protection against all types of attacks",
+
+ItemDef.EFF_WeaponEnchantment.Name,"Weapon Enchantment",
+ItemDef.EFF_WeaponEnchantment.Desc,"Wizards Guild will enchant a weapon for a fee. Enchanted weapons improve attacks of all types",
+

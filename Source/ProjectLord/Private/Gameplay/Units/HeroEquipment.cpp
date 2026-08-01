@@ -113,6 +113,34 @@ int UHeroInventory::AddGuildGold(int Amount)
 	return GuildGold;
 }
 
+bool UHeroInventory::Add(UHeroItemStack* Item)
+{
+	if (!ensure(Item))
+	{
+		return false;
+	}
+
+	switch (Item->GetItemDef()->GetItemType())
+	{
+	case EItemType::Weapon:
+		SetWeapon(Item);
+		return true;
+	case EItemType::Armor:
+		SetArmor(Item);
+		return true;
+	case EItemType::HealthPotion:
+		SetHealthPotions(Item);
+		return true;
+	case EItemType::ManaPotion:
+		SetManaPotions(Item);
+		return true;
+	case EItemType::Other:
+		return AddExtraItem(Item);
+	}
+
+	return false;
+}
+
 bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
 {
 	// Look for existing stack first

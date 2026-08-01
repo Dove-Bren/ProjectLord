@@ -11,6 +11,7 @@
 
 class ULordHeroAttributeSet;
 class UHeroInventory;
+class UGameGood;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public ACreature
@@ -33,6 +34,12 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Inventory")
     UHeroInventory* GetInventory() { return Inventory; }
+
+    UFUNCTION(BlueprintPure, Category = "Goods")
+    bool CanApply(const UGameGood* Good) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Goods")
+    void Apply(const UGameGood* Good);
 
     virtual void BeginPlay() override;
 
