@@ -2,9 +2,14 @@
 
 #include "Gameplay/Units/HeroEquipment.h"
 
-UHeroItemDef::UHeroItemDef()
+bool UHeroEquipmentDef::CanUse(UCreatureType* HeroType) const
 {
-	
+	if (!AllowedHeroTypes.Contains(HeroType))
+	{
+		return false;
+	}
+
+	return Super::CanUse(HeroType);
 }
 
 void UHeroItemStack::Init(UHeroItemDef* InItemDef, int InCount)
@@ -16,41 +21,31 @@ void UHeroItemStack::Init(UHeroItemDef* InItemDef, int InCount)
 
 UHeroInventory::UHeroInventory()
 {
-	Weapon = EEquipmentTier::Starter;
-	Armor = EEquipmentTier::Starter;
+	
 }
 
-void UHeroInventory::InitInventory(FHeroEquipmentMap InEquipmentDefMap)
+void UHeroInventory::InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor)
 {
-	EquipmentDefMap = InEquipmentDefMap;
-}
-
-UHeroItemStack* UHeroInventory::GetWeaponAsStack() const
-{
-	auto Def = EquipmentDefMap.GetWeaponForTier(Weapon);
-	return MakeThrowawayStack(GetWorld(), Def, 1);
-}
-
-UHeroItemStack* UHeroInventory::GetArmorAsStack() const
-{
-	auto Def = EquipmentDefMap.GetArmorForTier(Armor);
-	return MakeThrowawayStack(GetWorld(), Def, 1);
-}
-
-UHeroItemStack* UHeroInventory::GetHealthPotionsAsStack() const
-{
-	auto Def = EquipmentDefMap.HealthPotion;
-	return MakeThrowawayStack(GetWorld(), Def, 1);
-}
-
-UHeroItemStack* UHeroInventory::GetManaPotionsAsStack() const
-{
-	auto Def = EquipmentDefMap.ManaPotion;
-	return MakeThrowawayStack(GetWorld(), Def, 1);
+	if (ensure(StarterWeapon))
+	{
+		SetWeapon(UHeroItemStack::Make(this, StarterWeapon, 1));
+	}
+	if (ensure(StarterArmor))
+	{
+		SetArmor(UHeroItemStack::Make(this, StarterArmor, 1));
+	}
 }
 
 UHeroItemStack* UHeroInventory::FindItem(const UHeroItemDef* ItemDef) const
 {
+	if (IsValid(Weapon) && ItemDef == Weapon->GetItemDef())
+	{
+		return Weapon;
+	}
+	if (IsValid(Armor) && ItemDef == Armor->GetItemDef())
+	{
+		return Armor;
+	}
 	for (auto InSlot : ExtraSlots)
 	{
 		if (InSlot->GetItemDef() == ItemDef)
@@ -62,46 +57,48 @@ UHeroItemStack* UHeroInventory::FindItem(const UHeroItemDef* ItemDef) const
 	return nullptr;
 }
 
-void UHeroInventory::SetWeaponTier(EEquipmentTier WeaponTier)
+void UHeroInventory::SetWeapon(UHeroItemStack* InWeapon)
 {
-	if (WeaponTier != Weapon)
+	if (InWeapon != Weapon)
 	{
-		Weapon = WeaponTier;
+		Weapon = InWeapon;
 		OnInventoryItemsChanged.Broadcast();
 	}
 }
 
-void UHeroInventory::SetArmorTier(EEquipmentTier ArmorTier)
+void UHeroInventory::SetArmor(UHeroItemStack* InArmor)
 {
-	if (ArmorTier != Armor)
+	if (InArmor != Armor)
 	{
-		Armor = ArmorTier;
+		Armor = InArmor;
 		OnInventoryItemsChanged.Broadcast();
 	}
 }
 
-void UHeroInventory::AddHealthPotions(int Count)
+void UHeroInventory::SetHealthPotions(UHeroItemStack* InHealthPotions)
 {
-	ensure(Count > 0);
-	HealthPotions += Count;
+	HealthPotions = InHealthPotions;
 }
 
 void UHeroInventory::DeductHealthPotion()
 {
-	ensure(HealthPotions > 0);
-	HealthPotions--;
+	if (ensure(HealthPotions && HealthPotions->GetCount() > 0))
+	{
+		HealthPotions->SetCount(HealthPotions->GetCount() - 1);
+	}
 }
 
-void UHeroInventory::AddManaPotions(int Count)
+void UHeroInventory::SetManaPotions(UHeroItemStack* InManaPotions)
 {
-	ensure(Count > 0);
-	ManaPotions += Count;
+	ManaPotions = InManaPotions;
 }
 
 void UHeroInventory::DeductManaPotion()
 {
-	ensure(ManaPotions > 0);
-	ManaPotions--;
+	if (ensure(ManaPotions && ManaPotions->GetCount() > 0))
+	{
+		ManaPotions->SetCount(ManaPotions->GetCount() - 1);
+	}
 }
 
 int UHeroInventory::AddPersonalGold(int Amount)

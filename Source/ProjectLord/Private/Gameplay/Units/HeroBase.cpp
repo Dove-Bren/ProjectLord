@@ -27,7 +27,7 @@ int AHeroBase::GetHeroMaxXP() const
 void AHeroBase::BeginPlay()
 {
 	Super::BeginPlay();
-	Inventory->InitInventory(EquipmentTypes);
+	Inventory->InitInventory(StarterWeapon, StarterArmor);
 	HandleInventoryChange();
 
 	CombatComponent->OnAttackLand.AddDynamic(this, &AHeroBase::OnAttack);
@@ -52,8 +52,8 @@ void AHeroBase::HandleInventoryChange()
 	// Cache inventory
 	LastAppliedInventoryDefs.Empty();
 
-	LastAppliedInventoryDefs.Add(Inventory->GetWeaponAsStack()->GetItemDef());
-	LastAppliedInventoryDefs.Add(Inventory->GetArmorAsStack()->GetItemDef());
+	LastAppliedInventoryDefs.Add(Inventory->GetWeapon()->GetItemDef());
+	LastAppliedInventoryDefs.Add(Inventory->GetArmor()->GetItemDef());
 	for (const auto ExtraStack : Inventory->GetExtraSlots())
 	{
 		LastAppliedInventoryDefs.Add(ExtraStack->GetItemDef());

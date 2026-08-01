@@ -42,7 +42,10 @@ protected:
     TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    FHeroEquipmentMap EquipmentTypes;
+    UHeroEquipmentDef* StarterWeapon;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    UHeroEquipmentDef* StarterArmor;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;

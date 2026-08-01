@@ -7,6 +7,17 @@
 
 class UTexture2D;
 struct FAttributeBaseValue;
+class UCreatureType;
+
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+    Weapon,
+    Armor,
+    HealthPotion,
+    ManaPotion,
+    Other
+};
 
 UENUM(BlueprintType)
 enum class EEquipmentTier : uint8
@@ -24,8 +35,6 @@ class PROJECTLORD_API UHeroItemDef : public UPrimaryDataAsset
 
 public:
 
-    UHeroItemDef();
-
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     FText GetItemName() const { return ItemName; }
 
@@ -35,11 +44,17 @@ public:
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     UTexture2D* GetItemIcon() const { return ItemIcon; }
 
+    UFUNCTION(BlueprintPure, Category = "Item|Definintion")
+    EItemType GetItemType() const { return ItemType; }
+
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     bool GetCanStack() const { return bCanStack; }
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     TArray<FAttributeBaseValue> GetAttributesToApply() const { return AttributesToApply; }
+
+    UFUNCTION(BlueprintPure, Category = "Item|Definition")
+    virtual bool CanUse(UCreatureType* HeroType) const { return true; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
@@ -52,10 +67,36 @@ protected:
     TObjectPtr<UTexture2D> ItemIcon;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
+    EItemType ItemType = EItemType::Other;
+
+    // TODO replace with GameplayEffect, which can apply attribute modifiers too
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     TArray<FAttributeBaseValue> AttributesToApply;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     bool bCanStack;
+};
+
+UCLASS(Blueprintable)
+class PROJECTLORD_API UHeroEquipmentDef : public UHeroItemDef
+{
+    GENERATED_BODY()
+
+public:
+
+    UFUNCTION(BlueprintPure, Category = "Item|Definintion")
+    EEquipmentTier GetEquipmentTier() const { return EEquipmentTier::Starter; }
+
+    virtual bool CanUse(UCreatureType* HeroType) const override;
+
+protected:
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
+    EEquipmentTier Tier;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
+    TArray<UCreatureType*> AllowedHeroTypes;
+
 };
 
 UCLASS(BlueprintType)
@@ -66,6 +107,12 @@ class PROJECTLORD_API UHeroItemStack : public UObject
 public:
 
     void Init(UHeroItemDef* InItemDef, int InCount);
+    static UHeroItemStack* Make(UObject* Outer, UHeroItemDef* InItemDef, int InCount)
+    {
+        UHeroItemStack* Stack = NewObject<UHeroItemStack>(Outer);
+        Stack->Init(InItemDef, InCount);
+        return Stack;
+    }
 
     UFUNCTION(BlueprintPure, Category = "ItemStack")
     UHeroItemDef* GetItemDef() const { return ItemDef; }
@@ -180,21 +227,33 @@ public:
 
     UHeroInventory();
 
-    void InitInventory(FHeroEquipmentMap EquipmentDefMap);
+    void InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor);
 
     FOnInventoryItemsChanged OnInventoryItemsChanged;
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    EEquipmentTier GetWeaponTier() const { return Weapon; }
+    UHeroItemStack* GetWeapon() const { return Weapon; }
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    EEquipmentTier GetArmorTier() const { return Armor; }
+    UHeroItemStack* GetArmor() const { return Armor; }
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    int GetNumHealthPotions() const { return HealthPotions; }
+    EEquipmentTier GetWeaponTier() const { return UnwrapEquipmentTier(Weapon); }
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    int GetNumManaPotions() const { return ManaPotions; }
+    EEquipmentTier GetArmorTier() const { return UnwrapEquipmentTier(Armor); }
+
+    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
+    UHeroItemStack* GetHealthPotions() const { return HealthPotions; }
+
+    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
+    UHeroItemStack* GetManaPotions() const { return ManaPotions; }
+
+    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
+    int GetNumHealthPotions() const { return HealthPotions ? HealthPotions->GetCount() : 0; }
+
+    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
+    int GetNumManaPotions() const { return ManaPotions ? ManaPotions->GetCount() : 0; }
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Gold")
     int GetPersonalGold() const { return PersonalGold; }
@@ -205,54 +264,34 @@ public:
     UFUNCTION(BlueprintPure, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> GetExtraSlots() const { return  ExtraSlots; }
 
-    // ItemStack interface for Equipment
-
-    // Get an ItemStack representing the weapon in this inventory.
-    // Note the stack is constructed on the fly, and changes do not propogate
-    // to the inventory.
-    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    UHeroItemStack* GetWeaponAsStack() const;
-
-    // Get an ItemStack representing the armor in this inventory.
-    // Note the stack is constructed on the fly, and changes do not propogate
-    // to the inventory.
-    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    UHeroItemStack* GetArmorAsStack() const;
-
-    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    UHeroItemStack* GetHealthPotionsAsStack() const;
-
-    UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
-    UHeroItemStack* GetManaPotionsAsStack() const;
-
     // More general queries
 
-    // Check for the provided item def **in the Extra Item slots**.
-    // This does not match armor, weapons, or health/mana potions.
+    // Check for the provided item def **in the Weapon, Armor, and Extra Item slots**.
+    // This does not match health/mana potions.
     UFUNCTION(BlueprintPure, Category = "Inventory")
     UHeroItemStack* FindItem(const UHeroItemDef* ItemDef) const;
 
-    // Check for the provided item def **in the Extra Item slots**.
-    // This does not match armor, weapons, or health/mana potions.
+    // Check for the provided item def **in the Weapon, Armor, and Extra Item slots**.
+    // This does not match health/mana potions.
     UFUNCTION(BlueprintPure, Category = "Inventory")
     bool HasItem(const UHeroItemDef* ItemDef) const { return IsValid(FindItem(ItemDef)); }
 
     // Modifications
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
-    void SetWeaponTier(EEquipmentTier WeaponTier);
+    void SetWeapon(UHeroItemStack* Weapon);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
-    void SetArmorTier(EEquipmentTier ArmorTier);
+    void SetArmor(UHeroItemStack* Armor);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
-    void AddHealthPotions(int Count);
+    void SetHealthPotions(UHeroItemStack* HealthPotions);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
     void DeductHealthPotion();
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
-    void AddManaPotions(int Count);
+    void SetManaPotions(UHeroItemStack* ManaPotions);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory|Equipment")
     void DeductManaPotion();
@@ -270,16 +309,16 @@ public:
 protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
-    EEquipmentTier Weapon;
+    UHeroItemStack* Weapon;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
-    EEquipmentTier Armor;
+    UHeroItemStack* Armor;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
-    int HealthPotions;
+    UHeroItemStack* HealthPotions;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
-    int ManaPotions;
+    UHeroItemStack* ManaPotions;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Gold")
     int PersonalGold;
@@ -290,12 +329,18 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Inventory|Definition")
-    FHeroEquipmentMap EquipmentDefMap;
-
 private:
 
     static const int MaxExtraSlots = 8;
 
     static UHeroItemStack* MakeThrowawayStack(UObject* Outer, UHeroItemDef* Def, int Count);
+    static EEquipmentTier UnwrapEquipmentTier(const UHeroItemStack* Stack)
+    {
+        const auto* EquipDef = Cast<UHeroEquipmentDef>(Stack->GetItemDef());
+        if (ensure(EquipDef))
+        {
+            return EquipDef->GetEquipmentTier();
+        }
+        return EEquipmentTier::Starter;
+    }
 };
