@@ -146,7 +146,7 @@ public:
     virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Recruit")
-    UCreatureType* GetUnitType(const FSelectionActionContext& Context) const { return UnitType; }
+    UCreatureType* GetUnitType() const { return UnitType; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Recruit")

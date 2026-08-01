@@ -6,6 +6,7 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/BuildingActionQueue.h"
 
 bool USelectionAction::IsHidden_Implementation(const FSelectionActionContext& Context) const
 {
@@ -74,8 +75,12 @@ bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionCont
 
 	// Check if building has good already
 	ABuilding* BuildingOwner = GetBuilding(Context);
+	auto Queue = BuildingOwner->GetQueueComponent();
 
-	// TODO #41 check the queue, too!
+	if (Queue->IsFull())
+	{
+		return false;
+	}
 
 	return !BuildingOwner->HasGood(GetGood().Good);
 }
@@ -87,20 +92,26 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 	{
 		return false;
 	}
+	auto Queue = Building->GetQueueComponent();
+
+	auto Action = NewObject<UQueuedGoodAction>(Queue);
+	Action->Init(GetGoldCost(), GetGood());
 
 	Context.PlayerState->AddGold(-GetGoldCost());
-
-	// TODO #41 - Building Queues
-	//Building->QueueResearchGood(GetGood());
+	Queue->QueueAction(Action);
 
 	return true;
 }
 
 bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
-	// TODO #41 - Building Queues
-	// Check how many units a building has queued and if the queue size is big enough
-	// Make sure to add queued units to existing units, and check that too!
+	ABuilding* BuildingOwner = GetBuilding(Context);
+	auto Queue = BuildingOwner->GetQueueComponent();
+
+	if (Queue->IsFull())
+	{
+		return false;
+	}
 
 	return Super::CanPerform_Implementation(Context);
 }
@@ -113,10 +124,13 @@ bool URecruitUnitPurchase::Perform_Implementation(const FSelectionActionContext&
 		return false;
 	}
 
-	Context.PlayerState->AddGold(-GetGoldCost());
+	auto Queue = Building->GetQueueComponent();
 
-	// TODO #41 - Building Queues
-	//Building->QueueRecruitUnit(GetUnitType());
+	auto Action = NewObject<UQueuedRecruitAction>(Queue);
+	Action->Init(GetGoldCost(), GetUnitType());
+
+	Context.PlayerState->AddGold(-GetGoldCost());
+	Queue->QueueAction(Action);
 
 	return true;
 }

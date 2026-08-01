@@ -11,7 +11,10 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
+#include "Gameplay/Buildings/BuildingActionQueue.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Units/Creature.h"
+#include "Gameplay/Units/UnitTypes.h"
 
 ABuilding::ABuilding()
 {
@@ -35,6 +38,8 @@ ABuilding::ABuilding()
 
     SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
     SelectionComponent->SetSelectable(true);
+
+    QueueComponent = CreateDefaultSubobject<UBuildingActionQueueComponent>(TEXT("Queue"));
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -69,6 +74,33 @@ void ABuilding::AddVisitor(ACreature* Visitor)
 void ABuilding::RemoveVisitor(const ACreature* Visitor)
 {
 	Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; });
+}
+
+void ABuilding::AddGoodOffer(FGoodOffer InOffer)
+{
+    if (!HasGood(InOffer.Good))
+    {
+        Goods.Add(InOffer);
+    }
+}
+
+void ABuilding::RecruitNewUnit(UCreatureType* RecruitType)
+{
+    auto World = GetWorld();
+    if (!ensure(World))
+    {
+        return;
+    }
+
+    auto Location = GetBuildingEntrance();
+    auto Rotation = FRotator();
+    ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->CreatureClass, Location, Rotation);
+    if (IsValid(Recruit))
+    {
+        Recruit->SetTeam(GetTeam());
+        AddResident(Recruit);
+        Recruit->SetHomeBuilding(this);
+    }
 }
 
 FVector ABuilding::GetBuildingEntrance() const
@@ -122,6 +154,8 @@ void ABuilding::BeginPlay()
     {
         BuildingMesh->SetStaticMesh(GetBuildingMesh());
     }
+
+    QueueComponent->OnActionReady.AddDynamic(this, &ABuilding::OnQueueActionReady);
 }
 
 void ABuilding::EndPlay(EEndPlayReason::Type Reason)
@@ -222,4 +256,9 @@ void ABuilding::HandleDeath()
     }
 
     this->Destroy();
+}
+
+void ABuilding::OnQueueActionReady(UQueuedAction* Action)
+{
+    Action->Perform(this);
 }

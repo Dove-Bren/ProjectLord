@@ -39,6 +39,9 @@ public:
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
 
+    UFUNCTION(BlueprintCallable)
+    void SetTeam(EGameTeam InTeam) { Team = InTeam; }
+
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
 

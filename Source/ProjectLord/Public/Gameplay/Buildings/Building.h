@@ -19,6 +19,7 @@ class USelectionComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
 class UGameGood;
+class UBuildingActionQueueComponent;
 struct FGoodOffer;
 
 UCLASS(Blueprintable)
@@ -65,6 +66,15 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void SetBuildingGold(int InGold) { BuildingGold = InGold; }
+
+    UFUNCTION(BlueprintCallable)
+    void AddGoodOffer(FGoodOffer InOffer);
+
+    UFUNCTION(BlueprintCallable)
+    void RecruitNewUnit(UCreatureType* RecruitType);
+
+    UFUNCTION(BlueprintPure)
+    UBuildingActionQueueComponent* GetQueueComponent() const { return QueueComponent; }
 
 
 
@@ -151,6 +161,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building")
+    TObjectPtr<UBuildingActionQueueComponent> QueueComponent;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;
 
@@ -181,6 +194,9 @@ protected:
 
     UFUNCTION()
     void HandleDeath();
+
+    UFUNCTION()
+    void OnQueueActionReady(UQueuedAction* Action);
 
 public:
     virtual void BeginPlay() override;
