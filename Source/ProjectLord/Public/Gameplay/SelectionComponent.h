@@ -16,6 +16,7 @@ class UVMCombatData;
 class UVMGold;
 class UVMLevel;
 class UVMProgressQueue;
+class UVMSummarySlots;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
@@ -64,6 +65,9 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMProgressQueue> QueueVM;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMSummarySlots> SlotsVM;
+
 };
 
 UCLASS(BlueprintType)
@@ -100,6 +104,7 @@ public:
     void SetGoldVM(UVMGold* InVM) { GoldVM = InVM; }
     void SetLevelVM(UVMLevel* InVM) { LevelVM = InVM; }
     void SetQueueVM(UVMProgressQueue* InVM) { QueueVM = InVM; }
+    void SetSlotsVM(UVMSummarySlots* InVM) { SlotsVM = InVM; }
 
 protected:
 
@@ -136,4 +141,6 @@ protected:
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMProgressQueue> QueueVM;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMSummarySlots> SlotsVM;
 };

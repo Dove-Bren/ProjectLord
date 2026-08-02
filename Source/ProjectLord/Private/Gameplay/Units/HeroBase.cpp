@@ -11,6 +11,7 @@
 #include "Gameplay/Units/HeroEquipment.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 #include "UI/ViewModels/Generic/LevelViewModel.h"
+#include "UI/ViewModels/Generic/SummarySlotsViewModel.h"
 
 AHeroBase::AHeroBase() : ACreature()
 {
@@ -74,6 +75,27 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 		});
 	LevelVM->SetProgress(GetHeroXPPercent());
 	InSelectionComponent->SetLevelVM(LevelVM);
+
+	auto SlotsVM = CreateLordVM<UVMSummarySlots>(this);
+	SlotsVM->Init();
+	Inventory->OnInventoryItemsChanged.AddWeakLambda(this, [this, SlotsVM]() {
+			SlotsVM->SetSlot(0, UVMSummarySlot::MakeItem(this, Inventory->GetWeapon()));
+			SlotsVM->SetSlot(1, UVMSummarySlot::MakeItem(this, Inventory->GetHealthPotions()));
+			SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(0) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[0]) : UVMSummarySlot::MakeEmpty(this));
+			SlotsVM->SetSlot(3, UVMSummarySlot::MakeItem(this, Inventory->GetArmor()));
+			SlotsVM->SetSlot(4, UVMSummarySlot::MakeItem(this, Inventory->GetManaPotions()));
+			SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));
+		});
+
+	// Ugly optimization; inventory isn't actually set up yet, so don't bother doing this yet
+	/*SlotsVM->SetSlot(0, UVMSummarySlot::MakeItem(this, Inventory->GetWeapon()));
+	SlotsVM->SetSlot(1, UVMSummarySlot::MakeItem(this, Inventory->GetHealthPotions()));
+	SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(0) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[0]) : UVMSummarySlot::MakeEmpty(this));
+	SlotsVM->SetSlot(3, UVMSummarySlot::MakeItem(this, Inventory->GetArmor()));
+	SlotsVM->SetSlot(4, UVMSummarySlot::MakeItem(this, Inventory->GetManaPotions()));
+	SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));*/
+
+	InSelectionComponent->SetSlotsVM(SlotsVM);
 }
 
 void AHeroBase::HandleInventoryChange()

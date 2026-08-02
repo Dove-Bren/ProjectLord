@@ -41,6 +41,7 @@ FSelectionData USelectionComponent::Select()
 	SelectData.GoldVM = GoldVM;
 	SelectData.LevelVM = LevelVM;
 	SelectData.QueueVM = QueueVM;
+	SelectData.SlotsVM = SlotsVM;
 
 	return SelectData;
 }

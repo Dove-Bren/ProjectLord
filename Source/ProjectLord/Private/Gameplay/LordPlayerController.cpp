@@ -119,6 +119,7 @@ void ALordPlayerController::OnSelectionChange()
 		SelectionVM->GoldVM = Selected.GoldVM;
 		SelectionVM->LevelVM = Selected.LevelVM;
 		SelectionVM->ProgressQueueVM = Selected.QueueVM;
+		SelectionVM->SlotsVM = Selected.SlotsVM;
 
 		SelectionVM->TriggerSelectionChange();
 	}

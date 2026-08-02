@@ -13,6 +13,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     CombatDataVM = nullptr;
     LevelVM = nullptr;
     ProgressQueueVM = nullptr;
+    SlotsVM = nullptr;
 
     if (bTriggerUpdate)
     {

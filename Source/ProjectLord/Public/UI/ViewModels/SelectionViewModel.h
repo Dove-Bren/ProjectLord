@@ -14,6 +14,7 @@ class UVMCombatData;
 class UVMGold;
 class UVMLevel;
 class UVMProgressQueue;
+class UVMSummarySlots;
 class USelectionComponent;
 class UTexture2D;
 
@@ -50,6 +51,9 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMProgressQueue> ProgressQueueVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMSummarySlots> SlotsVM;
 
     bool GetOnSelectionChange() const { return OnSelectionChange; }
 
