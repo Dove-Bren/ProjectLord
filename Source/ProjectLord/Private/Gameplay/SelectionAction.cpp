@@ -116,6 +116,11 @@ bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionConte
 	{
 		return false;
 	}
+
+	if (!BuildingOwner->CanFitResidentType(GetUnitType()))
+	{
+		return false;
+	}
 	
 	auto Queue = BuildingOwner->GetQueueComponent();
 

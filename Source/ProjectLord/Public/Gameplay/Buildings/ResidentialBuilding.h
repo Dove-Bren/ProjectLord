@@ -9,6 +9,16 @@
 #include "ResidentialBuilding.generated.h"
 
 class ACreature;
+class UUnitType;
+
+DECLARE_MULTICAST_DELEGATE(FOnResidentsChanged);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnResidentAdded, ACreature*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnResidentRemoved, ACreature*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnResidentLimitChanged, UUnitType*);
+
+DECLARE_MULTICAST_DELEGATE(FOnVisitorsChanged);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnVisitorAdded, ACreature*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnVisitorRemoved, ACreature*);
 
 // A building that supports visits, residents, or both
 UCLASS(Blueprintable)
@@ -19,12 +29,21 @@ class PROJECTLORD_API AResidentialBuilding : public ABuilding
 public:
     AResidentialBuilding();
 
+    FOnResidentsChanged OnResidentsChanged;
+    FOnResidentAdded OnResidentAdded;
+    FOnResidentRemoved OnResidentRemoved;
+    FOnResidentLimitChanged OnResidentLimitChanged;
+
+    FOnVisitorsChanged OnVisitorsChanged;
+    FOnVisitorAdded OnVisitorAdded;
+    FOnVisitorRemoved OnVisitorRemoved;
+
     const TArray<ACreature*> GetBuildingResidents() const { return Residents; }
     const TArray<ACreature*> GetBuildingVisitors() const { return Visitors; }
 
     // Note: Does not clean up references on the Creature
     UFUNCTION(BlueprintCallable)
-    bool RemoveResident(const ACreature* Resident);
+    bool RemoveResident(ACreature* Resident);
 
     // Note: Does not clean up references on the Creature
     UFUNCTION(BlueprintCallable)
@@ -44,12 +63,25 @@ public:
 
     // Note: Does not clean up references on the Creature
     UFUNCTION(BlueprintCallable)
-    void RemoveVisitor(const ACreature* Visitor);
+    void RemoveVisitor(ACreature* Visitor);
 
     UFUNCTION(BlueprintCallable)
     void RecruitNewUnit(UUnitType* RecruitType);
 
+    UFUNCTION(BlueprintPure)
+    int GetResidentTypeCount(const UUnitType* Type, bool bIncludeQueue = true) const;
 
+    UFUNCTION(BlueprintPure)
+    int GetResidentTypeLimit(const UUnitType* Type) const;
+
+    UFUNCTION(BlueprintPure)
+    bool CanFitResidentType(const UUnitType* Type) const;
+
+    UFUNCTION(BlueprintCallable)
+    void SetResidentTypeLimit(UUnitType* Type, int Limit);
+
+    UFUNCTION(BlueprintPure)
+    TSet<UUnitType*> GetAllResidentTypes() const;
 
 protected:
 
@@ -61,7 +93,11 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
     TArray<ACreature*> Visitors;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Residents")
+    TMap<UUnitType*, int> ResidentTypeLimits;
+
     virtual void HandleDeath() override;
+    virtual int GetResidentsInQueue(const UUnitType* Type) const { return 0; }
 
 public:
     virtual void BeginPlay() override;

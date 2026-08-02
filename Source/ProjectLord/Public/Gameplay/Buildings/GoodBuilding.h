@@ -48,6 +48,8 @@ protected:
     UFUNCTION()
     void OnQueueActionReady(UQueuedAction* Action);
 
+    virtual int GetResidentsInQueue(const UUnitType* Type) const override;
+
 public:
 
     virtual void BeginPlay() override;

@@ -19,36 +19,69 @@ void AResidentialBuilding::EndPlay(EEndPlayReason::Type Reason)
 	Super::EndPlay(Reason);
 }
 
-bool AResidentialBuilding::RemoveResident(const ACreature* Resident)
+bool AResidentialBuilding::RemoveResident(ACreature* Resident)
 {
-	return Residents.RemoveAll([Resident](ACreature* const InResident) { return Resident == InResident; }) > 0;
+    if (Residents.RemoveAll([Resident](ACreature* const InResident) { return Resident == InResident; }) > 0)
+    {
+        OnResidentsChanged.Broadcast();
+        OnResidentRemoved.Broadcast(Resident);
+        return true;
+    }
+
+    return false;
 }
 
 void AResidentialBuilding::RemoveAllResidents()
 {
-	Residents.Empty();
+    auto Copy = Residents;
+    Residents.Empty();
+
+    OnResidentsChanged.Broadcast();
+    for (auto Resident : Copy)
+    {
+        OnResidentRemoved.Broadcast(Resident);
+    }
 }
 
 bool AResidentialBuilding::AddResident(ACreature* Resident)
 {
-	// TODO: Verify there is space
-	Residents.Add(Resident);
-	return true;
+    if (CanFitResidentType(Resident->GetUnitType()))
+    {
+        Residents.Add(Resident);
+        OnResidentsChanged.Broadcast();
+        OnResidentAdded.Broadcast(Resident);
+        return true;
+    }
+
+    return false;
 }
 
 void AResidentialBuilding::RemoveAllVisitors()
 {
+    auto Copy = Visitors;
 	Visitors.Empty();
+
+    OnVisitorsChanged.Broadcast();
+    for (auto Visitor : Copy)
+    {
+        OnVisitorRemoved.Broadcast(Visitor);
+    }
 }
 
 void AResidentialBuilding::AddVisitor(ACreature* Visitor)
 {
 	Visitors.Add(Visitor);
+    OnVisitorsChanged.Broadcast();
+    OnVisitorAdded.Broadcast(Visitor);
 }
 
-void AResidentialBuilding::RemoveVisitor(const ACreature* Visitor)
+void AResidentialBuilding::RemoveVisitor(ACreature* Visitor)
 {
-	Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; });
+    if (Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; }))
+    {
+        OnVisitorsChanged.Broadcast();
+        OnVisitorRemoved.Broadcast(Visitor);
+    }
 }
 
 void AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
@@ -84,6 +117,57 @@ void AResidentialBuilding::HandleDeath()
     }
 
     Super::HandleDeath();
+}
+
+int AResidentialBuilding::GetResidentTypeCount(const UUnitType* Type, bool bIncludeQueue) const
+{
+    int Count = 0;
+    for (const auto Resident : Residents)
+    {
+        if (Resident->GetUnitType() == Type)
+        {
+            Count++;
+        }
+    }
+    
+    if (bIncludeQueue)
+    {
+        Count += GetResidentsInQueue(Type);
+    }
+
+    return Count;
+}
+
+int AResidentialBuilding::GetResidentTypeLimit(const UUnitType* Type) const
+{
+    if (ResidentTypeLimits.Contains(Type))
+    {
+        return ResidentTypeLimits[Type];
+    }
+
+    return 0;
+}
+
+bool AResidentialBuilding::CanFitResidentType(const UUnitType* Type) const
+{
+    const int Limit = GetResidentTypeLimit(Type);
+    return Limit <= 0 || GetResidentTypeCount(Type, true) < Limit;
+}
+
+void AResidentialBuilding::SetResidentTypeLimit(UUnitType* Type, int Limit)
+{
+    ResidentTypeLimits[Type] = Limit;
+    OnResidentLimitChanged.Broadcast(Type);
+}
+
+TSet<UUnitType*> AResidentialBuilding::GetAllResidentTypes() const
+{
+    TSet<UUnitType*> Types;
+    for (auto Resident : Residents)
+    {
+        Types.Add(Resident->GetUnitType());
+    }
+    return Types;
 }
 
 

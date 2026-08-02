@@ -5,6 +5,7 @@
 #include "Gameplay/GameGood.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
+#include "Gameplay/Buildings/QueuedAction.h"
 #include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 AGoodBuilding::AGoodBuilding()
@@ -55,4 +56,20 @@ void AGoodBuilding::SetupBaseGoods()
 void AGoodBuilding::OnQueueActionReady(UQueuedAction* Action)
 {
     Action->Perform(this);
+}
+
+int AGoodBuilding::GetResidentsInQueue(const UUnitType* Type) const
+{
+    int Count = 0;
+    for (const auto Action : QueueComponent->GetQueue())
+    {
+        if (auto RecruitAction = Cast<UQueuedRecruitAction>(Action))
+        {
+            if (RecruitAction->GetRecruitType() == Type)
+            {
+                Count++;
+            }
+        }
+    }
+    return Count;
 }
