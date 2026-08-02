@@ -12,6 +12,9 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UCombatAttributeSet, Level);
 	DOREPLIFETIME(UCombatAttributeSet, MaxHealth);
 	DOREPLIFETIME(UCombatAttributeSet, Health);
+
+	DOREPLIFETIME(UCombatAttributeSet, MaxMana);
+	DOREPLIFETIME(UCombatAttributeSet, Mana);
 	DOREPLIFETIME(UCombatAttributeSet, MeleeDefense);
 	DOREPLIFETIME(UCombatAttributeSet, RangedDefense);
 	DOREPLIFETIME(UCombatAttributeSet, MagicDefense);
@@ -37,6 +40,9 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	ROUND_ATTRIB_TO_INT(MaxHealth);
 	ROUND_ATTRIB_TO_INT(Health);
 
+	ROUND_ATTRIB_TO_INT(MaxMana);
+	ROUND_ATTRIB_TO_INT(Mana);
+
 	// Maybe these shouldn't round their actual value, and callers should have to round.
 	// That way, if you have 10 MeleeDefense and get a 15% buff you can have 11.5 in reality, and effectively 11 or 12
 	/*
@@ -53,6 +59,12 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 0, GetMaxHealth());
 	}
+
+	// Clamp Mana to their maxes
+	if (Attribute == GetManaAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0, GetMaxMana());
+	}
 }
 
 void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
@@ -67,6 +79,15 @@ void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribut
 			SetHealth(GetMaxHealth());
 		}
 	}
+
+	// If Max Mana changes, make sure to cap their active counterparts
+	if (Attribute == GetMaxManaAttribute())
+	{
+		if (GetMana() < GetMaxMana())
+		{
+			SetMana(GetMaxMana());
+		}
+	}
 }
 
 void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
@@ -76,6 +97,8 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	ROUND_ATTRIB_TO_INT(Level);
 	ROUND_ATTRIB_TO_INT(MaxHealth);
 	ROUND_ATTRIB_TO_INT(Health);
+	ROUND_ATTRIB_TO_INT(MaxMana);
+	ROUND_ATTRIB_TO_INT(Mana);
 	ROUND_ATTRIB_TO_INT(MeleeDefense);
 	ROUND_ATTRIB_TO_INT(RangedDefense);
 	ROUND_ATTRIB_TO_INT(MagicDefense);

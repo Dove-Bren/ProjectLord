@@ -46,6 +46,9 @@ void UVMCombatData::Init(UCombatComponent* Component)
 	REGISTER_INT(Health);
 	REGISTER_INT(MaxHealth);
 
+	REGISTER_INT(Mana);
+	REGISTER_INT(MaxMana);
+
 	REGISTER_INT(MeleeDefense);
 	REGISTER_INT(RangedDefense);
 	REGISTER_INT(MagicDefense);

@@ -30,12 +30,6 @@ public:
 
 protected:
 
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana, Category = "Attributes|Stats")
-    FGameplayAttributeData MaxMana = 0;
-
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Mana, Category = "Attributes|Stats")
-    FGameplayAttributeData Mana = 0;
-
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ExtraHealthPerLevel, Category = "Attributes|Growth")
     FGameplayAttributeData StartingHealth = 10;
 
@@ -59,12 +53,6 @@ protected:
     FGameplayAttributeData Stamina = 1;
 
     UFUNCTION()
-    virtual void OnRep_MaxMana(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, MaxMana)
-
-    UFUNCTION()
-    virtual void OnRep_Mana(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, Mana)
-
-    UFUNCTION()
     virtual void OnRep_StartingHealth(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, StartingHealth)
 
      UFUNCTION()
@@ -83,9 +71,6 @@ protected:
     virtual void OnRep_Stamina(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, Stamina)
 
 public:
-
-    ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, MaxMana);
-    ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Mana);
 
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, StartingHealth);
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, ExtraHealthPerLevel);

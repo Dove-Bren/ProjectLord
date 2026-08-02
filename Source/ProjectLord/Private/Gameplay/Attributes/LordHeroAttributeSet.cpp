@@ -10,9 +10,6 @@ void ULordHeroAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ULordHeroAttributeSet, MaxMana);
-	DOREPLIFETIME(ULordHeroAttributeSet, Mana);
-
 	DOREPLIFETIME(ULordHeroAttributeSet, StartingHealth);
 	DOREPLIFETIME(ULordHeroAttributeSet, ExtraHealthPerLevel);
 
@@ -31,9 +28,6 @@ void ULordHeroAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
-	ROUND_ATTRIB_TO_INT(MaxMana);
-	ROUND_ATTRIB_TO_INT(Mana);
-
 	ROUND_ATTRIB_TO_INT(StartingHealth);
 	ROUND_ATTRIB_TO_INT(ExtraHealthPerLevel);
 
@@ -41,12 +35,6 @@ void ULordHeroAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	ROUND_ATTRIB_TO_INT(Agility);
 	ROUND_ATTRIB_TO_INT(Intelligence);
 	ROUND_ATTRIB_TO_INT(Stamina);
-
-	// Clamp Mana to their maxes
-	if (Attribute == GetManaAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0, GetMaxMana());
-	}
 
 	// Clamp Characteristics to 1+ ints since some math formulas assume they are positive
 	if (Attribute == GetStrengthAttribute()
@@ -81,23 +69,11 @@ void ULordHeroAttributeSet::PostAttributeChange(const FGameplayAttribute& Attrib
 	{
 		ResetBaseMana();
 	}
-
-	// If Max Mana changes, make sure to cap their active counterparts
-	if (Attribute == GetMaxManaAttribute())
-	{
-		if (GetMana() < GetMaxMana())
-		{
-			SetMana(GetMaxMana());
-		}
-	}
 }
 
 void ULordHeroAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
 {
 	Super::PreAttributeBaseChange(Attribute, NewValue);
-
-	ROUND_ATTRIB_TO_INT(MaxMana);
-	ROUND_ATTRIB_TO_INT(Mana);
 
 	ROUND_ATTRIB_TO_INT(StartingHealth);
 	ROUND_ATTRIB_TO_INT(ExtraHealthPerLevel);
@@ -154,5 +130,5 @@ void ULordHeroAttributeSet::ResetBaseHealth()
 void ULordHeroAttributeSet::ResetBaseMana()
 {
 	const int ExpectedValue = CalculateBaseMana();
-	SetMaxMana(ExpectedValue);
+	CombatAttribs->SetMaxMana(ExpectedValue);
 }

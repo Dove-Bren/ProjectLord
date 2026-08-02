@@ -17,6 +17,8 @@ class PROJECTLORD_API UVMCombatData: public UVMLordBase
 public:
     int GetHealth() const { return Health; }
     int GetMaxHealth() const { return MaxHealth; }
+    int GetMana() const { return Mana; }
+    int GetMaxMana() const { return MaxMana; }
 
     int GetMeleeDefense() const { return MeleeDefense; }
     int GetRangedDefense() const { return RangedDefense; }
@@ -49,6 +51,14 @@ protected:
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     int MaxHealth;
     void SetMaxHealth(int InMaxHealth) { UE_MVVM_SET_PROPERTY_VALUE(MaxHealth, InMaxHealth); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int Mana;
+    void SetMana(int InMana) { UE_MVVM_SET_PROPERTY_VALUE(Mana, InMana); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    int MaxMana;
+    void SetMaxMana(int InMaxMana) { UE_MVVM_SET_PROPERTY_VALUE(MaxMana, InMaxMana); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     int MeleeDefense;

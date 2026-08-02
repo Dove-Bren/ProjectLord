@@ -41,6 +41,12 @@ protected:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health, Category = "Attributes|Stats")
     FGameplayAttributeData Health = 10;
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxMana, Category = "Attributes|Stats")
+    FGameplayAttributeData MaxMana = 0;
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Mana, Category = "Attributes|Stats")
+    FGameplayAttributeData Mana = 0;
+
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MeleeDefense, Category = "Attributes|Defense")
     FGameplayAttributeData MeleeDefense = 0;
 
@@ -78,6 +84,12 @@ protected:
     virtual void OnRep_Health(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, Health)
 
     UFUNCTION()
+    virtual void OnRep_MaxMana(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, MaxMana)
+
+    UFUNCTION()
+    virtual void OnRep_Mana(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, Mana)
+
+    UFUNCTION()
     virtual void OnRep_MeleeDefense(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, MeleeDefense)
 
     UFUNCTION()
@@ -107,6 +119,9 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Level);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, MaxHealth);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Health);
+
+    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, MaxMana);
+    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Mana);
 
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, MeleeDefense);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, RangedDefense);
