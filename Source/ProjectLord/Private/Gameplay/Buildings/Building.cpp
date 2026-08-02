@@ -6,19 +6,15 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "LordLogging.h"
-#include "Gameplay/GameGood.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
-#include "Gameplay/Buildings/BuildingActionQueue.h"
 #include "Gameplay/Combat/CombatComponent.h"
-#include "Gameplay/Units/Creature.h"
-#include "Gameplay/Units/UnitTypes.h"
+#include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
-#include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 ABuilding::ABuilding()
 {
@@ -43,41 +39,7 @@ ABuilding::ABuilding()
     SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
     SelectionComponent->SetSelectable(true);
 
-    QueueComponent = CreateDefaultSubobject<UBuildingActionQueueComponent>(TEXT("Queue"));
-
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-}
-
-bool ABuilding::RemoveResident(const ACreature* Resident)
-{
-	return Residents.RemoveAll([Resident](ACreature* const InResident) { return Resident == InResident; }) > 0;
-}
-
-void ABuilding::RemoveAllResidents()
-{
-	Residents.Empty();
-}
-
-bool ABuilding::AddResident(ACreature* Resident)
-{
-	// TODO: Verify there is space
-	Residents.Add(Resident);
-	return true;
-}
-
-void ABuilding::RemoveAllVisitors()
-{
-	Visitors.Empty();
-}
-
-void ABuilding::AddVisitor(ACreature* Visitor)
-{
-	Visitors.Add(Visitor);
-}
-
-void ABuilding::RemoveVisitor(const ACreature* Visitor)
-{
-	Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; });
 }
 
 void ABuilding::SetBuildingGold(int InGold)
@@ -86,31 +48,9 @@ void ABuilding::SetBuildingGold(int InGold)
     GoldVM->SetGold(BuildingGold);
 }
 
-void ABuilding::AddGoodOffer(FGoodOffer InOffer)
+void ABuilding::PlaceExitingUnit(AUnit* Unit)
 {
-    if (!HasGood(InOffer.Good))
-    {
-        Goods.Add(InOffer);
-    }
-}
-
-void ABuilding::RecruitNewUnit(UUnitType* RecruitType)
-{
-    auto World = GetWorld();
-    if (!ensure(World))
-    {
-        return;
-    }
-
-    auto Location = GetBuildingEntrance();
-    auto Rotation = FRotator();
-    ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->UnitClass, Location, Rotation);
-    if (IsValid(Recruit))
-    {
-        Recruit->SetTeam(GetTeam());
-        AddResident(Recruit);
-        Recruit->SetHomeBuilding(this);
-    }
+    Unit->SetActorLocation(GetBuildingEntrance());
 }
 
 FVector ABuilding::GetBuildingEntrance() const
@@ -134,19 +74,6 @@ UStaticMesh* ABuilding::GetBuildingMesh() const
     return nullptr;
 }
 
-bool ABuilding::HasGood(UGameGood* GoodType) const
-{
-    for (const auto& Good : Goods)
-    {
-        if (Good.Good == GoodType)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void ABuilding::BeginPlay()
 {
     Super::BeginPlay();
@@ -165,8 +92,6 @@ void ABuilding::BeginPlay()
         BuildingMesh->SetStaticMesh(GetBuildingMesh());
     }
 
-    QueueComponent->OnActionReady.AddDynamic(this, &ABuilding::OnQueueActionReady);
-
     // Set up selection Data
     {
         // All of this never changes
@@ -180,8 +105,6 @@ void ABuilding::BeginPlay()
         GoldVM->SetGold(BuildingGold);
         GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
         SelectionComponent->SetGoldVM(GoldVM);
-
-        SelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
     }
 }
 
@@ -242,14 +165,6 @@ void ABuilding::SetupBaseAttributes()
     }
 }
 
-void ABuilding::SetupBaseGoods()
-{
-    for (const auto& Good : DefaultGoods)
-    {
-        Goods.Add(Good);
-    }
-}
-
 ABuildingController* ABuilding::GetBuildingController() const
 {
     return Cast<ABuildingController>(GetController());
@@ -282,21 +197,5 @@ void ABuilding::HandleDeath()
 {
     // TODO: Spawn break effects
 
-    // TODO: Eject and vacate!
-    for (auto& Visitor : Visitors)
-    {
-
-    }
-
-    for (auto& Resident : Residents)
-    {
-
-    }
-
     this->Destroy();
-}
-
-void ABuilding::OnQueueActionReady(UQueuedAction* Action)
-{
-    Action->Perform(this);
 }

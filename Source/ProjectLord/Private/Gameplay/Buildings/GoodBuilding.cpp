@@ -1,0 +1,58 @@
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
+
+#include "Gameplay/Buildings/GoodBuilding.h"
+
+#include "Gameplay/GameGood.h"
+#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Buildings/BuildingActionQueue.h"
+#include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
+
+AGoodBuilding::AGoodBuilding()
+{
+
+    QueueComponent = CreateDefaultSubobject<UBuildingActionQueueComponent>(TEXT("Queue"));
+}
+
+void AGoodBuilding::BeginPlay()
+{
+    Super::BeginPlay();
+
+    QueueComponent->OnActionReady.AddDynamic(this, &AGoodBuilding::OnQueueActionReady);
+
+
+    SelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
+}
+
+bool AGoodBuilding::HasGood(UGameGood* GoodType) const
+{
+    for (const auto& Good : Goods)
+    {
+        if (Good.Good == GoodType)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void AGoodBuilding::AddGoodOffer(FGoodOffer InOffer)
+{
+    if (!HasGood(InOffer.Good))
+    {
+        Goods.Add(InOffer);
+    }
+}
+
+void AGoodBuilding::SetupBaseGoods()
+{
+    for (const auto& Good : DefaultGoods)
+    {
+        Goods.Add(Good);
+    }
+}
+
+void AGoodBuilding::OnQueueActionReady(UQueuedAction* Action)
+{
+    Action->Perform(this);
+}

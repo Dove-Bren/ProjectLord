@@ -6,6 +6,7 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 
 bool USelectionAction::IsHidden_Implementation(const FSelectionActionContext& Context) const
@@ -74,7 +75,12 @@ bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionCont
 	}
 
 	// Check if building has good already
-	ABuilding* BuildingOwner = GetBuilding(Context);
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(Context));
+	if (!ensure(IsValid(BuildingOwner)))
+	{
+		return false;
+	}
+
 	auto Queue = BuildingOwner->GetQueueComponent();
 
 	if (Queue->IsFull())
@@ -87,7 +93,7 @@ bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionCont
 
 bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext& Context)
 {
-	auto Building = GetBuilding(Context);
+	AGoodBuilding* Building = Cast<AGoodBuilding>(GetBuilding(Context));
 	if (!ensure(Building))
 	{
 		return false;
@@ -105,7 +111,12 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 
 bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
-	ABuilding* BuildingOwner = GetBuilding(Context);
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(Context));
+	if (!ensure(IsValid(BuildingOwner)))
+	{
+		return false;
+	}
+	
 	auto Queue = BuildingOwner->GetQueueComponent();
 
 	if (Queue->IsFull())
@@ -118,7 +129,7 @@ bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionConte
 
 bool URecruitUnitPurchase::Perform_Implementation(const FSelectionActionContext& Context)
 {
-	auto Building = GetBuilding(Context);
+	AGoodBuilding* Building= Cast<AGoodBuilding>(GetBuilding(Context));
 	if (!ensure(Building))
 	{
 		return false;

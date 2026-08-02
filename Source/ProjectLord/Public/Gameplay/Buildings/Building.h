@@ -9,7 +9,6 @@
 
 #include "Building.generated.h"
 
-class ACreature;
 class UBuildingType;
 class UCombatAttributeSet;
 class UAbilitySystemComponent;
@@ -18,11 +17,9 @@ class ABuildingController;
 class USelectionComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
-class UGameGood;
 class UBuildingActionQueueComponent;
 class UVMGold;
 class UUnitType;
-struct FGoodOffer;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn
@@ -33,8 +30,6 @@ public:
     ABuilding();
 
     UBuildingType* GetBuildingType() const { return BuildingType; }
-    const TArray<ACreature*> GetBuildingResidents() const { return Residents; }
-    const TArray<ACreature*> GetBuildingVisitors() const { return Visitors; }
 
     UFUNCTION(BlueprintPure)
     ABuildingController* GetBuildingController() const;
@@ -45,41 +40,11 @@ public:
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
 
-    // Note: Does not clean up references on the Creature
-    UFUNCTION(BlueprintCallable)
-    bool RemoveResident(const ACreature* Resident);
-
-    // Note: Does not clean up references on the Creature
-    UFUNCTION(BlueprintCallable)
-    void RemoveAllResidents();
-
-    // Note: Does not clean up references on the Creature
-    UFUNCTION(BlueprintCallable)
-    bool AddResident(ACreature* Resident);
-
-    // Note: Does not clean up references on the Creature
-    UFUNCTION(BlueprintCallable)
-    void RemoveAllVisitors();
-
-    // Note: Does not clean up references on the Creature
-    UFUNCTION(BlueprintCallable)
-    void AddVisitor(ACreature* Visitor);
-
-    // Note: Does not clean up references on the Creature
-    UFUNCTION(BlueprintCallable)
-    void RemoveVisitor(const ACreature* Visitor);
-
     UFUNCTION(BlueprintCallable)
     void SetBuildingGold(int InGold);
 
     UFUNCTION(BlueprintCallable)
-    void AddGoodOffer(FGoodOffer InOffer);
-
-    UFUNCTION(BlueprintCallable)
-    void RecruitNewUnit(UUnitType* RecruitType);
-
-    UFUNCTION(BlueprintPure)
-    UBuildingActionQueueComponent* GetQueueComponent() const { return QueueComponent; }
+    void PlaceExitingUnit(AUnit* Unit);
 
 
 
@@ -92,12 +57,6 @@ public:
     UFUNCTION(BlueprintPure)
     UStaticMesh* GetBuildingMesh() const;
 
-    UFUNCTION(BlueprintPure)
-    const TArray<FGoodOffer>& GetGoods() const { return Goods; }
-
-    UFUNCTION(BlueprintPure)
-    bool HasGood(UGameGood* GoodType) const;
-
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
@@ -109,17 +68,17 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     FText BuildingCustomName;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsResidents;
+    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bSupportsResidents;*/
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsVisitors;
+    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bSupportsVisitors;*/
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsGoods;
+    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bSupportsGoods;*/
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsGold;
+    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bSupportsGold;*/
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     int GoldGeneratedPerDay;
@@ -148,9 +107,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> BuildingAttributeValues;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Building|Definition")
-    TArray<FGoodOffer> DefaultGoods;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;
 
@@ -166,40 +122,22 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building")
-    TObjectPtr<UBuildingActionQueueComponent> QueueComponent;
-
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building")
     int BuildingLevel;
 
-    // Creatures that consider this building their home
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
-    TArray<ACreature*> Residents;
-
-    // Creatures that are actively inside this building instead of out on the map
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
-    TArray<ACreature*> Visitors;
-
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
-    TArray<FGoodOffer> Goods;
-
     UPROPERTY()
     TObjectPtr<UVMGold> GoldVM;
 
     virtual void SetupBaseAttributes();
-    virtual void SetupBaseGoods();
 
     int GetBuildingHealth() const;
     int GetBuildingMaxHealth() const;
 
     UFUNCTION()
-    void HandleDeath();
-
-    UFUNCTION()
-    void OnQueueActionReady(UQueuedAction* Action);
+    virtual void HandleDeath();
 
 public:
     virtual void BeginPlay() override;

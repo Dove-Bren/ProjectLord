@@ -3,7 +3,7 @@
 #include "Gameplay/Buildings/QueuedAction.h"
 
 #include "LordLogging.h"
-#include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Units/UnitTypes.h"
 
 void UQueuedGoodAction::Init(int InGold, FGoodOffer InOffer)
@@ -20,17 +20,17 @@ void UQueuedRecruitAction::Init(int InGold, UUnitType* InType)
 	RecruitType = InType;
 }
 
-void UQueuedAction::Perform(ABuilding* Building)
+void UQueuedAction::Perform(AGoodBuilding* Building)
 {
 	UE_LOG(LordBuilding, Error, TEXT("Queued Action does not have a Perform action bound"));
 }
 
-void UQueuedGoodAction::Perform(ABuilding* Building)
+void UQueuedGoodAction::Perform(AGoodBuilding* Building)
 {
 	Building->AddGoodOffer(GetGood());
 }
 
-void UQueuedRecruitAction::Perform(ABuilding* Building)
+void UQueuedRecruitAction::Perform(AGoodBuilding* Building)
 {
 	Building->RecruitNewUnit(GetRecruitType());
 }

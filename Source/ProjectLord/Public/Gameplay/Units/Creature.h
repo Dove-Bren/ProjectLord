@@ -8,7 +8,7 @@
 
 #include "Creature.generated.h"
 
-class ABuilding;
+class AResidentialBuilding;
 class UCombatAttributeSet;
 class UCreatureAttributeSet;
 
@@ -23,13 +23,13 @@ public:
 
     // Old Depreceted
     UUnitType* GetCreatureType() const { return GetUnitType(); }
-    ABuilding* GetHomeBuilding() const { return HomeBuilding.IsValid() ? HomeBuilding.Get() : nullptr; }
+    AResidentialBuilding* GetHomeBuilding() const { return HomeBuilding.IsValid() ? HomeBuilding.Get() : nullptr; }
 
     UFUNCTION(BlueprintPure)
     bool HasBuilding() const { return !!GetHomeBuilding(); }
 
     UFUNCTION(BlueprintCallable)
-    void SetHomeBuilding(ABuilding* Building) { HomeBuilding = Building; }
+    void SetHomeBuilding(AResidentialBuilding* Building) { HomeBuilding = Building; }
 
     UFUNCTION(BlueprintPure)
     UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }
@@ -37,7 +37,7 @@ public:
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
-    TWeakObjectPtr<ABuilding> HomeBuilding;
+    TWeakObjectPtr<AResidentialBuilding> HomeBuilding;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;

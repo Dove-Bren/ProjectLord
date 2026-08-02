@@ -8,7 +8,7 @@
 
 class UTexture2D;
 class UUnitType;
-class ABuilding;
+class AGoodBuilding;
 
 UCLASS(Blueprintable, Abstract)
 class PROJECTLORD_API UQueuedAction : public UObject
@@ -24,7 +24,7 @@ public:
     int GetRefundGold() const { return RefundGold; }
 
     UFUNCTION(BlueprintCallable, Category = "Building|Queue|Action")
-    virtual void Perform(ABuilding* Building);
+    virtual void Perform(AGoodBuilding* Building);
 
 protected:
 
@@ -48,7 +48,7 @@ public:
     UFUNCTION(BlueprintPure, Category = "Building|Queue|Action")
     FGoodOffer GetGood() const { return Good; }
 
-    virtual void Perform(ABuilding* Building) override;
+    virtual void Perform(AGoodBuilding* Building) override;
 
 protected:
 
@@ -68,7 +68,7 @@ public:
     UFUNCTION(BlueprintPure, Category = "Building|Queue|Action")
     UUnitType* GetRecruitType() const { return RecruitType; }
 
-    virtual void Perform(ABuilding* Building) override;
+    virtual void Perform(AGoodBuilding* Building) override;
 
 protected:
 
