@@ -219,6 +219,7 @@ public:
 };
 
 DECLARE_MULTICAST_DELEGATE(FOnInventoryItemsChanged);
+DECLARE_MULTICAST_DELEGATE(FOnInventoryGoldChanged);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UHeroInventory : public UObject
@@ -232,6 +233,7 @@ public:
     void InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor);
 
     FOnInventoryItemsChanged OnInventoryItemsChanged;
+    FOnInventoryGoldChanged OnInventoryGoldChanged;
 
     UFUNCTION(BlueprintPure, Category = "Inventory|Equipment")
     UHeroItemStack* GetWeapon() const { return Weapon; }

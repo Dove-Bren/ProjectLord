@@ -14,10 +14,16 @@ class PROJECTLORD_API UVMLevel : public UVMLordBase
 
 public:
     int GetLevel() const { return Level; }
+    void SetLevel(int InLevel) { UE_MVVM_SET_PROPERTY_VALUE(Level, InLevel); }
+
+    float GetProgress() const { return Progress; }
+    void SetProgress(float InProgress) { UE_MVVM_SET_PROPERTY_VALUE(Progress, InProgress); }
 
 protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Level")
     int Level;
-    void SetLevel(int InLevel) { UE_MVVM_SET_PROPERTY_VALUE(Level, InLevel); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Level")
+    float Progress;
 };

@@ -9,6 +9,8 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
+#include "UI/ViewModels/Generic/GoldViewModel.h"
+#include "UI/ViewModels/Generic/LevelViewModel.h"
 
 AHeroBase::AHeroBase() : ACreature()
 {
@@ -45,6 +47,33 @@ void AHeroBase::SetupBaseAttributes()
 
 	// Make sure to prompt attribute set to recalc dependent attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
+}
+
+void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+	Super::SetupSelectionData(InSelectionComponent);
+
+	auto GoldVM = CreateLordVM<UVMGold>(this);
+	Inventory->OnInventoryGoldChanged.AddWeakLambda(this, [this, GoldVM]() {
+			GoldVM->SetGold(Inventory->GetPersonalGold());
+		});
+	GoldVM->SetGold(Inventory->GetPersonalGold());
+	InSelectionComponent->SetGoldVM(GoldVM);
+
+	bool bIgnored;
+	auto LevelAttribute = GetCombatAttributeSet()->GetLevelAttribute();
+	auto LevelVM = CreateLordVM<UVMLevel>(this);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LevelAttribute)
+		.AddWeakLambda(this, [LevelVM](const FOnAttributeChangeData& ChangeData)
+			{
+				LevelVM->SetLevel(static_cast<int>(ChangeData.NewValue));
+			});
+	LevelVM->SetLevel(AbilitySystemComponent->GetGameplayAttributeValue(LevelAttribute, bIgnored));
+	OnXPChange.AddWeakLambda(this, [this, LevelVM]() {
+			LevelVM->SetProgress(GetHeroXPPercent());
+		});
+	LevelVM->SetProgress(GetHeroXPPercent());
+	InSelectionComponent->SetLevelVM(LevelVM);
 }
 
 void AHeroBase::HandleInventoryChange()
@@ -115,6 +144,7 @@ void AHeroBase::AddHeroXP(int Amount)
 	{
 		DoLevelUp();
 	}
+	OnXPChange.Broadcast();
 }
 
 void AHeroBase::DoLevelUp()

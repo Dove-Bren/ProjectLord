@@ -104,12 +104,14 @@ void UHeroInventory::DeductManaPotion()
 int UHeroInventory::AddPersonalGold(int Amount)
 {
 	PersonalGold = FMath::Max(0, PersonalGold + Amount);
+	OnInventoryGoldChanged.Broadcast();
 	return PersonalGold;
 }
 
 int UHeroInventory::AddGuildGold(int Amount)
 {
 	GuildGold = FMath::Max(0, GuildGold + Amount);
+	OnInventoryGoldChanged.Broadcast();
 	return GuildGold;
 }
 

@@ -40,6 +40,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Unit")
     UUnitType* GetUnitType() const { return UnitType; }
 
+    UFUNCTION(BlueprintPure, Category = "Unit")
+    virtual FText GetUnitName() const { return (ensure(GetUnitType())) ? GetUnitType()->UnitName : FText::GetEmpty(); }
+
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
 
@@ -91,6 +94,7 @@ protected:
 
     virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();
+    virtual void SetupSelectionData(USelectionComponent* SelectionComponent);
 
 private:
     void InitUnitVM();

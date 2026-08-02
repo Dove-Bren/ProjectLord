@@ -15,7 +15,9 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
+#include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "UI/ViewModels/Generic/CombatDataViewModel.h"
 
 AUnit::AUnit() : ACharacter()
 {
@@ -66,6 +68,9 @@ void AUnit::BeginPlay()
 
     CombatComponent->OnDeath.AddDynamic(this, &AUnit::HandleDeath);
     CombatComponent->OnAttack.AddDynamic(this, &AUnit::HandleAttack);
+
+    
+    SetupSelectionData(SelectionComponent);
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
@@ -127,6 +132,16 @@ void AUnit::SetupBaseAttributes()
 
             });
     }
+}
+
+void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+    // All of this never changes
+    InSelectionComponent->SetTeam(GetTeam());
+    InSelectionComponent->SetName(GetUnitName());
+    InSelectionComponent->SetIcon(GetUnitType()->UnitIcon);
+
+    InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
 }
 
 void AUnit::HandleDeath()

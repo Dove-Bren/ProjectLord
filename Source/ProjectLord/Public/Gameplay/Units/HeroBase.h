@@ -13,6 +13,8 @@ class ULordHeroAttributeSet;
 class UHeroInventory;
 class UGameGood;
 
+DECLARE_MULTICAST_DELEGATE(FOnXPChange);
+
 UCLASS(Blueprintable)
 class PROJECTLORD_API AHeroBase : public ACreature
 {
@@ -20,6 +22,8 @@ class PROJECTLORD_API AHeroBase : public ACreature
 
 public:
     AHeroBase();
+
+    FOnXPChange OnXPChange;
 
     UFUNCTION(BlueprintPure)
     int GetHeroXP() const { return HeroXP; }
@@ -62,6 +66,7 @@ protected:
     int HeroXP;
 
     virtual void SetupBaseAttributes() override;
+    virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
 
     virtual void HandleInventoryChange();
 

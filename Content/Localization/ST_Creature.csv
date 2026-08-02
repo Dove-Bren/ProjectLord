@@ -3,7 +3,7 @@ Key,SourceString,Comment
 Creature.Warrior.Name,"Warrior",
 Creature.Warrior.Desc,"The warriors of Ardania are the most steadfast of heroes; your bread and butter, really. Keep and eye on them your Majesty, as they're somewhat rash. They'll engage a Stone Elemental only days out of training!",
 
-Creature.Ranger.Name,"Ranged Attack",
+Creature.Ranger.Name,"Ranger",
 Creature.Ranger.Desc,"These dependable fellows love their job, Your Majesty. That job: wandering and shooting monsters. Sure, you still have to pay them, but you can't buy that level of enthusiasm.",
 
 Monster.DevSlime.Name,"Dev Slime",
