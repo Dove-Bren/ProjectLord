@@ -20,6 +20,7 @@ class UStaticMesh;
 class UStaticMeshComponent;
 class UGameGood;
 class UBuildingActionQueueComponent;
+class UVMGold;
 struct FGoodOffer;
 
 UCLASS(Blueprintable)
@@ -68,7 +69,7 @@ public:
     void RemoveVisitor(const ACreature* Visitor);
 
     UFUNCTION(BlueprintCallable)
-    void SetBuildingGold(int InGold) { BuildingGold = InGold; }
+    void SetBuildingGold(int InGold);
 
     UFUNCTION(BlueprintCallable)
     void AddGoodOffer(FGoodOffer InOffer);
@@ -184,10 +185,8 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
     TArray<FGoodOffer> Goods;
 
-    // TODO: Actions (like queue a hero recruit, start building upgrade, research something...)
-
-    //UFUNCTION(BlueprintCallable)
-    //ACreature* SpawnCreature(UCreatureType);
+    UPROPERTY()
+    TObjectPtr<UVMGold> GoldVM;
 
     virtual void SetupBaseAttributes();
     virtual void SetupBaseGoods();

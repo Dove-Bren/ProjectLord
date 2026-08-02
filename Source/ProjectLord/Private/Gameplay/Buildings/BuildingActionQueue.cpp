@@ -3,10 +3,19 @@
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 
 #include "Gameplay/Buildings/Building.h"
+#include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 UBuildingActionQueueComponent::UBuildingActionQueueComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UBuildingActionQueueComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ViewModel = CreateLordVM<UVMProgressQueue>(this);
+	ViewModel->SetShowQueueActions(true);
 }
 
 void UBuildingActionQueueComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -22,13 +31,22 @@ void UBuildingActionQueueComponent::TickComponent(float DeltaTime, enum ELevelTi
 			Queue.RemoveAt(0, EAllowShrinking::No);
 			PerformAction(Action);
 			ResetTimer();
+			NotifyQueueChange();
 		}
+
+		ViewModel->SetProgress(GetProgress());
 	}
 }
 
 float UBuildingActionQueueComponent::GetProgress() const
 {
-	return 0;
+	if (!HasActionInProgress())
+	{
+		return 0.0f;
+	}
+
+	auto Action = GetActiveAction();
+	return 1.0f - (TimeRemaining / GetTotalTimeFor(Action));
 }
 
 bool UBuildingActionQueueComponent::HasActionInProgress() const
@@ -48,6 +66,7 @@ void UBuildingActionQueueComponent::QueueAction(UQueuedAction* InAction)
 	{
 		ResetTimer();
 	}
+	NotifyQueueChange();
 }
 
 void UBuildingActionQueueComponent::ResetTimer()
@@ -71,4 +90,11 @@ UQueuedAction* UBuildingActionQueueComponent::GetActiveAction() const
 void UBuildingActionQueueComponent::PerformAction(UQueuedAction* Action)
 {
 	OnActionReady.Broadcast(Action);
+}
+
+void UBuildingActionQueueComponent::NotifyQueueChange()
+{
+	// Update VM
+	ViewModel->UpdateQueue(Queue);
+	OnQueueChange.Broadcast();
 }

@@ -80,6 +80,12 @@ void ABuilding::RemoveVisitor(const ACreature* Visitor)
 	Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; });
 }
 
+void ABuilding::SetBuildingGold(int InGold)
+{
+    BuildingGold = InGold;
+    GoldVM->SetGold(BuildingGold);
+}
+
 void ABuilding::AddGoodOffer(FGoodOffer InOffer)
 {
     if (!HasGood(InOffer.Good))
@@ -170,9 +176,12 @@ void ABuilding::BeginPlay()
 
         SelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
 
-            /*CombatDataViewModel.h"
-#include "UI/ViewModels/Generic/GoldViewModel.h"
-"UI/ViewModels/Generic/ProgressQueueViewModel*/
+        GoldVM = CreateLordVM<UVMGold>(this);
+        GoldVM->SetGold(BuildingGold);
+        GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
+        SelectionComponent->SetGoldVM(GoldVM);
+
+        SelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
     }
 }
 
