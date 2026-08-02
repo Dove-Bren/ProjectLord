@@ -2,8 +2,10 @@
 
 #include "Gameplay/Buildings/ResidentialBuilding.h"
 
+#include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "UI/ViewModels/Generic/SummarySlotsViewModel.h"
 
 AResidentialBuilding::AResidentialBuilding()
 {
@@ -103,6 +105,44 @@ void AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
     }
 }
 
+void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+    Super::SetupSelectionData(InSelectionComponent);
+
+	auto SlotsVM = CreateLordVM<UVMSummarySlots>(this);
+	SlotsVM->Init();
+
+    TArray<UVMSummarySlot*> Slots;
+    for (auto ResidentType : GetAllResidentTypes())
+    {
+        UVMSummarySlot* Slot = UVMSummarySlot::MakeUnitTypeCount(this, ResidentType);
+        if (const int Limit = GetResidentTypeLimit(ResidentType))
+        {
+            Slot->SetMaxCount(Limit);
+        }
+        Slot->SetCount(GetResidentTypeCount(ResidentType, false));
+        Slots.Add(Slot);
+        OnResidentsChanged.AddWeakLambda(this, [this, ResidentType, Slot]() {
+                Slot->SetCount(GetResidentTypeCount(ResidentType, false));
+            });
+    }
+
+    auto VisitorSlot = UVMSummarySlot::MakeVisitorCount(this);
+    Slots.Add(VisitorSlot);
+    VisitorSlot->SetCount(GetVisitorCount());
+    OnVisitorsChanged.AddWeakLambda(this, [this, VisitorSlot]() {
+            VisitorSlot->SetCount(GetVisitorCount());
+        });
+    
+    ensure(Slots.Num() <= 6);
+    for (int i = 0; i < Slots.Num() && i < 6; i++)
+    {
+        SlotsVM->SetSlot(i, Slots[i]);
+    }
+
+	InSelectionComponent->SetSlotsVM(SlotsVM);
+}
+
 void AResidentialBuilding::HandleDeath()
 {
     // TODO: Eject and vacate!
@@ -167,6 +207,13 @@ TSet<UUnitType*> AResidentialBuilding::GetAllResidentTypes() const
     {
         Types.Add(Resident->GetUnitType());
     }
+
+    // Include types with limits, too
+    for (auto& TypeLimit : ResidentTypeLimits)
+    {
+        Types.Add(TypeLimit.Key);
+    }
+
     return Types;
 }
 

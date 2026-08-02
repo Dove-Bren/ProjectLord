@@ -83,6 +83,11 @@ public:
     UFUNCTION(BlueprintPure)
     TSet<UUnitType*> GetAllResidentTypes() const;
 
+    UFUNCTION(BlueprintPure)
+    int GetVisitorCount() const { return Visitors.Num(); }
+
+    virtual void SetupSelectionData(USelectionComponent* InSelectionComponent) override;
+
 protected:
 
     // Creatures that consider this building their home

@@ -93,19 +93,7 @@ void ABuilding::BeginPlay()
     }
 
     // Set up selection Data
-    {
-        // All of this never changes
-        SelectionComponent->SetTeam(GetTeam());
-        SelectionComponent->SetName(GetBuildingName());
-        SelectionComponent->SetIcon(GetBuildingType()->BuildingIcon);
-
-        SelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
-
-        GoldVM = CreateLordVM<UVMGold>(this);
-        GoldVM->SetGold(BuildingGold);
-        GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
-        SelectionComponent->SetGoldVM(GoldVM);
-    }
+    SetupSelectionData(SelectionComponent);
 }
 
 void ABuilding::EndPlay(EEndPlayReason::Type Reason)
@@ -163,6 +151,21 @@ void ABuilding::SetupBaseAttributes()
 
             });
     }
+}
+
+void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+    // All of this never changes
+    InSelectionComponent->SetTeam(GetTeam());
+    InSelectionComponent->SetName(GetBuildingName());
+    InSelectionComponent->SetIcon(GetBuildingType()->BuildingIcon);
+
+    InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
+
+    GoldVM = CreateLordVM<UVMGold>(this);
+    GoldVM->SetGold(BuildingGold);
+    GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
+    InSelectionComponent->SetGoldVM(GoldVM);
 }
 
 ABuildingController* ABuilding::GetBuildingController() const

@@ -132,6 +132,7 @@ protected:
     TObjectPtr<UVMGold> GoldVM;
 
     virtual void SetupBaseAttributes();
+    virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
 
     int GetBuildingHealth() const;
     int GetBuildingMaxHealth() const;

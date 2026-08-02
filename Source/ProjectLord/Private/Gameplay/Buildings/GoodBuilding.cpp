@@ -19,9 +19,6 @@ void AGoodBuilding::BeginPlay()
     Super::BeginPlay();
 
     QueueComponent->OnActionReady.AddDynamic(this, &AGoodBuilding::OnQueueActionReady);
-
-
-    SelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
 }
 
 bool AGoodBuilding::HasGood(UGameGood* GoodType) const
@@ -51,6 +48,13 @@ void AGoodBuilding::SetupBaseGoods()
     {
         Goods.Add(Good);
     }
+}
+
+void AGoodBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+    Super::SetupSelectionData(InSelectionComponent);
+
+    InSelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
 }
 
 void AGoodBuilding::OnQueueActionReady(UQueuedAction* Action)

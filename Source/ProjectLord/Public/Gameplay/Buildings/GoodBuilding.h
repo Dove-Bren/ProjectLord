@@ -44,6 +44,7 @@ protected:
     TArray<FGoodOffer> Goods;
 
     virtual void SetupBaseGoods();
+    virtual void SetupSelectionData(USelectionComponent* InSelectionComponent) override;
 
     UFUNCTION()
     void OnQueueActionReady(UQueuedAction* Action);
