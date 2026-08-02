@@ -21,6 +21,7 @@ class UStaticMeshComponent;
 class UGameGood;
 class UBuildingActionQueueComponent;
 class UVMGold;
+class UUnitType;
 struct FGoodOffer;
 
 UCLASS(Blueprintable)
@@ -75,7 +76,7 @@ public:
     void AddGoodOffer(FGoodOffer InOffer);
 
     UFUNCTION(BlueprintCallable)
-    void RecruitNewUnit(UCreatureType* RecruitType);
+    void RecruitNewUnit(UUnitType* RecruitType);
 
     UFUNCTION(BlueprintPure)
     UBuildingActionQueueComponent* GetQueueComponent() const { return QueueComponent; }

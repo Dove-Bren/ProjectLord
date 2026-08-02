@@ -7,7 +7,7 @@
 
 class UTexture2D;
 struct FAttributeBaseValue;
-class UCreatureType;
+class UUnitType;
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -56,7 +56,7 @@ public:
     TArray<FAttributeBaseValue> GetAttributesToApply() const { return AttributesToApply; }
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
-    virtual bool CanUse(UCreatureType* HeroType) const { return true; }
+    virtual bool CanUse(UUnitType* HeroType) const { return true; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
@@ -89,7 +89,7 @@ public:
     UFUNCTION(BlueprintPure, Category = "Item|Definintion")
     EEquipmentTier GetEquipmentTier() const { return EEquipmentTier::Starter; }
 
-    virtual bool CanUse(UCreatureType* HeroType) const override;
+    virtual bool CanUse(UUnitType* HeroType) const override;
 
 protected:
 
@@ -97,7 +97,7 @@ protected:
     EEquipmentTier Tier;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
-    TArray<UCreatureType*> AllowedHeroTypes;
+    TArray<UUnitType*> AllowedHeroTypes;
 
 };
 

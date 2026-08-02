@@ -20,6 +20,7 @@ class UCombatAttributeSet;
 class UVMUnit;
 class UWidgetComponent;
 class USelectionComponent;
+class UUnitType;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -35,6 +36,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     AUnitController* GetUnitController() const;
+
+    UFUNCTION(BlueprintPure, Category = "Unit")
+    UUnitType* GetUnitType() const { return UnitType; }
 
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
@@ -69,6 +73,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definision")
+    TObjectPtr<UUnitType> UnitType;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;

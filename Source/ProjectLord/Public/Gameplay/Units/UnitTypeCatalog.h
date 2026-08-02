@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UnitTypeCatalog.generated.h"
 
-class UCreatureType;
+class UUnitType;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UUnitTypeCatalog : public UGameInstanceSubsystem
@@ -18,11 +18,11 @@ public:
 	virtual void Deinitialize() override;
 	// End USubsystem
 
-	UFUNCTION(BlueprintPure, Category = "Creature Type")
-	TArray<UCreatureType*> GetCreatureTypes() const { check(!bLoadingCreatureTypes); return CreatureTypes; }
+	UFUNCTION(BlueprintPure, Category = "Unit Type")
+	TArray<UUnitType*> GetUnitTypes() const { check(!bLoadingUnitTypes); return UnitTypes; }
 
 private:
-	TArray<UCreatureType*> CreatureTypes;
+	TArray<UUnitType*> UnitTypes;
 
-	bool bLoadingCreatureTypes;
+	bool bLoadingUnitTypes;
 };

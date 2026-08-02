@@ -7,17 +7,17 @@
 #include "LordLogging.h"
 #include "Gameplay/Units/UnitTypes.h"
 
-static FPrimaryAssetType CreatureTypeAssetType = FPrimaryAssetType(TEXT("CreatureType"));
+static FPrimaryAssetType UnitTypeAssetType = FPrimaryAssetType(TEXT("UnitType"));
 
 void UUnitTypeCatalog::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	bLoadingCreatureTypes = true;
-	GetPrimaryAssetsOfType<UCreatureType>(CreatureTypeAssetType, [this](TArray<UCreatureType*> Results) {
-		CreatureTypes = Results;
-		bLoadingCreatureTypes = false;
-		UE_LOG(LordUnit, Log, TEXT("Loaded %d Creature Types"), CreatureTypes.Num());
+	bLoadingUnitTypes = true;
+	GetPrimaryAssetsOfType<UUnitType>(UnitTypeAssetType, [this](TArray<UUnitType*> Results) {
+		UnitTypes = Results;
+		bLoadingUnitTypes = false;
+		UE_LOG(LordUnit, Log, TEXT("Loaded %d Unit Types"), UnitTypes.Num());
 	});
 }
 
@@ -25,9 +25,9 @@ void UUnitTypeCatalog::Deinitialize()
 {
 	Super::Deinitialize();
 
-	ensure(!bLoadingCreatureTypes);
+	ensure(!bLoadingUnitTypes);
 
 	UAssetManager& Manager = UAssetManager::Get();
-	CreatureTypes.Empty();
-	Manager.UnloadPrimaryAssetsWithType(CreatureTypeAssetType);
+	UnitTypes.Empty();
+	Manager.UnloadPrimaryAssetsWithType(UnitTypeAssetType);
 }

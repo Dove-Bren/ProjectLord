@@ -13,7 +13,7 @@ class ALordPlayerState;
 class USelectionComponent;
 class AUnit;
 class ABuilding;
-class UCreatureType;
+class UUnitType;
 
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FSelectionActionContext
@@ -146,10 +146,10 @@ public:
     virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Recruit")
-    UCreatureType* GetUnitType() const { return UnitType; }
+    UUnitType* GetUnitType() const { return UnitType; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Recruit")
-    TObjectPtr<UCreatureType> UnitType;
+    TObjectPtr<UUnitType> UnitType;
 };
 

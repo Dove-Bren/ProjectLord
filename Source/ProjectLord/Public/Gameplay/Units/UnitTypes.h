@@ -7,27 +7,23 @@
 #include "UnitTypes.generated.h"
 
 class UTexture2D;
-class ACreature;
+class AUnit;
 
 UCLASS(BlueprintType)
-class PROJECTLORD_API UCreatureType : public UPrimaryDataAsset
+class PROJECTLORD_API UUnitType : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature Type")
-	FText CreatureName;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit Type")
+	FText UnitName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature Type")
-	FText CreatureDescription;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit Type")
+	FText UnitDescription;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature Type")
-	TObjectPtr<UTexture2D> CreatureIcon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit Type")
+	TObjectPtr<UTexture2D> UnitIcon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature Type")
-	TSubclassOf<ACreature> CreatureClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature Type")
-	int RecruitCost;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit Type")
+	TSubclassOf<AUnit> UnitClass;
 };

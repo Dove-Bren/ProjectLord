@@ -13,9 +13,9 @@ void UQueuedGoodAction::Init(int InGold, FGoodOffer InOffer)
 	Good = InOffer;
 }
 
-void UQueuedRecruitAction::Init(int InGold, UCreatureType* InType)
+void UQueuedRecruitAction::Init(int InGold, UUnitType* InType)
 {
-	Icon = InType->CreatureIcon;
+	Icon = InType->UnitIcon;
 	RefundGold = InGold;
 	RecruitType = InType;
 }

@@ -2,7 +2,7 @@
 
 #include "Gameplay/Units/HeroEquipment.h"
 
-bool UHeroEquipmentDef::CanUse(UCreatureType* HeroType) const
+bool UHeroEquipmentDef::CanUse(UUnitType* HeroType) const
 {
 	if (!AllowedHeroTypes.Contains(HeroType))
 	{

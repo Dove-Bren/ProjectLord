@@ -9,7 +9,6 @@
 #include "Creature.generated.h"
 
 class ABuilding;
-class UCreatureType;
 class UCombatAttributeSet;
 class UCreatureAttributeSet;
 
@@ -22,7 +21,8 @@ class PROJECTLORD_API ACreature : public AUnit
 public:
     ACreature();
 
-    UCreatureType* GetCreatureType() const { return CreatureType; }
+    // Old Depreceted
+    UUnitType* GetCreatureType() const { return GetUnitType(); }
     ABuilding* GetHomeBuilding() const { return HomeBuilding.IsValid() ? HomeBuilding.Get() : nullptr; }
 
     UFUNCTION(BlueprintPure)
@@ -36,9 +36,6 @@ public:
 
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Creature")
-    TObjectPtr<UCreatureType> CreatureType;
-
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<ABuilding> HomeBuilding;
 

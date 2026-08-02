@@ -7,7 +7,7 @@
 #include "QueuedAction.generated.h"
 
 class UTexture2D;
-class UCreatureType;
+class UUnitType;
 class ABuilding;
 
 UCLASS(Blueprintable, Abstract)
@@ -63,15 +63,15 @@ class PROJECTLORD_API UQueuedRecruitAction : public UQueuedAction
 
 public:
 
-    void Init(int InGold, UCreatureType* InType);
+    void Init(int InGold, UUnitType* InType);
 
     UFUNCTION(BlueprintPure, Category = "Building|Queue|Action")
-    UCreatureType* GetRecruitType() const { return RecruitType; }
+    UUnitType* GetRecruitType() const { return RecruitType; }
 
     virtual void Perform(ABuilding* Building) override;
 
 protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Queue|Action")
-    TObjectPtr<UCreatureType> RecruitType;
+    TObjectPtr<UUnitType> RecruitType;
 };

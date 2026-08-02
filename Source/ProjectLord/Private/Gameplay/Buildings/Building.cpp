@@ -94,7 +94,7 @@ void ABuilding::AddGoodOffer(FGoodOffer InOffer)
     }
 }
 
-void ABuilding::RecruitNewUnit(UCreatureType* RecruitType)
+void ABuilding::RecruitNewUnit(UUnitType* RecruitType)
 {
     auto World = GetWorld();
     if (!ensure(World))
@@ -104,7 +104,7 @@ void ABuilding::RecruitNewUnit(UCreatureType* RecruitType)
 
     auto Location = GetBuildingEntrance();
     auto Rotation = FRotator();
-    ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->CreatureClass, Location, Rotation);
+    ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->UnitClass, Location, Rotation);
     if (IsValid(Recruit))
     {
         Recruit->SetTeam(GetTeam());
