@@ -2,6 +2,8 @@ Key,SourceString,Comment
 
 Building.TestHouse.Name,"Test House",
 Building.TestHouse.Desc,"A Test House, made for testing unit spawn and residence mechanics",
+Building.SlimeWell.Name,"Slimy Well",
+Building.SlimeWell.Desc,"A well filled with slimy water. Hydrates your heroes, but also occasionally spawns slimes.",
 
 Building.Castle.Name,"Palace",
 Building.Castle.Desc,"The Palace",
