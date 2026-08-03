@@ -9,6 +9,7 @@
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CreatureAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
+#include "Gameplay/Buildings/ResidentialBuilding.h"
 
 #define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 
@@ -39,5 +40,22 @@ void ACreature::EndPlay(EEndPlayReason::Type Reason)
     {
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CreatureAttributeSet->GetMovementAttribute())
             .RemoveAll(this);
+    }
+}
+
+void ACreature::OnDeath_Implementation()
+{
+    // Super wants to be overriden complete.
+    //Super::OnDeath_Implementation();
+    
+
+    // TODO #46 Graves
+    // This should all happen when a grave expires. Hero counts linger, for example.
+    {
+        if (HomeBuilding.IsValid())
+        {
+            HomeBuilding.Get()->RemoveResident(this);
+        }
+        this->Destroy();
     }
 }

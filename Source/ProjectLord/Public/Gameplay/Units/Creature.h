@@ -44,6 +44,8 @@ protected:
 
     virtual void RegisterAttributes() override;
 
+    virtual void OnDeath_Implementation() override;
+
 public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
