@@ -86,12 +86,12 @@ void AResidentialBuilding::RemoveVisitor(ACreature* Visitor)
     }
 }
 
-void AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
+ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
 {
     auto World = GetWorld();
     if (!ensure(World))
     {
-        return;
+        return nullptr;
     }
 
     auto Location = GetBuildingEntrance();
@@ -103,6 +103,8 @@ void AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
         AddResident(Recruit);
         Recruit->SetHomeBuilding(this);
     }
+
+    return Recruit;
 }
 
 void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)

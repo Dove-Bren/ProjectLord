@@ -66,7 +66,7 @@ public:
     void RemoveVisitor(ACreature* Visitor);
 
     UFUNCTION(BlueprintCallable)
-    void RecruitNewUnit(UUnitType* RecruitType);
+    ACreature* RecruitNewUnit(UUnitType* RecruitType);
 
     UFUNCTION(BlueprintPure)
     int GetResidentTypeCount(const UUnitType* Type, bool bIncludeQueue = true) const;
