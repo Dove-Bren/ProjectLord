@@ -14,6 +14,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     LevelVM = nullptr;
     ProgressQueueVM = nullptr;
     SlotsVM = nullptr;
+    Actions.Empty();
 
     if (bTriggerUpdate)
     {

@@ -11,6 +11,8 @@
 
 class ABuilding;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerGoldChanged, int);
+
 UCLASS(BlueprintType)
 class PROJECTLORD_API ALordPlayerState : public APlayerState
 {
@@ -28,10 +30,12 @@ public:
     int GetPlayerGold() const { return Gold; }
 
     UFUNCTION(BlueprintCallable)
-    int AddGold(int InChange) { Gold = FMath::Clamp(Gold + InChange, 0, 9999999); return Gold; }
+    int AddGold(int InChange) { Gold = FMath::Clamp(Gold + InChange, 0, 9999999); OnPlayerGoldChanged.Broadcast(Gold); return Gold; }
 
     UFUNCTION(BlueprintPure)
     ABuilding* GetPlayerCastle() const { return PlayerCastle.IsValid() ? PlayerCastle.Get() : nullptr; }
+
+    FOnPlayerGoldChanged OnPlayerGoldChanged;
 
 protected:
 

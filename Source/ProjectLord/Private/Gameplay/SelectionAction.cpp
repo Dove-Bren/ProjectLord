@@ -74,6 +74,11 @@ bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionCont
 		return false;
 	}
 
+	if (IsHidden(Context))
+	{
+		return false;
+	}
+
 	// Check if building has good already
 	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(Context));
 	if (!ensure(IsValid(BuildingOwner)))
@@ -88,7 +93,19 @@ bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionCont
 		return false;
 	}
 
-	return !BuildingOwner->HasGood(GetGood().Good);
+	return true;
+}
+
+bool UResearchGoodPurchase::IsHidden_Implementation(const FSelectionActionContext& Context) const
+{
+	// Check if building has good already
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(Context));
+	if (!ensure(IsValid(BuildingOwner)))
+	{
+		return false;
+	}
+
+	return BuildingOwner->HasGood(GetGood().Good);
 }
 
 bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext& Context)

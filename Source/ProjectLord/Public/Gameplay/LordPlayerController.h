@@ -6,6 +6,7 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Gameplay/SelectionComponent.h" // For FSelectionData in optional
+#include "Gameplay/SelectionAction.h"
 #include "Gameplay/GameTeam.h"
 
 #include "LordPlayerController.generated.h"
@@ -44,6 +45,9 @@ public:
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName="OnSelectionChange"))
     void BP_OnSelectionChange();
+
+    UFUNCTION(BlueprintCallable, Category = "Selection")
+    FSelectionActionContext MakeSelectionContext();
 
 protected:
 

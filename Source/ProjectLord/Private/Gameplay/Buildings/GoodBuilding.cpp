@@ -21,13 +21,27 @@ void AGoodBuilding::BeginPlay()
     QueueComponent->OnActionReady.AddDynamic(this, &AGoodBuilding::OnQueueActionReady);
 }
 
-bool AGoodBuilding::HasGood(UGameGood* GoodType) const
+bool AGoodBuilding::HasGood(UGameGood* GoodType, bool bCheckQueue) const
 {
     for (const auto& Good : Goods)
     {
         if (Good.Good == GoodType)
         {
             return true;
+        }
+    }
+
+    if (bCheckQueue)
+    {
+        for (const auto Action : QueueComponent->GetQueue())
+        {
+            if (auto GoodAction = Cast<UQueuedGoodAction>(Action))
+            {
+                if (GoodAction->GetGood().Good == GoodType)
+                {
+                    return true;
+                }
+            }
         }
     }
 

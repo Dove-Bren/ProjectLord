@@ -30,7 +30,7 @@ public:
     const TArray<FGoodOffer>& GetGoods() const { return Goods; }
 
     UFUNCTION(BlueprintPure)
-    bool HasGood(UGameGood* GoodType) const;
+    bool HasGood(UGameGood* GoodType, bool bCheckQueue = true) const;
 
 protected:
 

@@ -7,6 +7,7 @@
 
 #include "Gameplay/LordPlayerState.h"
 #include "UI/ViewModels/SelectionViewModel.h"
+#include "UI/ViewModels/SelectionActionViewModel.h"
 
 ALordPlayerController::ALordPlayerController()
 {
@@ -71,6 +72,19 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 	}
 }
 
+FSelectionActionContext ALordPlayerController::MakeSelectionContext()
+{
+	FSelectionActionContext Context;
+
+	Context.PlayerState = GetLordPlayerState();
+	if (HasSelection() && Selection->SelectedComponent.IsValid())
+	{
+		Context.Selection = Selection->SelectedComponent.Get();
+	}
+
+	return Context;
+}
+
 void ALordPlayerController::OnMouseClick(bool bRightButton)
 {
 	if (!bRightButton)
@@ -120,6 +134,21 @@ void ALordPlayerController::OnSelectionChange()
 		SelectionVM->LevelVM = Selected.LevelVM;
 		SelectionVM->ProgressQueueVM = Selected.QueueVM;
 		SelectionVM->SlotsVM = Selected.SlotsVM;
+
+		auto Context = MakeSelectionContext();
+		for (auto Action : Selected.AvailableActions)
+		{
+			UVMSelectionAction* ActionVM;
+			if (!IsValid(Action) || Action->IsHidden(Context))
+			{
+				ActionVM = nullptr;
+			}
+			else
+			{
+				ActionVM = UVMSelectionAction::Make(this, Action);
+			}
+			SelectionVM->Actions.Add(ActionVM);
+		}
 
 		SelectionVM->TriggerSelectionChange();
 	}

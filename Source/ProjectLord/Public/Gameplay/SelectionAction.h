@@ -122,6 +122,7 @@ public:
 
     // Make sure building doesn't already have it
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
+    virtual bool IsHidden_Implementation(const FSelectionActionContext& Context) const;
 
     virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
 

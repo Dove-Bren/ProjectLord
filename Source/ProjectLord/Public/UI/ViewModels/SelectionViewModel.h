@@ -17,6 +17,7 @@ class UVMProgressQueue;
 class UVMSummarySlots;
 class USelectionComponent;
 class UTexture2D;
+class UVMSelectionAction;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMSelection : public UVMLordBase
@@ -54,6 +55,9 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSummarySlots> SlotsVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TArray<UVMSelectionAction*> Actions;
 
     bool GetOnSelectionChange() const { return OnSelectionChange; }
 
