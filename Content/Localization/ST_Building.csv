@@ -4,6 +4,8 @@ Building.TestHouse.Name,"Test House",
 Building.TestHouse.Desc,"A Test House, made for testing unit spawn and residence mechanics",
 Building.SlimeWell.Name,"Slimy Well",
 Building.SlimeWell.Desc,"A well filled with slimy water. Hydrates your heroes, but also occasionally spawns slimes.",
+Building.SkeleHouse.Name,"Destroyed House",
+Building.SkeleHouse.Desc,"This house has been destroyed, but something tells you the previous tenants don't want to talk about it.",
 
 Building.Castle.Name,"Palace",
 Building.Castle.Desc,"The Palace",
