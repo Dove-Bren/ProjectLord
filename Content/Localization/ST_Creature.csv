@@ -8,3 +8,6 @@ Creature.Ranger.Desc,"These dependable fellows love their job, Your Majesty. Tha
 
 Monster.DevSlime.Name,"Dev Slime",
 Monster.DevSlime.Desc,"A poorly modeled and animated slime, used only for testing mechanics",
+
+Monster.SkeletalFighter.Name,"Skeleton",
+Monster.SkeletalFighter.Desc,"Just bones, a sword, and a desire to kill.",

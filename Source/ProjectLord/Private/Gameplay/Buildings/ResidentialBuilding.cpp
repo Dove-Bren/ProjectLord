@@ -96,7 +96,9 @@ ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
 
     auto Location = GetBuildingEntrance();
     auto Rotation = FRotator();
-    ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->UnitClass, Location, Rotation);
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->UnitClass, Location, Rotation, Params);
     if (IsValid(Recruit))
     {
         Recruit->SetTeam(GetTeam());
