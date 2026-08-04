@@ -25,12 +25,12 @@ public:
     const FText& GetAbilityDescription() const { return AbilityDescription; }
     const UTexture2D* GetAbilityIcon() const { return AbilityIcon; }
     EAbilityTargetType GetTargetType() const { return TargetType; }
-    EAbilityAnimType GetAnimType() const { return AnimType; }
     bool IsHidden() const { return bHidden; }
 
-
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
-    UAnimMontage* GetAbilityAnimation() const;
+    EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
+
+    UAnimMontage* GetAbilityAnimationFromOwner(EAbilityAnimType Type) const;
     
 
 protected:

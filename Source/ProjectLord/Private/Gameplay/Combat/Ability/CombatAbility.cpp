@@ -39,7 +39,7 @@ void UCombatAbility::ReportAbilityHit(UCombatComponent* HitComponent)
 	}
 }
 
-UAnimMontage* UCombatAbility::GetAbilityAnimation() const
+UAnimMontage* UCombatAbility::GetAbilityAnimationFromOwner(EAbilityAnimType Type) const
 {
 	AActor* Owner = GetOwningActorFromActorInfo();
 	if (!ensure(Owner))
@@ -53,6 +53,6 @@ UAnimMontage* UCombatAbility::GetAbilityAnimation() const
 		return nullptr;
 	}
 
-	return UnitOwner->GetAnimForAbilityType(GetAnimType());
+	return UnitOwner->GetAnimForAbilityType(Type);
 }
 

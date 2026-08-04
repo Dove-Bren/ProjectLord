@@ -9,6 +9,21 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AbilityTask_PlayCombatAbilityAnim)
 
 /*static*/ UAbilityTask_PlayCombatAbilityAnim* UAbilityTask_PlayCombatAbilityAnim::CreatePlayCombatAnimationAndWaitProxy(
+	UGameplayAbility* OwningAbility, FName TaskInstanceName,
+	float InRate, FName InStartSection, bool bInStopWhenAbilityEnds, float InAnimRootMotionTranslationScale, float InStartTimeSeconds, bool bInAllowInterruptAfterBlendOut)
+{
+	UCombatAbility* CombatAbility = Cast<UCombatAbility>(OwningAbility);
+	if (!ensure(CombatAbility))
+	{
+		return nullptr;
+	}
+
+	return UAbilityTask_PlayCombatAbilityAnim::CreatePlaySpecificCombatAnimationAndWaitProxy(OwningAbility, TaskInstanceName, CombatAbility->GetAbilityAnimation(),
+		InRate, InStartSection, bInStopWhenAbilityEnds, InAnimRootMotionTranslationScale, InStartTimeSeconds, bInAllowInterruptAfterBlendOut
+		);
+}
+
+/*static*/ UAbilityTask_PlayCombatAbilityAnim* UAbilityTask_PlayCombatAbilityAnim::CreatePlaySpecificCombatAnimationAndWaitProxy(
 	UGameplayAbility* OwningAbility, FName TaskInstanceName, EAbilityAnimType Animation,
 	float InRate, FName InStartSection, bool bInStopWhenAbilityEnds, float InAnimRootMotionTranslationScale, float InStartTimeSeconds, bool bInAllowInterruptAfterBlendOut)
 {
@@ -18,7 +33,7 @@
 		return nullptr;
 	}
 
-	UAnimMontage* MontageToPlay = CombatAbility->GetAbilityAnimation();
+	UAnimMontage* MontageToPlay = CombatAbility->GetAbilityAnimationFromOwner(Animation);
 
 
 	// If this was just a BlueprintFuncLibrary func, I wouldn't need to dupe this.
