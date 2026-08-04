@@ -41,7 +41,7 @@ protected:
 
     void ResetTimer();
 
-    UPROPERTY(VisibleInstanceOnly, Category = "Spawnwer")
+    UPROPERTY(VisibleInstanceOnly, Category = "Spawner")
     float SpawnTimeRemaining;
 
     // Helper functions for basic spawning. May not be useful in child classes
