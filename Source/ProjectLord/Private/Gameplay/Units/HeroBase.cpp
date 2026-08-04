@@ -4,6 +4,7 @@
 
 #include "GameplayEffect.h"
 #include "Gameplay/GameGood.h"
+#include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
@@ -48,6 +49,69 @@ void AHeroBase::SetupBaseAttributes()
 
 	// Make sure to prompt attribute set to recalc dependent attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
+
+	// Set up mod for attributes
+	{
+		auto HeroAttributeSet = LordHeroAttributeSet;
+
+		{
+			UGameplayEffect* GE_StrMod = NewObject<UGameplayEffect>(this, TEXT("StrengthMod"));
+			GE_StrMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
+			auto StrengthAttribute = HeroAttributeSet->GetStrengthAttribute();
+			auto MeleeDmgAttribute = CombatAttributeSet->GetMeleeDamageAttribute();
+
+			FGameplayModifierInfo Mod;
+			Mod.Attribute = MeleeDmgAttribute;
+			Mod.ModifierOp = EGameplayModOp::AddFinal;
+			FAttributeBasedFloat Curve;
+			Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(StrengthAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
+			Curve.Coefficient = AHeroBase::DamageModPerAttribute;
+			Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
+			GE_StrMod->Modifiers.Add(MoveTemp(Mod));
+
+			FGameplayEffectSpec Spec(GE_StrMod, AbilitySystemComponent->MakeEffectContext(), 1);
+			StrengthDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+		}
+
+		{
+			UGameplayEffect* GE_AgiMod = NewObject<UGameplayEffect>(this, TEXT("AgilityMod"));
+			GE_AgiMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
+			auto AgilityAttribute = HeroAttributeSet->GetAgilityAttribute();
+			auto RangedDmgAttribute = CombatAttributeSet->GetRangedDamageAttribute();
+
+			FGameplayModifierInfo Mod;
+			Mod.Attribute = RangedDmgAttribute;
+			Mod.ModifierOp = EGameplayModOp::AddFinal;
+			FAttributeBasedFloat Curve;
+			Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(AgilityAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
+			Curve.Coefficient = AHeroBase::DamageModPerAttribute;
+			Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
+			GE_AgiMod->Modifiers.Add(MoveTemp(Mod));
+
+			FGameplayEffectSpec Spec(GE_AgiMod, AbilitySystemComponent->MakeEffectContext(), 1);
+			AgilityDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+		}
+
+		{
+			UGameplayEffect* GE_IntMod = NewObject<UGameplayEffect>(this, TEXT("IntelligenceMod"));
+			GE_IntMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
+			auto IntelligenceAttribute = HeroAttributeSet->GetIntelligenceAttribute();
+			auto MagicDmgAttribute = CombatAttributeSet->GetMagicDamageAttribute();
+
+			FGameplayModifierInfo Mod;
+			Mod.Attribute = MagicDmgAttribute;
+			Mod.ModifierOp = EGameplayModOp::AddFinal;
+			FAttributeBasedFloat Curve;
+			Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(IntelligenceAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
+			Curve.Coefficient = AHeroBase::DamageModPerAttribute;
+			Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
+			GE_IntMod->Modifiers.Add(MoveTemp(Mod));
+
+			FGameplayEffectSpec Spec(GE_IntMod, AbilitySystemComponent->MakeEffectContext(), 1);
+			IntelligenceDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+		}
+
+	}
 }
 
 void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
@@ -231,3 +295,10 @@ void AHeroBase::Apply(const UGameGood* Good)
 		AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
 	}
 }
+
+void AHeroBase::UpdateAttributeDamageMod(FActiveGameplayEffectHandle& AttributeHandle, int Level)
+{
+	AbilitySystemComponent->SetActiveGameplayEffectLevel(AttributeHandle, Level);
+}
+
+float AHeroBase::DamageModPerAttribute = (1.0f / 3.0f);

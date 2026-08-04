@@ -29,7 +29,7 @@ public:
     bool HasBuilding() const { return !!GetHomeBuilding(); }
 
     UFUNCTION(BlueprintCallable)
-    void SetHomeBuilding(AResidentialBuilding* Building) { HomeBuilding = Building; }
+    void SetHomeBuilding(AResidentialBuilding* Building);
 
     UFUNCTION(BlueprintPure)
     UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }

@@ -77,6 +77,19 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
     void OnLevelUp();
 
+    UPROPERTY()
+    FActiveGameplayEffectHandle StrengthDamageModHandle;
+
+    UPROPERTY()
+    FActiveGameplayEffectHandle AgilityDamageModHandle;
+
+    UPROPERTY()
+    FActiveGameplayEffectHandle IntelligenceDamageModHandle;
+
+    void UpdateAttributeDamageMod(FActiveGameplayEffectHandle& Handle, int Attribute);
+
+    static float DamageModPerAttribute;
+
 private:
     void UnapplyInventoryAttributes();
     void ApplyInventoryAttributes();

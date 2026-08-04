@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Character.h"
+#include "GameplayEffect.h"
 
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/UnitTypes.h"
@@ -86,15 +87,25 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
 
+    // Attributes to add for every level the unit gains.
+    // Typically, just set to 1 (or so) damage of the type relevant to the class.
+    UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
+    TObjectPtr<UDataTable> ClassAttributeGrowth;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
     TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
     UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
 
+    UPROPERTY()
+    FActiveGameplayEffectHandle LevelDamageModHandle;
+
     virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent);
+
+    void ApplyLevelDamageMod(int Level);
 
 private:
     void InitUnitVM();

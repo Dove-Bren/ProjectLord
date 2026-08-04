@@ -43,6 +43,11 @@ void ACreature::EndPlay(EEndPlayReason::Type Reason)
     }
 }
 
+void ACreature::SetHomeBuilding(AResidentialBuilding* Building)
+{
+    HomeBuilding = Building;
+}
+
 void ACreature::OnDeath_Implementation()
 {
     // Super wants to be overriden complete.

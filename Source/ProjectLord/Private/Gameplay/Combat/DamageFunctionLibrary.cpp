@@ -4,7 +4,7 @@
 
 static int CalculateDamageFromCharacteristic(int HeroLevel, int Characteristic, int BonusDamage)
 {
-	return FMath::Max(1, (HeroLevel - 1) + FMath::CeilToInt((float)Characteristic / 8.f) + BonusDamage);
+	return FMath::Max(1, (HeroLevel - 1) + FMath::CeilToInt((float)Characteristic / 3.f) + BonusDamage);
 }
 
 /*static*/ int UDamageFunctionLibrary::CalculateBaseMeleeDamageDirect(int HeroLevel, int Strength, int BonusDamage)
