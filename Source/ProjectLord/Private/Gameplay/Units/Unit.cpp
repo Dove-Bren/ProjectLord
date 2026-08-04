@@ -249,3 +249,14 @@ void AUnit::ApplyLevelDamageMod(int Level)
 {
     AbilitySystemComponent->SetActiveGameplayEffectLevel(LevelDamageModHandle, Level);
 }
+
+UAnimMontage* AUnit::GetAnimForAbilityType(EAbilityAnimType AbilityType) const
+{
+    // Try to get that exact anim type, and fall back to the basic montage
+    if (AbilityAnimations.Contains(AbilityType))
+    {
+        return AbilityAnimations[AbilityType];
+    }
+
+    return AbilityAnimations[EAbilityAnimType::HarmingNormal];
+}

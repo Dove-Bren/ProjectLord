@@ -17,7 +17,8 @@ public class ProjectLord : ModuleRules
 			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayTags",
-			"InputCore",
+            "GameplayTasks",
+            "InputCore",
 			"ModelViewViewModel",
 			"UMG",
 		});

@@ -12,3 +12,12 @@ enum class EAbilityTargetType : uint8
 	Ally,
 };
 
+UENUM(BlueprintType)
+enum class EAbilityAnimType : uint8
+{
+	HarmingNormal,
+	HarmingLarge,
+	HelpingNormal,
+	HelpingLarge,
+};
+

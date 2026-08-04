@@ -9,6 +9,7 @@
 
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "Gameplay/Combat/Ability/AbilityEnums.h"
 #include "Gameplay/Combat/Ability/CombatAbility.h" // Including instead of forward declared to make dropdowns populate right
 
 #include "Unit.generated.h"
@@ -22,6 +23,7 @@ class UVMUnit;
 class UWidgetComponent;
 class USelectionComponent;
 class UUnitType;
+class UAnimMontage;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -62,6 +64,9 @@ public:
     UFUNCTION(BlueprintPure)
     UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
 
+    UFUNCTION(BlueprintPure)
+    UAnimMontage* GetAnimForAbilityType(EAbilityAnimType AbilityType) const;
+
 public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
@@ -78,7 +83,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definision")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TObjectPtr<UUnitType> UnitType;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
@@ -100,6 +105,9 @@ protected:
 
     UPROPERTY()
     FActiveGameplayEffectHandle LevelDamageModHandle;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
+    TMap<EAbilityAnimType, UAnimMontage*> AbilityAnimations;
 
     virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();

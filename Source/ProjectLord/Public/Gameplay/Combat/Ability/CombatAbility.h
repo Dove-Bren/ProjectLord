@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 
 #include "Abilities/GameplayAbility.h"
+#include "Gameplay/Combat/Ability/AbilityEnums.h"
 
 #include "CombatAbility.generated.h"
 
 class UTexture2D;
 class UCombatComponent;
+class UAnimMontage;
 
 // Base class specialization for Unit Abilities, which have extra details for showing in the UI etc.
 UCLASS(Blueprintable)
@@ -22,21 +24,33 @@ public:
     const FText& GetAbilityName() const { return AbilityName; }
     const FText& GetAbilityDescription() const { return AbilityDescription; }
     const UTexture2D* GetAbilityIcon() const { return AbilityIcon; }
+    EAbilityTargetType GetTargetType() const { return TargetType; }
+    EAbilityAnimType GetAnimType() const { return AnimType; }
     bool IsHidden() const { return bHidden; }
+
+
+    UFUNCTION(BlueprintPure, Category = "Ability|Combat")
+    UAnimMontage* GetAbilityAnimation() const;
     
 
 protected:
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Ability|Definition")
     FText AbilityName;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     FText AbilityDescription;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     TObjectPtr<UTexture2D> AbilityIcon;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    EAbilityTargetType TargetType;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    EAbilityAnimType AnimType;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     bool bHidden;
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")

@@ -3,6 +3,7 @@
 #include "Gameplay/Combat/Ability/CombatAbility.h"
 
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Units/Unit.h"
 
 UCombatComponent* UCombatAbility::GetOwnerComponent() const
 {
@@ -36,5 +37,22 @@ void UCombatAbility::ReportAbilityHit(UCombatComponent* HitComponent)
 	{
 		Owner->NotifyOfAbilityHit(HitComponent);
 	}
+}
+
+UAnimMontage* UCombatAbility::GetAbilityAnimation() const
+{
+	AActor* Owner = GetOwningActorFromActorInfo();
+	if (!ensure(Owner))
+	{
+		return nullptr;
+	}
+
+	AUnit* UnitOwner = Cast<AUnit>(Owner);
+	if (!ensure(UnitOwner))
+	{
+		return nullptr;
+	}
+
+	return UnitOwner->GetAnimForAbilityType(GetAnimType());
 }
 
