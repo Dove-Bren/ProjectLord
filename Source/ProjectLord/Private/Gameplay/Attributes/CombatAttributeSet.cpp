@@ -19,9 +19,9 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UCombatAttributeSet, RangedDefense);
 	DOREPLIFETIME(UCombatAttributeSet, MagicDefense);
 
-	DOREPLIFETIME(UCombatAttributeSet, BonusMeleeDamage);
-	DOREPLIFETIME(UCombatAttributeSet, BonusRangedDamage);
-	DOREPLIFETIME(UCombatAttributeSet, BonusMagicDamage);
+	DOREPLIFETIME(UCombatAttributeSet, MeleeDamage);
+	DOREPLIFETIME(UCombatAttributeSet, RangedDamage);
+	DOREPLIFETIME(UCombatAttributeSet, MagicDamage);
 
 	DOREPLIFETIME(UCombatAttributeSet, Sight);
 	DOREPLIFETIME(UCombatAttributeSet, AttackRange);
@@ -50,9 +50,9 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	ROUND_ATTRIB_TO_INT(RangedDefense);
 	ROUND_ATTRIB_TO_INT(MagicDefense);
 
-	ROUND_ATTRIB_TO_INT(BonusMeleeDamage);
-	ROUND_ATTRIB_TO_INT(BonusRangedDamage);
-	ROUND_ATTRIB_TO_INT(BonusMagicDamage);*/
+	ROUND_ATTRIB_TO_INT(MeleeDamage);
+	ROUND_ATTRIB_TO_INT(RangedDamage);
+	ROUND_ATTRIB_TO_INT(MagicDamage);*/
 
 	// Clamp Health to max
 	if (Attribute == GetHealthAttribute())
@@ -103,7 +103,7 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	ROUND_ATTRIB_TO_INT(RangedDefense);
 	ROUND_ATTRIB_TO_INT(MagicDefense);
 
-	ROUND_ATTRIB_TO_INT(BonusMeleeDamage);
-	ROUND_ATTRIB_TO_INT(BonusRangedDamage);
-	ROUND_ATTRIB_TO_INT(BonusMagicDamage);
+	ROUND_ATTRIB_TO_INT(MeleeDamage);
+	ROUND_ATTRIB_TO_INT(RangedDamage);
+	ROUND_ATTRIB_TO_INT(MagicDamage);
 }

@@ -24,9 +24,9 @@ public:
     int GetRangedDefense() const { return RangedDefense; }
     int GetMagicDefense() const { return MagicDefense; }
 
-    int GetBonusMeleeDamage() const { return BonusMeleeDamage; }
-    int GetBonusRangedDamage() const { return BonusRangedDamage; }
-    int GetBonusMagicDamage() const { return BonusMagicDamage; }
+    int GetMeleeDamage() const { return MeleeDamage; }
+    int GetRangedDamage() const { return RangedDamage; }
+    int GetMagicDamage() const { return MagicDamage; }
 
     float GetSight() const { return Sight; }
     float GetAttackRange() const { return AttackRange; }
@@ -73,16 +73,16 @@ protected:
     void SetMagicDefense(int InMagicDefense) { UE_MVVM_SET_PROPERTY_VALUE(MagicDefense, InMagicDefense); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
-    int BonusMeleeDamage;
-    void SetBonusMeleeDamage(int InBonusMeleeDamage) { UE_MVVM_SET_PROPERTY_VALUE(BonusMeleeDamage, InBonusMeleeDamage); }
+    int MeleeDamage;
+    void SetMeleeDamage(int InMeleeDamage) { UE_MVVM_SET_PROPERTY_VALUE(MeleeDamage, InMeleeDamage); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
-    int BonusRangedDamage;
-    void SetBonusRangedDamage(int InBonusRangedDamage) { UE_MVVM_SET_PROPERTY_VALUE(BonusRangedDamage, InBonusRangedDamage); }
+    int RangedDamage;
+    void SetRangedDamage(int InRangedDamage) { UE_MVVM_SET_PROPERTY_VALUE(RangedDamage, InRangedDamage); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
-    int BonusMagicDamage;
-    void SetBonusMagicDamage(int InBonusMagicDamage) { UE_MVVM_SET_PROPERTY_VALUE(BonusMagicDamage, InBonusMagicDamage); }
+    int MagicDamage;
+    void SetMagicDamage(int InMagicDamage) { UE_MVVM_SET_PROPERTY_VALUE(MagicDamage, InMagicDamage); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     float Sight;

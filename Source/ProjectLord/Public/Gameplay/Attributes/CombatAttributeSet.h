@@ -56,17 +56,17 @@ protected:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MagicDefense, Category = "Attributes|Defense")
     FGameplayAttributeData MagicDefense = 0;
 
-    // Bonus melee damage, like from equipment or class abilities
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BonusMeleeDamage, Category = "Attributes|Combat Modifiers")
-    FGameplayAttributeData BonusMeleeDamage = 0;
+    // Melee damage, like from equipment or class abilities
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MeleeDamage, Category = "Attributes|Combat Modifiers")
+    FGameplayAttributeData MeleeDamage = 0;
 
-    // Bonus rannged damage, like from equipment or class abilities
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BonusRangedDamage, Category = "Attributes|Combat Modifiers")
-    FGameplayAttributeData BonusRangedDamage = 0;
+    // Ranged damage, like from equipment or class abilities
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_RangedDamage, Category = "Attributes|Combat Modifiers")
+    FGameplayAttributeData RangedDamage = 0;
 
-    // Bonus magic damage, like from equipment or class abilities
-    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BonusMagicDamage, Category = "Attributes|Combat Modifiers")
-    FGameplayAttributeData BonusMagicDamage = 0;
+    // Magic damage, like from equipment or class abilities
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MagicDamage, Category = "Attributes|Combat Modifiers")
+    FGameplayAttributeData MagicDamage = 0;
 
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Sight, Category = "Attributes|AI Characteristics")
     FGameplayAttributeData Sight = 1000;
@@ -99,13 +99,13 @@ protected:
     virtual void OnRep_MagicDefense(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, MagicDefense)
 
     UFUNCTION()
-    virtual void OnRep_BonusMeleeDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, BonusMeleeDamage)
+    virtual void OnRep_MeleeDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, MeleeDamage)
 
     UFUNCTION()
-    virtual void OnRep_BonusRangedDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, BonusRangedDamage)
+    virtual void OnRep_RangedDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, RangedDamage)
 
     UFUNCTION()
-    virtual void OnRep_BonusMagicDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, BonusMagicDamage)
+    virtual void OnRep_MagicDamage(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, MagicDamage)
 
     UFUNCTION()
     virtual void OnRep_Sight(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, Sight)
@@ -127,9 +127,9 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, RangedDefense);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, MagicDefense);
 
-    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, BonusMeleeDamage);
-    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, BonusRangedDamage);
-    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, BonusMagicDamage);
+    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, MeleeDamage);
+    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, RangedDamage);
+    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, MagicDamage);
 
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Sight);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, AttackRange);

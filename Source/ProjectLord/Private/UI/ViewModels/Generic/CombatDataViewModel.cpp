@@ -53,9 +53,9 @@ void UVMCombatData::Init(UCombatComponent* Component)
 	REGISTER_INT(RangedDefense);
 	REGISTER_INT(MagicDefense);
 
-	REGISTER_INT(BonusMeleeDamage);
-	REGISTER_INT(BonusRangedDamage);
-	REGISTER_INT(BonusMagicDamage);
+	REGISTER_INT(MeleeDamage);
+	REGISTER_INT(RangedDamage);
+	REGISTER_INT(MagicDamage);
 
 	REGISTER_FLOAT(Sight);
 	REGISTER_FLOAT(AttackRange);
