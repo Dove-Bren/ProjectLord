@@ -1,5 +1,8 @@
 Key,SourceString,Comment
 
+Ability.Monster.Melee.Attack.Name,"Attack",
+Ability.Monster.Melee.Attack.Desc,"Basic Attack",
+
 Ability.Knight.Attack.Name,"Attack",
 Ability.Knight.Attack.Desc,"Basic Attack",
 

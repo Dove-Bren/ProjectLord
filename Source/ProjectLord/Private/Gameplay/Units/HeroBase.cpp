@@ -27,7 +27,7 @@ int AHeroBase::GetHeroMaxXP() const
 {
 	bool bIgnored;
 	const int Level = FMath::Clamp((int) AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored), 1, 9999);
-	return 10 + ((Level-1) * 5);
+	return 8 + ((Level-1) * 1);
 }
 
 void AHeroBase::BeginPlay()
@@ -248,8 +248,8 @@ void AHeroBase::DoLevelUp()
 
 void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent)
 {
-	// TEST amount; should prob just be 1
-	AddHeroXP(GetHeroMaxXP() / 2);
+	constexpr int BaseGain = 1;
+	AddHeroXP(BaseGain);
 }
 
 bool AHeroBase::CanApply(const UGameGood* Good) const

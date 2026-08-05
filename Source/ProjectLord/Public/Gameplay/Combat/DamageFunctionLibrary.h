@@ -15,12 +15,6 @@ class PROJECTLORD_API UDamageFunctionLibrary : public UBlueprintFunctionLibrary
 public:
 
     UFUNCTION(BlueprintPure, Category = "Combat|Damage")
-    static int CalculateBaseMeleeDamageDirect(int HeroLevel, int Strength, int BonusDamage);
-
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
-    static int CalculateBaseRangedDamageDirect(int HeroLevel, int Agility, int BonusDamage);
-
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
-    static int CalculateBaseMagicDamageDirect(int HeroLevel, int Intelligence, int BonusDamage);
+    static int CalculateDamage(int AttackStrength, int Defense);
 
 };

@@ -11,3 +11,5 @@ Monster.DevSlime.Desc,"A poorly modeled and animated slime, used only for testin
 
 Monster.SkeletalFighter.Name,"Skeleton",
 Monster.SkeletalFighter.Desc,"Just bones, a sword, and a desire to kill.",
+Monster.SkeletonArcher.Name,"Skeleton Archer",
+Monster.SkeletonArcher.Desc,"The animated bones of an archer, preserved in death by powerful dark magic.",
