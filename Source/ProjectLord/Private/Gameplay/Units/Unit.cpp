@@ -66,6 +66,9 @@ void AUnit::BeginPlay()
     RegisterAttributes();
     SetupBaseAttributes();
 
+    // Set health and mana equal to their max
+    CombatAttributeSet->ResetHealthMana();
+
     CombatComponent->OnDeath.AddDynamic(this, &AUnit::HandleDeath);
     CombatComponent->OnAttack.AddDynamic(this, &AUnit::HandleAttack);
 

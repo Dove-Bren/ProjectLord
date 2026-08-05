@@ -72,20 +72,27 @@ void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribut
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
 
 	// If Max Health changes, make sure to cap health
+	// or increase health by the added amount
 	if (Attribute == GetMaxHealthAttribute())
 	{
-		if (GetHealth() < GetMaxHealth())
+		if (GetHealth() > GetMaxHealth())
 		{
 			SetHealth(GetMaxHealth());
+		}
+		else if (NewValue > OldValue) {
+			SetHealth(GetHealth() + (NewValue - OldValue));
 		}
 	}
 
 	// If Max Mana changes, make sure to cap their active counterparts
 	if (Attribute == GetMaxManaAttribute())
 	{
-		if (GetMana() < GetMaxMana())
+		if (GetMana() > GetMaxMana())
 		{
 			SetMana(GetMaxMana());
+		}
+		else if (NewValue > OldValue) {
+			SetMana(GetMana() + (NewValue - OldValue));
 		}
 	}
 }
@@ -106,4 +113,10 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	ROUND_ATTRIB_TO_INT(MeleeDamage);
 	ROUND_ATTRIB_TO_INT(RangedDamage);
 	ROUND_ATTRIB_TO_INT(MagicDamage);
+}
+
+void UCombatAttributeSet::ResetHealthMana()
+{
+	SetHealth(GetMaxHealth());
+	SetMana(GetMaxMana());
 }

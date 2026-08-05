@@ -134,6 +134,8 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Sight);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, AttackRange);
 
+    void ResetHealthMana();
+
 };
 
 #undef DEF_REP_ATTRIBUTE
