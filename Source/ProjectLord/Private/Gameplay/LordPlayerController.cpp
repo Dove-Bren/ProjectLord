@@ -124,6 +124,7 @@ void ALordPlayerController::OnSelectionChange()
 
 		SelectionVM->SetIcon(Selected->GetIcon());
 		SelectionVM->SetSelectionName(Selected->GetName());
+		SelectionVM->SetSelectionDescription(Selected->GetDescription());
 		SelectionVM->SetTeam(Selected->GetTeam());
 
 		SelectionVM->ActionVM = Selected->GetActionVM();
@@ -132,6 +133,7 @@ void ALordPlayerController::OnSelectionChange()
 		SelectionVM->LevelVM = Selected->GetLevelVM();
 		SelectionVM->ProgressQueueVM = Selected->GetQueueVM();
 		SelectionVM->SlotsVM = Selected->GetSlotsVM();
+		//SelectionVM->TargetVM = Selected->GetTargetVM();
 
 		auto Context = MakeSelectionContext();
 		for (auto Action : Selected->GetAvailableActions())

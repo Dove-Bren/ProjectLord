@@ -17,6 +17,8 @@
 
 UCombatComponent::UCombatComponent()
 {
+    PrimaryComponentTick.bCanEverTick = true;
+    PrimaryComponentTick.bStartWithTickEnabled = true;
 }
 
 void UCombatComponent::BeginPlay()
@@ -55,6 +57,19 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::EndPlay(EEndPlayReason::Type Reason)
 {
     Super::EndPlay(Reason);
+}
+
+void UCombatComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (TargetComponent)
+    {
+        if (!IsValid(TargetComponent) || !TargetComponent->IsAlive())
+        {
+            SetTarget(nullptr);
+        }
+    }
 }
 
 EGameTeam UCombatComponent::GetTeam() const

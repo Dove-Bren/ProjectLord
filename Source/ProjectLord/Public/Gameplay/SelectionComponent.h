@@ -57,6 +57,10 @@ public:
     void SetName(FText InName) { Name = InName; }
 
     UFUNCTION(BlueprintPure)
+    FText GetDescription() const { return Desc; }
+    void SetDesc(FText InDesc) { Desc = InDesc; }
+
+    UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
     void SetTeam(EGameTeam InTeam) { Team = InTeam; }
 
@@ -103,6 +107,9 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     FText Name;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    FText Desc;
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     EGameTeam Team;

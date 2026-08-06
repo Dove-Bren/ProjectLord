@@ -164,6 +164,7 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
     // All of this never changes
     InSelectionComponent->SetTeam(GetTeam());
     InSelectionComponent->SetName(GetBuildingName());
+    InSelectionComponent->SetDesc(GetBuildingType()->BuildingDescription);
     InSelectionComponent->SetIcon(GetBuildingType()->BuildingIcon);
 
     InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));

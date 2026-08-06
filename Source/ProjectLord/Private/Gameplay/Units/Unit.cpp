@@ -183,6 +183,7 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
     // All of this never changes
     InSelectionComponent->SetTeam(GetTeam());
     InSelectionComponent->SetName(GetUnitName());
+    InSelectionComponent->SetDesc(GetUnitType()->UnitDescription);
     InSelectionComponent->SetIcon(GetUnitType()->UnitIcon);
 
     InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));

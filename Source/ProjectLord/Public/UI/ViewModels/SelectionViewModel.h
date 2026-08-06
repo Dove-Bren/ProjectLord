@@ -31,13 +31,17 @@ public:
     void SetSelectionName(FText Name) { UE_MVVM_SET_PROPERTY_VALUE(SelectionName, Name); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    FText SelectionDesc;
+    void SetSelectionDescription(FText Desc) { UE_MVVM_SET_PROPERTY_VALUE(SelectionDesc, Desc); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
     EGameTeam Team;
     void SetTeam(EGameTeam InTeam) { UE_MVVM_SET_PROPERTY_VALUE(Team, InTeam); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
     TObjectPtr<UTexture2D> Icon;
     void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
-    
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMGold> GoldVM;
 
