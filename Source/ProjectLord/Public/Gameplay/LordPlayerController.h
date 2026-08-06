@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/PlayerController.h"
-#include "Gameplay/SelectionComponent.h" // For FSelectionData in optional
+#include "Gameplay/SelectionComponent.h"
 #include "Gameplay/SelectionAction.h"
 #include "Gameplay/GameTeam.h"
 
@@ -35,7 +35,7 @@ public:
     bool HasSelection() const { return Selection.IsSet(); };
 
     UFUNCTION(BlueprintPure, Category = "Selection")
-    FSelectionData GetSelection() const { if (ensure(HasSelection())) return Selection.GetValue(); return {}; };
+    USelectionComponent* GetSelection() const { if (ensure(HasSelection())) return Selection.GetValue(); return {}; };
 
     UFUNCTION(BlueprintCallable, Category = "Selection")
     void SetSelection(USelectionComponent* Selection);
@@ -57,7 +57,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
     TObjectPtr<UInputMappingContext> StartingInputContext;
 
-    TOptional<FSelectionData> Selection;
+    TOptional<USelectionComponent*> Selection;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSelection> SelectionVM;

@@ -2,6 +2,8 @@
 
 #include "Gameplay/SelectionComponent.h"
 
+#include "Gameplay/SelectionAction.h"
+
 #include "UI/ViewModels/SelectionViewModel.h"
 
 USelectionComponent::USelectionComponent()
@@ -26,24 +28,9 @@ void USelectionComponent::BeginPlay()
 	//ViewModel->SetName(GetName(GetOwner()));
 }
 
-FSelectionData USelectionComponent::Select()
+void USelectionComponent::Select()
 {
 	OnSelected.Broadcast();
-
-	FSelectionData SelectData(this);
-	SelectData.Name = Name;
-	SelectData.Team = Team;
-	SelectData.Icon = Icon;
-	SelectData.AvailableActions.Append(ActionInstances);
-
-	SelectData.ActionVM = ActionVM;
-	SelectData.CombatDataVM = CombatDataVM;
-	SelectData.GoldVM = GoldVM;
-	SelectData.LevelVM = LevelVM;
-	SelectData.QueueVM = QueueVM;
-	SelectData.SlotsVM = SlotsVM;
-
-	return SelectData;
 }
 
 void USelectionComponent::Deselect()

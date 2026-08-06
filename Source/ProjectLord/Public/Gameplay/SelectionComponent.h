@@ -22,54 +22,6 @@ class UTexture2D;
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
 DECLARE_MULTICAST_DELEGATE(FOnDeselected);
 
-// Represents a current selection, including what actions are available from it.
-// TODO: Maybe worth just removing and using the SelectionComponent, since it keeps having to have the same data on it?
-USTRUCT(BlueprintType)
-struct PROJECTLORD_API FSelectionData
-{
-    GENERATED_BODY()
-
-public:
-
-    FSelectionData() : FSelectionData(nullptr) {}
-
-    FSelectionData(USelectionComponent* Component) : SelectedComponent(Component) {};
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TWeakObjectPtr<USelectionComponent> SelectedComponent;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    FText Name;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    EGameTeam Team;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UTexture2D> Icon;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TArray<USelectionAction*> AvailableActions;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMAction> ActionVM;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMCombatData> CombatDataVM;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMGold> GoldVM;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMLevel> LevelVM;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMProgressQueue> QueueVM;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMSummarySlots> SlotsVM;
-
-};
-
 UCLASS(BlueprintType)
 class PROJECTLORD_API USelectionComponent : public UActorComponent
 {
@@ -90,21 +42,50 @@ public:
     void SetSelectable(bool bInSelectable) { bSelectable = bInSelectable; }
 
     UFUNCTION(BlueprintCallable)
-    FSelectionData Select();
+    void Select();
 
     UFUNCTION(BlueprintCallable)
     void Deselect();
 
-    // Runtime setters
+    // Runtime getters & setters
+    UFUNCTION(BlueprintPure)
+    UTexture2D* GetIcon() const { return Icon; }
     void SetIcon(UTexture2D* InIcon) { Icon = InIcon; }
+
+    UFUNCTION(BlueprintPure)
+    FText GetName() const { return Name; }
     void SetName(FText InName) { Name = InName; }
+
+    UFUNCTION(BlueprintPure)
+    EGameTeam GetTeam() const { return Team; }
     void SetTeam(EGameTeam InTeam) { Team = InTeam; }
+
+    UFUNCTION(BlueprintPure)
+    UVMAction* GetActionVM() const { return ActionVM; }
     void SetActionVM(UVMAction* InVM) { ActionVM = InVM; }
+
+    UFUNCTION(BlueprintPure)
+    UVMCombatData* GetCombatDataVM() const { return CombatDataVM; }
     void SetCombatDataVM(UVMCombatData* InVM) { CombatDataVM = InVM; }
+
+    UFUNCTION(BlueprintPure)
+    UVMGold* GetGoldVM() const { return GoldVM; }
     void SetGoldVM(UVMGold* InVM) { GoldVM = InVM; }
+
+    UFUNCTION(BlueprintPure)
+    UVMLevel* GetLevelVM() const { return LevelVM; }
     void SetLevelVM(UVMLevel* InVM) { LevelVM = InVM; }
+
+    UFUNCTION(BlueprintPure)
+    UVMProgressQueue* GetQueueVM() const { return QueueVM; }
     void SetQueueVM(UVMProgressQueue* InVM) { QueueVM = InVM; }
+
+    UFUNCTION(BlueprintPure)
+    UVMSummarySlots* GetSlotsVM() const { return SlotsVM; }
     void SetSlotsVM(UVMSummarySlots* InVM) { SlotsVM = InVM; }
+
+    UFUNCTION(BlueprintPure)
+    const TArray<USelectionAction*>& GetAvailableActions() const { return ActionInstances; }
 
 protected:
 

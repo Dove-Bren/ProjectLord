@@ -52,7 +52,8 @@ EGameTeam ALordPlayerController::GetTeam() const
 void ALordPlayerController::SetSelection(USelectionComponent* InSelection)
 {
 	ClearSelection(false); // To issue deselect callbacks
-	Selection = InSelection->Select();
+	Selection = InSelection;
+	InSelection->Select();
 	OnSelectionChange();
 }
 
@@ -60,10 +61,7 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 {
 	if (HasSelection())
 	{
-		if (Selection->SelectedComponent.IsValid())
-		{
-			Selection->SelectedComponent->Deselect();
-		}
+		Selection.GetValue()->Deselect();
 	}
 	Selection = NullOpt;
 	if (bBroadcast)
@@ -77,9 +75,9 @@ FSelectionActionContext ALordPlayerController::MakeSelectionContext()
 	FSelectionActionContext Context;
 
 	Context.PlayerState = GetLordPlayerState();
-	if (HasSelection() && Selection->SelectedComponent.IsValid())
+	if (HasSelection())
 	{
-		Context.Selection = Selection->SelectedComponent.Get();
+		Context.Selection = Selection.GetValue();
 	}
 
 	return Context;
@@ -124,19 +122,19 @@ void ALordPlayerController::OnSelectionChange()
 	{
 		auto Selected = GetSelection();
 
-		SelectionVM->SetIcon(Selected.Icon);
-		SelectionVM->SetSelectionName(Selected.Name);
-		SelectionVM->SetTeam(Selected.Team);
+		SelectionVM->SetIcon(Selected->GetIcon());
+		SelectionVM->SetSelectionName(Selected->GetName());
+		SelectionVM->SetTeam(Selected->GetTeam());
 
-		SelectionVM->ActionVM = Selected.ActionVM;
-		SelectionVM->CombatDataVM = Selected.CombatDataVM;
-		SelectionVM->GoldVM = Selected.GoldVM;
-		SelectionVM->LevelVM = Selected.LevelVM;
-		SelectionVM->ProgressQueueVM = Selected.QueueVM;
-		SelectionVM->SlotsVM = Selected.SlotsVM;
+		SelectionVM->ActionVM = Selected->GetActionVM();
+		SelectionVM->CombatDataVM = Selected->GetCombatDataVM();
+		SelectionVM->GoldVM = Selected->GetGoldVM();
+		SelectionVM->LevelVM = Selected->GetLevelVM();
+		SelectionVM->ProgressQueueVM = Selected->GetQueueVM();
+		SelectionVM->SlotsVM = Selected->GetSlotsVM();
 
 		auto Context = MakeSelectionContext();
-		for (auto Action : Selected.AvailableActions)
+		for (auto Action : Selected->GetAvailableActions())
 		{
 			UVMSelectionAction* ActionVM;
 			if (!IsValid(Action) || Action->IsHidden(Context))
