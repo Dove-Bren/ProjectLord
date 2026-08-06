@@ -15,7 +15,7 @@ class UGameGood;
 
 DECLARE_MULTICAST_DELEGATE(FOnXPChange);
 
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, meta = (PrioritizeCategories = "Hero Inventory"))
 class PROJECTLORD_API AHeroBase : public ACreature
 {
     GENERATED_BODY()
@@ -39,17 +39,17 @@ public:
     UFUNCTION(BlueprintPure, Category = "Inventory")
     UHeroInventory* GetInventory() { return Inventory; }
 
-    UFUNCTION(BlueprintPure, Category = "Goods")
+    UFUNCTION(BlueprintPure, Category = "Inventory")
     bool CanApply(const UGameGood* Good) const;
 
-    UFUNCTION(BlueprintCallable, Category = "Goods")
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
     void Apply(const UGameGood* Good);
 
     virtual void BeginPlay() override;
 
 protected:
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
@@ -62,7 +62,7 @@ protected:
     TObjectPtr<UHeroInventory> Inventory;
 
     // How much XP this hero has accumulated so far this level
-    UPROPERTY(EditDefaultsOnly, Category = "Stats", Meta = (ClampMin = 0))
+    UPROPERTY(EditDefaultsOnly, Category = "Hero", Meta = (ClampMin = 0))
     int HeroXP;
 
     virtual void SetupBaseAttributes() override;

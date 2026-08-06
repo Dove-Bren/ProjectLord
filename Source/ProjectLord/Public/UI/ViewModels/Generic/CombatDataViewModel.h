@@ -31,6 +31,8 @@ public:
     float GetSight() const { return Sight; }
     float GetAttackRange() const { return AttackRange; }
 
+    bool IsInvulnerable() const { return bInvulnerable; }
+
     UCombatComponent* GetTarget() const { return Target; }
 
     virtual void Init(UCombatComponent* Component);
@@ -98,5 +100,12 @@ protected:
 
     UFUNCTION()
     void OnTargetChange(UCombatComponent* InTarget) { SetTarget(InTarget); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = "IsInvulnerable", Category = "Combat Data")
+    bool bInvulnerable;
+    void SetInvulnerable(bool bInInvulnerable) { UE_MVVM_SET_PROPERTY_VALUE(bInvulnerable, bInInvulnerable); }
+
+    UFUNCTION()
+    void OnInvulnerabilityChange(bool bInInvulnerable) { SetInvulnerable(bInInvulnerable); }
 
 };

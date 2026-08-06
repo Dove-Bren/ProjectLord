@@ -8,6 +8,7 @@
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/SelectionComponent.h"
+#include "Gameplay/AI/BuildingController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Combat/CombatComponent.h"
@@ -84,6 +85,11 @@ void ABuilding::BeginPlay()
     }
 
     SetupBaseAttributes();
+
+    if (bIndestructible)
+    {
+        CombatComponent->SetInvulnerable(true);
+    }
 
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
 

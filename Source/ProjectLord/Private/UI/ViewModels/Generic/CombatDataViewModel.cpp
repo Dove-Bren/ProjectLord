@@ -62,6 +62,9 @@ void UVMCombatData::Init(UCombatComponent* Component)
 
 	Component->OnTargetChange.AddDynamic(this, &UVMCombatData::OnTargetChange);
 	SetTarget(Component->GetCombatTarget());
+
+	Component->OnInvulnerabilityChange.AddDynamic(this, &UVMCombatData::OnInvulnerabilityChange);
+	SetInvulnerable(Component->IsInvulnerable());
 }
 
 #undef REGISTER_INT

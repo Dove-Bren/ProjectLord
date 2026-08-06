@@ -107,13 +107,16 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> BuildingAttributeValues;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bIndestructible = false;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building|Attributes")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building|Definition|Attributes")
     TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")

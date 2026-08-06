@@ -13,7 +13,7 @@ class UCombatAttributeSet;
 class UCreatureAttributeSet;
 
 // A Unit that moves
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, meta = (PrioritizeCategories = "Unit Combat Selection Creature"))
 class PROJECTLORD_API ACreature : public AUnit
 {
     GENERATED_BODY()
@@ -39,7 +39,7 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<AResidentialBuilding> HomeBuilding;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;
 
     virtual void RegisterAttributes() override;

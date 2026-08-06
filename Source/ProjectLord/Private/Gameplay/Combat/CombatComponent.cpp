@@ -4,6 +4,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "GameplayEffect.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
@@ -292,6 +294,40 @@ void UCombatComponent::SetTarget(UCombatComponent* InTarget)
     {
         TargetComponent = InTarget;
         OnTargetChange.Broadcast(TargetComponent);
+    }
+}
+
+bool UCombatComponent::IsInvulnerable() const
+{
+    return GetAbilitySubsystemComponent()->HasMatchingGameplayTag(ULordGameplayTags::UnitStateInvulnerable());
+}
+
+void UCombatComponent::SetInvulnerable(bool bInvulnerable)
+{
+    // Implementing with gameplay tags to make some integrations (gameplay abilities) a little easier.
+    auto ASC = GetAbilitySubsystemComponent();
+    if (bInvulnerable && !IsInvulnerable())
+    {
+        UGameplayEffect* InvulnEffect = NewObject<UGameplayEffect>(this, TEXT("Invulnerability Effect"));
+        InvulnEffect->DurationPolicy = EGameplayEffectDurationType::Infinite;
+        // This feels like a LOT too apply a gameplay tag...
+        {
+            auto& TagsComp = InvulnEffect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
+            FInheritedTagContainer AppliedTags = TagsComp.GetConfiguredTargetTagChanges(); // Copy what's there
+            AppliedTags.AddTag(ULordGameplayTags::UnitStateInvulnerable());
+            TagsComp.SetAndApplyTargetTagChanges(AppliedTags);
+        }
+        InvulnEffectHandle = ASC->ApplyGameplayEffectToSelf(InvulnEffect, 1, ASC->MakeEffectContext());
+        OnInvulnerabilityChange.Broadcast(true);
+    }
+    else if (!bInvulnerable && IsInvulnerable())
+    {
+        if (ensureMsgf(InvulnEffectHandle.IsSet(), TEXT("Combat component cannot remove invulnerability, since it is set from something else")))
+        {
+            ensure(ASC->RemoveActiveGameplayEffect(InvulnEffectHandle.GetValue()));
+            InvulnEffectHandle = NullOpt;
+            OnInvulnerabilityChange.Broadcast(false);
+        }
     }
 }
 

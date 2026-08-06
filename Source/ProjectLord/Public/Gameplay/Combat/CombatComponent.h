@@ -15,11 +15,13 @@ class UCombatAttributeSet;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
+struct FActiveGameplayEffectHandle;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInvulnerabilityChange, bool, bInvulnerable);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UCombatComponent : public UActorComponent
@@ -40,6 +42,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnTargetChange OnTargetChange;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnInvulnerabilityChange OnInvulnerabilityChange;
 
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
@@ -104,6 +109,12 @@ public:
 
     void SetTarget(UCombatComponent* InTarget);
 
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    bool IsInvulnerable() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    void SetInvulnerable(bool bInvulnerable);
+
 
 protected:
 
@@ -127,6 +138,10 @@ protected:
 
     UFUNCTION()
     void OnOwnerPossessed(APawn* Pawn, AController* OldController, AController* NewController);
+
+private:
+
+    TOptional<FActiveGameplayEffectHandle> InvulnEffectHandle;
 
 public:
 

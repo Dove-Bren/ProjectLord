@@ -28,7 +28,7 @@ class UAnimMontage;
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
 
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, meta = (PrioritizeCategories = "Unit Combat Selection"))
 class PROJECTLORD_API AUnit : public ACharacter
 {
     GENERATED_BODY()
@@ -37,7 +37,7 @@ public:
     AUnit();
 
 
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "Unit")
     AUnitController* GetUnitController() const;
 
     UFUNCTION(BlueprintPure, Category = "Unit")
@@ -80,27 +80,27 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat|Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TObjectPtr<UUnitType> UnitType;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     EGameTeam Team;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
+    UPROPERTY(EditDefaultsOnly, Category = "Unit|Definition|Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
 
     // Attributes to add for every level the unit gains.
     // Typically, just set to 1 (or so) damage of the type relevant to the class.
-    UPROPERTY(EditDefaultsOnly, Category = "Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
+    UPROPERTY(EditDefaultsOnly, Category = "Unit|Definition|Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> ClassAttributeGrowth;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Selection")
+    UPROPERTY(EditInstanceOnly,BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
 
     UPROPERTY()
