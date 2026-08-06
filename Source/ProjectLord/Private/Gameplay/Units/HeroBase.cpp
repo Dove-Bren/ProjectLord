@@ -18,6 +18,7 @@ AHeroBase::AHeroBase() : ACreature()
 {
 	Team = EGameTeam::Player1;
 	HeroXP = 0;
+	HeroName = FText::FromString(TEXT("Hero"));
 
 	LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));
 	Inventory = CreateDefaultSubobject<UHeroInventory>(TEXT("Hero Inventory"));
@@ -117,6 +118,8 @@ void AHeroBase::SetupBaseAttributes()
 void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 {
 	Super::SetupSelectionData(InSelectionComponent);
+
+	InSelectionComponent->SetCustomName(GetHeroName());
 
 	auto GoldVM = CreateLordVM<UVMGold>(this);
 	Inventory->OnInventoryGoldChanged.AddWeakLambda(this, [this, GoldVM]() {

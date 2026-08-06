@@ -24,6 +24,7 @@ public:
     ALordPlayerController();
 
     virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
 
     UFUNCTION(BlueprintPure)
     ALordPlayerState* GetLordPlayerState() const;
@@ -46,6 +47,18 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName="OnSelectionChange"))
     void BP_OnSelectionChange();
 
+    UFUNCTION(BlueprintPure, Category = "Hover")
+    bool HasHover() const { return Hovered.IsSet(); };
+
+    UFUNCTION(BlueprintPure, Category = "Hover")
+    USelectionComponent* GetHover() const { if (ensure(HasHover())) return Hovered.GetValue(); return {}; };
+
+    UFUNCTION(BlueprintCallable, Category = "Hover")
+    void SetHovered(USelectionComponent* InHovered);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hover", meta = (DisplayName = "OnHoverChange"))
+    void BP_OnHoverChange();
+
     UFUNCTION(BlueprintCallable, Category = "Selection")
     FSelectionActionContext MakeSelectionContext();
 
@@ -59,10 +72,17 @@ protected:
 
     TOptional<USelectionComponent*> Selection;
 
+    TOptional<USelectionComponent*> Hovered;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSelection> SelectionVM;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMSelection> HoverVM;
+
+    USelectionComponent* GetSelectableUnderMouse();
     bool CanSelect(const AActor* ClickedActor) const;
 
     void OnSelectionChange();
+    void OnHoverChange();
 };

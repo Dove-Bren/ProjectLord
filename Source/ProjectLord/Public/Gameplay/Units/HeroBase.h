@@ -31,6 +31,9 @@ public:
     UFUNCTION(BlueprintPure)
     int GetHeroMaxXP() const;
 
+    UFUNCTION(BlueprintPure)
+    FText GetHeroName() const { return HeroName; }
+
     // Return how close to a hero level-up this hero is,
     // represented as a number between 0 (no progress) to 1 (enough xp to level up)
     UFUNCTION(BlueprintPure)
@@ -62,8 +65,11 @@ protected:
     TObjectPtr<UHeroInventory> Inventory;
 
     // How much XP this hero has accumulated so far this level
-    UPROPERTY(EditDefaultsOnly, Category = "Hero", Meta = (ClampMin = 0))
+    UPROPERTY(EditInstanceOnly, Category = "Hero", Meta = (ClampMin = 0))
     int HeroXP;
+
+    UPROPERTY(EditInstanceOnly, Category = "Hero")
+    FText HeroName;
 
     virtual void SetupBaseAttributes() override;
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;

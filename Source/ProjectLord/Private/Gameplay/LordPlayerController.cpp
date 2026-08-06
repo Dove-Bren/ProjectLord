@@ -29,6 +29,7 @@ void ALordPlayerController::BeginPlay()
 
 	// Set up VM
 	SelectionVM = CreateLordVM<UVMSelection>(this);
+	HoverVM = CreateLordVM<UVMSelection>(this);
 }
 
 ALordPlayerState* ALordPlayerController::GetLordPlayerState() const
@@ -83,29 +84,63 @@ FSelectionActionContext ALordPlayerController::MakeSelectionContext()
 	return Context;
 }
 
+void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
+{
+	if (InHovered == Hovered)
+	{
+		return;
+	}
+
+	if (Hovered)
+	{
+		//Hovered->Unhover();
+		Hovered = NullOpt;
+	}
+	Hovered = InHovered;
+	if (Hovered)
+	{
+		// Hovered->Hover();
+	}
+
+	OnHoverChange();
+}
+
+USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
+{
+	FHitResult HitResult;
+	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Pawn), true, HitResult)
+		&& IsValid(HitResult.GetActor())
+		&& CanSelect(HitResult.GetActor())
+		)
+	{
+		// CanSelect was called already, so should have a selection component
+		return HitResult.GetActor()->GetComponentByClass<USelectionComponent>();
+	}
+
+	return nullptr;
+}
+
 void ALordPlayerController::OnMouseClick(bool bRightButton)
 {
 	if (!bRightButton)
 	{
-		FHitResult HitResult;
-		if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Pawn), true, HitResult)
-			&& IsValid(HitResult.GetActor())
-			&& CanSelect(HitResult.GetActor())
-			)
+		auto Clicked = GetSelectableUnderMouse();
+		if (Clicked)
 		{
-			// CanSelect was called already, so should have a selection component
-			USelectionComponent* ClickedSelection = HitResult.GetActor()->GetComponentByClass<USelectionComponent>();
-			if (ensure(ClickedSelection))
-			{
-				SetSelection(ClickedSelection);
-			}
-
+			SetSelection(Clicked);
 		}
 		else
 		{
 			ClearSelection();
 		}
 	}
+}
+
+void ALordPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHovered(GetSelectableUnderMouse());
 }
 
 bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
@@ -116,42 +151,13 @@ bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
 void ALordPlayerController::OnSelectionChange()
 {
 	// Update VM
-	bool bHasNewData = HasSelection();
-	SelectionVM->Reset(!bHasNewData);
-	if (bHasNewData)
-	{
-		auto Selected = GetSelection();
-
-		SelectionVM->SetIcon(Selected->GetIcon());
-		SelectionVM->SetSelectionName(Selected->GetName());
-		SelectionVM->SetSelectionDescription(Selected->GetDescription());
-		SelectionVM->SetTeam(Selected->GetTeam());
-
-		SelectionVM->ActionVM = Selected->GetActionVM();
-		SelectionVM->CombatDataVM = Selected->GetCombatDataVM();
-		SelectionVM->GoldVM = Selected->GetGoldVM();
-		SelectionVM->LevelVM = Selected->GetLevelVM();
-		SelectionVM->ProgressQueueVM = Selected->GetQueueVM();
-		SelectionVM->SlotsVM = Selected->GetSlotsVM();
-		//SelectionVM->TargetVM = Selected->GetTargetVM();
-
-		auto Context = MakeSelectionContext();
-		for (auto Action : Selected->GetAvailableActions())
-		{
-			UVMSelectionAction* ActionVM;
-			if (!IsValid(Action) || Action->IsHidden(Context))
-			{
-				ActionVM = nullptr;
-			}
-			else
-			{
-				ActionVM = UVMSelectionAction::Make(this, Action);
-			}
-			SelectionVM->Actions.Add(ActionVM);
-		}
-
-		SelectionVM->TriggerSelectionChange();
-	}
-
+	SelectionVM->SetFromSelection(HasSelection() ? GetSelection() : nullptr, MakeSelectionContext(), true, true);
 	BP_OnSelectionChange();
+}
+
+void ALordPlayerController::OnHoverChange()
+{
+	// Update VM
+	HoverVM->SetFromSelection(HasHover() ? GetHover() : nullptr, MakeSelectionContext(), false, true);
+	BP_OnHoverChange();
 }

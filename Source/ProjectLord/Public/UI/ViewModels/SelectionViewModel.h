@@ -19,6 +19,8 @@ class USelectionComponent;
 class UTexture2D;
 class UVMSelectionAction;
 
+struct FSelectionActionContext;
+
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMSelection : public UVMLordBase
 {
@@ -33,6 +35,10 @@ public:
     UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
     FText SelectionDesc;
     void SetSelectionDescription(FText Desc) { UE_MVVM_SET_PROPERTY_VALUE(SelectionDesc, Desc); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    FText CustomName;
+    void SetCustomName(FText InCustomName) { UE_MVVM_SET_PROPERTY_VALUE(CustomName, InCustomName); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
     EGameTeam Team;
@@ -63,9 +69,16 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TArray<UVMSelectionAction*> Actions;
 
+    // Represent whether there's data in this VM or not.
+    // Set to false when the VM is cleared, including between selections
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    bool bPresent;
+    void SetPresent(bool bInPresent) { UE_MVVM_SET_PROPERTY_VALUE(bPresent, bInPresent); }
+
     bool GetOnSelectionChange() const { return OnSelectionChange; }
 
     void Reset(bool bTriggerUpdate = true);
+    void SetFromSelection(const USelectionComponent* Selection, FSelectionActionContext Context, bool bIncludeActions = true, bool bTriggerUpdate = true);
     void TriggerSelectionChange() { UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnSelectionChange); }
 
 protected:
