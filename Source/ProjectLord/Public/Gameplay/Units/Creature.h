@@ -46,6 +46,11 @@ protected:
 
     virtual void OnDeath_Implementation() override;
 
+    // Award gold evenly amonsts nearby heroes.
+    // Returns true if any heroes got gold
+    UFUNCTION(BlueprintCallable)
+    virtual bool AwardGoldToNearbyHeroes(int Gold);
+
 public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;

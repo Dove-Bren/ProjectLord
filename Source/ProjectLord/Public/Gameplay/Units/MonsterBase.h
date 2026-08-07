@@ -24,5 +24,8 @@ protected:
     // How much treasure this monster is carrying
     UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta=(ClampMin=0))
     int Gold;
+    void SetGold(int InGold) { Gold = InGold; }
+
+    virtual void OnDeath_Implementation() override;
 
 };

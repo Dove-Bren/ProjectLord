@@ -299,6 +299,16 @@ void AHeroBase::Apply(const UGameGood* Good)
 	}
 }
 
+void AHeroBase::AwardGold(int Amount)
+{
+	const int Guild = Amount / 2;
+	const int Personal = Amount - Guild;
+	Inventory->AddPersonalGold(Personal);
+	Inventory->AddGuildGold(Guild);
+
+	OnGoldAwarded(Amount);
+}
+
 void AHeroBase::UpdateAttributeDamageMod(FActiveGameplayEffectHandle& AttributeHandle, int Level)
 {
 	AbilitySystemComponent->SetActiveGameplayEffectLevel(AttributeHandle, Level);

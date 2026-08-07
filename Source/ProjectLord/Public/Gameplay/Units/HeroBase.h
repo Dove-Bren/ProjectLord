@@ -48,6 +48,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     void Apply(const UGameGood* Good);
 
+    UFUNCTION(BlueprintCallable, Category = "Hero")
+    void AwardGold(int Amount);
+
     virtual void BeginPlay() override;
 
 protected:
@@ -82,6 +85,9 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
     void OnLevelUp();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    void OnGoldAwarded(int Amount);
 
     UPROPERTY()
     FActiveGameplayEffectHandle StrengthDamageModHandle;

@@ -8,6 +8,7 @@
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 
 #include "LordLogging.h"
+#include "Gameplay/GameplayUtils.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
@@ -52,6 +53,8 @@ void UCombatComponent::BeginPlay()
         }
         
     }
+
+    LastCombatTime = 0;
 }
 
 void UCombatComponent::EndPlay(EEndPlayReason::Type Reason)
@@ -69,6 +72,13 @@ void UCombatComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
         {
             SetTarget(nullptr);
         }
+    }
+
+    constexpr double CombatTimeoutSeconds = 10;
+    if (LastCombatTime != 0
+        && GetTimeSinceLastCombatAction() > CombatTimeoutSeconds)
+    {
+        ClearRecentCombatData();
     }
 }
 
@@ -248,7 +258,9 @@ bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
     {
         if (GetAbilitySubsystemComponent()->TryActivateAbility(AttackAbility))
         {
+            MarkCombatTime();
             BroadcastAttack(TargetCombatComponent->GetOwner(), TargetCombatComponent);
+            TargetCombatComponent->HandleAttackFrom(GetOwner(), this);
             return true;
         }
         else
@@ -346,6 +358,19 @@ void UCombatComponent::SetInvulnerable(bool bInvulnerable)
     }
 }
 
+void UCombatComponent::MarkCombatTime()
+{
+    LastCombatTime = GetWorld()->GetTimeSeconds();
+}
+
+void UCombatComponent::ClearRecentCombatData()
+{
+    RecentRevengeTargets.Empty();
+
+    // Set time sentinel to denote there's no data
+    LastCombatTime = 0;
+}
+
 void UCombatComponent::BroadcastDeath()
 {
     OnDeath.Broadcast();
@@ -364,6 +389,12 @@ void UCombatComponent::BroadcastAttackLand(AActor* Target, UCombatComponent* Tar
     ReceiveOnAttackLand(Target, TargetCombatComponent);
 }
 
+void UCombatComponent::BroadcastAttackReceived(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+    OnAttackReceived.Broadcast(AttackingActor, AttackingCombatComponent);
+    ReceiveOnAttackReceived(AttackingActor, AttackingCombatComponent);
+}
+
 void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldController, AController* InNewController)
 {
     auto OldController = Cast<AUnitController>(InOldController);
@@ -376,4 +407,47 @@ void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldControlle
     {
         NewController->OnAITargetChange.AddUObject(this, &UCombatComponent::SetTarget);
     }
+}
+
+void UCombatComponent::AddRevengeTarget(UCombatComponent* RevengeTarget)
+{
+    RecentRevengeTargets.AddUnique(RevengeTarget);
+    MarkCombatTime();
+}
+
+void UCombatComponent::HandleAttackFrom(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+    AddRevengeTarget(AttackingCombatComponent);
+    BroadcastAttackReceived(AttackingActor, AttackingCombatComponent);
+}
+
+UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive)
+{
+    auto Owner = GetOwner();
+    auto ASC = GetAbilitySubsystemComponent();
+    auto AttributeSet = GetCombatAttributeSet();
+    if (!ensure(Owner) || !ensure(ASC) || !ensure(AttributeSet))
+    {
+        return nullptr;
+    }
+
+    bool bIgnored;
+    float Sight = ASC->GetGameplayAttributeValue(AttributeSet->GetSightAttribute(), bIgnored);
+
+    return UGameplayUtils::GetNearestCombatComponentNear(this, Sight);
+}
+
+TArray<UCombatComponent*> UCombatComponent::GetRecentAttackers() const
+{
+    return RecentRevengeTargets;
+}
+
+/*static*/ UCombatComponent* UCombatComponent::GetComponentForActor(AActor* Actor)
+{
+    if (!IsValid(Actor))
+    {
+        return nullptr;
+    }
+
+    return Actor->GetComponentByClass<UCombatComponent>();
 }

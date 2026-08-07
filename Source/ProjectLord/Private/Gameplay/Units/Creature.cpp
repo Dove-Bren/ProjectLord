@@ -5,11 +5,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
 
+#include "Gameplay/GameplayUtils.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CreatureAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/ResidentialBuilding.h"
+#include "Gameplay/Units/HeroBase.h"
 
 #define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 
@@ -63,4 +65,30 @@ void ACreature::OnDeath_Implementation()
         }
         this->Destroy();
     }
+}
+
+bool ACreature::AwardGoldToNearbyHeroes(int Gold)
+{
+    constexpr float Radius = 200;
+    auto NearbyActors = UGameplayUtils::GetActorsNear(this, Radius);
+    TArray<AHeroBase*> Heroes;
+    for (auto Actor : NearbyActors)
+    {
+        if (AHeroBase* Hero = Cast<AHeroBase>(Actor))
+        {
+            Heroes.Add(Hero);
+        }
+    }
+
+    if (Heroes.IsEmpty())
+    {
+        return false;
+    }
+
+    int GoldEach = FMath::Max(1, FMath::CeilToInt((float) Gold / (float)Heroes.Num()));
+    for (auto Hero : Heroes)
+    {
+        Hero->AwardGold(GoldEach);
+    }
+    return true;
 }

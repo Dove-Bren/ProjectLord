@@ -20,6 +20,7 @@ struct FActiveGameplayEffectHandle;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackReceived, AActor*, AttackingActor, UCombatComponent*, AttackingCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInvulnerabilityChange, bool, bInvulnerable);
 
@@ -39,6 +40,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnAttackLand OnAttackLand;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnAttackReceived OnAttackReceived;
 
     UPROPERTY(BlueprintAssignable)
     FOnTargetChange OnTargetChange;
@@ -90,6 +94,8 @@ public:
     UFUNCTION(BlueprintPure, Category = "Combat")
     UCombatComponent* GetCombatTarget() const { return TargetComponent; }
 
+
+
     UFUNCTION(BlueprintCallable, Category = "Combat Events")
     void NotifyOfAbilityHit(UCombatComponent* HitCombatComponent);
 
@@ -100,6 +106,9 @@ public:
 
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attack Land"))
     void ReceiveOnAttackLand(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
+
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attack Received"))
+    void ReceiveOnAttackReceived(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
 
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Death"))
     void ReceiveOnDeath();
@@ -115,12 +124,35 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void SetInvulnerable(bool bInvulnerable);
 
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    UCombatComponent* GetNearestEnemy(bool bAlive = true);
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    TArray<UCombatComponent*> GetRecentAttackers() const;
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    double GetTimeOfLastCombatAction() const { return LastCombatTime; }
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    double GetTimeSinceLastCombatAction() const { return ensure(GetWorld()) ? (GetWorld()->GetTimeSeconds() - LastCombatTime) : 0; }
+
+
+
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    static UCombatComponent* GetComponentForActor(AActor* Actor);
 
 protected:
+
+    void MarkCombatTime();
+    void ClearRecentCombatData();
+    void AddRevengeTarget(UCombatComponent* RevengeTarget);
+    void HandleAttackFrom(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
 
     void BroadcastDeath();
     void BroadcastAttack(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackLand(AActor* Target, UCombatComponent* TargetCombatComponent);
+    void BroadcastAttackReceived(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
 
     // From the given array of available attack availabilities, select which one the unit would prefer to use.
     // The default implementation picks the most damaging ability.
@@ -135,6 +167,12 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCombatComponent> TargetComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    TArray<UCombatComponent*> RecentRevengeTargets;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    double LastCombatTime;
 
     UFUNCTION()
     void OnOwnerPossessed(APawn* Pawn, AController* OldController, AController* NewController);
