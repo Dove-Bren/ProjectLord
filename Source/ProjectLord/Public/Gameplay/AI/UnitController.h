@@ -35,6 +35,8 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetTarget(UCombatComponent* InTarget) { if (Target != InTarget) { Target = InTarget; OnAITargetChange.Broadcast(Target); } }
 
+    void NotifyUnitDied();
+
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UCombatComponent> Target;

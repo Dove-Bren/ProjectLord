@@ -108,7 +108,7 @@ void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
 USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
 {
 	FHitResult HitResult;
-	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Pawn), true, HitResult)
+	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Camera), true, HitResult)
 		&& IsValid(HitResult.GetActor())
 		&& CanSelect(HitResult.GetActor())
 		)

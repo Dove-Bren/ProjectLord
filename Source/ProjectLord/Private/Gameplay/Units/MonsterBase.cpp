@@ -13,8 +13,6 @@ AMonsterBase::AMonsterBase() : ACreature()
 
 void AMonsterBase::OnDeath_Implementation()
 {
-	Super::OnDeath_Implementation();
-
 	// If we have any gold
 	if (Gold)
 	{
@@ -36,6 +34,8 @@ void AMonsterBase::OnDeath_Implementation()
 		// Remember how much we have leftover for our grave
 		SetGold(Leftover);
 	}
+
+	Super::OnDeath_Implementation();
 }
 
 void AMonsterBase::SetupSelectionData(USelectionComponent* InSelectionComponent)

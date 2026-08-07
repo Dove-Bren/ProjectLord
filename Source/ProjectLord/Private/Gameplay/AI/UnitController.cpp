@@ -37,3 +37,8 @@ EBlackboardNotificationResult AUnitController::OnBBTargetChanged(const UBlackboa
 	SetTarget(Cast<UCombatComponent>(TargetComp));
 	return EBlackboardNotificationResult::ContinueObserving;
 }
+
+void AUnitController::NotifyUnitDied()
+{
+	
+}

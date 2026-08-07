@@ -76,6 +76,7 @@ protected:
 
     virtual void SetupBaseAttributes() override;
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
+    virtual bool ShouldHaveGravestone() const { return true; }
 
     virtual void HandleInventoryChange();
 

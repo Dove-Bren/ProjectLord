@@ -3,6 +3,8 @@
 #include "Gameplay/Units/Creature.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 
 #include "Gameplay/GameplayUtils.h"
@@ -18,6 +20,11 @@
 ACreature::ACreature()
 {
 	CreatureAttributeSet = CreateDefaultSubobject<UCreatureAttributeSet>(TEXT("CreatureAttributeSet"));
+    GraveComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grave"));
+
+    GraveComponent->SetupAttachment(GetMesh()->GetAttachParent());
+    GraveComponent->SetVisibility(false, true);
+    GraveComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
 void ACreature::RegisterAttributes()
@@ -32,6 +39,9 @@ void ACreature::RegisterAttributes()
 void ACreature::BeginPlay()
 {
     Super::BeginPlay();
+
+    const float HalfHeight = GetSimpleCollisionHalfHeight();
+    GraveComponent->SetRelativeLocation(FVector(0, 0, -HalfHeight));
 }
 
 void ACreature::EndPlay(EEndPlayReason::Type Reason)
@@ -45,6 +55,17 @@ void ACreature::EndPlay(EEndPlayReason::Type Reason)
     }
 }
 
+void ACreature::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    if (IsDead())
+    {
+        DeadTime += DeltaTime;
+        FadeTick();
+    }
+}
+
 void ACreature::SetHomeBuilding(AResidentialBuilding* Building)
 {
     HomeBuilding = Building;
@@ -52,19 +73,26 @@ void ACreature::SetHomeBuilding(AResidentialBuilding* Building)
 
 void ACreature::OnDeath_Implementation()
 {
-    // Super wants to be overriden complete.
+    // Super wants to be overwritten, not called
     //Super::OnDeath_Implementation();
     
-
-    // TODO #46 Graves
-    // This should all happen when a grave expires. Hero counts linger, for example.
+    if (!ShouldHaveGravestone())
     {
-        if (HomeBuilding.IsValid())
-        {
-            HomeBuilding.Get()->RemoveResident(this);
-        }
-        this->Destroy();
+        OnFinalDeath();
+        return;
     }
+
+    // Turn into a grave
+    StartDeathFade();
+}
+
+void ACreature::OnFinalDeath()
+{
+    if (HomeBuilding.IsValid())
+    {
+        HomeBuilding.Get()->RemoveResident(this);
+    }
+    this->Destroy();
 }
 
 bool ACreature::AwardGoldToNearbyHeroes(int Gold)
@@ -91,4 +119,122 @@ bool ACreature::AwardGoldToNearbyHeroes(int Gold)
         Hero->AwardGold(GoldEach);
     }
     return true;
+}
+
+void ACreature::StartDeathFade()
+{
+    if (ensure(FadingBodyStartTime == 0))
+    {
+        CreateFadeMaterials();
+        FadingBodyStartTime = DeadTime;
+        bFading = true;
+        OnBeginFadeOutBody();
+    }
+}
+
+void ACreature::StartFadingInGrave()
+{
+    if (ensure(FadingGraveStartTime == 0))
+    {
+        GraveComponent->SetVisibility(true, true);
+        FadingGraveStartTime = DeadTime;
+        OnBeginFadeInGrave();
+    }
+}
+
+void ACreature::StartFadingOutGrave()
+{
+    // Should not be called before fading in
+    if (ensure(FadingGraveStartTime != 0))
+    {
+        FadingGraveStartTime = -DeadTime;
+        OnBeginFadeOutGrave();
+    }
+}
+
+void ACreature::FadeTick()
+{
+    constexpr float FADE_TIME = 2.0f;
+    constexpr float GRAVE_TIME = 60.0f;
+
+    // Fading out grave?
+    if (FadingGraveStartTime < 0)
+    {
+        const float ActualTime = -FadingGraveStartTime;
+        const float Diff = DeadTime - ActualTime;
+        const float Percent = FMath::Clamp(Diff / FADE_TIME, 0.0f, 1.0f);
+        OnUpdateFadeGrave(Percent);
+        FadeGraveTo(1.0f - Percent);
+        if (Percent >= 1.0f)
+        {
+            OnFinishFadeOutGrave();
+            OnFinalDeath();
+        }
+    }
+    // Fading in grave?
+    else if (FadingGraveStartTime > 0)
+    {
+        if (!GraveTimer.IsValid())
+        {
+            const float Diff = DeadTime - FadingGraveStartTime;
+            const float Percent = FMath::Clamp(Diff / FADE_TIME, 0.0f, 1.0f);
+            OnUpdateFadeGrave(Percent);
+            FadeGraveTo(Percent);
+            if (Percent >= 1.0f)
+            {
+                OnFinishFadeInGrave();
+                GetWorld()->GetTimerManager().SetTimer(GraveTimer, FTimerDelegate::CreateWeakLambda(this, [this]() {
+                    StartFadingOutGrave();
+                    }), GRAVE_TIME, false);
+            }
+        }
+    }
+    // Fading body?
+    else if (bFading)
+    {
+        const float Diff = DeadTime - FadingBodyStartTime;
+        const float Percent = FMath::Clamp(Diff / FADE_TIME, 0.0f, 1.0f);
+        OnUpdateFadeOutBody(Percent);
+        FadeBodyTo(1.0f - Percent);
+        if (Percent >= 1.0f)
+        {
+            OnFinishFadeOutBody();
+            GetMesh()->SetVisibility(false, true);
+            GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+            GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+            StartFadingInGrave();
+        }
+    }
+}
+
+void ACreature::CreateFadeMaterials()
+{
+    if (ensure(BodyFadeMaterials.IsEmpty()))
+    {
+        for (int i = 0; i < GetMesh()->GetNumMaterials(); i++)
+        {
+            BodyFadeMaterials.Add(GetMesh()->CreateAndSetMaterialInstanceDynamic(i));
+        }
+
+        for (int i = 0; i < GraveComponent->GetNumMaterials(); i++)
+        {
+            GraveFadeMaterials.Add(GraveComponent->CreateAndSetMaterialInstanceDynamic(i));
+        }
+    }
+}
+
+void ACreature::FadeBodyTo(float Percent)
+{
+    for (auto BodyMaterial : BodyFadeMaterials)
+    {
+        BodyMaterial->SetScalarParameterValue(TEXT("FadeAlpha"), Percent);
+    }
+}
+
+void ACreature::FadeGraveTo(float Percent)
+{
+    for (auto GraveMaterial : GraveFadeMaterials)
+    {
+        GraveMaterial->SetScalarParameterValue(TEXT("FadeAlpha"), Percent);
+    }
 }

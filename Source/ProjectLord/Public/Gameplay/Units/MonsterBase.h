@@ -32,5 +32,6 @@ protected:
 
     virtual void OnDeath_Implementation() override;
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
+    virtual bool ShouldHaveGravestone() const { return Gold > 0; }
 
 };

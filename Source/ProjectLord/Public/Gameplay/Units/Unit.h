@@ -77,6 +77,14 @@ protected:
     UFUNCTION(BlueprintNativeEvent)
     void OnDeath();
 
+    // When a unit is removed (no grave, no lingering) permanently.
+    // For heroes and some monsters, this is after thier gravestone eventually fades away
+    UFUNCTION(BlueprintCallable)
+    virtual void OnFinalDeath();
+
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnFinalDeath"))
+    void BP_OnFinalDeath();
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
 

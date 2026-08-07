@@ -98,7 +98,12 @@ bool AUnit::IsDead() const
 
 void AUnit::OnDeath_Implementation()
 {
-    UE_LOG(LordUnit, Warning, TEXT("Unit did not override OnDeath!"));
+    OnFinalDeath();
+}
+
+void AUnit::OnFinalDeath()
+{
+    BP_OnFinalDeath();
     this->Destroy();
 }
 
@@ -191,6 +196,8 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
 
 void AUnit::HandleDeath()
 {
+    GetUnitController()->NotifyUnitDied();
+
     // Rebroadcast
     OnDeath();
 }
