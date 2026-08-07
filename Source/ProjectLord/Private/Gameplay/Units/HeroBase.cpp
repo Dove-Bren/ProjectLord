@@ -124,8 +124,10 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 	auto GoldVM = CreateLordVM<UVMGold>(this);
 	Inventory->OnInventoryGoldChanged.AddWeakLambda(this, [this, GoldVM]() {
 			GoldVM->SetGold(Inventory->GetPersonalGold());
+			GoldVM->SetTaxGold(Inventory->GetGuildGold());
 		});
 	GoldVM->SetGold(Inventory->GetPersonalGold());
+	GoldVM->SetTaxGold(Inventory->GetGuildGold());
 	InSelectionComponent->SetGoldVM(GoldVM);
 
 	bool bIgnored;

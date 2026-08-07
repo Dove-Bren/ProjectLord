@@ -23,7 +23,7 @@
     {
         for (auto& Result : Overlaps)
         {
-            Results.Add(Result.GetActor());
+            Results.AddUnique(Result.GetActor());
         }
     }
 

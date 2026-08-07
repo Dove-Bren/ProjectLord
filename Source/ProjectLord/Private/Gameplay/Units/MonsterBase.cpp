@@ -2,6 +2,9 @@
 
 #include "Gameplay/Units/MonsterBase.h"
 
+#include "Gameplay/SelectionComponent.h"
+#include "UI/ViewModels/Generic/GoldViewModel.h"
+
 AMonsterBase::AMonsterBase() : ACreature()
 {
 	Team = EGameTeam::Monster;
@@ -33,4 +36,17 @@ void AMonsterBase::OnDeath_Implementation()
 		// Remember how much we have leftover for our grave
 		SetGold(Leftover);
 	}
+}
+
+void AMonsterBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+	Super::SetupSelectionData(InSelectionComponent);
+
+	auto GoldVM = CreateLordVM<UVMGold>(this);
+	OnGoldChanged.AddWeakLambda(this, [this, GoldVM](int InGold) {
+		GoldVM->SetGold(InGold);
+		});
+	GoldVM->SetGold(GetGold());
+	InSelectionComponent->SetGoldVM(GoldVM);
+
 }
