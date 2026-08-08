@@ -434,7 +434,13 @@ UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive)
     bool bIgnored;
     float Sight = ASC->GetGameplayAttributeValue(AttributeSet->GetSightAttribute(), bIgnored);
 
-    return UGameplayUtils::GetNearestCombatComponentNear(this, Sight);
+    return UGameplayUtils::GetNearestCombatComponentNearLocationEx(GetWorld(), GetOwner()->GetActorLocation(), Sight,
+        [this, bAlive](const UCombatComponent* Other) -> bool {
+            return (bAlive && Other->IsDead())
+                || (GetTeam() == Other->GetTeam())
+                ;
+        }
+        );
 }
 
 TArray<UCombatComponent*> UCombatComponent::GetRecentAttackers() const

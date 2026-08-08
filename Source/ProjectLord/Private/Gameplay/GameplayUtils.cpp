@@ -6,7 +6,7 @@
 
 #include "Gameplay/Combat/CombatComponent.h"
 
-/*static*/ TArray<AActor*> UGameplayUtils::GetActorsNear(AActor* Center, double Radius)
+/*static*/ TArray<AActor*> UGameplayUtils::GetActorsNear(UWorld* WorldContextObject, AActor* Center, double Radius)
 {
     auto Actors = GetActorsNearLocation(Center->GetWorld(), Center->GetActorLocation(), Radius);
     Actors.Remove(Center);
@@ -44,7 +44,7 @@
     return Results;
 }
 
-/*static*/ TArray<UCombatComponent*> UGameplayUtils::GetCombatComponentsNear(UCombatComponent* Center, double Radius)
+/*static*/ TArray<UCombatComponent*> UGameplayUtils::GetCombatComponentsNear(UWorld* WorldContextObject, UCombatComponent* Center, double Radius)
 {
     auto Results = GetCombatComponentsNearLocation(Center->GetWorld(), Center->GetOwner()->GetActorLocation(), Radius);
     Results.Remove(Center);
@@ -53,11 +53,15 @@
 
 /*static*/ UCombatComponent* UGameplayUtils::GetNearestCombatComponentNearLocation(UWorld* World, const FVector& Center, double Radius, UCombatComponent* Ignore)
 {
+    return GetNearestCombatComponentNearLocationEx(World, Center, Radius, [Ignore](const UCombatComponent* Other) -> bool {
+                return Ignore ? Other == Ignore : false;
+        });
+}
+
+/*static*/ UCombatComponent* UGameplayUtils::GetNearestCombatComponentNearLocationEx(UWorld* World, const FVector& Center, double Radius, TFunction<bool(const UCombatComponent*)> Filter)
+{
     auto All = GetCombatComponentsNearLocation(World, Center, Radius);
-    if (Ignore)
-    {
-        All.Remove(Ignore);
-    }
+    All.RemoveAll(Filter);
 
     UCombatComponent* Nearest = nullptr;
     double NearestDistSqr = MAX_dbl;
@@ -74,7 +78,7 @@
     return Nearest;
 }
 
-/*static*/ UCombatComponent* UGameplayUtils::GetNearestCombatComponentNear(UCombatComponent* Center, double Radius)
+/*static*/ UCombatComponent* UGameplayUtils::GetNearestCombatComponentNear(UWorld* WorldContextObject, UCombatComponent* Center, double Radius)
 {
     return GetNearestCombatComponentNearLocation(Center->GetWorld(), Center->GetOwner()->GetActorLocation(), Radius, Center);
 }

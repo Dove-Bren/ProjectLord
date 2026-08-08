@@ -138,7 +138,6 @@ public:
 
 
 
-
     UFUNCTION(BlueprintCallable, Category = "Combat")
     static UCombatComponent* GetComponentForActor(AActor* Actor);
 

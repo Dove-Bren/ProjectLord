@@ -17,21 +17,23 @@ class PROJECTLORD_API UGameplayUtils : public UBlueprintFunctionLibrary
 
 public:
 
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
-    static TArray<AActor*> GetActorsNear(AActor* Center, double Radius);
+    UFUNCTION(BlueprintPure, Category = "Combat|Damage", meta = (WorldContext = "WorldContextObject"))
+    static TArray<AActor*> GetActorsNear(UWorld* WorldContextObject, AActor* Center, double Radius);
     
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
+    UFUNCTION(BlueprintPure, Category = "Combat|Damage", meta = (WorldContext = "World"))
     static TArray<AActor*> GetActorsNearLocation(UWorld* World, const FVector& Center, double Radius);
 
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
+    UFUNCTION(BlueprintPure, Category = "Combat|Damage", meta = (WorldContext = "World"))
     static TArray<UCombatComponent*> GetCombatComponentsNearLocation(UWorld* World, const FVector& Center, double Radius);
 
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
-    static TArray<UCombatComponent*> GetCombatComponentsNear(UCombatComponent* Center, double Radius);
+    UFUNCTION(BlueprintPure, Category = "Combat|Damage", meta = (WorldContext = "WorldContextObject"))
+    static TArray<UCombatComponent*> GetCombatComponentsNear(UWorld* WorldContextObject, UCombatComponent* Center, double Radius);
 
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
+    UFUNCTION(BlueprintPure, Category = "Combat|Damage", meta = (WorldContext = "World"))
     static UCombatComponent* GetNearestCombatComponentNearLocation(UWorld* World, const FVector& Center, double Radius, UCombatComponent* Ignore = nullptr);
 
-    UFUNCTION(BlueprintPure, Category = "Combat|Damage")
-    static UCombatComponent* GetNearestCombatComponentNear(UCombatComponent* Center, double Radius);
+    static UCombatComponent* GetNearestCombatComponentNearLocationEx(UWorld* World, const FVector& Center, double Radius, TFunction<bool(const UCombatComponent*)> Filter);
+
+    UFUNCTION(BlueprintPure, Category = "Combat|Damage", meta = (WorldContext = "WorldContextObject"))
+    static UCombatComponent* GetNearestCombatComponentNear(UWorld* WorldContextObject, UCombatComponent* Center, double Radius);
 };

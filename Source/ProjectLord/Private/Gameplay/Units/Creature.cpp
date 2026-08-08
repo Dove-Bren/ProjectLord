@@ -98,7 +98,7 @@ void ACreature::OnFinalDeath()
 bool ACreature::AwardGoldToNearbyHeroes(int Gold)
 {
     constexpr float Radius = 200;
-    auto NearbyActors = UGameplayUtils::GetActorsNear(this, Radius);
+    auto NearbyActors = UGameplayUtils::GetActorsNear(GetWorld(), this, Radius);
     TArray<AHeroBase*> Heroes;
     for (auto Actor : NearbyActors)
     {
