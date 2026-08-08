@@ -76,13 +76,7 @@ void ACreature::OnDeath_Implementation()
     // Super wants to be overwritten, not called
     //Super::OnDeath_Implementation();
     
-    if (!ShouldHaveGravestone())
-    {
-        OnFinalDeath();
-        return;
-    }
-
-    // Turn into a grave
+    // Fade out, and maybe turn into a grave
     StartDeathFade();
 }
 
@@ -199,6 +193,13 @@ void ACreature::FadeTick()
         if (Percent >= 1.0f)
         {
             OnFinishFadeOutBody();
+
+            if (!ShouldHaveGravestone())
+            {
+                OnFinalDeath();
+                return;
+            }
+
             GetMesh()->SetVisibility(false, true);
             GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
             GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
