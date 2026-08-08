@@ -23,6 +23,12 @@ void AUnitController::OnPossess(APawn* InPawn)
 
 	BB->RegisterObserver(AttackTargetKey, this, FOnBlackboardChangeNotification::CreateUObject(this, &AUnitController::OnBBTargetChanged));
 	OnBBTargetChanged(*BB, AttackTargetKey);
+
+	auto Combat = InPawn->GetComponentByClass<UCombatComponent>();
+	if (ensure(Combat))
+	{
+		Combat->OnAttackReceived.AddDynamic(this, &AUnitController::OnUnitAttacked);
+	}
 }
 
 UBehaviorTree* AUnitController::GetBehaviorTree_Implementation() const
@@ -41,4 +47,10 @@ EBlackboardNotificationResult AUnitController::OnBBTargetChanged(const UBlackboa
 void AUnitController::NotifyUnitDied()
 {
 	
+}
+
+void AUnitController::OnUnitAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+	auto BB = GetBlackboardComponent();
+	BB->SetValueAsObject(TEXT("RecentRevengeCombatComponent"), AttackingCombatComponent);
 }

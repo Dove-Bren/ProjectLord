@@ -36,6 +36,7 @@ public:
     void SetTarget(UCombatComponent* InTarget) { if (Target != InTarget) { Target = InTarget; OnAITargetChange.Broadcast(Target); } }
 
     void NotifyUnitDied();
+    void NotifyUnitAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
@@ -43,4 +44,7 @@ protected:
 
 private:
     EBlackboardNotificationResult OnBBTargetChanged(const UBlackboardComponent&, FBlackboard::FKey keyID);
+
+    UFUNCTION()
+    void OnUnitAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
 };
