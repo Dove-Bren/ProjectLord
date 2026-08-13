@@ -125,6 +125,9 @@ public:
     void SetInvulnerable(bool bInvulnerable);
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
+    bool IsTargetable() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
     UCombatComponent* GetNearestEnemy(bool bAlive = true);
 
     UFUNCTION(BlueprintCallable, Category = "Combat")

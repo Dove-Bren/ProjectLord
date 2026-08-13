@@ -27,6 +27,7 @@ public:
     // Old Depreceted
     UUnitType* GetCreatureType() const { return GetUnitType(); }
     AResidentialBuilding* GetHomeBuilding() const { return HomeBuilding.IsValid() ? HomeBuilding.Get() : nullptr; }
+    AResidentialBuilding* GetVisitingBuilding() const { return CurrentVisitingBuilding.IsValid() ? CurrentVisitingBuilding.Get() : nullptr; }
 
     UFUNCTION(BlueprintPure)
     bool HasBuilding() const { return !!GetHomeBuilding(); }
@@ -35,12 +36,24 @@ public:
     void SetHomeBuilding(AResidentialBuilding* Building);
 
     UFUNCTION(BlueprintPure)
+    bool IsInsideBuilding() const { return !!GetVisitingBuilding(); }
+
+    UFUNCTION(BlueprintCallable)
+    void LeaveCurrentBuilding();
+
+    UFUNCTION(BlueprintCallable)
+    void EnterBuilding(AResidentialBuilding* Building);
+
+    UFUNCTION(BlueprintPure)
     UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }
 
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TWeakObjectPtr<AResidentialBuilding> HomeBuilding;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    TWeakObjectPtr<AResidentialBuilding> CurrentVisitingBuilding;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCreatureAttributeSet> CreatureAttributeSet;
@@ -92,6 +105,16 @@ protected:
     void StartFadingInGrave();
     void StartFadingOutGrave();
     void FadeTick();
+
+    // Building enter/exit
+    UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Building", meta = (DisplayName = "OnEnterBuilding"))
+    void BP_OnEnterBuilding(AResidentialBuilding* Building);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Building", meta = (DisplayName = "OnExitBuilding"))
+    void BP_OnExitBuilding(AResidentialBuilding* Building);
+
+    virtual void OnEnterBuilding(AResidentialBuilding* Building);
+    virtual void OnExitBuilding(AResidentialBuilding* Building);
 
 private:
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagAssetInterface.h"
 
 #include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/GameTeam.h"
@@ -22,7 +23,7 @@ class UVMGold;
 class UUnitType;
 
 UCLASS(Blueprintable)
-class PROJECTLORD_API ABuilding : public APawn
+class PROJECTLORD_API ABuilding : public APawn, public IGameplayTagAssetInterface
 {
     GENERATED_BODY()
 
@@ -148,4 +149,11 @@ public:
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void OnConstruction(const FTransform& Transform) override;
     virtual void Tick(float DeltaSeconds) override;
+
+    // Tag Interface
+    virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+    virtual bool HasMatchingGameplayTag(FGameplayTag Tag) const override;
+    virtual bool HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
+    virtual bool HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
+    // End tag interface
 };

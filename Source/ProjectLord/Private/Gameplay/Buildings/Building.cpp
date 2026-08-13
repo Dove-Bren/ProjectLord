@@ -129,6 +129,41 @@ void ABuilding::Tick(float DeltaSeconds)
     // TODO: Building. Check if it's done?
 }
 
+void ABuilding::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        AbilitySystemComponent->GetOwnedGameplayTags(TagContainer);
+    }
+}
+
+bool ABuilding::HasMatchingGameplayTag(FGameplayTag Tag) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        return AbilitySystemComponent->HasMatchingGameplayTag(Tag);
+    }
+    return false;
+}
+
+bool ABuilding::HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        return AbilitySystemComponent->HasAllMatchingGameplayTags(TagContainer);
+    }
+    return false;
+}
+
+bool ABuilding::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        return AbilitySystemComponent->HasAnyMatchingGameplayTags(TagContainer);
+    }
+    return false;
+}
+
 void ABuilding::SetupBaseAttributes()
 {
     if (IsValid(BuildingAttributeValues))

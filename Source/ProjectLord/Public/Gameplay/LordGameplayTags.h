@@ -50,6 +50,10 @@ public:
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|State")
     static FGameplayTag K2_UnitStateInvulnerable() { return UnitStateInvulnerable(); }
 
+    MAKE_TAG(UnitStateVisiting, "Unit.State.Visiting");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|State")
+    static FGameplayTag K2_UnitStateVisiting() { return UnitStateVisiting(); }
+
     MAKE_TAG(UnitClassifierBeast, "Unit.Classifier.Dead");
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|Classifier")
     static FGameplayTag K2_UnitClassifierBeast() { return UnitClassifierBeast(); }

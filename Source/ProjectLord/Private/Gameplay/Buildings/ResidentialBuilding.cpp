@@ -150,9 +150,10 @@ void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionCo
 void AResidentialBuilding::HandleDeath()
 {
     // TODO: Eject and vacate!
-    for (auto& Visitor : Visitors)
+    auto VisitorsCopy = Visitors;
+    for (auto& Visitor : VisitorsCopy)
     {
-
+        Visitor->LeaveCurrentBuilding();
     }
 
     for (auto& Resident : Residents)

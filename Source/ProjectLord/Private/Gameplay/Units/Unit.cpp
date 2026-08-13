@@ -8,7 +8,6 @@
 #include "AbilitySystemComponent.h"
 
 #include "LordLogging.h"
-#include "Gameplay/LordGameplayTags.h"
 #include "UI/Units/HealthBarBase.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
@@ -84,6 +83,41 @@ void AUnit::EndPlay(EEndPlayReason::Type Reason)
     {
         CombatComponent->OnDeath.RemoveAll(this);
     }
+}
+
+void AUnit::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        AbilitySystemComponent->GetOwnedGameplayTags(TagContainer);
+    }
+}
+
+bool AUnit::HasMatchingGameplayTag(FGameplayTag Tag) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        return AbilitySystemComponent->HasMatchingGameplayTag(Tag);
+    }
+    return false;
+}
+
+bool AUnit::HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        return AbilitySystemComponent->HasAllMatchingGameplayTags(TagContainer);
+    }
+    return false;
+}
+
+bool AUnit::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const
+{
+    if (ensure(AbilitySystemComponent))
+    {
+        return AbilitySystemComponent->HasAnyMatchingGameplayTags(TagContainer);
+    }
+    return false;
 }
 
 AUnitController* AUnit::GetUnitController() const

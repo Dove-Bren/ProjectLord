@@ -6,6 +6,7 @@
 
 #include "GameFramework/Character.h"
 #include "GameplayEffect.h"
+#include "GameplayTagAssetInterface.h"
 
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/UnitTypes.h"
@@ -29,7 +30,7 @@ struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
 
 UCLASS(Blueprintable, meta = (PrioritizeCategories = "Unit Combat Selection"))
-class PROJECTLORD_API AUnit : public ACharacter
+class PROJECTLORD_API AUnit : public ACharacter, public IGameplayTagAssetInterface
 {
     GENERATED_BODY()
 
@@ -67,9 +68,17 @@ public:
     UFUNCTION(BlueprintPure)
     UAnimMontage* GetAnimForAbilityType(EAbilityAnimType AbilityType) const;
 
+
 public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
+
+    // Tag Interface
+    virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
+    virtual bool HasMatchingGameplayTag(FGameplayTag Tag) const override;
+    virtual bool HasAllMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
+    virtual bool HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer) const override;
+    // End tag interface
 
 protected:
 

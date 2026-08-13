@@ -4,8 +4,6 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
-#include "GameplayEffect.h"
-#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 
 #include "LordLogging.h"
 #include "Gameplay/GameplayUtils.h"
@@ -14,6 +12,7 @@
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Combat/GameplayEffect/InvulnerabilityGameplayEffect.h"
 #include "Gameplay/Units/Unit.h"
 
 UCombatComponent::UCombatComponent()
@@ -335,15 +334,7 @@ void UCombatComponent::SetInvulnerable(bool bInvulnerable)
     auto ASC = GetAbilitySubsystemComponent();
     if (bInvulnerable && !IsInvulnerable())
     {
-        UGameplayEffect* InvulnEffect = NewObject<UGameplayEffect>(this, TEXT("Invulnerability Effect"));
-        InvulnEffect->DurationPolicy = EGameplayEffectDurationType::Infinite;
-        // This feels like a LOT too apply a gameplay tag...
-        {
-            auto& TagsComp = InvulnEffect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
-            FInheritedTagContainer AppliedTags = TagsComp.GetConfiguredTargetTagChanges(); // Copy what's there
-            AppliedTags.AddTag(ULordGameplayTags::UnitStateInvulnerable());
-            TagsComp.SetAndApplyTargetTagChanges(AppliedTags);
-        }
+        auto* InvulnEffect = NewObject<UGEInvulnerability>(this, TEXT("Invulnerability Effect"));
         InvulnEffectHandle = ASC->ApplyGameplayEffectToSelf(InvulnEffect, 1, ASC->MakeEffectContext());
         OnInvulnerabilityChange.Broadcast(true);
     }
@@ -356,6 +347,17 @@ void UCombatComponent::SetInvulnerable(bool bInvulnerable)
             OnInvulnerabilityChange.Broadcast(false);
         }
     }
+}
+
+bool UCombatComponent::IsTargetable() const
+{
+    // In building is like removed from map
+    if (GetAbilitySubsystemComponent()->HasMatchingGameplayTag(ULordGameplayTags::UnitStateVisiting()))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void UCombatComponent::MarkCombatTime()
@@ -438,6 +440,7 @@ UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive)
         [this, bAlive](const UCombatComponent* Other) -> bool {
             return (bAlive && Other->IsDead())
                 || (GetTeam() == Other->GetTeam())
+                || (!Other->IsTargetable())
                 ;
         }
         );

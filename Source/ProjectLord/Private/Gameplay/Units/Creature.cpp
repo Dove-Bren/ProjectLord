@@ -10,6 +10,7 @@
 #include "Gameplay/GameplayUtils.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Combat/GameplayEffect/VisitingBuildingGameplayEffect.h"
 #include "Gameplay/Attributes/CreatureAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/ResidentialBuilding.h"
@@ -69,6 +70,46 @@ void ACreature::Tick(float DeltaTime)
 void ACreature::SetHomeBuilding(AResidentialBuilding* Building)
 {
     HomeBuilding = Building;
+}
+
+void ACreature::LeaveCurrentBuilding()
+{
+    auto Building = GetVisitingBuilding();
+    if (ensure(Building))
+    {
+        CurrentVisitingBuilding = nullptr;
+        Building->RemoveVisitor(this);
+        OnExitBuilding(Building);
+    }
+}
+
+void ACreature::EnterBuilding(AResidentialBuilding* Building)
+{
+    if (!ensure(!IsInsideBuilding()))
+    {
+        LeaveCurrentBuilding();
+    }
+
+    CurrentVisitingBuilding = Building;
+    Building->AddVisitor(this);
+    OnEnterBuilding(Building);
+}
+
+void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
+{
+    // TODO I think units actually fade when entering a building.
+    GetMesh()->SetVisibility(false, true);
+    auto VisitEffect = NewObject<UGEVisitingBuilding>(this, TEXT("Visiting Effect"));
+    AbilitySystemComponent->ApplyGameplayEffectToSelf(VisitEffect, 1, AbilitySystemComponent->MakeEffectContext());
+
+    BP_OnEnterBuilding(Building);
+}
+
+void ACreature::OnExitBuilding(AResidentialBuilding* Building)
+{
+    AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UGEVisitingBuilding::StaticClass(), AbilitySystemComponent);
+    GetMesh()->SetVisibility(true, true);
+    BP_OnExitBuilding(Building);
 }
 
 void ACreature::OnDeath_Implementation()
