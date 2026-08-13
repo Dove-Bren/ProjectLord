@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Gameplay/Attributes/AttributeBaseValue.h"
+
 #include "HeroEquipment.generated.h"
 
 class UTexture2D;

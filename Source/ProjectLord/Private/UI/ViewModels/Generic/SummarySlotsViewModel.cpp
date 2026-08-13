@@ -4,6 +4,7 @@
 
 #include "Gameplay/Units/HeroEquipment.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "UI/WidgetBlueprintClassRegistry.h"
 
 UVMSummarySlots::UVMSummarySlots()
 {
@@ -53,6 +54,12 @@ void UVMSummarySlots::Init()
 /*static*/ UVMSummarySlot* UVMSummarySlot::MakeVisitorCount(UObject* Outer)
 {
 	UVMSummarySlot* VM = CreateLordVM<UVMSummarySlot>(Outer);
+
+	auto Assets = UWidgetBlueprintClassRegistry::Get();
+	if (ensure(Assets))
+	{
+		VM->SetIcon(Assets->VisitorIcon.LoadSynchronous());
+	}
 
 	// Would need to reference the visitor texture?
 	//SetIcon(UStaticAssets::GetVisitorIcon());

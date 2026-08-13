@@ -21,4 +21,8 @@ public:
     // The small healthbar that appears over units in the world
     UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Units")
     TSoftClassPtr<class UHealthBarBase> UnitMiniHealthBarWidget;
+
+    // Icon to use for the 'visitors' selection summary
+    UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Selection")
+    TSoftObjectPtr<class UTexture2D> VisitorIcon;
 };
