@@ -7,6 +7,7 @@
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
+#include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/BuildingController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
@@ -100,6 +101,12 @@ void ABuilding::BeginPlay()
 
     // Set up selection Data
     SetupSelectionData(SelectionComponent);
+
+    // Connect to game time
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        State->OnGameDayChange.AddDynamic(this, &ABuilding::HandleGameDayChanged);
+    }
 }
 
 void ABuilding::EndPlay(EEndPlayReason::Type Reason)
@@ -109,6 +116,11 @@ void ABuilding::EndPlay(EEndPlayReason::Type Reason)
     if (IsValid(CombatComponent))
     {
         CombatComponent->OnDeath.RemoveAll(this);
+    }
+
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        State->OnGameDayChange.RemoveAll(this);
     }
 }
 
@@ -243,4 +255,15 @@ void ABuilding::HandleDeath()
     // TODO: Spawn break effects
 
     this->Destroy();
+}
+
+void ABuilding::HandleGameDayChanged(int GameDay)
+{
+    if (GameDay > 0)
+    {
+        if (GoldGeneratedPerDay > 0)
+        {
+            SetBuildingGold(GetBuildingGold() + GoldGeneratedPerDay);
+        }
+    }
 }

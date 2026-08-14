@@ -41,6 +41,9 @@ public:
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
 
+    UFUNCTION(BlueprintPure)
+    int GetBuildingGold() const { return BuildingGold; }
+
     UFUNCTION(BlueprintCallable)
     void SetBuildingGold(int InGold);
 
@@ -143,6 +146,9 @@ protected:
 
     UFUNCTION()
     virtual void HandleDeath();
+
+    UFUNCTION()
+    virtual void HandleGameDayChanged(int GameDay);
 
 public:
     virtual void BeginPlay() override;
