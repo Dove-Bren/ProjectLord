@@ -15,6 +15,8 @@ class UInputMappingContext;
 class ALordPlayerState;
 class UVMSelection;
 
+struct FStaticSelection;
+
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
 {
@@ -48,13 +50,16 @@ public:
     void BP_OnSelectionChange();
 
     UFUNCTION(BlueprintPure, Category = "Hover")
-    bool HasHover() const { return Hovered.IsSet(); };
+    bool HasHover() const { return bHasHoverInfo; };
 
-    UFUNCTION(BlueprintPure, Category = "Hover")
-    USelectionComponent* GetHover() const { if (ensure(HasHover())) return Hovered.GetValue(); return {}; };
+    /*UFUNCTION(BlueprintPure, Category = "Hover")
+    USelectionComponent* GetHover() const { if (ensure(HasHover())) return Hovered.GetValue(); return {}; };*/
 
     UFUNCTION(BlueprintCallable, Category = "Hover")
     void SetHovered(USelectionComponent* InHovered);
+
+    UFUNCTION(BlueprintCallable, Category = "Hover")
+    void SetHoveredStaticElement(FStaticSelection StaticElement);
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Hover", meta = (DisplayName = "OnHoverChange"))
     void BP_OnHoverChange();
@@ -71,8 +76,9 @@ protected:
     TObjectPtr<UInputMappingContext> StartingInputContext;
 
     TOptional<USelectionComponent*> Selection;
+    TOptional<USelectionComponent*> HoveredComponent;
 
-    TOptional<USelectionComponent*> Hovered;
+    bool bHasHoverInfo;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSelection> SelectionVM;

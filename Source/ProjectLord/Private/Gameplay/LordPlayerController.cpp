@@ -91,22 +91,27 @@ FSelectionActionContext ALordPlayerController::MakeSelectionContext()
 
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
 {
-	if (InHovered == Hovered)
+	if (!InHovered && bHasHoverInfo)
 	{
-		return;
+		bHasHoverInfo = false;
+		HoveredComponent = NullOpt;
+		HoverVM->Reset(true);
+		OnHoverChange();
 	}
+	else if (InHovered && InHovered != HoveredComponent)
+	{
+		bHasHoverInfo = true;
+		HoveredComponent = InHovered;
+		HoverVM->SetFromSelection(InHovered, MakeSelectionContext(), false, true);
+		OnHoverChange();
+	}
+}
 
-	if (Hovered)
-	{
-		//Hovered->Unhover();
-		Hovered = NullOpt;
-	}
-	Hovered = InHovered;
-	if (Hovered)
-	{
-		// Hovered->Hover();
-	}
-
+void ALordPlayerController::SetHoveredStaticElement(FStaticSelection StaticElement)
+{
+	bHasHoverInfo = true;
+	HoveredComponent = NullOpt; // Not based on a component anymore
+	HoverVM->SetFromStaticElement(StaticElement);
 	OnHoverChange();
 }
 
@@ -145,7 +150,17 @@ void ALordPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SetHovered(GetSelectableUnderMouse());
+	// Update hover state
+	{
+		// Hover can either be a component, or a static set value from the UI.
+		// Do some careful edge detection here.
+		// Either nothing is hovered, or the last thing hovered with a component.
+		if (!bHasHoverInfo || HoveredComponent.IsSet())
+		{
+			// If either are true, update with any component under the mouse.
+			SetHovered(GetSelectableUnderMouse());
+		}
+	}
 }
 
 bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
@@ -162,7 +177,5 @@ void ALordPlayerController::OnSelectionChange()
 
 void ALordPlayerController::OnHoverChange()
 {
-	// Update VM
-	HoverVM->SetFromSelection(HasHover() ? GetHover() : nullptr, MakeSelectionContext(), false, true);
 	BP_OnHoverChange();
 }

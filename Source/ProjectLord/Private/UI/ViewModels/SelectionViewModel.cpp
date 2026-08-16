@@ -72,3 +72,17 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, FSelec
 		}
 	}
 }
+
+void UVMSelection::SetFromStaticElement(FStaticSelection StaticElement, bool bTriggerUpdate)
+{
+	Reset(false);
+	SetSelectionName(StaticElement.Name);
+	SetSelectionDescription(StaticElement.Description);
+
+	SetPresent(true);
+
+	if (bTriggerUpdate)
+	{
+		TriggerSelectionChange();
+	}
+}

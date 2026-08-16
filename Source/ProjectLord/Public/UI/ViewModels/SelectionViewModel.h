@@ -21,6 +21,20 @@ class UVMSelectionAction;
 
 struct FSelectionActionContext;
 
+USTRUCT(BlueprintType)
+struct PROJECTLORD_API FStaticSelection
+{
+    GENERATED_BODY()
+
+public:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Name;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Description;
+};
+
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMSelection : public UVMLordBase
 {
@@ -79,6 +93,7 @@ public:
 
     void Reset(bool bTriggerUpdate = true);
     void SetFromSelection(const USelectionComponent* Selection, FSelectionActionContext Context, bool bIncludeActions = true, bool bTriggerUpdate = true);
+    void SetFromStaticElement(FStaticSelection StaticElement, bool bTriggerUpdate = true);
     void TriggerSelectionChange() { UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnSelectionChange); }
 
 protected:
