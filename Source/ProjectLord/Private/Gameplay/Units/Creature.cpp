@@ -116,6 +116,8 @@ void ACreature::OnDeath_Implementation()
 {
     // Super wants to be overwritten, not called
     //Super::OnDeath_Implementation();
+
+    GetCharacterMovement()->StopMovementImmediately();
     
     // Fade out, and maybe turn into a grave
     StartDeathFade();

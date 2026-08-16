@@ -10,6 +10,7 @@
 #include "LordPlayerState.generated.h"
 
 class ABuilding;
+class UVMLordPlayerState;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerGoldChanged, int);
 
@@ -21,6 +22,7 @@ class PROJECTLORD_API ALordPlayerState : public APlayerState
 public:
     ALordPlayerState();
 
+    virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     UFUNCTION(BlueprintPure)
@@ -35,6 +37,9 @@ public:
     UFUNCTION(BlueprintPure)
     ABuilding* GetPlayerCastle() const { return PlayerCastle.IsValid() ? PlayerCastle.Get() : nullptr; }
 
+    UFUNCTION(BlueprintPure)
+    UVMLordPlayerState* GetViewModel() const { return ViewModel; }
+
     FOnPlayerGoldChanged OnPlayerGoldChanged;
 
 protected:
@@ -45,6 +50,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
     int Gold;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Player")
     TWeakObjectPtr<ABuilding> PlayerCastle;
+
+    UPROPERTY(VisibleInstanceOnly)
+    TObjectPtr<UVMLordPlayerState> ViewModel;
 };
