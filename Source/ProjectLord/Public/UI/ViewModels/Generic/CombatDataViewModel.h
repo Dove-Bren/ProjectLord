@@ -8,6 +8,8 @@
 #include "CombatDataViewModel.generated.h"
 
 class UCombatComponent;
+class UVMGameplayEffect;
+class UVisibleGameplayEffect;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMCombatData: public UVMLordBase
@@ -32,6 +34,8 @@ public:
     float GetAttackRange() const { return AttackRange; }
 
     bool IsInvulnerable() const { return bInvulnerable; }
+
+    TArray<UVMGameplayEffect*> GetEffects() const { return Effects; }
 
     UCombatComponent* GetTarget() const { return Target; }
 
@@ -98,14 +102,23 @@ protected:
     UCombatComponent* Target;
     void SetTarget(UCombatComponent* InTarget) { UE_MVVM_SET_PROPERTY_VALUE(Target, InTarget); }
 
-    UFUNCTION()
-    void OnTargetChange(UCombatComponent* InTarget) { SetTarget(InTarget); }
-
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = "IsInvulnerable", Category = "Combat Data")
     bool bInvulnerable;
     void SetInvulnerable(bool bInInvulnerable) { UE_MVVM_SET_PROPERTY_VALUE(bInvulnerable, bInInvulnerable); }
 
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    TArray<UVMGameplayEffect*> Effects;
+    void SetEffects(TArray<UVMGameplayEffect*> InEffects) { UE_MVVM_SET_PROPERTY_VALUE(Effects, InEffects); }
+
+    UFUNCTION()
+    void OnTargetChange(UCombatComponent* InTarget) { SetTarget(InTarget); }
+
     UFUNCTION()
     void OnInvulnerabilityChange(bool bInInvulnerable) { SetInvulnerable(bInInvulnerable); }
+
+    UFUNCTION()
+    void OnEffectsChange(UCombatComponent* SelfComponent);
+
+    void SetupEffects(const TArray<const UVisibleGameplayEffect*>& Effects);
 
 };

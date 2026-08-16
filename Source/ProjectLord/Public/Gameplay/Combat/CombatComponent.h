@@ -12,6 +12,7 @@
 #include "CombatComponent.generated.h"
 
 class UCombatAttributeSet;
+class UVisibleGameplayEffect;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -23,6 +24,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackReceived, AActor*, AttackingActor, UCombatComponent*, AttackingCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInvulnerabilityChange, bool, bInvulnerable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEffectsChange, UCombatComponent*, SelfComponent);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UCombatComponent : public UActorComponent
@@ -49,6 +51,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnInvulnerabilityChange OnInvulnerabilityChange;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnEffectsChange OnEffectsChange;
 
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
@@ -139,7 +144,12 @@ public:
     UFUNCTION(BlueprintPure, Category = "Combat")
     double GetTimeSinceLastCombatAction() const { return ensure(GetWorld()) ? (GetWorld()->GetTimeSeconds() - LastCombatTime) : 0; }
 
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    TArray<FActiveGameplayEffectHandle> GetActiveEffectHandles() const;
 
+    // Can't be ufuncs because we have const pointers :(
+    TArray<const UGameplayEffect*> GetActiveEffects() const;
+    TArray<const UVisibleGameplayEffect*> GetActiveVisibleEffects() const;
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
     static UCombatComponent* GetComponentForActor(AActor* Actor);

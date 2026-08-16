@@ -6,6 +6,8 @@
 
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Combat/GameplayEffect/VisibleGameplayEffect.h"
+#include "UI/ViewModels/GameplayEffectVM.h"
 
 namespace 
 {
@@ -65,6 +67,28 @@ void UVMCombatData::Init(UCombatComponent* Component)
 
 	Component->OnInvulnerabilityChange.AddDynamic(this, &UVMCombatData::OnInvulnerabilityChange);
 	SetInvulnerable(Component->IsInvulnerable());
+
+	Component->OnEffectsChange.AddDynamic(this, &UVMCombatData::OnEffectsChange);
+	SetupEffects(Component->GetActiveVisibleEffects());
+}
+
+void UVMCombatData::OnEffectsChange(UCombatComponent* SelfComponent)
+{
+	SetupEffects(SelfComponent->GetActiveVisibleEffects());
+}
+
+void UVMCombatData::SetupEffects(const TArray<const UVisibleGameplayEffect*>& InEffects)
+{
+	TArray<UVMGameplayEffect*> NewEffects;
+
+	for (auto Effect : InEffects)
+	{
+		auto VM = CreateLordVM<UVMGameplayEffect>(this);
+		VM->Setup(Effect);
+		NewEffects.Add(VM);
+	}
+
+	SetEffects(NewEffects);
 }
 
 #undef REGISTER_INT

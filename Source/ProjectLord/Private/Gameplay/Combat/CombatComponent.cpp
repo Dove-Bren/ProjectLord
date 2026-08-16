@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "GameplayEffect.h"
 
 #include "LordLogging.h"
 #include "Gameplay/GameplayUtils.h"
@@ -13,6 +14,7 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Combat/GameplayEffect/InvulnerabilityGameplayEffect.h"
+#include "Gameplay/Combat/GameplayEffect/VisibleGameplayEffect.h"
 #include "Gameplay/Units/Unit.h"
 
 UCombatComponent::UCombatComponent()
@@ -41,6 +43,13 @@ void UCombatComponent::BeginPlay()
                         BroadcastDeath();
                     }
                 });
+
+        AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddWeakLambda(this, [this](const FActiveGameplayEffect&) {
+            OnEffectsChange.Broadcast(this);
+        });
+        AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddWeakLambda(this, [this](UAbilitySystemComponent*, const FGameplayEffectSpec&, FActiveGameplayEffectHandle) {
+            OnEffectsChange.Broadcast(this);
+        });
 	}
 
     if (auto OwnerPawn = Cast<APawn>(GetOwner()))
@@ -449,6 +458,46 @@ UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive)
 TArray<UCombatComponent*> UCombatComponent::GetRecentAttackers() const
 {
     return RecentRevengeTargets;
+}
+
+TArray<FActiveGameplayEffectHandle> UCombatComponent::GetActiveEffectHandles() const
+{
+    auto ASC = GetAbilitySubsystemComponent();
+    if (ensure(ASC))
+    {
+        FGameplayEffectQuery Query;
+        return ASC->GetActiveEffects(Query);
+    }
+
+    return {};
+}
+
+TArray<const UGameplayEffect*> UCombatComponent::GetActiveEffects() const
+{
+    TArray<const UGameplayEffect*> Effects;
+    auto ASC = GetAbilitySubsystemComponent();
+    for (auto Handle : GetActiveEffectHandles())
+    {
+        Effects.Add(ASC->GetGameplayEffectDefForHandle(Handle));
+    }
+
+    return Effects;
+}
+
+TArray<const UVisibleGameplayEffect*> UCombatComponent::GetActiveVisibleEffects() const
+{
+    TArray<const UVisibleGameplayEffect*> VisibleEffects;
+    auto Effects = GetActiveEffects();
+    VisibleEffects.Reserve(VisibleEffects.Num());
+    for (auto Effect : Effects)
+    {
+        if (auto VisibleEffect = Cast<UVisibleGameplayEffect>(Effect))
+        {
+            VisibleEffects.Add(VisibleEffect);
+        }
+    }
+
+    return VisibleEffects;
 }
 
 /*static*/ UCombatComponent* UCombatComponent::GetComponentForActor(AActor* Actor)
