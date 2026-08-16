@@ -55,6 +55,11 @@ void ALordPlayerController::SetSelection(USelectionComponent* InSelection)
 	ClearSelection(false); // To issue deselect callbacks
 	Selection = InSelection;
 	InSelection->Select();
+
+	InSelection->OnRemoved.AddWeakLambda(this, [this]() {
+		ClearSelection(true);
+	});
+
 	OnSelectionChange();
 }
 

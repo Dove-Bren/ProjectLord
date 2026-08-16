@@ -28,6 +28,13 @@ void USelectionComponent::BeginPlay()
 	//ViewModel->SetName(GetName(GetOwner()));
 }
 
+void USelectionComponent::EndPlay(const EEndPlayReason::Type Reason)
+{
+	Super::EndPlay(Reason);
+
+	OnRemoved.Broadcast();
+}
+
 void USelectionComponent::Select()
 {
 	OnSelected.Broadcast();

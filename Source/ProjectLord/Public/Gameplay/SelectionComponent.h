@@ -21,6 +21,7 @@ class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
 DECLARE_MULTICAST_DELEGATE(FOnDeselected);
+DECLARE_MULTICAST_DELEGATE(FOnRemoved);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API USelectionComponent : public UActorComponent
@@ -31,9 +32,11 @@ public:
     USelectionComponent();
 
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
     FOnSelected OnSelected;
     FOnDeselected OnDeselected;
+    FOnRemoved OnRemoved;
 
     UFUNCTION(BlueprintPure)
     bool CanSelect() const { return bSelectable; }
