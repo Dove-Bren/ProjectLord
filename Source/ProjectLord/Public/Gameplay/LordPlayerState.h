@@ -37,6 +37,9 @@ public:
     UFUNCTION(BlueprintPure)
     ABuilding* GetPlayerCastle() const { return PlayerCastle.IsValid() ? PlayerCastle.Get() : nullptr; }
 
+    UFUNCTION(BlueprintCallable)
+    void SetCastle(ABuilding* Castle);
+
     UFUNCTION(BlueprintPure)
     UVMLordPlayerState* GetViewModel() const { return ViewModel; }
 

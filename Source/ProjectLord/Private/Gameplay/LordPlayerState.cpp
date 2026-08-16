@@ -4,6 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 
+#include "Gameplay/Buildings/Building.h"
 #include "UI/ViewModels/LordPlayerStateViewModel.h"
 
 ALordPlayerState::ALordPlayerState()
@@ -28,4 +29,9 @@ void ALordPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
     DOREPLIFETIME(ALordPlayerState, Gold);
     DOREPLIFETIME(ALordPlayerState, PlayerCastle);
 
+}
+
+void ALordPlayerState::SetCastle(ABuilding* Castle)
+{
+    PlayerCastle = Castle;
 }
