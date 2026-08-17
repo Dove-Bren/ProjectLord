@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 
+#include "GameplayEffect.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 
 #include "HeroEquipment.generated.h"
 
 class UTexture2D;
-struct FAttributeBaseValue;
 class UUnitType;
 
 UENUM(BlueprintType)
@@ -56,7 +56,7 @@ public:
     bool GetCanStack() const { return bCanStack; }
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
-    TArray<FAttributeBaseValue> GetAttributesToApply() const { return AttributesToApply; }
+    TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return Effects; }
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     virtual bool CanUse(UUnitType* HeroType) const { return true; }
@@ -74,9 +74,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     EItemType ItemType = EItemType::Other;
 
-    // TODO replace with GameplayEffect, which can apply attribute modifiers too
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
-    TArray<FAttributeBaseValue> AttributesToApply;
+    TArray<TSubclassOf<UGameplayEffect>> Effects;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     bool bCanStack;

@@ -169,10 +169,15 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 
 void AHeroBase::HandleInventoryChange()
 {
+	// TODO: Check if anything actually changed and only
+	// change based on the changes? Like map effect handles to the item,
+	// get a list of changes, and then remove/apply as needed.
+
 	UnapplyInventoryAttributes();
 
 	// Cache inventory
 	LastAppliedInventoryDefs.Empty();
+	check(LastAppliedInventoryEffects.IsEmpty());
 
 	LastAppliedInventoryDefs.Add(Inventory->GetWeapon()->GetItemDef());
 	LastAppliedInventoryDefs.Add(Inventory->GetArmor()->GetItemDef());
@@ -187,38 +192,35 @@ void AHeroBase::HandleInventoryChange()
 
 void AHeroBase::UnapplyInventoryAttributes()
 {
-	for (const auto Def : LastAppliedInventoryDefs)
+	for (const auto Handle : LastAppliedInventoryEffects)
 	{
-		for (auto& AttributeMod : Def->GetAttributesToApply())
-		{
-			if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeMod.Attribute))
-			{
-				continue; // Not an error;
-			}
-
-			// Don't support variation from items
-			ensure(AttributeMod.Variation == 0);
-
-			AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, -AttributeMod.BaseValue);
-		}
+		AbilitySystemComponent->RemoveActiveGameplayEffect(Handle);
 	}
+	LastAppliedInventoryEffects.Empty();
 }
 
 void AHeroBase::ApplyInventoryAttributes()
 {
 	for (const auto Def : LastAppliedInventoryDefs)
 	{
-		for (auto& AttributeMod : Def->GetAttributesToApply())
+		//for (auto& AttributeMod : Def->GetAttributesToApply())
+		//{
+		//	if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeMod.Attribute))
+		//	{
+		//		continue; // Not an error;
+		//	}
+
+		//	// Don't support variation from items
+		//	ensure(AttributeMod.Variation == 0);
+
+		//	AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, AttributeMod.BaseValue);
+		//}
+
+		auto Context = AbilitySystemComponent->MakeEffectContext();
+		for (auto& Effect : Def->GetItemEffects())
 		{
-			if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeMod.Attribute))
-			{
-				continue; // Not an error;
-			}
-
-			// Don't support variation from items
-			ensure(AttributeMod.Variation == 0);
-
-			AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, AttributeMod.BaseValue);
+			auto EffectInstance = NewObject<UGameplayEffect>(this, Effect);
+			LastAppliedInventoryEffects.Add(AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectInstance, 1, Context));
 		}
 	}
 }

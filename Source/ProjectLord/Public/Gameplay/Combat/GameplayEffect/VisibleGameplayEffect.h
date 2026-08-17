@@ -24,12 +24,12 @@ public:
 	UTexture2D* GetIcon() const { return Icon; }
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visible Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VisibleEffect")
 	FText EffectName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visible Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VisibleEffect")
 	FText EffectDescription;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visible Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VisibleEffect")
 	TObjectPtr<UTexture2D> Icon;
 };

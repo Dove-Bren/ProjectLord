@@ -13,6 +13,8 @@ class ULordHeroAttributeSet;
 class UHeroInventory;
 class UGameGood;
 
+struct FActiveGameplayEffectHandle;
+
 DECLARE_MULTICAST_DELEGATE(FOnXPChange);
 
 UCLASS(Blueprintable, meta = (PrioritizeCategories = "Hero Inventory"))
@@ -108,6 +110,7 @@ private:
     void ApplyInventoryAttributes();
 
     TArray<UHeroItemDef*> LastAppliedInventoryDefs;
+    TArray<FActiveGameplayEffectHandle> LastAppliedInventoryEffects;
 
     UFUNCTION()
     void OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
