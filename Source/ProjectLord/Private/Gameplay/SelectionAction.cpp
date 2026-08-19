@@ -2,10 +2,14 @@
 
 #include "Gameplay/SelectionAction.h"
 
+#include "Kismet/GameplayStatics.h"
+
 #include "Gameplay/LordPlayerState.h"
+#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 
@@ -123,6 +127,30 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 	Context.PlayerState->AddGold(-GetGoldCost());
 	Queue->QueueAction(Action);
 
+	return true;
+}
+
+bool UPlaceBuildingPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
+{
+	// TODO: check building requirements
+
+	if (!ensure(IsValid(BuildingType)))
+	{
+		return false;
+	}
+
+	return Super::CanPerform_Implementation(Context);
+}
+
+bool UPlaceBuildingPurchase::Perform_Implementation(const FSelectionActionContext& Context)
+{
+	ALordPlayerController* Controller = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (!Controller)
+	{
+		return false;
+	}
+
+	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost());
 	return true;
 }
 

@@ -41,6 +41,9 @@ public:
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
 
+    UFUNCTION(BlueprintCallable)
+    void SetTeam(EGameTeam InTeam);
+
     UFUNCTION(BlueprintPure)
     int GetBuildingGold() const { return BuildingGold; }
 

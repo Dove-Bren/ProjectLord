@@ -44,6 +44,11 @@ ABuilding::ABuilding()
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
+void ABuilding::SetTeam(EGameTeam InTeam)
+{
+    Team = InTeam;
+}
+
 void ABuilding::SetBuildingGold(int InGold)
 {
     BuildingGold = InGold;

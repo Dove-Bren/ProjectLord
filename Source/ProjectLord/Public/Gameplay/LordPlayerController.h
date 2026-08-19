@@ -14,6 +14,7 @@
 class UInputMappingContext;
 class ALordPlayerState;
 class UVMSelection;
+class UPlacementComponent;
 
 struct FStaticSelection;
 
@@ -67,6 +68,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Selection")
     FSelectionActionContext MakeSelectionContext();
 
+    UFUNCTION(BlueprintCallable, Category = "Placement")
+    void PlaceBuilding(UBuildingType* Type, int Cost);
+
 protected:
 
     UFUNCTION(BlueprintCallable)
@@ -85,6 +89,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSelection> HoverVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UPlacementComponent> PlacementComponent;
 
     USelectionComponent* GetSelectableUnderMouse();
     bool CanSelect(const AActor* ClickedActor) const;

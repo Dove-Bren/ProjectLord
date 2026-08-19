@@ -6,6 +6,8 @@
 #include "InputMappingContext.h"
 
 #include "Gameplay/LordPlayerState.h"
+#include "Gameplay/PlacementComponent.h"
+#include "Gameplay/Buildings/Building.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
@@ -13,6 +15,8 @@ ALordPlayerController::ALordPlayerController()
 {
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
+
+	PlacementComponent = CreateDefaultSubobject<UPlacementComponent>("Placement");
 }
 
 void ALordPlayerController::BeginPlay()
@@ -89,6 +93,11 @@ FSelectionActionContext ALordPlayerController::MakeSelectionContext()
 	return Context;
 }
 
+void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost)
+{
+	PlacementComponent->StartPlacing(Type, Cost);
+}
+
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
 {
 	if (!InHovered && bHasHoverInfo)
@@ -132,16 +141,38 @@ USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
 
 void ALordPlayerController::OnMouseClick(bool bRightButton)
 {
-	if (!bRightButton)
+	if (bRightButton)
 	{
-		auto Clicked = GetSelectableUnderMouse();
-		if (Clicked)
+		// Only thing rmb does is clear placement or spell, if any
+		PlacementComponent->CancelPlacing();
+	}
+	else
+	{
+		if (PlacementComponent->IsPlacing())
 		{
-			SetSelection(Clicked);
+			if (auto Building = PlacementComponent->AttemptToPlace())
+			{
+				const auto State = GetLordPlayerState();
+				if (ensure(State))
+				{
+					State->AddGold(-PlacementComponent->GetPlaceCost());
+				}
+				PlacementComponent->CancelPlacing();
+
+				Building->SetTeam(GetTeam());
+			}
 		}
 		else
 		{
-			ClearSelection();
+			auto Clicked = GetSelectableUnderMouse();
+			if (Clicked)
+			{
+				SetSelection(Clicked);
+			}
+			else
+			{
+				ClearSelection();
+			}
 		}
 	}
 }

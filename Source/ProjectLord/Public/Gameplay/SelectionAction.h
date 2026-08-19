@@ -14,6 +14,7 @@ class USelectionComponent;
 class AUnit;
 class ABuilding;
 class UUnitType;
+class UBuildingType;
 
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FSelectionActionContext
@@ -132,6 +133,26 @@ public:
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
     FGoodOffer Good;
+};
+
+UCLASS(Blueprintable, Abstract)
+class PROJECTLORD_API UPlaceBuildingPurchase : public USelectionPurchase
+{
+    GENERATED_BODY()
+
+public:
+
+    // Check for any special reqirements based on the building type
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
+
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
+
+    UFUNCTION(BlueprintPure, Category = "Selection|Action|Place")
+    UBuildingType* GetBuildingType() const { return BuildingType; }
+
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Place")
+    TObjectPtr<UBuildingType> BuildingType;
 };
 
 UCLASS(Blueprintable, Abstract)
