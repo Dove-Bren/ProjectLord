@@ -26,9 +26,9 @@ public:
     void UpdatePlaceMaterial(bool bCanPlace);
 
 protected:
-    UPROPERTY()
+    UPROPERTY(BlueprintReadWrite)
     TObjectPtr<UStaticMeshComponent> Mesh;
 
-    UPROPERTY()
+    UPROPERTY(BlueprintReadWrite)
     TObjectPtr<UBoxComponent> Collision;
 };

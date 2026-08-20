@@ -17,6 +17,7 @@ APlacementActor::APlacementActor()
 	Collision->SetGenerateOverlapEvents(true);
 	Collision->SetCollisionObjectType(ECC_WorldDynamic);
 	Collision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	Collision->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 	Collision->SetCollisionResponseToChannel(ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	Collision->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
