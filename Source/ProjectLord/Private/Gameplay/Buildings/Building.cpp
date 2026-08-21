@@ -81,6 +81,11 @@ UStaticMesh* ABuilding::GetBuildingMesh() const
     return nullptr;
 }
 
+bool ABuilding::bWantsRepair() const
+{
+    return GetBuildingHealth() < GetBuildingMaxHealth();
+}
+
 void ABuilding::BeginPlay()
 {
     Super::BeginPlay();
@@ -103,6 +108,10 @@ void ABuilding::BeginPlay()
     {
         BuildingMesh->SetStaticMesh(GetBuildingMesh());
     }
+
+    float Radius, Height;
+    GetSimpleCollisionCylinder(Radius, Height);
+    UE_LOG(LogTemp, Display, TEXT("Building has radius %f and halfheight %f"), Radius, Height);
 
     // Set up selection Data
     SetupSelectionData(SelectionComponent);
@@ -271,4 +280,10 @@ void ABuilding::HandleGameDayChanged(int GameDay)
             SetBuildingGold(GetBuildingGold() + GoldGeneratedPerDay);
         }
     }
+}
+
+void ABuilding::HandleBuildingPlacement_Implementation()
+{
+    AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetHealthAttribute(),
+        (int) ((float) GetBuildingMaxHealth() * 0.1f));
 }

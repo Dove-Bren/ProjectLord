@@ -64,6 +64,12 @@ public:
     UFUNCTION(BlueprintPure)
     UStaticMesh* GetBuildingMesh() const;
 
+    UFUNCTION(BlueprintPure)
+    bool bWantsRepair() const;
+
+    UFUNCTION(BlueprintNativeEvent)
+    void HandleBuildingPlacement();
+
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
@@ -144,7 +150,9 @@ protected:
     virtual void SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
 
+    UFUNCTION(BlueprintPure)
     int GetBuildingHealth() const;
+    UFUNCTION(BlueprintPure)
     int GetBuildingMaxHealth() const;
 
     UFUNCTION()

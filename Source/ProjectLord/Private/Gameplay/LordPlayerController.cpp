@@ -160,6 +160,7 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 				PlacementComponent->CancelPlacing();
 
 				Building->SetTeam(GetTeam());
+				Building->HandleBuildingPlacement();
 			}
 		}
 		else
