@@ -112,6 +112,10 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     ABuilding* GetBuilding(const FSelectionActionContext& Context) const;
+
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
+    int RequiredBuildingLevel = 0;
 };
 
 UCLASS(Blueprintable, Abstract)

@@ -68,6 +68,12 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionCon
 		return false;
 	}
 
+	// Check building level requirement
+	if (BuildingOwner->GetBuildingLevel() < RequiredBuildingLevel)
+	{
+		return false;
+	}
+
 	return Super::CanPerform_Implementation(Context);
 }
 

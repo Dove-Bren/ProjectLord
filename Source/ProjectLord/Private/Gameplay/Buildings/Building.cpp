@@ -12,6 +12,7 @@
 #include "Gameplay/AI/BuildingController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
+#include "Gameplay/Buildings/BuildingConstructionFadeComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
@@ -40,6 +41,8 @@ ABuilding::ABuilding()
 
     SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
     SelectionComponent->SetSelectable(true);
+
+    FadeComponent = CreateDefaultSubobject<UBuildingConstructionFadeComponent>(TEXT("ConstructionFade"));
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -81,9 +84,45 @@ UStaticMesh* ABuilding::GetBuildingMesh() const
     return nullptr;
 }
 
-bool ABuilding::bWantsRepair() const
+void ABuilding::RefreshMesh()
+{
+    if (BuildingMesh)
+    {
+        BuildingMesh->SetStaticMesh(GetBuildingMesh());
+    }
+}
+
+bool ABuilding::WantsRepair() const
 {
     return GetBuildingHealth() < GetBuildingMaxHealth();
+}
+
+void ABuilding::NotifyRepairAction()
+{
+    RefreshMesh();
+
+    OnRepairActionReceived();
+}
+
+void ABuilding::NotifyRepairComplete()
+{
+    RefreshMesh();
+
+    // Newly constructed?
+    if (BuildingLevel < BuildingAvailableLevel)
+    {
+        HandleBuildingUpgraded();
+    }
+
+    OnRepairComplete();
+}
+
+void ABuilding::HandleBuildingUpgraded()
+{
+    // Update building level
+    SetLevel(BuildingAvailableLevel);
+
+    OnUpgradeComplete();
 }
 
 void ABuilding::BeginPlay()
@@ -104,10 +143,7 @@ void ABuilding::BeginPlay()
 
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
 
-    if (BuildingMesh)
-    {
-        BuildingMesh->SetStaticMesh(GetBuildingMesh());
-    }
+    RefreshMesh();
 
     float Radius, Height;
     GetSimpleCollisionCylinder(Radius, Height);
@@ -142,10 +178,7 @@ void ABuilding::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform);
 
-    if (BuildingMesh)
-    {
-        BuildingMesh->SetStaticMesh(GetBuildingMesh());
-    }
+    RefreshMesh();
 }
 
 void ABuilding::Tick(float DeltaSeconds)
@@ -284,6 +317,11 @@ void ABuilding::HandleGameDayChanged(int GameDay)
 
 void ABuilding::HandleBuildingPlacement_Implementation()
 {
+    SetLevel(0);
+    BuildingAvailableLevel = 1;
     AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetHealthAttribute(),
         (int) ((float) GetBuildingMaxHealth() * 0.1f));
+
+    FadeComponent->Activate();
+    FadeComponent->Enable();
 }

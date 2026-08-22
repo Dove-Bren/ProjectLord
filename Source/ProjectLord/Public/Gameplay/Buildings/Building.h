@@ -21,6 +21,7 @@ class UStaticMeshComponent;
 class UBuildingActionQueueComponent;
 class UVMGold;
 class UUnitType;
+class UBuildingConstructionFadeComponent;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn, public IGameplayTagAssetInterface
@@ -45,10 +46,21 @@ public:
     void SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure)
+    int GetBuildingLevel() const { return BuildingLevel; }
+
+    UFUNCTION(BlueprintPure)
+    int GetBuildingAvailableLevel() const { return BuildingAvailableLevel; }
+
+    UFUNCTION(BlueprintPure)
     int GetBuildingGold() const { return BuildingGold; }
 
     UFUNCTION(BlueprintCallable)
     void SetBuildingGold(int InGold);
+
+    UFUNCTION(BlueprintPure)
+    int GetBuildingHealth() const;
+    UFUNCTION(BlueprintPure)
+    int GetBuildingMaxHealth() const;
 
     UFUNCTION(BlueprintCallable)
     void PlaceExitingUnit(AUnit* Unit);
@@ -65,15 +77,31 @@ public:
     UStaticMesh* GetBuildingMesh() const;
 
     UFUNCTION(BlueprintPure)
-    bool bWantsRepair() const;
+    bool WantsRepair() const;
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleBuildingPlacement();
+
+    UFUNCTION(BlueprintCallable)
+    virtual void RefreshMesh();
+
+    // Called by a repairer every time they repair the building
+    UFUNCTION(BlueprintCallable)
+    virtual void NotifyRepairAction();
+
+    UFUNCTION(BlueprintCallable)
+    virtual void NotifyRepairComplete();
+
+    UFUNCTION(BlueprintPure)
+    UStaticMeshComponent* GetBuildingMeshComponent() const { return BuildingMesh; }
 
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
     UStaticMeshComponent* BuildingMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
+    UBuildingConstructionFadeComponent* FadeComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     TObjectPtr<UBuildingType> BuildingType;
@@ -141,19 +169,32 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;
 
+    // Active, functioning level of the building.
+    // Note: can be 0 when building hasn't been built yet.
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building")
     int BuildingLevel;
+
+    // Level that the building can get to, if repaired enough
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building")
+    int BuildingAvailableLevel;
 
     UPROPERTY()
     TObjectPtr<UVMGold> GoldVM;
 
     virtual void SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
+    virtual void HandleBuildingUpgraded();
 
-    UFUNCTION(BlueprintPure)
-    int GetBuildingHealth() const;
-    UFUNCTION(BlueprintPure)
-    int GetBuildingMaxHealth() const;
+    void SetLevel(int InLevel) { BuildingLevel = InLevel; }
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnRepairActionReceived();
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnRepairComplete();
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnUpgradeComplete();
 
     UFUNCTION()
     virtual void HandleDeath();
