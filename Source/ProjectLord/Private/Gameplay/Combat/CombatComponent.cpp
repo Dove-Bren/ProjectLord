@@ -360,6 +360,12 @@ void UCombatComponent::SetInvulnerable(bool bInvulnerable)
 
 bool UCombatComponent::IsTargetable() const
 {
+    // Generally untargetable?
+    if (GetAbilitySubsystemComponent()->HasMatchingGameplayTag(ULordGameplayTags::UnitStateUntargetable()))
+    {
+        return false;
+    }
+
     // In building is like removed from map
     if (GetAbilitySubsystemComponent()->HasMatchingGameplayTag(ULordGameplayTags::UnitStateVisiting()))
     {

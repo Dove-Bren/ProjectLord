@@ -14,6 +14,7 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/BuildingConstructionFadeComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Combat/GameplayEffect/GenericGameplayTagEffect.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
@@ -139,6 +140,11 @@ void ABuilding::BeginPlay()
     if (bIndestructible)
     {
         CombatComponent->SetInvulnerable(true);
+
+        // Also make untargetable
+        auto* UntargetEffect = NewObject<UGEGenericGameplayTag>(this, TEXT("Untargetable Effect"));
+        UntargetEffect->AddTag(ULordGameplayTags::UnitStateUntargetable());
+        AbilitySystemComponent->ApplyGameplayEffectToSelf(UntargetEffect, 1, AbilitySystemComponent->MakeEffectContext());
     }
 
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);

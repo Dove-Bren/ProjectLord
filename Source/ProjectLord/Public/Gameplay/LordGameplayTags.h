@@ -50,6 +50,10 @@ public:
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|State")
     static FGameplayTag K2_UnitStateInvulnerable() { return UnitStateInvulnerable(); }
 
+    MAKE_TAG(UnitStateUntargetable, "Unit.State.Untargetable");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|State")
+    static FGameplayTag K2_UnitStateUntargetable() { return UnitStateUntargetable(); }
+
     MAKE_TAG(UnitStateVisiting, "Unit.State.Visiting");
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|State")
     static FGameplayTag K2_UnitStateVisiting() { return UnitStateVisiting(); }

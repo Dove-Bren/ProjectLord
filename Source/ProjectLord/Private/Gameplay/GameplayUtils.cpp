@@ -20,8 +20,10 @@
     TArray<AActor*> Results;
     FCollisionShape Collider = FCollisionShape::MakeSphere(Radius);
     FCollisionQueryParams Params;
+    FCollisionObjectQueryParams ObjectParams(ECC_Pawn);
+    ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
     TArray<FOverlapResult> Overlaps;
-    if (WorldContextObject->GetWorld()->OverlapMultiByObjectType(Overlaps, Center, FQuat::Identity, ECC_Pawn, Collider, Params))
+    if (WorldContextObject->GetWorld()->OverlapMultiByObjectType(Overlaps, Center, FQuat::Identity, ObjectParams, Collider, Params))
     {
         for (auto& Result : Overlaps)
         {
