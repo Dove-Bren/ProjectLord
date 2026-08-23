@@ -10,7 +10,6 @@
 #include "HeroEquipment.generated.h"
 
 class UTexture2D;
-class UUnitType;
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -31,6 +30,14 @@ enum class EEquipmentTier : uint8
     FourthTier,
 
     Invalid
+};
+
+UENUM(BlueprintType)
+enum class EEquipmentArchtype : uint8
+{
+    Melee,
+    Ranged,
+    Magic,
 };
 
 UCLASS(Blueprintable)
@@ -57,9 +64,6 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return Effects; }
-
-    UFUNCTION(BlueprintPure, Category = "Item|Definition")
-    virtual bool CanUse(UUnitType* HeroType) const { return true; }
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
@@ -89,9 +93,10 @@ class PROJECTLORD_API UHeroEquipmentDef : public UHeroItemDef
 public:
 
     UFUNCTION(BlueprintPure, Category = "Item|Definintion")
-    EEquipmentTier GetEquipmentTier() const { return EEquipmentTier::Starter; }
-
-    virtual bool CanUse(UUnitType* HeroType) const override;
+    EEquipmentTier GetEquipmentTier() const { return Tier; }
+    
+    UFUNCTION(BlueprintPure, Category = "Item|Definintion")
+    EEquipmentArchtype GetEquipmentArchtype() const { return Archtype; }
 
 protected:
 
@@ -99,8 +104,7 @@ protected:
     EEquipmentTier Tier;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
-    TArray<UUnitType*> AllowedHeroTypes;
-
+    EEquipmentArchtype Archtype;
 };
 
 UCLASS(BlueprintType)
@@ -110,8 +114,8 @@ class PROJECTLORD_API UHeroItemStack : public UObject
 
 public:
 
-    void Init(UHeroItemDef* InItemDef, int InCount);
-    static UHeroItemStack* Make(UObject* Outer, UHeroItemDef* InItemDef, int InCount)
+    void Init(const UHeroItemDef* InItemDef, int InCount);
+    static UHeroItemStack* Make(UObject* Outer, const UHeroItemDef* InItemDef, int InCount)
     {
         UHeroItemStack* Stack = NewObject<UHeroItemStack>(Outer);
         Stack->Init(InItemDef, InCount);
@@ -119,7 +123,7 @@ public:
     }
 
     UFUNCTION(BlueprintPure, Category = "ItemStack")
-    UHeroItemDef* GetItemDef() const { return ItemDef; }
+    const UHeroItemDef* GetItemDef() const { return ItemDef; }
 
     UFUNCTION(BlueprintPure, Category = "ItemStack")
     int GetCount() const { return Count; }
@@ -135,7 +139,7 @@ public:
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
-    TObjectPtr<UHeroItemDef> ItemDef;
+    TObjectPtr<const UHeroItemDef> ItemDef;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
     int Count;
@@ -232,6 +236,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory|ExtraItems")
     bool Add(UHeroItemStack* Item);
 
+    UFUNCTION(BlueprintPure, Category = "Inventory|ExtraItems")
+    bool CanFit(UHeroItemStack* Item);
+
 
 protected:
 
@@ -256,7 +263,7 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
 
-    bool AddExtraItem(UHeroItemStack* ExtraItem);
+    bool AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly = false);
 
 private:
 

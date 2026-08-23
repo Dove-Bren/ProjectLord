@@ -12,8 +12,20 @@
 class ULordHeroAttributeSet;
 class UHeroInventory;
 class UGameGood;
+class UGameplayAbility;
 
 struct FActiveGameplayEffectHandle;
+
+UENUM(BlueprintType)
+enum class EHeroDesireLevel : uint8
+{
+    NotApplicable,
+    StrongDislike,
+    Dislike,
+    Neutral,
+    Like,
+    StrongLike,
+};
 
 DECLARE_MULTICAST_DELEGATE(FOnXPChange);
 
@@ -53,6 +65,27 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Hero")
     void AwardGold(int Amount);
 
+    UFUNCTION(BlueprintPure, Category = "Hero")
+    EEquipmentArchtype GetHeroEquipmentType() const { return EquipmentType; }
+
+    UFUNCTION(BlueprintPure, Category = "Hero|Desires")
+    EHeroDesireLevel CheckDesireLevelForItem(const UHeroItemDef* Item) const;
+
+    UFUNCTION(BlueprintPure, Category = "Hero|Desires")
+    bool HasItemOrBetter(const UHeroItemDef* Item) const;
+
+    // Whether this hero could accept this item type.
+    // For example, is it the right type of equipment if it's
+    // equipment, or is there room for it in the extra slots if it goes there?
+    UFUNCTION(BlueprintPure, Category = "Hero|Desires")
+    bool CanAcceptItem(const UHeroItemDef* Item) const;
+
+    UFUNCTION(BlueprintPure, Category = "Hero|Desires")
+    EHeroDesireLevel CheckDesireLevelForGood(const UGameGood* Good) const;
+
+    UFUNCTION(BlueprintPure, Category = "Hero")
+    bool HasAbility(TSubclassOf<UGameplayAbility> AbilityClass) const;
+
     virtual void BeginPlay() override;
 
 protected:
@@ -65,6 +98,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
     UHeroEquipmentDef* StarterArmor;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Hero")
+    EEquipmentArchtype EquipmentType;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;
@@ -109,7 +145,7 @@ private:
     void UnapplyInventoryAttributes();
     void ApplyInventoryAttributes();
 
-    TArray<UHeroItemDef*> LastAppliedInventoryDefs;
+    TArray<const UHeroItemDef*> LastAppliedInventoryDefs;
     TArray<FActiveGameplayEffectHandle> LastAppliedInventoryEffects;
 
     UFUNCTION()

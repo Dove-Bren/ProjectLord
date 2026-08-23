@@ -2,17 +2,7 @@
 
 #include "Gameplay/Units/HeroEquipment.h"
 
-bool UHeroEquipmentDef::CanUse(UUnitType* HeroType) const
-{
-	if (!AllowedHeroTypes.Contains(HeroType))
-	{
-		return false;
-	}
-
-	return Super::CanUse(HeroType);
-}
-
-void UHeroItemStack::Init(UHeroItemDef* InItemDef, int InCount)
+void UHeroItemStack::Init(const UHeroItemDef* InItemDef, int InCount)
 {
 	check(IsValid(InItemDef));
 	ItemDef = InItemDef;
@@ -143,7 +133,7 @@ bool UHeroInventory::Add(UHeroItemStack* Item)
 	return false;
 }
 
-bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
+bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly)
 {
 	// Look for existing stack first
 	if (auto InSlot = FindItem(ExtraItem->GetItemDef()))
@@ -151,8 +141,11 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
 		// If it stacks, add to count. Otherwise, no dupes!
 		if (InSlot->GetItemDef()->GetCanStack())
 		{
-			InSlot->AddCount(ExtraItem->GetCount());
-			ExtraItem->AddCount(-ExtraItem->GetCount()); // Invalidate it
+			if (!bSimulateOnly)
+			{
+				InSlot->AddCount(ExtraItem->GetCount());
+				ExtraItem->AddCount(-ExtraItem->GetCount()); // Invalidate it
+			}
 			return true;
 		}
 		// else
@@ -164,8 +157,16 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
 		return false;
 	}
 
-	ExtraSlots.Add(ExtraItem);
-	OnInventoryItemsChanged.Broadcast();
+	if (!bSimulateOnly)
+	{
+		ExtraSlots.Add(ExtraItem);
+		OnInventoryItemsChanged.Broadcast();
+	}
 	return true;
+}
+
+bool UHeroInventory::CanFit(UHeroItemStack* Item)
+{
+	return AddExtraItem(Item, true);
 }
 

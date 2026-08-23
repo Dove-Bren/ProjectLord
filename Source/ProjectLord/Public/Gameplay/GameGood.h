@@ -9,6 +9,7 @@
 
 class UTexture2D;
 class UHeroItemDef;
+class UUnitType;
 
 // A "Good" that can be sold and purchased to heroes.
 // Was going to name this "HeroGood" but that felt confusing -- especially
@@ -33,7 +34,12 @@ public:
 	TSubclassOf<UCombatAbility> GetAbility() const { return Ability; }
 
 	UFUNCTION(BlueprintPure, Category = "Game Good")
-	UHeroItemDef* GetItemDef() const { return Item; }
+	const UHeroItemDef* GetItemDef() const { return Item; }
+
+	UFUNCTION(BlueprintPure, Category = "Game Good")
+	const UUnitType* GetUnitTypeRestriction() const { return UnitTypeRestriction; }
+
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
@@ -46,10 +52,13 @@ protected:
 	TObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
-	TObjectPtr<UHeroItemDef> Item;
+	TObjectPtr<const UHeroItemDef> Item;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
 	TSubclassOf<UCombatAbility> Ability;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
+	TObjectPtr<const UUnitType> UnitTypeRestriction;
 };
 
 USTRUCT(BlueprintType)

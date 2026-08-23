@@ -261,6 +261,15 @@ void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComp
 
 bool AHeroBase::CanApply(const UGameGood* Good) const
 {
+	// Respect a unit type filter, if present
+	if (const auto* TypeRestriction = Good->GetUnitTypeRestriction())
+	{
+		if (TypeRestriction != GetUnitType())
+		{
+			return false;
+		}
+	}
+
 	// If good has an item, return true;
 	// This should be where we look at item caps maybe, but leaving
 	// it off for now.
@@ -279,8 +288,7 @@ bool AHeroBase::CanApply(const UGameGood* Good) const
 		return false;
 	}
 
-	auto AbilityHandle = AbilitySystemComponent->FindAbilitySpecFromClass(Ability);
-	if (AbilityHandle)
+	if (HasAbility(Ability))
 	{
 		return false;
 	}
@@ -311,6 +319,115 @@ void AHeroBase::AwardGold(int Amount)
 	Inventory->AddGuildGold(Guild);
 
 	OnGoldAwarded(Amount);
+}
+
+EHeroDesireLevel AHeroBase::CheckDesireLevelForItem(const UHeroItemDef* Item) const
+{
+	if (!CanAcceptItem(Item))
+	{
+		return EHeroDesireLevel::NotApplicable;
+	}
+
+	const auto ItemType = Item->GetItemType();
+	if (EItemType::Armor == ItemType || EItemType::Weapon == ItemType)
+	{
+		if (HasItemOrBetter(Item))
+		{
+			return EHeroDesireLevel::NotApplicable;
+		}
+	}
+
+	// This should be personal preference time.
+
+	// For now, I'll say heroes will have a strong desire for equipment or potions (if they have none)
+	// They will have some desire for other goods and equipment they can use.
+	// Otherwise, they will not desire anything else.
+	if (EItemType::Armor == ItemType || EItemType::Weapon == ItemType)
+	{
+		return EHeroDesireLevel::StrongLike;
+	}
+	if ((EItemType::HealthPotion == ItemType && Inventory->GetNumHealthPotions() <= 0)
+		|| (EItemType::ManaPotion == ItemType && Inventory->GetNumManaPotions() <= 0))
+	{
+		return EHeroDesireLevel::StrongLike;
+	}
+
+	if (EItemType::Other == ItemType)
+	{
+		return EHeroDesireLevel::Like;
+	}
+
+	// Basically just extra potions here
+	return EHeroDesireLevel::Neutral;
+}
+
+bool AHeroBase::HasItemOrBetter(const UHeroItemDef* Item) const
+{
+	auto ItemType = Item->GetItemType();
+	switch (ItemType)
+	{
+	case EItemType::Weapon:
+	case EItemType::Armor:
+		if (auto Equip = Cast<UHeroEquipmentDef>(Item))
+		{
+			if (Equip->GetEquipmentArchtype() != GetHeroEquipmentType())
+			{
+				// We couldn't equip, so whatever we have is better
+				return true;
+			}
+			auto MyTier = (ItemType == EItemType::Weapon) ? Inventory->GetWeaponTier() : Inventory->GetArmorTier();
+			return Equip->GetEquipmentTier() <= MyTier;
+		}
+		return false;
+	case EItemType::HealthPotion:
+		return Inventory->GetNumHealthPotions() > 0;
+	case EItemType::ManaPotion:
+		return Inventory->GetNumManaPotions() > 0;
+	case EItemType::Other:
+	default:
+		break; // fall through
+	}
+	return Inventory->HasItem(Item);
+}
+
+bool AHeroBase::CanAcceptItem(const UHeroItemDef* Item) const
+{
+	if (auto Equip = Cast<UHeroEquipmentDef>(Item))
+	{
+		return Equip->GetEquipmentArchtype() == GetHeroEquipmentType();
+	}
+
+	const auto ItemType = Item->GetItemType();
+	if (EItemType::HealthPotion == ItemType)
+	{
+		return Inventory->GetNumHealthPotions() < 9;
+	}
+	if (EItemType::ManaPotion == ItemType)
+	{
+		return Inventory->GetNumManaPotions() < 9;
+	}
+	auto ItemStack = UHeroItemStack::Make(Inventory, Item, 1);
+	return Inventory->CanFit(ItemStack);
+}
+
+EHeroDesireLevel AHeroBase::CheckDesireLevelForGood(const UGameGood* Good) const
+{
+	if (!CanApply(Good))
+	{
+		return EHeroDesireLevel::NotApplicable;
+	}
+
+	if (auto Item = Good->GetItemDef())
+	{
+		return CheckDesireLevelForItem(Item);
+	}
+
+	return EHeroDesireLevel::Like;
+}
+
+bool AHeroBase::HasAbility(TSubclassOf<UGameplayAbility> AbilityClass) const
+{
+	return !!AbilitySystemComponent->FindAbilitySpecFromClass(AbilityClass);
 }
 
 void AHeroBase::UpdateAttributeDamageMod(FActiveGameplayEffectHandle& AttributeHandle, int Level)

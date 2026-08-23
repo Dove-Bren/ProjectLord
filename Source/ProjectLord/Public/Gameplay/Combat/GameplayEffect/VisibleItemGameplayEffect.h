@@ -20,10 +20,10 @@ public:
     virtual void PostInitProperties() override;
 
     UFUNCTION(BlueprintPure)
-    UHeroItemDef* GetItemDef() const { return ItemDef; }
+    const UHeroItemDef* GetItemDef() const { return ItemDef; }
 
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Effect")
-    TObjectPtr<UHeroItemDef> ItemDef;
+    TObjectPtr<const UHeroItemDef> ItemDef;
 };
