@@ -169,9 +169,3 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem)
 	return true;
 }
 
-/*static*/ UHeroItemStack* UHeroInventory::MakeThrowawayStack(UObject* Outer, UHeroItemDef* Def, int Count)
-{
-	UHeroItemStack* Stack = NewObject<UHeroItemStack>(Outer);
-	Stack->Init(Def, 1);
-	return Stack;
-}

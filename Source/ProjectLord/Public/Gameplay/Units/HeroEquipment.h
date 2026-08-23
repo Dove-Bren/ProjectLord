@@ -141,85 +141,6 @@ protected:
     int Count;
 };
 
-USTRUCT(BlueprintType)
-struct PROJECTLORD_API FHeroEquipmentMap
-{
-    GENERATED_BODY()
-
-public:
-    // Could map tier to def, but this way there has to be a mapping for each and it reads better in the editor
-
-    // What weapon is the Starter weapon for this hero type
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Weapon")
-    TObjectPtr<UHeroItemDef> Weapon_Starter;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Weapon")
-    TObjectPtr<UHeroItemDef> Weapon_SecondTier;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Weapon")
-    TObjectPtr<UHeroItemDef> Weapon_ThirdTier;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Weapon")
-    TObjectPtr<UHeroItemDef> Weapon_FourthTier;
-
-    // What weapon is the Starter weapon for this hero type
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Armor")
-    TObjectPtr<UHeroItemDef> Armor_Starter;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Armor")
-    TObjectPtr<UHeroItemDef> Armor_SecondTier;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Armor")
-    TObjectPtr<UHeroItemDef> Armor_ThirdTier;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Armor")
-    TObjectPtr<UHeroItemDef> Armor_FourthTier;
-
-    // I think these will be standard but don't want to invent a new mechanism
-    // for getting them...
-
-    // Health potion item def
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Potion")
-    TObjectPtr<UHeroItemDef> HealthPotion;
-
-    // Health potion item def
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipmentMap|Equipment|Potion")
-    TObjectPtr<UHeroItemDef> ManaPotion;
-
-    UHeroItemDef* GetWeaponForTier(EEquipmentTier Tier) const
-    {
-        switch (Tier)
-        {
-        case EEquipmentTier::Starter:
-        default:
-            return Weapon_Starter;
-        case EEquipmentTier::SecondTier:
-            return Weapon_SecondTier;
-        case EEquipmentTier::ThirdTier:
-            return Weapon_ThirdTier;
-        case EEquipmentTier::FourthTier:
-            return Weapon_FourthTier;
-        }
-    }
-
-    UHeroItemDef* GetArmorForTier(EEquipmentTier Tier) const
-    {
-        switch (Tier)
-        {
-        case EEquipmentTier::Starter:
-        default:
-            return Armor_Starter;
-        case EEquipmentTier::SecondTier:
-            return Armor_SecondTier;
-        case EEquipmentTier::ThirdTier:
-            return Armor_ThirdTier;
-        case EEquipmentTier::FourthTier:
-            return Armor_FourthTier;
-        }
-    }
-
-};
-
 DECLARE_MULTICAST_DELEGATE(FOnInventoryItemsChanged);
 DECLARE_MULTICAST_DELEGATE(FOnInventoryGoldChanged);
 
@@ -335,19 +256,12 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
 
-    /*bool ItemIsWeapon(const UHeroItemStack* Item) const;
-    EEquipmentTier GetWeaponTier(const UHeroItemStack* Item) const;
-    bool ItemIsArmor(const UHeroItemStack* Item) const;
-    EEquipmentTier GetArmorTier(const UHeroItemStack* Item) const;
-    bool ItemIsHealthPotion(const UHeroItemStack* Item) const;
-    bool ItemIsManaPotion(const UHeroItemStack* Item) const;*/
     bool AddExtraItem(UHeroItemStack* ExtraItem);
 
 private:
 
     static const int MaxExtraSlots = 8;
 
-    static UHeroItemStack* MakeThrowawayStack(UObject* Outer, UHeroItemDef* Def, int Count);
     static EEquipmentTier UnwrapEquipmentTier(const UHeroItemStack* Stack)
     {
         const auto* EquipDef = Cast<UHeroEquipmentDef>(Stack->GetItemDef());
