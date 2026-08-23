@@ -435,4 +435,27 @@ void AHeroBase::UpdateAttributeDamageMod(FActiveGameplayEffectHandle& AttributeH
 	AbilitySystemComponent->SetActiveGameplayEffectLevel(AttributeHandle, Level);
 }
 
+bool AHeroBase::PurchaseGood(FGoodOffer Offer)
+{
+	if (ensure(Offer.Good))
+	{
+		Inventory->AddPersonalGold(-Offer.GoldCost);
+		if (auto Item = Offer.Good->GetItemDef())
+		{
+			UHeroItemStack* Stack = UHeroItemStack::Make(Inventory, Item, 1);
+			Inventory->Add(Stack);
+		}
+
+		if (auto Ability = Offer.Good->GetAbility())
+		{
+			FGameplayAbilitySpec Spec(Ability);
+			AbilitySystemComponent->GiveAbility(Spec);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 float AHeroBase::DamageModPerAttribute = (1.0f / 3.0f);

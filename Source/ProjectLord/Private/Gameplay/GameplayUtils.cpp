@@ -139,3 +139,8 @@
 
     return Nearest;
 }
+
+/*static*/ bool UGameplayUtils::IsHigherDesire(EHeroDesireLevel In, EHeroDesireLevel Than)
+{
+    return static_cast<uint8>(In) > static_cast<uint8>(Than);
+}

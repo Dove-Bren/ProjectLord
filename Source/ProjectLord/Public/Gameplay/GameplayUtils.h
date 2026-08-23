@@ -13,6 +13,8 @@ class UWorld;
 class UBuildingType;
 class ABuilding;
 
+enum class EHeroDesireLevel : uint8;
+
 UCLASS()
 class PROJECTLORD_API UGameplayUtils : public UBlueprintFunctionLibrary
 {
@@ -47,4 +49,7 @@ public:
     static ABuilding* GetNearestBuildingOfType(const UObject* WorldContextObject, const FVector& Center, const UBuildingType* Type);
 
     static ABuilding* GetNearestBuildingEx(UWorld* World, const FVector& Center, TFunction<bool(const ABuilding*)> Filter);
+
+    UFUNCTION(BlueprintPure, Category = "Hero Desire")
+    static bool IsHigherDesire(EHeroDesireLevel In, EHeroDesireLevel Than);
 };

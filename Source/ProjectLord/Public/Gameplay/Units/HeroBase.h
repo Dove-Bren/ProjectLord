@@ -86,6 +86,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Hero")
     bool HasAbility(TSubclassOf<UGameplayAbility> AbilityClass) const;
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    bool PurchaseGood(FGoodOffer Offer);
+
     virtual void BeginPlay() override;
 
 protected:
