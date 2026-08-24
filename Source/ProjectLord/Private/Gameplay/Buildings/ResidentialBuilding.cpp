@@ -86,7 +86,7 @@ void AResidentialBuilding::RemoveVisitor(ACreature* Visitor)
     }
 }
 
-ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
+ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType, bool bSpawnOutside)
 {
     auto World = GetWorld();
     if (!ensure(World))
@@ -104,6 +104,11 @@ ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType)
         Recruit->SetTeam(GetTeam());
         AddResident(Recruit);
         Recruit->SetHomeBuilding(this);
+
+        if (!bSpawnOutside)
+        {
+            Recruit->EnterBuilding(this);
+        }
     }
 
     return Recruit;
