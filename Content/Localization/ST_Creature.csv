@@ -1,5 +1,23 @@
 Key,SourceString,Comment
 
+Creature.Action.Invalid,"","Invalid action set up as a default"
+Creature.Action.HeroIdle,"is protecting lands",
+Creature.Action.MonsterIdle,"is hunting",
+Creature.Action.Wandering,"is looking for adventure",
+Creature.Action.InCombat,"is in combat",
+Creature.Action.Fleeing,"is fleeing",
+Creature.Action.Dead,"is dead",
+Creature.Action.ExploreQuest,"is doing an exploration quest",
+Creature.Action.DefendQuest,"is protecting lands",
+Creature.Action.AttackQuest,"is fighting",
+Creature.Action.GoingHome,"is going home",
+Creature.Action.Shopping,"is buying new stuff",
+Creature.Action.Patrolling,"is patrolling",
+Creature.Action.Building,"is building",
+Creature.Action.CollectingTaxes,"is collecting taxes",
+Creature.Action.BringingGold,"is bringing gold",
+Creature.Action.CarryingGold,"is carrying gold",
+
 Creature.Warrior.Name,"Warrior",
 Creature.Warrior.Desc,"The warriors of Ardania are the most steadfast of heroes; your bread and butter, really. Keep and eye on them your Majesty, as they're somewhat rash. They'll engage a Stone Elemental only days out of training!",
 

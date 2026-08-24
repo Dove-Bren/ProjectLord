@@ -22,6 +22,7 @@ AHeroBase::AHeroBase() : ACreature()
 
 	LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));
 	Inventory = CreateDefaultSubobject<UHeroInventory>(TEXT("Hero Inventory"));
+	Action = ECreatureAction::HeroIdle;
 }
 
 int AHeroBase::GetHeroMaxXP() const

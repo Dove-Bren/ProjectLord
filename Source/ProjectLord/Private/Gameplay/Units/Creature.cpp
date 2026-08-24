@@ -15,6 +15,8 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/ResidentialBuilding.h"
 #include "Gameplay/Units/HeroBase.h"
+#include "Gameplay/SelectionComponent.h"
+#include "UI/ViewModels/Generic/ActionViewModel.h"
 
 #define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 
@@ -35,6 +37,20 @@ void ACreature::RegisterAttributes()
             {
                 GetCharacterMovement()->MaxWalkSpeed = MOVEMENT_STAT_TO_UE_SPEED(ChangeData.NewValue);
             });
+}
+
+void ACreature::SetupSelectionData(USelectionComponent* InSelectionComponent)
+{
+    Super::SetupSelectionData(InSelectionComponent);
+
+    UVMAction* VM = CreateLordVM<UVMAction>(this);
+    OnCreatureActionChanged.AddWeakLambda(this, [VM](ECreatureAction Action)
+    {
+            VM->SetAction(Action);
+    });
+    VM->SetAction(GetAction());
+    
+    InSelectionComponent->SetActionVM(VM);
 }
 
 void ACreature::BeginPlay()
@@ -63,6 +79,7 @@ void ACreature::Tick(float DeltaTime)
     if (IsDead())
     {
         DeadTime += DeltaTime;
+        SetAction(ECreatureAction::Dead);
         FadeTick();
     }
 }
@@ -93,6 +110,15 @@ void ACreature::EnterBuilding(AResidentialBuilding* Building)
     CurrentVisitingBuilding = Building;
     Building->AddVisitor(this);
     OnEnterBuilding(Building);
+}
+
+void ACreature::SetAction(ECreatureAction InAction)
+{ 
+    if (Action != InAction)
+    {
+        Action = InAction;
+        OnCreatureActionChanged.Broadcast(Action);
+    }
 }
 
 void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
@@ -134,14 +160,17 @@ void ACreature::OnFinalDeath()
 
 bool ACreature::AwardGoldToNearbyHeroes(int Gold)
 {
-    constexpr float Radius = 200;
+    constexpr float Radius = 300;
     auto NearbyActors = UGameplayUtils::GetActorsNear(GetWorld(), this, Radius);
     TArray<AHeroBase*> Heroes;
     for (auto Actor : NearbyActors)
     {
         if (AHeroBase* Hero = Cast<AHeroBase>(Actor))
         {
-            Heroes.Add(Hero);
+            if (Hero->IsAlive() && Hero->GetTeam() != GetTeam())
+            {
+                Heroes.Add(Hero);
+            }
         }
     }
 

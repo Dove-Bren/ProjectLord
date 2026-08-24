@@ -9,6 +9,7 @@ AMonsterBase::AMonsterBase() : ACreature()
 {
 	Team = EGameTeam::Monster;
 	Gold = 5;
+	Action = ECreatureAction::MonsterIdle;
 }
 
 void AMonsterBase::OnDeath_Implementation()

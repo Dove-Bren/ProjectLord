@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Gameplay/Units/Unit.h"
+#include "Gameplay/Units/CreatureAction.h"
 
 #include "Creature.generated.h"
 
@@ -14,6 +15,8 @@ class UCreatureAttributeSet;
 class UStaticMesh;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnCreatureActionChanged, ECreatureAction);
 
 // A Unit that moves
 UCLASS(Blueprintable, meta = (PrioritizeCategories = "Unit Combat Selection Creature"))
@@ -28,6 +31,8 @@ public:
     UUnitType* GetCreatureType() const { return GetUnitType(); }
     AResidentialBuilding* GetHomeBuilding() const { return HomeBuilding.IsValid() ? HomeBuilding.Get() : nullptr; }
     AResidentialBuilding* GetVisitingBuilding() const { return CurrentVisitingBuilding.IsValid() ? CurrentVisitingBuilding.Get() : nullptr; }
+
+    FOnCreatureActionChanged OnCreatureActionChanged;
 
     UFUNCTION(BlueprintPure)
     bool HasBuilding() const { return !!GetHomeBuilding(); }
@@ -47,6 +52,12 @@ public:
     UFUNCTION(BlueprintPure)
     UCreatureAttributeSet* GetCreatureAttributeSet() const { return CreatureAttributeSet; }
 
+    UFUNCTION(BlueprintPure)
+    ECreatureAction GetAction() const { return Action; }
+
+    UFUNCTION(BlueprintCallable)
+    void SetAction(ECreatureAction InAction);
+
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
@@ -64,7 +75,11 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     float DeadTime;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    ECreatureAction Action;
+
     virtual void RegisterAttributes() override;
+    virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
 
     virtual void OnDeath_Implementation() override;
     virtual void OnFinalDeath() override;
