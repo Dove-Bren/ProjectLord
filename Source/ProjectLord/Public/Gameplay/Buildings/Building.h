@@ -25,6 +25,8 @@ class UBuildingConstructionFadeComponent;
 class UNavModifierComponent;
 class UBoxComponent;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
+
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn, public IGameplayTagAssetInterface
 {
@@ -34,6 +36,8 @@ public:
     ABuilding();
 
     UBuildingType* GetBuildingType() const { return BuildingType; }
+
+    FOnBuildingLevelChanged OnBuildingLevelChanged;
 
     UFUNCTION(BlueprintPure)
     ABuildingController* GetBuildingController() const;
@@ -193,7 +197,7 @@ protected:
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
     virtual void HandleBuildingUpgraded();
 
-    void SetLevel(int InLevel) { BuildingLevel = InLevel; }
+    void SetLevel(int InLevel) { BuildingLevel = InLevel; OnBuildingLevelChanged.Broadcast(BuildingLevel); }
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnRepairActionReceived();

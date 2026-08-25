@@ -12,6 +12,13 @@
 #include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
+#include "UI/ViewModels/SelectionActionViewModel.h"
+
+void USelectionAction::Setup(const FSelectionActionContext& Context)
+{
+	ViewModel = UVMSelectionAction::Make(this, this);
+	ViewModel->SetEnabled(CanPerform(Context));
+}
 
 bool USelectionAction::IsHidden_Implementation(const FSelectionActionContext& Context) const
 {
@@ -30,15 +37,42 @@ bool USelectionAction::Perform_Implementation(const FSelectionActionContext& Con
 	return false;
 }
 
+void USelectionPurchase::Setup(const FSelectionActionContext& Context)
+{
+	Super::Setup(Context);
+
+	if (ALordPlayerController* PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+	{
+		ViewModel->SetEnabled(CanPerform(Context));
+		Context.PlayerState->OnPlayerGoldChanged.AddWeakLambda(this, [this, Context](int Gold)
+			{
+				ViewModel->SetEnabled(CanPerform(Context));
+			});
+	}
+}
+
 bool USelectionPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
 	return Context.PlayerState->GetPlayerGold() >= GetGoldCost();
 }
 
+AUnit* UUnitBasedPurchase::GetUnitInner(const FSelectionActionContext& Context) const
+{
+	return Cast<AUnit>(Context.Selection->GetOwner());
+}
+
 AUnit* UUnitBasedPurchase::GetUnit(const FSelectionActionContext& Context) const
 {
-	auto ActionOwner = Context.Selection->GetOwner();
-	return Cast<AUnit>(ActionOwner);
+	return GetUnitInner(Context);
+}
+
+void UUnitBasedPurchase::Setup(const FSelectionActionContext& Context)
+{
+	Super::Setup(Context);
+
+	AUnit* UnitOwner = GetUnitInner(Context);
+	//TODO:
+	// UnitOwner->OnDeath.AddWeakLambda()...
 }
 
 bool UUnitBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
@@ -53,10 +87,29 @@ bool UUnitBasedPurchase::CanPerform_Implementation(const FSelectionActionContext
 	return Super::CanPerform_Implementation(Context);
 }
 
-ABuilding* UBuildingBasedPurchase::GetBuilding(const FSelectionActionContext& Context) const
+ABuilding* UBuildingBasedPurchase::GetBuildingInner(const FSelectionActionContext& Context) const
 {
 	auto ActionOwner = Context.Selection->GetOwner();
 	return Cast<ABuilding>(ActionOwner);
+}
+
+ABuilding* UBuildingBasedPurchase::GetBuilding(const FSelectionActionContext& Context) const
+{
+	return GetBuildingInner(Context);
+}
+
+void UBuildingBasedPurchase::Setup(const FSelectionActionContext& Context)
+{
+	Super::Setup(Context);
+
+	auto BuildingOwner = GetBuildingInner(Context);
+	if (ensure(BuildingOwner))
+	{
+		// TODO building destruction
+		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(this, [this, Context](int NewLevel) {
+			ViewModel->SetEnabled(CanPerform(Context));
+		});
+	}
 }
 
 bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
@@ -75,6 +128,17 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionCon
 	}
 
 	return Super::CanPerform_Implementation(Context);
+}
+
+void UResearchGoodPurchase::Setup(const FSelectionActionContext& Context)
+{
+	Super::Setup(Context);
+
+	auto BuildingOwner = GetBuildingInner(Context);
+	if (ensure(BuildingOwner))
+	{
+		// TODO building goods event
+	}
 }
 
 bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
@@ -158,6 +222,17 @@ bool UPlaceBuildingPurchase::Perform_Implementation(const FSelectionActionContex
 
 	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost());
 	return true;
+}
+
+void URecruitUnitPurchase::Setup(const FSelectionActionContext& Context)
+{
+	Super::Setup(Context);
+
+	auto BuildingOwner = GetBuildingInner(Context);
+	if (ensure(BuildingOwner))
+	{
+		// TODO building unit counts changed event
+	}
 }
 
 bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const

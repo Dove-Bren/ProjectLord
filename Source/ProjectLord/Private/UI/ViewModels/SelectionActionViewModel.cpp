@@ -21,24 +21,6 @@
 	}
 
 	VM->SetIcon(Action->GetIcon());
-
-	if (ALordPlayerController* PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(Outer, 0)))
-	{
-		FSelectionActionContext Context = PC->MakeSelectionContext();
-		VM->SetEnabled(Action->CanPerform(Context));
-		Context.PlayerState->OnPlayerGoldChanged.AddWeakLambda(VM, [Context, VM](int Gold)
-			{
-				if (auto Action = VM->Action.Pin())
-				{
-					VM->SetEnabled(Action->CanPerform(Context));
-				}
-				else
-				{
-					Context.PlayerState->OnPlayerGoldChanged.RemoveAll(VM);
-				}
-			});
-	}
-	
 	VM->Action = Action;
 
 	return VM;

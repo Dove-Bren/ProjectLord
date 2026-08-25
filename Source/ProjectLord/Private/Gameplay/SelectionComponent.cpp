@@ -2,8 +2,10 @@
 
 #include "Gameplay/SelectionComponent.h"
 
-#include "Gameplay/SelectionAction.h"
+#include "Kismet/GameplayStatics.h"
 
+#include "Gameplay/SelectionAction.h"
+#include "Gameplay/LordPlayerState.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
@@ -45,6 +47,12 @@ void USelectionComponent::Deselect()
 UVMSelectionActionTree* USelectionComponent::BuildDefaultActionTree()
 {
 	UVMSelectionActionTree* VM = CreateLordVM<UVMSelectionActionTree>(this);
+	auto RawState = UGameplayStatics::GetPlayerState(this, 0);
+	FSelectionActionContext Context;
+	Context.Selection = this;
+	Context.PlayerState = Cast<ALordPlayerState>(RawState);
+
+	ActionInstances.Empty();
 
 	for (auto& Page : ActionTree)
 	{
@@ -61,7 +69,10 @@ UVMSelectionActionTree* USelectionComponent::BuildDefaultActionTree()
 			else
 			{
 				auto Action = NewObject<USelectionAction>(this, ActionClass);
-				AvailableActionVM = UVMSelectionAction::Make(this, Action);
+				Action->Setup(Context);
+				ActionInstances.Add(Action);
+
+				AvailableActionVM = Action->GetViewModel();
 			}
 			ActionVMs.Add(AvailableActionVM);
 		}

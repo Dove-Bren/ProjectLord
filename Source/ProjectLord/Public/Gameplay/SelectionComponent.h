@@ -122,6 +122,10 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
     TMap<FString, FActionArray> ActionTree;
 
+    // Spawned action instances, which are owned by us. We don't use directly, but need to keep alive.
+    UPROPERTY(VisibleInstanceOnly, Category = "Selection")
+    TArray<USelectionAction*> ActionInstances;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
     bool bSelectable;
 

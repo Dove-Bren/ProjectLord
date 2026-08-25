@@ -15,6 +15,7 @@ class AUnit;
 class ABuilding;
 class UUnitType;
 class UBuildingType;
+class UVMSelectionaction;
 
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FSelectionActionContext
@@ -37,6 +38,8 @@ class PROJECTLORD_API USelectionAction : public UObject
 
 public:
 
+    virtual void Setup(const FSelectionActionContext& Context);
+
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Selection|Action")
     bool IsHidden(const FSelectionActionContext& Context) const;
 
@@ -55,6 +58,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     UTexture2D* GetIcon() const { return Icon; }
 
+    UFUNCTION(BlueprintPure, Category = "Selection|Action")
+    UVMSelectionAction* GetViewModel() const { return ViewModel; }
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
@@ -65,6 +71,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
     TObjectPtr<UTexture2D> Icon;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Selection|Action")
+    TObjectPtr<UVMSelectionAction> ViewModel;
 };
 
 UCLASS(Blueprintable, Abstract)
@@ -74,6 +83,7 @@ class PROJECTLORD_API USelectionPurchase : public USelectionAction
 
 public:
 
+    virtual void Setup(const FSelectionActionContext& Context) override;
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
@@ -95,10 +105,13 @@ class PROJECTLORD_API UUnitBasedPurchase : public USelectionPurchase
 
 public:
 
+    virtual void Setup(const FSelectionActionContext& Context) override;
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     AUnit* GetUnit(const FSelectionActionContext& Context) const;
+
+    AUnit* GetUnitInner(const FSelectionActionContext& Context) const;
 };
 
 UCLASS(Blueprintable, Abstract)
@@ -108,10 +121,13 @@ class PROJECTLORD_API UBuildingBasedPurchase : public USelectionPurchase
 
 public:
 
+    virtual void Setup(const FSelectionActionContext& Context) override;
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     ABuilding* GetBuilding(const FSelectionActionContext& Context) const;
+
+    ABuilding* GetBuildingInner(const FSelectionActionContext& Context) const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
@@ -126,6 +142,7 @@ class PROJECTLORD_API UResearchGoodPurchase : public UBuildingBasedPurchase
 public:
 
     // Make sure building doesn't already have it
+    virtual void Setup(const FSelectionActionContext& Context) override;
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
     virtual bool IsHidden_Implementation(const FSelectionActionContext& Context) const;
 
@@ -167,6 +184,7 @@ class PROJECTLORD_API URecruitUnitPurchase : public UBuildingBasedPurchase
 public:
 
     // Make sure building has room
+    virtual void Setup(const FSelectionActionContext& Context) override;
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
 
     virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
