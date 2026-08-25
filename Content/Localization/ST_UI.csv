@@ -1,0 +1,9 @@
+Key,SourceString,Comment
+
+General.Back,"Back",
+
+Action.Castle.Guilds,"Guilds",
+Action.Castle.Economic,"Economic Buildings",
+Action.Castle.Defence,"Defence Structures",
+Action.Castle.Temples,"Temples",
+

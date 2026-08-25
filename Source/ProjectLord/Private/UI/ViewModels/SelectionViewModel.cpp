@@ -2,9 +2,8 @@
 
 #include "UI/ViewModels/SelectionViewModel.h"
 
-#include "Gameplay/SelectionComponent.h"
 #include "Gameplay/SelectionAction.h"
-#include "UI/ViewModels/SelectionActionViewModel.h"
+#include "Gameplay/SelectionComponent.h"
 
 void UVMSelection::Reset(bool bTriggerUpdate)
 {
@@ -20,7 +19,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     LevelVM = nullptr;
     ProgressQueueVM = nullptr;
     SlotsVM = nullptr;
-    Actions.Empty();
+    ActionTreeVM = nullptr;
 
     if (bTriggerUpdate)
     {
@@ -45,24 +44,8 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, FSelec
 		LevelVM = Selection->GetLevelVM();
 		ProgressQueueVM = Selection->GetQueueVM();
 		SlotsVM = Selection->GetSlotsVM();
+		ActionTreeVM = Selection->GetActionTreeVM();
 		//TargetVM = Selection->GetTargetVM();
-
-		if (bIncludeActions)
-		{
-			for (auto Action : Selection->GetAvailableActions())
-			{
-				UVMSelectionAction* AvailableActionVM;
-				if (!IsValid(Action) || Action->IsHidden(Context))
-				{
-					AvailableActionVM = nullptr;
-				}
-				else
-				{
-					AvailableActionVM = UVMSelectionAction::Make(this, Action);
-				}
-				Actions.Add(AvailableActionVM);
-			}
-		}
 
 		SetPresent(true);
 

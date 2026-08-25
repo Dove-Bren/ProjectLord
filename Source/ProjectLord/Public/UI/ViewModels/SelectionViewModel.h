@@ -17,7 +17,7 @@ class UVMProgressQueue;
 class UVMSummarySlots;
 class USelectionComponent;
 class UTexture2D;
-class UVMSelectionAction;
+class UVMSelectionActionTree;
 
 struct FSelectionActionContext;
 
@@ -81,7 +81,7 @@ public:
     TObjectPtr<UVMSummarySlots> SlotsVM;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-    TArray<UVMSelectionAction*> Actions;
+    TObjectPtr<UVMSelectionActionTree> ActionTreeVM;
 
     // Represent whether there's data in this VM or not.
     // Set to false when the VM is cleared, including between selections

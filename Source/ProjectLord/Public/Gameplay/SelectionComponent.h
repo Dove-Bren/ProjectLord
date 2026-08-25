@@ -17,11 +17,22 @@ class UVMGold;
 class UVMLevel;
 class UVMProgressQueue;
 class UVMSummarySlots;
+class UVMSelectionActionTree;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
 DECLARE_MULTICAST_DELEGATE(FOnDeselected);
 DECLARE_MULTICAST_DELEGATE(FOnRemoved);
+
+// Exists because uprop containers cannot have other containers, so need a struct wrapper
+USTRUCT(BlueprintType)
+struct PROJECTLORD_API FActionArray
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+    TArray<TSubclassOf<USelectionAction>> Array;
+};
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API USelectionComponent : public UActorComponent
@@ -95,8 +106,10 @@ public:
     UVMSummarySlots* GetSlotsVM() const { return SlotsVM; }
     void SetSlotsVM(UVMSummarySlots* InVM) { SlotsVM = InVM; }
 
-    UFUNCTION(BlueprintPure)
-    const TArray<USelectionAction*>& GetAvailableActions() const { return ActionInstances; }
+    UFUNCTION(BlueprintCallable)
+    UVMSelectionActionTree* GetActionTreeVM() const { return ActionTreeVM; }
+    void OverrideActionTreeVM(UVMSelectionActionTree* InVM) { ActionTreeVM = InVM; }
+    UVMSelectionActionTree* BuildDefaultActionTree();
 
 protected:
 
@@ -106,8 +119,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
     TArray<TSubclassOf<USelectionAction>> Actions;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Selection")
-    TArray<USelectionAction*> ActionInstances;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
+    TMap<FString, FActionArray> ActionTree;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
     bool bSelectable;
@@ -141,4 +154,7 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMSummarySlots> SlotsVM;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMSelectionActionTree> ActionTreeVM;
 };

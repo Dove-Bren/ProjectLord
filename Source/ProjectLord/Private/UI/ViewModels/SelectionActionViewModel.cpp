@@ -26,9 +26,16 @@
 	{
 		FSelectionActionContext Context = PC->MakeSelectionContext();
 		VM->SetEnabled(Action->CanPerform(Context));
-		Context.PlayerState->OnPlayerGoldChanged.AddWeakLambda(VM, [Context, VM, Action](int Gold)
+		Context.PlayerState->OnPlayerGoldChanged.AddWeakLambda(VM, [Context, VM](int Gold)
 			{
-				VM->SetEnabled(Action->CanPerform(Context));
+				if (auto Action = VM->Action.Pin())
+				{
+					VM->SetEnabled(Action->CanPerform(Context));
+				}
+				else
+				{
+					Context.PlayerState->OnPlayerGoldChanged.RemoveAll(VM);
+				}
 			});
 	}
 	

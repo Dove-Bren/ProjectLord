@@ -14,6 +14,7 @@ void FProjectLordModule::StartupModule()
 	LOCTABLE_FROMFILE_GAME("Creature", "ProjectLord", "Localization/ST_Creature.csv");
 	LOCTABLE_FROMFILE_GAME("Building", "ProjectLord", "Localization/ST_Building.csv");
 	LOCTABLE_FROMFILE_GAME("Item", "ProjectLord", "Localization/ST_Item.csv");
+	LOCTABLE_FROMFILE_GAME("UI", "ProjectLord", "Localization/ST_UI.csv");
 }
 
 
