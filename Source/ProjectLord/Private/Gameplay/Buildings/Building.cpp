@@ -4,6 +4,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "NavModifierComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
@@ -27,9 +29,14 @@ ABuilding::ABuilding()
     MaxLevel = 1;
     BuildingLevel = 1; // TODO: Building, could set this to 0 to denote that it hasn't been built yet
 
+    Collision = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
+    SetRootComponent(Collision);
+
     BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
     BuildingMesh->SetMobility(EComponentMobility::Stationary);
-    SetRootComponent(BuildingMesh);
+    BuildingMesh->SetupAttachment(Collision);
+
+    NavMeshMod = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavMeshMod"));
 
     // GAS
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
@@ -89,7 +96,13 @@ void ABuilding::RefreshMesh()
 {
     if (BuildingMesh)
     {
-        BuildingMesh->SetStaticMesh(GetBuildingMesh());
+        if (BuildingMesh->SetStaticMesh(GetBuildingMesh()))
+        {
+            auto Extent = BuildingMesh->GetBounds().BoxExtent;
+            auto BuildingRotation = GetActorRotation();
+            Collision->SetBoxExtent(Extent);
+            BuildingEntranceOffset = FVector(0, (Extent.X + 50), 0).RotateAngleAxis(BuildingRotation.Yaw, FVector(0, 0, 1));
+        }
     }
 }
 

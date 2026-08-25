@@ -24,8 +24,16 @@ AUnit::AUnit() : ACharacter()
     Team = EGameTeam::Monster;
 
     // Adjust character stuff
-    GetCapsuleComponent()->InitCapsuleSize(22.0f, 50.0f);
-    GetCharacterMovement()->bUseControllerDesiredRotation = true;
+    auto Collision = GetCapsuleComponent();
+    Collision->InitCapsuleSize(22.0f, 50.0f);
+    Collision->SetCollisionProfileName(TEXT("Unit"), true); // "Unit" profile defined in code
+
+    auto Movement = GetCharacterMovement();
+    Movement->bUseControllerDesiredRotation = true;
+    Movement->bUseRVOAvoidance = true;
+    Movement->AvoidanceConsiderationRadius = 100.f;
+
+    GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
     // GAS
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));

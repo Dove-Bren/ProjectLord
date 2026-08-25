@@ -22,6 +22,8 @@ class UBuildingActionQueueComponent;
 class UVMGold;
 class UUnitType;
 class UBuildingConstructionFadeComponent;
+class UNavModifierComponent;
+class UBoxComponent;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn, public IGameplayTagAssetInterface
@@ -98,7 +100,13 @@ public:
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
+    UBoxComponent* Collision;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
     UStaticMeshComponent* BuildingMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
+    UNavModifierComponent* NavMeshMod;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
     UBuildingConstructionFadeComponent* FadeComponent;

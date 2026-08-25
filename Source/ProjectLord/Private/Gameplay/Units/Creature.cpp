@@ -125,6 +125,8 @@ void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
 {
     // TODO I think units actually fade when entering a building.
     GetMesh()->SetVisibility(false, true);
+    GetCharacterMovement()->SetAvoidanceEnabled(false);
+    SetActorLocation(Building->GetBuildingEntrance());
     auto VisitEffect = NewObject<UGEVisitingBuilding>(this, TEXT("Visiting Effect"));
     AbilitySystemComponent->ApplyGameplayEffectToSelf(VisitEffect, 1, AbilitySystemComponent->MakeEffectContext());
 
@@ -134,6 +136,7 @@ void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
 void ACreature::OnExitBuilding(AResidentialBuilding* Building)
 {
     AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UGEVisitingBuilding::StaticClass(), AbilitySystemComponent);
+    GetCharacterMovement()->SetAvoidanceEnabled(true);
     GetMesh()->SetVisibility(true, true);
     BP_OnExitBuilding(Building);
 }
@@ -144,6 +147,7 @@ void ACreature::OnDeath_Implementation()
     //Super::OnDeath_Implementation();
 
     GetCharacterMovement()->StopMovementImmediately();
+    GetCharacterMovement()->SetAvoidanceEnabled(false);
     
     // Fade out, and maybe turn into a grave
     StartDeathFade();
@@ -273,7 +277,7 @@ void ACreature::FadeTick()
             }
 
             GetMesh()->SetVisibility(false, true);
-            GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+            //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
             GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
             StartFadingInGrave();
         }

@@ -21,6 +21,7 @@ public class ProjectLord : ModuleRules
             "InputCore",
 			"ModelViewViewModel",
 			"UMG",
+			"NavigationSystem",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
