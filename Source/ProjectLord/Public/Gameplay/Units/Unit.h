@@ -97,6 +97,8 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnFinalDeath"))
     void BP_OnFinalDeath();
 
+    virtual void PlayDeathAnimation();
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
 
@@ -131,6 +133,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TMap<EAbilityAnimType, UAnimMontage*> AbilityAnimations;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
+    TObjectPtr<UAnimMontage> DeathAnimation;
 
     virtual void RegisterAttributes();
     virtual void SetupBaseAttributes();

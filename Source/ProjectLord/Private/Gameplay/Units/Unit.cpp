@@ -142,6 +142,7 @@ bool AUnit::IsDead() const
 
 void AUnit::OnDeath_Implementation()
 {
+    PlayDeathAnimation();
     OnFinalDeath();
 }
 
@@ -149,6 +150,14 @@ void AUnit::OnFinalDeath()
 {
     BP_OnFinalDeath();
     this->Destroy();
+}
+
+void AUnit::PlayDeathAnimation()
+{
+    if (IsValid(DeathAnimation))
+    {
+        PlayAnimMontage(DeathAnimation);
+    }
 }
 
 void AUnit::RegisterAttributes()

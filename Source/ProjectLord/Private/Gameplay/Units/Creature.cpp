@@ -148,6 +148,8 @@ void ACreature::OnDeath_Implementation()
 
     GetCharacterMovement()->StopMovementImmediately();
     GetCharacterMovement()->SetAvoidanceEnabled(false);
+
+    PlayDeathAnimation();
     
     // Fade out, and maybe turn into a grave
     StartDeathFade();
