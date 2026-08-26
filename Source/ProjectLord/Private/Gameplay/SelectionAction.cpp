@@ -56,6 +56,17 @@ bool USelectionPurchase::CanPerform_Implementation(const FSelectionActionContext
 	return Context.PlayerState->GetPlayerGold() >= GetGoldCost();
 }
 
+bool USelectionPurchase::DeductGoldCost(const FSelectionActionContext& Context)
+{
+	const int Cost = GetGoldCost();
+	if (Context.PlayerState && Context.PlayerState->GetPlayerGold() >= Cost)
+	{
+		Context.PlayerState->AddGold(-Cost);
+		return true;
+	}
+	return false;
+}
+
 AUnit* UUnitBasedPurchase::GetUnitInner(const FSelectionActionContext& Context) const
 {
 	return Cast<AUnit>(Context.Selection->GetOwner());
@@ -109,6 +120,9 @@ void UBuildingBasedPurchase::Setup(const FSelectionActionContext& Context)
 		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(this, [this, Context](int NewLevel) {
 			ViewModel->SetEnabled(CanPerform(Context));
 		});
+		BuildingOwner->OnBuildingHealthChanged.AddWeakLambda(this, [this, Context](int Health, int MaxHealth) {
+			ViewModel->SetEnabled(CanPerform(Context));
+			});
 	}
 }
 
@@ -194,7 +208,7 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 	auto Action = NewObject<UQueuedGoodAction>(Queue);
 	Action->Init(GetGoldCost(), GetGood());
 
-	Context.PlayerState->AddGold(-GetGoldCost());
+	DeductGoldCost(Context);
 	Queue->QueueAction(Action);
 
 	return true;
@@ -271,7 +285,7 @@ bool URecruitUnitPurchase::Perform_Implementation(const FSelectionActionContext&
 	auto Action = NewObject<UQueuedRecruitAction>(Queue);
 	Action->Init(GetGoldCost(), GetUnitType());
 
-	Context.PlayerState->AddGold(-GetGoldCost());
+	DeductGoldCost(Context);
 	Queue->QueueAction(Action);
 
 	return true;

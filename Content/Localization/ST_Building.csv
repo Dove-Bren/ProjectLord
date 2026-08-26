@@ -1,5 +1,7 @@
 Key,SourceString,Comment
 
+Building.Action.Upgrade,"Upgrade",
+
 Building.TestHouse.Name,"Test House",
 Building.TestHouse.Desc,"A Test House, made for testing unit spawn and residence mechanics",
 Building.SlimeWell.Name,"Slimy Well",

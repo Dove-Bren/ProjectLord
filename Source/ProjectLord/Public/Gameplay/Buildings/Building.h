@@ -26,6 +26,9 @@ class UNavModifierComponent;
 class UBoxComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingAvailableLevelChanged, int);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingNeedsRepairsChanged, bool);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnBuildingHealthChanged, int /*Health*/, int /*MaxHealth*/);
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn, public IGameplayTagAssetInterface
@@ -38,6 +41,9 @@ public:
     UBuildingType* GetBuildingType() const { return BuildingType; }
 
     FOnBuildingLevelChanged OnBuildingLevelChanged;
+    FOnBuildingAvailableLevelChanged OnBuildingAvailableLevelChanged;
+    FOnBuildingNeedsRepairsChanged OnBuildingNeedsRepairsChanged;
+    FOnBuildingHealthChanged OnBuildingHealthChanged;
 
     UFUNCTION(BlueprintPure)
     ABuildingController* GetBuildingController() const;
@@ -56,6 +62,18 @@ public:
 
     UFUNCTION(BlueprintPure)
     int GetBuildingAvailableLevel() const { return BuildingAvailableLevel; }
+
+    UFUNCTION(BlueprintPure)
+    int GetBuildingMaxLevel() const { return MaxLevel; }
+
+    UFUNCTION(BlueprintPure)
+    bool IsMaxLevel() const { return GetBuildingLevel() >= GetBuildingMaxLevel(); }
+
+    UFUNCTION(BlueprintPure)
+    bool CanLevelUp() const;
+
+    UFUNCTION(BlueprintCallable)
+    void StartLevelUp();
 
     UFUNCTION(BlueprintPure)
     int GetBuildingGold() const { return BuildingGold; }
@@ -81,6 +99,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     UStaticMesh* GetBuildingMesh() const;
+
+    UFUNCTION(BlueprintPure)
+    bool IsUnderConstruction() const { return GetBuildingLevel() < GetBuildingAvailableLevel(); }
 
     UFUNCTION(BlueprintPure)
     bool WantsRepair() const;
@@ -160,6 +181,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> BuildingAttributeValues;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
+    TArray<UDataTable*> BuildingLevelAttributeValues;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bIndestructible = false;
 
@@ -196,6 +220,7 @@ protected:
     virtual void SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
     virtual void HandleBuildingUpgraded();
+    virtual void SetAvailableLevel(int InAvailableLevel);
 
     void SetLevel(int InLevel) { BuildingLevel = InLevel; OnBuildingLevelChanged.Broadcast(BuildingLevel); }
 
@@ -213,6 +238,9 @@ protected:
 
     UFUNCTION()
     virtual void HandleGameDayChanged(int GameDay);
+
+    UFUNCTION()
+    virtual void HandleHealthChanged(int Health, int MaxHealth);
 
 public:
     virtual void BeginPlay() override;

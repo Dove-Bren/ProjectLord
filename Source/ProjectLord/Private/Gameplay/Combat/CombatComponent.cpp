@@ -38,11 +38,26 @@ void UCombatComponent::BeginPlay()
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetHealthAttribute())
             .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
                 {
-                    if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
+                    if (ChangeData.OldValue != ChangeData.NewValue)
                     {
-                        BroadcastDeath();
+                        BroadcastHealthChange();
+                        if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
+                        {
+                            BroadcastDeath();
+                        }
                     }
                 });
+
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetMaxHealthAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    if (ChangeData.OldValue != ChangeData.NewValue)
+                    {
+                        BroadcastHealthChange();
+                    }
+                });
+
+
 
         AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddWeakLambda(this, [this](const FActiveGameplayEffect&) {
             OnEffectsChange.Broadcast(this);
@@ -392,6 +407,20 @@ void UCombatComponent::BroadcastDeath()
 {
     OnDeath.Broadcast();
     ReceiveOnDeath();
+}
+
+void UCombatComponent::BroadcastHealthChange()
+{
+    auto ASC = GetAbilitySubsystemComponent();
+    auto AttributeSet = GetCombatAttributeSet();
+    if (ensure(ASC && AttributeSet))
+    {
+        bool bIgnored;
+        const int Health = (int) ASC->GetGameplayAttributeValue(AttributeSet->GetHealthAttribute(), bIgnored);
+        const int MaxHealth = (int) ASC->GetGameplayAttributeValue(AttributeSet->GetMaxHealthAttribute(), bIgnored);
+        OnHealthChange.Broadcast(Health, MaxHealth);
+        ReceiveOnHealthChange(Health, MaxHealth);
+    }
 }
 
 void UCombatComponent::BroadcastAttack(AActor* Target, UCombatComponent* TargetCombatComponent)

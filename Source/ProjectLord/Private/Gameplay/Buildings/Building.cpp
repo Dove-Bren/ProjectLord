@@ -28,7 +28,8 @@ ABuilding::ABuilding()
     // Set up defaults
     Team = EGameTeam::Monster;
     MaxLevel = 1;
-    BuildingLevel = 1; // TODO: Building, could set this to 0 to denote that it hasn't been built yet
+    BuildingLevel = 1; // This is for map buildings that are already built. Set back to 0 in placement logic.
+    BuildingAvailableLevel = 1;
 
     Collision = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
     SetRootComponent(Collision);
@@ -60,6 +61,34 @@ ABuilding::ABuilding()
 void ABuilding::SetTeam(EGameTeam InTeam)
 {
     Team = InTeam;
+}
+
+bool ABuilding::CanLevelUp() const
+{
+    return !IsMaxLevel()
+        && !IsUnderConstruction()
+        && GetBuildingHealth() >= GetBuildingMaxHealth();
+}
+
+void ABuilding::StartLevelUp()
+{
+    if (ensure(CanLevelUp()))
+    {
+        // We want to keep current health the same, so save it and restore it
+        const int Health = GetBuildingHealth();
+        SetAvailableLevel(GetBuildingLevel() + 1); // Updates health values
+
+        // restore
+        AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetHealthAttribute(),
+            Health);
+    }
+}
+
+void ABuilding::SetAvailableLevel(int InAvailableLevel)
+{
+    BuildingAvailableLevel = InAvailableLevel;
+    SetupBaseAttributes();
+    OnBuildingAvailableLevelChanged.Broadcast(GetBuildingAvailableLevel());
 }
 
 void ABuilding::SetBuildingGold(int InGold)
@@ -164,6 +193,7 @@ void ABuilding::BeginPlay()
     }
 
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
+    CombatComponent->OnHealthChange.AddDynamic(this, &ABuilding::HandleHealthChanged);
 
     RefreshMesh();
 
@@ -243,10 +273,13 @@ bool ABuilding::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagConta
 
 void ABuilding::SetupBaseAttributes()
 {
-    if (IsValid(BuildingAttributeValues))
+    // Note: using 'available' level here on purpose
+    const int LevelIdx = FMath::Max(0, GetBuildingAvailableLevel() - 1);
+    if (ensure(BuildingLevelAttributeValues.Num() >= LevelIdx))
     {
         FString Context = TEXT("DefaultBuildingAttributeIter");
-        BuildingAttributeValues->ForeachRow<FAttributeBaseValue>(Context, [this](const FName& Key, const FAttributeBaseValue& Value)
+        const auto& LevelMap = BuildingLevelAttributeValues[LevelIdx];
+        LevelMap->ForeachRow<FAttributeBaseValue>(Context, [this](const FName& Key, const FAttributeBaseValue& Value)
             {
                 if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
                 {
@@ -333,10 +366,19 @@ void ABuilding::HandleGameDayChanged(int GameDay)
     }
 }
 
+void ABuilding::HandleHealthChanged(int Health, int MaxHealth)
+{
+    OnBuildingHealthChanged.Broadcast(Health, MaxHealth);
+    if (WantsRepair())
+    {
+        OnBuildingNeedsRepairsChanged.Broadcast(true);
+    }
+}
+
 void ABuilding::HandleBuildingPlacement_Implementation()
 {
     SetLevel(0);
-    BuildingAvailableLevel = 1;
+    SetAvailableLevel(1);
     AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetHealthAttribute(),
         (int) ((float) GetBuildingMaxHealth() * 0.1f));
 

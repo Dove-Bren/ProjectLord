@@ -94,6 +94,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
     int GoldCost;
+
+    UFUNCTION(BlueprintCallable, Category = "Selection|Action")
+    bool DeductGoldCost(const FSelectionActionContext& Context);
 };
 
 // A purchase action that's on a unit directly. Note these are NOT actions on
