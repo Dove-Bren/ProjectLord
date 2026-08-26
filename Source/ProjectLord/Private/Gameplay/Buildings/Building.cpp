@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "NavModifierComponent.h"
 #include "Components/BoxComponent.h"
+#include "NavAreas/NavArea_Obstacle.h"
 
 #include "LordLogging.h"
 #include "Gameplay/LordGameplayTags.h"
@@ -37,6 +38,7 @@ ABuilding::ABuilding()
     BuildingMesh->SetupAttachment(Collision);
 
     NavMeshMod = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavMeshMod"));
+    NavMeshMod->SetAreaClass(UNavArea_Obstacle::StaticClass());
 
     // GAS
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
