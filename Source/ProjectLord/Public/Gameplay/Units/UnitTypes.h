@@ -27,3 +27,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit Type")
 	TSubclassOf<AUnit> UnitClass;
 };
+
+UENUM(BlueprintType)
+enum class ECreatureCategory : uint8
+{
+	Standard,
+	Beast,
+	Magical,
+	Undead,
+};

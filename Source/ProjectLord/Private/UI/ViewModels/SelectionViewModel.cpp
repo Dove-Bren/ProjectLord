@@ -20,6 +20,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     ProgressQueueVM = nullptr;
     SlotsVM = nullptr;
     ActionTreeVM = nullptr;
+	CategoryVM = nullptr;
 
     if (bTriggerUpdate)
     {
@@ -45,6 +46,7 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, FSelec
 		ProgressQueueVM = Selection->GetQueueVM();
 		SlotsVM = Selection->GetSlotsVM();
 		ActionTreeVM = Selection->GetActionTreeVM();
+		CategoryVM = Selection->GetCategoryVM();
 		//TargetVM = Selection->GetTargetVM();
 
 		SetPresent(true);

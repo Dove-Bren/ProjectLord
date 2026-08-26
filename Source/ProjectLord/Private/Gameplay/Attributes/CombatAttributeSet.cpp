@@ -113,6 +113,18 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	ROUND_ATTRIB_TO_INT(MeleeDamage);
 	ROUND_ATTRIB_TO_INT(RangedDamage);
 	ROUND_ATTRIB_TO_INT(MagicDamage);
+
+	// Clamp Health to max
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0, GetMaxHealth());
+	}
+
+	// Clamp Mana to their maxes
+	if (Attribute == GetManaAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0, GetMaxMana());
+	}
 }
 
 void UCombatAttributeSet::ResetHealthMana()

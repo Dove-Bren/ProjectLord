@@ -18,6 +18,7 @@ class UVMSummarySlots;
 class USelectionComponent;
 class UTexture2D;
 class UVMSelectionActionTree;
+class UVMCreatureCategory;
 
 struct FSelectionActionContext;
 
@@ -82,6 +83,9 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSelectionActionTree> ActionTreeVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMCreatureCategory> CategoryVM;
 
     // Represent whether there's data in this VM or not.
     // Set to false when the VM is cleared, including between selections

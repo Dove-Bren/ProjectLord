@@ -17,11 +17,13 @@
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
+#include "UI/ViewModels/Generic/CreatureCategoryViewModel.h"
 
 AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
     Team = EGameTeam::Monster;
+    Category = ECreatureCategory::Standard;
 
     // Adjust character stuff
     auto Collision = GetCapsuleComponent();
@@ -234,6 +236,7 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
     InSelectionComponent->SetIcon(GetUnitType()->UnitIcon);
 
     InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
+    InSelectionComponent->SetCategoryVM(UVMCreatureCategory::Make(this, GetCategory()));
 }
 
 void AUnit::HandleDeath()

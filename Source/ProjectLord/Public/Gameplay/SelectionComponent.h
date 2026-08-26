@@ -18,6 +18,7 @@ class UVMLevel;
 class UVMProgressQueue;
 class UVMSummarySlots;
 class UVMSelectionActionTree;
+class UVMCreatureCategory;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
@@ -111,6 +112,10 @@ public:
     void OverrideActionTreeVM(UVMSelectionActionTree* InVM) { ActionTreeVM = InVM; }
     UVMSelectionActionTree* BuildDefaultActionTree();
 
+    UFUNCTION(BlueprintPure)
+    UVMCreatureCategory* GetCategoryVM() const { return CategoryVM; }
+    void SetCategoryVM(UVMCreatureCategory* InVM) { CategoryVM = InVM; }
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
@@ -161,4 +166,7 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMSelectionActionTree> ActionTreeVM;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMCreatureCategory> CategoryVM;
 };

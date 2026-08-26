@@ -18,6 +18,11 @@ Creature.Action.CollectingTaxes,"is collecting taxes",
 Creature.Action.BringingGold,"is bringing gold",
 Creature.Action.CarryingGold,"is carrying gold",
 
+Creature.Category.Standard,"",
+Creature.Category.Beast,"Beast",
+Creature.Category.Magical,"Magical creature",
+Creature.Category.Undead,"Undead",
+
 Creature.Warrior.Name,"Warrior",
 Creature.Warrior.Desc,"The warriors of Ardania are the most steadfast of heroes; your bread and butter, really. Keep and eye on them your Majesty, as they're somewhat rash. They'll engage a Stone Elemental only days out of training!",
 
