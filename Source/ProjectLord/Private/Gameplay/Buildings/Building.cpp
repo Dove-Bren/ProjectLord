@@ -102,6 +102,7 @@ void ABuilding::RefreshMesh()
             auto BuildingRotation = GetActorRotation();
             Collision->SetBoxExtent(Extent);
             BuildingEntranceOffset = FVector(0, (Extent.X + 50), 0).RotateAngleAxis(BuildingRotation.Yaw, FVector(0, 0, 1));
+            NavMeshMod->UpdateNavigationBounds();
         }
     }
 }
@@ -163,10 +164,6 @@ void ABuilding::BeginPlay()
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
 
     RefreshMesh();
-
-    float Radius, Height;
-    GetSimpleCollisionCylinder(Radius, Height);
-    UE_LOG(LogTemp, Display, TEXT("Building has radius %f and halfheight %f"), Radius, Height);
 
     // Set up selection Data
     SetupSelectionData(SelectionComponent);
