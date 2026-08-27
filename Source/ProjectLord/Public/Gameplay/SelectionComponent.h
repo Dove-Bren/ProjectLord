@@ -81,7 +81,7 @@ public:
 
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const { return Team; }
-    void SetTeam(EGameTeam InTeam) { Team = InTeam; }
+    void SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure)
     UVMAction* GetActionVM() const { return ActionVM; }

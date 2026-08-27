@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 
+#include "Gameplay/LordGameState.h"
 #include "Gameplay/LordPlayerState.h"
 #include "Gameplay/PlacementComponent.h"
 #include "Gameplay/Buildings/Building.h"
@@ -54,6 +55,15 @@ EGameTeam ALordPlayerController::GetTeam() const
 	return EGameTeam::Player1;
 }
 
+AGameTeamState* ALordPlayerController::GetTeamState() const
+{
+	if (auto State = GetWorld()->GetGameState<ALordGameState>())
+	{
+		return State->GetTeam(GetTeam());
+	}
+	return nullptr;
+}
+
 void ALordPlayerController::SetSelection(USelectionComponent* InSelection)
 {
 	ClearSelection(false); // To issue deselect callbacks
@@ -85,6 +95,7 @@ FSelectionActionContext ALordPlayerController::MakeSelectionContext()
 	FSelectionActionContext Context;
 
 	Context.PlayerState = GetLordPlayerState();
+	Context.TeamState = GetTeamState();
 	if (HasSelection())
 	{
 		Context.Selection = Selection.GetValue();
@@ -152,7 +163,7 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 		{
 			if (auto Building = PlacementComponent->AttemptToPlace())
 			{
-				const auto State = GetLordPlayerState();
+				auto State = GetTeamState();
 				if (ensure(State))
 				{
 					State->AddGold(-PlacementComponent->GetPlaceCost());

@@ -16,6 +16,7 @@ class ABuilding;
 class UUnitType;
 class UBuildingType;
 class UVMSelectionaction;
+class AGameTeamState;
 
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FSelectionActionContext
@@ -23,6 +24,9 @@ struct PROJECTLORD_API FSelectionActionContext
     GENERATED_BODY()
 
 public:
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
+    AGameTeamState* TeamState;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
     ALordPlayerState* PlayerState;

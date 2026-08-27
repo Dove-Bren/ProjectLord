@@ -35,6 +35,9 @@ public:
     UFUNCTION(BlueprintPure)
     EGameTeam GetTeam() const;
 
+    UFUNCTION(BlueprintPure)
+    AGameTeamState* GetTeamState() const;
+
     UFUNCTION(BlueprintPure, Category = "Selection")
     bool HasSelection() const { return Selection.IsSet(); };
 

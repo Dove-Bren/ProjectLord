@@ -4,7 +4,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Gameplay/LordPlayerState.h"
+#include "Gameplay/GameTeam.h"
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Unit.h"
@@ -44,24 +44,27 @@ void USelectionPurchase::Setup(const FSelectionActionContext& Context)
 	if (ALordPlayerController* PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
 	{
 		ViewModel->SetEnabled(CanPerform(Context));
-		Context.PlayerState->OnPlayerGoldChanged.AddWeakLambda(this, [this, Context](int Gold)
-			{
-				ViewModel->SetEnabled(CanPerform(Context));
-			});
+		if (ensure(Context.TeamState))
+		{
+			Context.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, Context](int Gold)
+				{
+					ViewModel->SetEnabled(CanPerform(Context));
+				});
+		}
 	}
 }
 
 bool USelectionPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
-	return Context.PlayerState->GetPlayerGold() >= GetGoldCost();
+	return Context.TeamState->GetGold() >= GetGoldCost();
 }
 
 bool USelectionPurchase::DeductGoldCost(const FSelectionActionContext& Context)
 {
 	const int Cost = GetGoldCost();
-	if (Context.PlayerState && Context.PlayerState->GetPlayerGold() >= Cost)
+	if (Context.TeamState && Context.TeamState->GetGold() >= Cost)
 	{
-		Context.PlayerState->AddGold(-Cost);
+		Context.TeamState->AddGold(-Cost);
 		return true;
 	}
 	return false;

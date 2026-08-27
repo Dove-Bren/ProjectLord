@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/GameStateBase.h"
+#include "Gameplay/GameTeam.h"
 
 #include "LordGameState.generated.h"
 
@@ -41,6 +42,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GameTime")
     void SetGameSpeed(float InSpeed);
 
+    UFUNCTION(BlueprintPure, Category = "GameTeam")
+    AGameTeamState* GetTeam(EGameTeam Team) { return GameTeams[Team]; }
+
     UFUNCTION(BlueprintPure, Category = "UI")
     class UVMLordGameState* GetViewModel() const { return ViewModel; }
 
@@ -51,6 +55,12 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_GameSpeed, Category = "GameTime")
     float GameSpeed;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_GameTeams, Category = "GameTeam")
+    TArray<AGameTeamState*> GameTeamsArray; // Replicated ownership version
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "GameTeam")
+    TMap<EGameTeam, AGameTeamState*> GameTeams;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<class UVMLordGameState> ViewModel;
 
@@ -59,6 +69,9 @@ protected:
 
     UFUNCTION()
     void OnRep_GameSpeed(float PrevGameSpeed);
+
+    UFUNCTION()
+    void OnRep_GameTeams(TArray<AGameTeamState*> PrevTeams);
 
     void SetGlobalTimeDilation(float Rate);
 

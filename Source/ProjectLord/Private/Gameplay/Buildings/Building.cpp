@@ -61,6 +61,7 @@ ABuilding::ABuilding()
 void ABuilding::SetTeam(EGameTeam InTeam)
 {
     Team = InTeam;
+    SelectionComponent->SetTeam(InTeam);
 }
 
 bool ABuilding::CanLevelUp() const

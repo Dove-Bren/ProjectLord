@@ -135,6 +135,12 @@ AUnitController* AUnit::GetUnitController() const
     return Cast<AUnitController>(GetController());
 }
 
+void AUnit::SetTeam(EGameTeam InTeam)
+{
+    Team = InTeam;
+    SelectionComponent->SetTeam(InTeam);
+}
+
 bool AUnit::IsDead() const
 {
     return CombatComponent->IsDead();

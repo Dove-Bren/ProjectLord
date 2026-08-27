@@ -22,7 +22,7 @@ void ALordGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 	DOREPLIFETIME(ALordGameState, GameDays);
 	DOREPLIFETIME(ALordGameState, GameSpeed);
-
+	DOREPLIFETIME(ALordGameState, GameTeamsArray);
 }
 
 void ALordGameState::BeginPlay()
@@ -31,6 +31,13 @@ void ALordGameState::BeginPlay()
 
 	ViewModel = CreateLordVM<UVMLordGameState>(this);
 	ViewModel->Setup(this);
+
+	for (EGameTeam Team : {EGameTeam::Monster, EGameTeam::Neutral, EGameTeam::Player1, EGameTeam::Player2})
+	{
+		auto TeamState = AGameTeamState::Make(this, Team);
+		GameTeams.Add(Team, TeamState);
+		GameTeamsArray.Add(TeamState);
+	}
 }
 
 void ALordGameState::Tick(float DeltaTime)
@@ -70,6 +77,15 @@ void ALordGameState::OnRep_GameSpeed(float PrevGameSpeed)
 	{
 		SetGlobalTimeDilation(GameSpeed);
 		OnGameSpeedChange.Broadcast(GameSpeed);
+	}
+}
+
+void ALordGameState::OnRep_GameTeams(TArray<AGameTeamState*> PrevTeams)
+{
+	// Fix up map
+	for (auto Team : GameTeamsArray)
+	{
+		GameTeams[Team->GetTeam()] = Team;
 	}
 }
 
