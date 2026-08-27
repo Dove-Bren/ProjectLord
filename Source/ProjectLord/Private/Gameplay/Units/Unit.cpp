@@ -11,6 +11,7 @@
 #include "UI/Units/HealthBarBase.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
+#include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
@@ -58,6 +59,15 @@ void AUnit::FaceActor(AActor* OtherActor)
     auto Diff = OtherActor->GetActorLocation() - GetActorLocation();
     Diff.Z = 0;
     SetActorRotation(Diff.Rotation());
+}
+
+void AUnit::HandleUnitRecruited()
+{
+    // Register with team
+    if (auto TeamState = GetTeamState())
+    {
+        TeamState->AddUnit(this);
+    }
 }
 
 void AUnit::BeginPlay()
@@ -137,8 +147,23 @@ AUnitController* AUnit::GetUnitController() const
 
 void AUnit::SetTeam(EGameTeam InTeam)
 {
-    Team = InTeam;
-    SelectionComponent->SetTeam(InTeam);
+    if (InTeam != Team)
+    {
+        // Remove from existing team before changing
+        if (auto TeamState = GetTeamState())
+        {
+            TeamState->RemoveUnit(this);
+        }
+
+        Team = InTeam;
+        SelectionComponent->SetTeam(InTeam);
+
+        // Add to new team
+        if (auto TeamState = GetTeamState())
+        {
+            TeamState->AddUnit(this);
+        }
+    }
 }
 
 bool AUnit::IsDead() const
@@ -149,12 +174,14 @@ bool AUnit::IsDead() const
 void AUnit::OnDeath_Implementation()
 {
     PlayDeathAnimation();
+    OnUnitDeath.Broadcast(this);
     OnFinalDeath();
 }
 
 void AUnit::OnFinalDeath()
 {
     BP_OnFinalDeath();
+    OnUnitFinalDeath.Broadcast(this);
     this->Destroy();
 }
 
@@ -319,6 +346,15 @@ void AUnit::AddHealthbarWidget()
 void AUnit::ApplyLevelDamageMod(int Level)
 {
     AbilitySystemComponent->SetActiveGameplayEffectLevel(LevelDamageModHandle, Level);
+}
+
+AGameTeamState* AUnit::GetTeamState() const
+{
+    if (auto GameState = GetWorld()->GetGameState<ALordGameState>())
+    {
+        return GameState->GetTeam(GetTeam());
+    }
+    return nullptr;
 }
 
 UAnimMontage* AUnit::GetAnimForAbilityType(EAbilityAnimType AbilityType) const

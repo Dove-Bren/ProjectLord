@@ -6,6 +6,7 @@
 #include "GameTeam.generated.h"
 
 class ABuilding;
+class AUnit;
 class UVMGameTeamState;
 
 UENUM(BlueprintType)
@@ -18,6 +19,7 @@ enum class EGameTeam : uint8
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTeamGoldChanged, int);
+DECLARE_MULTICAST_DELEGATE(FOnTeamUnitsChanged);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API AGameTeamState : public AActor
@@ -36,6 +38,7 @@ public:
     }
 
     FOnTeamGoldChanged OnTeamGoldChanged;
+    FOnTeamUnitsChanged OnTeamUnitsChanged;
 
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -59,19 +62,34 @@ public:
     void SetCastle(ABuilding* Castle);
 
     UFUNCTION(BlueprintPure, Category = "Team")
+    TArray<AUnit*> GetUnits() const { return TeamUnits; }
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void AddUnit(AUnit* Unit);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void RemoveUnit(AUnit* Unit);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
     UVMGameTeamState* GetViewModel() const { return ViewModel; }
 
 protected:
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Replicated, Category = "Team")
     EGameTeam Team;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Team")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
     int Gold;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TWeakObjectPtr<ABuilding> TeamCastle;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    TArray<AUnit*> TeamUnits;
 
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;
+
+    UFUNCTION()
+    void OnUnitFinalDeath(AUnit* Unit);
 };

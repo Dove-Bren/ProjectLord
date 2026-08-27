@@ -153,6 +153,8 @@ void ACreature::OnDeath_Implementation()
     
     // Fade out, and maybe turn into a grave
     StartDeathFade();
+
+    OnUnitDeath.Broadcast(this);
 }
 
 void ACreature::OnFinalDeath()
@@ -161,6 +163,7 @@ void ACreature::OnFinalDeath()
     {
         HomeBuilding.Get()->RemoveResident(this);
     }
+    OnUnitFinalDeath.Broadcast(this);
     this->Destroy();
 }
 

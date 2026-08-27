@@ -5,6 +5,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/GameTeamStateViewModel.h"
 
 AGameTeamState::AGameTeamState()
@@ -27,6 +28,7 @@ void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AGameTeamState, Team);
     DOREPLIFETIME(AGameTeamState, Gold);
     DOREPLIFETIME(AGameTeamState, TeamCastle);
+    DOREPLIFETIME(AGameTeamState, TeamUnits);
 }
 
 int AGameTeamState::AddGold(int InChange)
@@ -39,4 +41,25 @@ int AGameTeamState::AddGold(int InChange)
 void AGameTeamState::SetCastle(ABuilding* Castle)
 {
     TeamCastle = Castle;
+}
+
+void AGameTeamState::AddUnit(AUnit* Unit)
+{
+    TeamUnits.Add(Unit);
+    Unit->OnUnitFinalDeath.AddDynamic(this, &AGameTeamState::OnUnitFinalDeath);
+    OnTeamUnitsChanged.Broadcast();
+}
+
+void AGameTeamState::RemoveUnit(AUnit* Unit)
+{
+    if (TeamUnits.Remove(Unit))
+    {
+        OnTeamUnitsChanged.Broadcast();
+        Unit->OnUnitFinalDeath.RemoveAll(this);
+    }
+}
+
+void AGameTeamState::OnUnitFinalDeath(AUnit* Unit)
+{
+    RemoveUnit(Unit);
 }

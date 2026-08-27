@@ -104,6 +104,7 @@ ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType, bool bSp
         Recruit->SetTeam(GetTeam());
         AddResident(Recruit);
         Recruit->SetHomeBuilding(this);
+        Recruit->HandleUnitRecruited();
 
         if (!bSpawnOutside)
         {

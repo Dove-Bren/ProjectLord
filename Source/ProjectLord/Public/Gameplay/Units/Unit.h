@@ -29,6 +29,9 @@ class UAnimMontage;
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitDeath, AUnit*, Unit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitFinalDeath, AUnit*, Unit);
+
 UCLASS(Blueprintable, meta = (PrioritizeCategories = "Unit Combat Selection"))
 class PROJECTLORD_API AUnit : public ACharacter, public IGameplayTagAssetInterface
 {
@@ -37,6 +40,11 @@ class PROJECTLORD_API AUnit : public ACharacter, public IGameplayTagAssetInterfa
 public:
     AUnit();
 
+    UPROPERTY(BlueprintAssignable, Category = "Unit")
+    FOnUnitDeath OnUnitDeath;
+
+    UPROPERTY(BlueprintAssignable, Category = "Unit")
+    FOnUnitFinalDeath OnUnitFinalDeath;
 
     UFUNCTION(BlueprintPure, Category = "Unit")
     AUnitController* GetUnitController() const;
@@ -64,6 +72,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Actor")
     void FaceActor(AActor* OtherActor);
+
+    UFUNCTION(BlueprintCallable, Category = "Actor")
+    virtual void HandleUnitRecruited();
 
     UFUNCTION(BlueprintPure)
     UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
@@ -142,6 +153,7 @@ protected:
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent);
 
     void ApplyLevelDamageMod(int Level);
+    AGameTeamState* GetTeamState() const;
 
 private:
     void InitUnitVM();
