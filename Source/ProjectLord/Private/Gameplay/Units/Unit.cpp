@@ -78,9 +78,6 @@ void AUnit::BeginPlay()
     {
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
     }
-
-    // TODO: We can make it so this only shows up on mouseover (Issue #25)
-    AddHealthbarWidget();
     
     RegisterAttributes();
     SetupBaseAttributes();
@@ -93,6 +90,10 @@ void AUnit::BeginPlay()
 
     
     SetupSelectionData(SelectionComponent);
+
+    // TODO: We can make it so this only shows up on mouseover (Issue #25)
+    // Note: AFTER selection data so we can reuse VMs
+    AddHealthbarWidget();
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
@@ -302,10 +303,11 @@ void AUnit::InitUnitVM()
     }
 
     UnitVM = UVMUnit::CreateForUnit(this);
-    UnitVM->InitializeAttributeListeners(AbilitySystemComponent, CombatAttributeSet);
 
     // Note: For now, team is only ever set on construction of the AUnit.
     UnitVM->SetTeam(Team);
+    UnitVM->SetActionVM(SelectionComponent->GetActionVM()); // Could be null for non-creatures, but this should work correctly in that case.
+    UnitVM->SetCombatVM(SelectionComponent->GetCombatDataVM());
 }
 
 void AUnit::AddHealthbarWidget()

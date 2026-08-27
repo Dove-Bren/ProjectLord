@@ -12,34 +12,35 @@
 class AUnit;
 class UAbilitySystemComponent;
 class UCombatAttributeSet;
+class UVMCombatData;
+class UVMAction;
 
-UCLASS()
+UCLASS(BlueprintType)
 class PROJECTLORD_API UVMUnit : public UVMLordBase
 {
 	GENERATED_BODY()
 
 public:
-	int GetMaxHealth() const { return MaxHealth; }
-	int GetHealth() const { return Health; }
 
 	EGameTeam GetTeam() const { return Team; }
 
+	UVMCombatData* GetCombatVM() const { return CombatVM; }
+	UVMAction* GetActionVM() const { return ActionVM; }
+
 private:
 	static UVMUnit* CreateForUnit(AUnit* Unit);
-
-	virtual void InitializeAttributeListeners(UAbilitySystemComponent* Component, UCombatAttributeSet* Attributes);
 
 	// The unit that this view model represents
 	UPROPERTY()
 	TObjectPtr<const AUnit> Model;
 
-	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Health", meta = (AllowPrivateAccess = true))
-	int MaxHealth;
-	void SetMaxHealth(int InMaxHealth) { UE_MVVM_SET_PROPERTY_VALUE(MaxHealth, InMaxHealth); }
+	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "SubVM", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UVMCombatData> CombatVM;
+	void SetCombatVM(UVMCombatData* VM) { UE_MVVM_SET_PROPERTY_VALUE(CombatVM, VM); }
 
-	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Health", meta = (AllowPrivateAccess = true))
-	int Health;
-	void SetHealth(int InHealth) { UE_MVVM_SET_PROPERTY_VALUE(Health, InHealth); }
+	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "SubVM", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UVMAction> ActionVM;
+	void SetActionVM(UVMAction* VM) { UE_MVVM_SET_PROPERTY_VALUE(ActionVM, VM); }
 
 	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Team", meta = (AllowPrivateAccess = true))
 	EGameTeam Team;
