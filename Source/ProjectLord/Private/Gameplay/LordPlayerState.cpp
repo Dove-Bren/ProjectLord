@@ -4,13 +4,11 @@
 
 #include "Net/UnrealNetwork.h"
 
-#include "Gameplay/Buildings/Building.h"
 #include "UI/ViewModels/LordPlayerStateViewModel.h"
 
 ALordPlayerState::ALordPlayerState()
 {
     PlayerTeam = EGameTeam::Player1; // Could grab GameInstance and 'claim' next available player team?
-    Gold = 0;
 }
 
 void ALordPlayerState::BeginPlay()
@@ -26,12 +24,5 @@ void ALordPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(ALordPlayerState, PlayerTeam);
-    DOREPLIFETIME(ALordPlayerState, Gold);
-    DOREPLIFETIME(ALordPlayerState, PlayerCastle);
 
-}
-
-void ALordPlayerState::SetCastle(ABuilding* Castle)
-{
-    PlayerCastle = Castle;
 }
