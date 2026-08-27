@@ -155,8 +155,9 @@ protected:
     void ApplyLevelDamageMod(int Level);
     AGameTeamState* GetTeamState() const;
 
+    virtual void InitUnitVM();
+
 private:
-    void InitUnitVM();
     void AddHealthbarWidget();
 
     UPROPERTY()

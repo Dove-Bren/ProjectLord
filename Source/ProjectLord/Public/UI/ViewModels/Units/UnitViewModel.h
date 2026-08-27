@@ -10,8 +10,7 @@
 #include "UnitViewModel.generated.h"
 
 class AUnit;
-class UAbilitySystemComponent;
-class UCombatAttributeSet;
+class UTexture2D;
 class UVMCombatData;
 class UVMAction;
 
@@ -22,10 +21,15 @@ class PROJECTLORD_API UVMUnit : public UVMLordBase
 
 public:
 
+
 	EGameTeam GetTeam() const { return Team; }
+	UTexture2D* GetIcon() const { return Icon; }
 
 	UVMCombatData* GetCombatVM() const { return CombatVM; }
 	UVMAction* GetActionVM() const { return ActionVM; }
+
+	bool IsHero() const { return bIsHero; }
+	void SetIsHero(bool bInIsHero) { UE_MVVM_SET_PROPERTY_VALUE(bIsHero, bInIsHero); }
 
 private:
 	static UVMUnit* CreateForUnit(AUnit* Unit);
@@ -45,6 +49,13 @@ private:
 	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Team", meta = (AllowPrivateAccess = true))
 	EGameTeam Team;
 	void SetTeam(EGameTeam InTeam) { UE_MVVM_SET_PROPERTY_VALUE(Team, InTeam); }
+
+	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Icon", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UTexture2D> Icon;
+	void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
+
+	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = IsHero, Category = "UnitType", meta = (AllowPrivateAccess = true))
+	bool bIsHero;
 
 	friend class AUnit;
 };

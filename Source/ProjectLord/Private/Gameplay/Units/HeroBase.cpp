@@ -10,6 +10,7 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
+#include "UI/ViewModels/Units/UnitViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 #include "UI/ViewModels/Generic/LevelViewModel.h"
 #include "UI/ViewModels/Generic/SummarySlotsViewModel.h"
@@ -166,6 +167,13 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 	SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));*/
 
 	InSelectionComponent->SetSlotsVM(SlotsVM);
+}
+
+void AHeroBase::InitUnitVM()
+{
+	Super::InitUnitVM();
+
+	GetUnitVM()->SetIsHero(true);
 }
 
 void AHeroBase::HandleInventoryChange()

@@ -35,6 +35,9 @@ public:
 
     bool IsInvulnerable() const { return bInvulnerable; }
 
+    UFUNCTION(FieldNotify, BlueprintPure, Category = "Combat Data")
+    bool IsDead() const { return GetHealth() <= 0; }
+
     TArray<UVMGameplayEffect*> GetEffects() const { return Effects; }
 
     UCombatComponent* GetTarget() const { return Target; }
@@ -52,7 +55,7 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     int Health;
-    void SetHealth(int InHealth) { UE_MVVM_SET_PROPERTY_VALUE(Health, InHealth); }
+    void SetHealth(int InHealth) { UE_MVVM_SET_PROPERTY_VALUE(Health, InHealth); UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsDead); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     int MaxHealth;

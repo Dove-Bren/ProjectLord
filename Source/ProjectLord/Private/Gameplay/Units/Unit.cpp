@@ -158,6 +158,7 @@ void AUnit::SetTeam(EGameTeam InTeam)
 
         Team = InTeam;
         SelectionComponent->SetTeam(InTeam);
+        UnitVM->SetTeam(Team);
 
         // Add to new team
         if (auto TeamState = GetTeamState())
@@ -306,6 +307,7 @@ void AUnit::InitUnitVM()
 
     // Note: For now, team is only ever set on construction of the AUnit.
     UnitVM->SetTeam(Team);
+    UnitVM->SetIcon(GetUnitType()->UnitIcon);
     UnitVM->SetActionVM(SelectionComponent->GetActionVM()); // Could be null for non-creatures, but this should work correctly in that case.
     UnitVM->SetCombatVM(SelectionComponent->GetCombatDataVM());
 }

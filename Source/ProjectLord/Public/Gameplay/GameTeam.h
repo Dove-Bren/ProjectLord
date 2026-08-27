@@ -62,7 +62,7 @@ public:
     void SetCastle(ABuilding* Castle);
 
     UFUNCTION(BlueprintPure, Category = "Team")
-    TArray<AUnit*> GetUnits() const { return TeamUnits; }
+    const TArray<AUnit*>& GetUnits() const { return TeamUnits; }
 
     UFUNCTION(BlueprintCallable, Category = "Team")
     void AddUnit(AUnit* Unit);

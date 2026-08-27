@@ -10,6 +10,7 @@
 #include "GameTeamStateViewModel.generated.h"
 
 class UVMGold;
+class UVMUnit;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMGameTeamState : public UVMLordBase
@@ -26,15 +27,21 @@ public:
 
     UVMGold* GetGoldVM() const { return GoldVM; }
 
+    TArray<UVMUnit*> GetTeamUnits() const { return TeamUnitVMs; }
+    void UpdateTeamUnits(TArray<UVMUnit*> InVMs) { UE_MVVM_SET_PROPERTY_VALUE(TeamUnitVMs, InVMs); }
+
     UFUNCTION(BlueprintCallable)
     void SelectCastle();
 
 protected:
-    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "PlayerState")
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "TeamState")
     EGameTeam Team;
 
-    UPROPERTY(BlueprintReadOnly, Getter, Category = "PlayerState")
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "TeamState")
     TObjectPtr<UVMGold> GoldVM;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter=GetTeamUnits, Category = "TeamState")
+    TArray<UVMUnit*> TeamUnitVMs;
 
     UPROPERTY()
     TWeakObjectPtr<class AGameTeamState> ParentState;

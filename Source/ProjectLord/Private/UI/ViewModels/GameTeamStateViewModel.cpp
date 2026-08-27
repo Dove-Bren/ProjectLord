@@ -5,6 +5,7 @@
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
 UVMGameTeamState::UVMGameTeamState()
@@ -23,6 +24,21 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 			GoldVM->SetGold(NewGold);
 		});
 	GoldVM->SetGold(State->GetGold());
+
+	auto UpdateUnits = [this]()
+		{
+			TArray<UVMUnit*> VMs;
+			if (auto TeamState = ParentState.Pin())
+			{
+				for (auto Unit : TeamState->GetUnits())
+				{
+					VMs.Add(Unit->GetUnitVM());
+				}
+			}
+			UpdateTeamUnits(MoveTemp(VMs));
+		};
+	State->OnTeamUnitsChanged.AddWeakLambda(this, UpdateUnits);
+	UpdateUnits();
 }
 
 void UVMGameTeamState::SelectCastle()
