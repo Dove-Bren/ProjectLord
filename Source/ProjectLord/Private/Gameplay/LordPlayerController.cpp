@@ -9,6 +9,8 @@
 #include "Gameplay/LordPlayerState.h"
 #include "Gameplay/PlacementComponent.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Units/RewardFlag.h"
+#include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
@@ -150,12 +152,59 @@ USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
 	return nullptr;
 }
 
+FVector ALordPlayerController::GetWorldPositionUnderMouse()
+{
+	FHitResult HitResult;
+	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Camera), true, HitResult))
+	{
+		// CanSelect was called already, so should have a selection component
+		return HitResult.Location;
+	}
+
+	return {};
+}
+
 void ALordPlayerController::OnMouseClick(bool bRightButton)
 {
 	if (bRightButton)
 	{
-		// Only thing rmb does is clear placement or spell, if any
-		PlacementComponent->CancelPlacing();
+		if (PlacementComponent->IsPlacing())
+		{
+			PlacementComponent->CancelPlacing();
+		}
+		else
+		{
+			// Flag!
+			ERewardFlagType FlagType = ERewardFlagType::Explore;
+			FVector At;
+			AUnit* AttachUnit = nullptr;
+			if (auto Over = GetSelectableUnderMouse())
+			{
+				// Defend or attack depending on team
+				FlagType = (Over->GetTeam() == GetTeam())
+					? ERewardFlagType::Defend
+					: ERewardFlagType::Attack;
+				if (AUnit* Unit = Cast<AUnit>(Over->GetOwner()))
+				{
+					AttachUnit = Unit;
+				}
+				At = Over->GetOwner()->GetActorLocation() + FVector(0, 0, 500);
+			}
+			else
+			{
+				FlagType = ERewardFlagType::Explore;
+				At = GetWorldPositionUnderMouse() + FVector(0, 0, 500);
+			}
+
+			ARewardFlag* Flag = ARewardFlag::Make(this, FlagClasses[FlagType], FlagType, At);
+			if (AttachUnit)
+			{
+				Flag->SetAttachedUnit(AttachUnit);
+			}
+			Flag->SetReward(0);
+
+			GetTeamState()->AddFlag(Flag);
+		}
 	}
 	else
 	{

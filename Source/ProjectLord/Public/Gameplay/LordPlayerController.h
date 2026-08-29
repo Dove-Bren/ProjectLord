@@ -8,6 +8,7 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/SelectionAction.h"
 #include "Gameplay/GameTeam.h"
+#include "Gameplay/Units/RewardFlag.h"
 
 #include "LordPlayerController.generated.h"
 
@@ -76,6 +77,9 @@ public:
 
 protected:
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
+    TMap<ERewardFlagType, TSubclassOf<ARewardFlag>> FlagClasses;
+
     UFUNCTION(BlueprintCallable)
     void OnMouseClick(bool bRightButton);
 
@@ -97,6 +101,7 @@ protected:
     TObjectPtr<UPlacementComponent> PlacementComponent;
 
     USelectionComponent* GetSelectableUnderMouse();
+    FVector GetWorldPositionUnderMouse();
     bool CanSelect(const AActor* ClickedActor) const;
 
     void OnSelectionChange();

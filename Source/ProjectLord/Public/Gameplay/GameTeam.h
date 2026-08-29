@@ -7,6 +7,7 @@
 
 class ABuilding;
 class AUnit;
+class ARewardFlag;
 class UVMGameTeamState;
 
 UENUM(BlueprintType)
@@ -20,6 +21,7 @@ enum class EGameTeam : uint8
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTeamGoldChanged, int);
 DECLARE_MULTICAST_DELEGATE(FOnTeamUnitsChanged);
+DECLARE_MULTICAST_DELEGATE(FOnTeamFlagsChanged);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API AGameTeamState : public AActor
@@ -39,6 +41,7 @@ public:
 
     FOnTeamGoldChanged OnTeamGoldChanged;
     FOnTeamUnitsChanged OnTeamUnitsChanged;
+    FOnTeamFlagsChanged OnTeamFlagsChanged;
 
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -71,6 +74,15 @@ public:
     void RemoveUnit(AUnit* Unit);
 
     UFUNCTION(BlueprintPure, Category = "Team")
+    const TArray<ARewardFlag*>& GetFlags() const { return TeamFlags; }
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void AddFlag(ARewardFlag* Flag);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void RemoveFlag(ARewardFlag* Flag);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
     UVMGameTeamState* GetViewModel() const { return ViewModel; }
 
 protected:
@@ -86,6 +98,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TArray<AUnit*> TeamUnits;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    TArray<ARewardFlag*> TeamFlags;
 
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;

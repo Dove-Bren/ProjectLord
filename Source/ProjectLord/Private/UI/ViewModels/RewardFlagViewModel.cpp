@@ -1,0 +1,3 @@
+﻿// Copyright (c) Project Contributors. All Rights Reserved.
+
+#include "UI/ViewModels/RewardFlagViewModel.h"

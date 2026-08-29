@@ -25,10 +25,11 @@ void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(AGameTeamState, Team);
-    DOREPLIFETIME(AGameTeamState, Gold);
-    DOREPLIFETIME(AGameTeamState, TeamCastle);
-    DOREPLIFETIME(AGameTeamState, TeamUnits);
+    DOREPLIFETIME(ThisClass, Team);
+    DOREPLIFETIME(ThisClass, Gold);
+    DOREPLIFETIME(ThisClass, TeamCastle);
+    DOREPLIFETIME(ThisClass, TeamUnits);
+    DOREPLIFETIME(ThisClass, TeamFlags);
 }
 
 int AGameTeamState::AddGold(int InChange)
@@ -56,6 +57,20 @@ void AGameTeamState::RemoveUnit(AUnit* Unit)
     {
         OnTeamUnitsChanged.Broadcast();
         Unit->OnUnitFinalDeath.RemoveAll(this);
+    }
+}
+
+void AGameTeamState::AddFlag(ARewardFlag* Flag)
+{
+    TeamFlags.Add(Flag);
+    OnTeamFlagsChanged.Broadcast();
+}
+
+void AGameTeamState::RemoveFlag(ARewardFlag* Flag)
+{
+    if (TeamFlags.Remove(Flag))
+    {
+        OnTeamFlagsChanged.Broadcast();
     }
 }
 

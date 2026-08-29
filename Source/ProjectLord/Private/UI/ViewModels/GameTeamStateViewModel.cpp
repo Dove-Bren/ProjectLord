@@ -5,6 +5,7 @@
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
@@ -39,6 +40,21 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 		};
 	State->OnTeamUnitsChanged.AddWeakLambda(this, UpdateUnits);
 	UpdateUnits();
+
+	auto UpdateFlags = [this]()
+		{
+			TArray<UVMRewardFlag*> VMs;
+			if (auto TeamState = ParentState.Pin())
+			{
+				for (auto Flag : TeamState->GetFlags())
+				{
+					VMs.Add(Flag->GetViewModel());
+				}
+			}
+			UpdateTeamFlags(MoveTemp(VMs));
+		};
+	State->OnTeamFlagsChanged.AddWeakLambda(this, UpdateFlags);
+	UpdateFlags();
 }
 
 void UVMGameTeamState::SelectCastle()
