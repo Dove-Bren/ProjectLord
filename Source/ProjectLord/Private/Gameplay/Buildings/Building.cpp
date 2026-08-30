@@ -37,6 +37,7 @@ ABuilding::ABuilding()
     BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
     BuildingMesh->SetMobility(EComponentMobility::Stationary);
     BuildingMesh->SetupAttachment(Collision);
+    BuildingMesh->SetCollisionObjectType(ECC_Pawn);
 
     NavMeshMod = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavMeshMod"));
     NavMeshMod->SetAreaClass(UNavArea_Obstacle::StaticClass());
