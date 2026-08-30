@@ -23,3 +23,10 @@ RewardFlag.Fear.Desc,"",
 Appeal.Interest.Format,"Interested: {InterestCount}",
 
 
+Button.EscMenu.Return,"Return",
+Button.EscMenu.Save,"Save",
+Button.EscMenu.Load,"Load",
+Button.EscMenu.Restart,"Restart Mission",
+Button.EscMenu.Options,"Options",
+Button.EscMenu.EndGame,"End Game",
+Button.EscMenu.ExitGame,"Exit to Desktop",
