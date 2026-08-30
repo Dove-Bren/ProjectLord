@@ -202,8 +202,10 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 				Flag->SetAttachedUnit(AttachUnit);
 			}
 			Flag->SetReward(0);
+			Flag->SetTeam(GetTeam());
 
 			GetTeamState()->AddFlag(Flag);
+			SetSelection(Flag->GetComponentByClass<USelectionComponent>());
 		}
 	}
 	else

@@ -19,6 +19,7 @@ class USelectionComponent;
 class UTexture2D;
 class UVMSelectionActionTree;
 class UVMCreatureCategory;
+class UVMAppealMetrics;
 
 struct FSelectionActionContext;
 
@@ -86,6 +87,9 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMCreatureCategory> CategoryVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMAppealMetrics> AppealVM;
 
     // Represent whether there's data in this VM or not.
     // Set to false when the VM is cleared, including between selections

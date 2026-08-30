@@ -17,6 +17,7 @@ class UUnitType;
 class UBuildingType;
 class UVMSelectionaction;
 class AGameTeamState;
+class ARewardFlag;
 
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FSelectionActionContext
@@ -119,6 +120,23 @@ public:
     AUnit* GetUnit(const FSelectionActionContext& Context) const;
 
     AUnit* GetUnitInner(const FSelectionActionContext& Context) const;
+};
+
+// A purchase action that's on a reward flag.
+UCLASS(Blueprintable, Abstract)
+class PROJECTLORD_API UFlagBasedPurchase: public USelectionPurchase
+{
+    GENERATED_BODY()
+
+public:
+
+    virtual void Setup(const FSelectionActionContext& Context) override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
+
+    UFUNCTION(BlueprintPure, Category = "Selection|Action")
+    ARewardFlag* GetFlag(const FSelectionActionContext& Context) const;
+
+    ARewardFlag* GetFlagInner(const FSelectionActionContext& Context) const;
 };
 
 UCLASS(Blueprintable, Abstract)

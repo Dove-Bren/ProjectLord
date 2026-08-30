@@ -7,3 +7,19 @@ Action.Castle.Economic,"Economic Buildings",
 Action.Castle.Defence,"Defence Structures",
 Action.Castle.Temples,"Temples",
 
+Action.RewardFlag.Add100,"Add 100 Gold",
+Action.RewardFlag.Add500,"Add 500 Gold",
+Action.RewardFlag.Remove,"Remove Flag",
+
+RewardFlag.Explore.Name,"Explore Flag",
+RewardFlag.Explore.Desc,"An Explore Flag is a reward placed by the King for the exporation of uncharted territory. The greater the reward, the more heroes (and more high level ones) will be enticed to action and the futher they will travel.",
+RewardFlag.Attack.Name,"Attack Flag",
+RewardFlag.Attack.Desc,"",
+RewardFlag.Defend.Name,"Defend Flag",
+RewardFlag.Defend.Desc,"",
+RewardFlag.Fear.Name,"Fear Flag",
+RewardFlag.Fear.Desc,"",
+
+Appeal.Interest.Format,"Interested: {InterestCount}",
+
+

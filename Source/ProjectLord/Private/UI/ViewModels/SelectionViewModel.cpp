@@ -21,6 +21,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     SlotsVM = nullptr;
     ActionTreeVM = nullptr;
 	CategoryVM = nullptr;
+	AppealVM = nullptr;
 
     if (bTriggerUpdate)
     {
@@ -47,6 +48,7 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, FSelec
 		SlotsVM = Selection->GetSlotsVM();
 		ActionTreeVM = Selection->GetActionTreeVM();
 		CategoryVM = Selection->GetCategoryVM();
+		AppealVM = Selection->GetAppealVM();
 		//TargetVM = Selection->GetTargetVM();
 
 		SetPresent(true);

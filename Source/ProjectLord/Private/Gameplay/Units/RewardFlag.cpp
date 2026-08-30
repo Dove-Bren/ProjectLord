@@ -5,12 +5,16 @@
 #include "Net/UnrealNetwork.h"
 
 #include "Gameplay/LordGameState.h"
+#include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/RewardFlagViewModel.h"
+#include "UI/ViewModels/Generic/GoldViewModel.h"
+#include "UI/ViewModels/Generic/AppealMetricsViewModel.h"
 
 ARewardFlag::ARewardFlag()
 {
-
+	SelectionComponent = CreateDefaultSubobject<USelectionComponent>("Selection");
+	SelectionComponent->SetSelectable(true);
 }
 
 void ARewardFlag::BeginPlay()
@@ -22,6 +26,24 @@ void ARewardFlag::BeginPlay()
 	ViewModel->SetTeam(GetTeam());
 	ViewModel->SetReward(GetReward());
 	ViewModel->SetAttachedUnit(IsValid(GetAttachedUnit()) ? GetAttachedUnit()->GetUnitVM() : nullptr);
+
+	SelectionComponent->SetName(GetFlagName());
+	SelectionComponent->SetDesc(GetFlagDescription());
+	SelectionComponent->SetTeam(GetTeam());
+	UVMGold* GoldVM = CreateLordVM<UVMGold>(this);
+	OnRewardFlagRewardChanged.AddWeakLambda(this, [GoldVM](ARewardFlag* Flag, int NewGold) {
+		GoldVM->SetGold(NewGold);
+	});
+	GoldVM->SetGold(GetReward());
+	SelectionComponent->SetGoldVM(GoldVM);
+
+	UVMAppealMetrics* AppealVM = CreateLordVM<UVMAppealMetrics>(this);
+	OnRewardFlagInterestChanged.AddWeakLambda(this, [AppealVM](ARewardFlag* Flag, int NewCount)
+	{
+		AppealVM->SetInterestedCount(NewCount);
+	});
+	AppealVM->SetInterestedCount(GetNumInterestedUnits());
+	SelectionComponent->SetAppealVM(AppealVM);
 }
 
 void ARewardFlag::EndPlay(EEndPlayReason::Type Reason)
@@ -48,6 +70,7 @@ void ARewardFlag::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ThisClass, Team);
 	DOREPLIFETIME(ThisClass, Reward);
 	DOREPLIFETIME(ThisClass, AttachedUnit);
+	DOREPLIFETIME(ThisClass, InterestedUnits);
 }
 
 void ARewardFlag::SetFlagType(ERewardFlagType InType)
@@ -64,8 +87,9 @@ void ARewardFlag::SetTeam(EGameTeam InTeam)
 {
 	if (InTeam != Team)
 	{
+		const auto OldValue = Team;
 		Team = InTeam;
-		ViewModel->SetTeam(InTeam);
+		OnRep_Team(OldValue);
 	}
 }
 
@@ -73,8 +97,9 @@ void ARewardFlag::SetReward(int InReward)
 {
 	if (InReward != Reward)
 	{
+		const auto OldValue = Reward;
 		Reward = InReward;
-		ViewModel->SetReward(InReward);
+		OnRep_Reward(OldValue);
 	}
 }
 
@@ -91,8 +116,8 @@ void ARewardFlag::SetAttachedUnit(AUnit* InUnit)
 				AttachedUnit->OnUnitDeath.RemoveAll(this);
 			}
 		}
+		const auto OldValue = AttachedUnit;
 		AttachedUnit = InUnit;
-		ViewModel->SetAttachedUnit(IsValid(InUnit) ? InUnit->GetUnitVM() : nullptr);
 		if (AttachedUnit)
 		{
 			FAttachmentTransformRules Rules(EAttachmentRule::KeepRelative, false);
@@ -100,7 +125,48 @@ void ARewardFlag::SetAttachedUnit(AUnit* InUnit)
 			SetActorRelativeLocation(FVector(0, 0, 500));
 			AttachedUnit->OnUnitDeath.AddDynamic(this, &ARewardFlag::OnUnitDeath);
 		}
+		OnRep_AttachedUnit(OldValue);
 	}
+}
+
+void ARewardFlag::AddInterestedUnit(AUnit* Unit)
+{
+	const auto OldValue = GetNumInterestedUnits();
+	InterestedUnits.Add(Unit);
+	InterestedUnitCount = InterestedUnits.Num();
+	OnRep_InterestedUnits(OldValue);
+}
+
+void ARewardFlag::RemoveInterestedUnit(AUnit* Unit)
+{
+	if (InterestedUnits.Remove(Unit))
+	{
+		InterestedUnitCount = InterestedUnits.Num();
+		OnRep_InterestedUnits(GetNumInterestedUnits()+1);
+	}
+}
+
+void ARewardFlag::OnRep_Team(EGameTeam OldValue)
+{
+	ViewModel->SetTeam(GetTeam());
+	SelectionComponent->SetTeam(GetTeam());
+}
+
+void ARewardFlag::OnRep_Reward(int OldValue)
+{
+	ViewModel->SetReward(GetReward());
+	OnRewardFlagRewardChanged.Broadcast(this, GetReward());
+}
+
+void ARewardFlag::OnRep_AttachedUnit(AUnit* OldValue)
+{
+	ViewModel->SetAttachedUnit(IsValid(AttachedUnit) ? AttachedUnit->GetUnitVM() : nullptr);
+}
+
+void ARewardFlag::OnRep_InterestedUnits(int OldValue)
+{
+	ViewModel->SetInterestedCount(GetNumInterestedUnits());
+	OnRewardFlagInterestChanged.Broadcast(this, GetNumInterestedUnits());
 }
 
 void ARewardFlag::OnUnitDeath(AUnit* Unit)
@@ -110,5 +176,15 @@ void ARewardFlag::OnUnitDeath(AUnit* Unit)
 		AttachedUnit->OnUnitDeath.RemoveAll(this);
 		Destroy();
 	}
+}
+
+FText ARewardFlag::GetFlagName_Implementation() const
+{
+	return FText::GetEmpty();
+}
+
+FText ARewardFlag::GetFlagDescription_Implementation() const
+{
+	return FText::GetEmpty();
 }
 

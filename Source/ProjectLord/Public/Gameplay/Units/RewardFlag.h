@@ -7,6 +7,7 @@
 #include "RewardFlag.generated.h"
 
 class UVMRewardFlag;
+class USelectionComponent;
 
 UENUM(BlueprintType)
 enum class ERewardFlagType : uint8
@@ -16,6 +17,9 @@ enum class ERewardFlagType : uint8
     Attack,
     Fear,
 };
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnRewardFlagRewardChanged, ARewardFlag*, int);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnRewardFlagInterestChanged, ARewardFlag*, int);
 
 UCLASS(Blueprintable, Abstract)
 class PROJECTLORD_API ARewardFlag : public AActor
@@ -38,42 +42,85 @@ public:
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+    FOnRewardFlagRewardChanged OnRewardFlagRewardChanged;
+    FOnRewardFlagInterestChanged OnRewardFlagInterestChanged;
+
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
     ERewardFlagType GetFlagType() const { return FlagType; }
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void SetFlagType(ERewardFlagType InType);
 
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
     EGameTeam GetTeam() const { return Team; }
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void SetTeam(EGameTeam InTeam);
 
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
     int GetReward() const { return Reward; }
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void SetReward(int inReward);
 
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
     bool IsAttached() const { return !!AttachedUnit; }
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
     AUnit* GetAttachedUnit() const { return AttachedUnit; }
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void SetAttachedUnit(AUnit* InInit);
+
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
+    const TSet<AUnit*> GetInterestedUnits() const { return InterestedUnits; }
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
+    int GetNumInterestedUnits() const { return InterestedUnitCount; }
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
+    void AddInterestedUnit(AUnit* Unit);
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
+    void RemoveInterestedUnit(AUnit* Unit);
 
     UVMRewardFlag* GetViewModel() const { return ViewModel; }
 
 
 protected:
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Flags")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Reward Flag")
     ERewardFlagType FlagType;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Flags")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Team, Category = "Reward Flag")
     EGameTeam Team;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Flags")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Reward, Category = "Reward Flag")
     int Reward;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Flags")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_AttachedUnit, Category = "Reward Flag")
     TObjectPtr<AUnit> AttachedUnit;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Flags")
+    // Only kept up-to-date on server
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Reward Flag")
+    TSet<AUnit*> InterestedUnits;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_InterestedUnits, Category = "Reward Flag")
+    int InterestedUnitCount;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Reward Flag")
     TObjectPtr<UVMRewardFlag> ViewModel;
 
-    void RegisterFlag();
-    void UnregisterFlag();
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<USelectionComponent> SelectionComponent;
+
+    UFUNCTION()
+    void OnRep_Team(EGameTeam OldValue);
+    UFUNCTION()
+    void OnRep_Reward(int OldValue);
+    UFUNCTION()
+    void OnRep_AttachedUnit(AUnit* OldValue);
+    UFUNCTION()
+    void OnRep_InterestedUnits(int OldValue);
 
     UFUNCTION()
     void OnUnitDeath(AUnit* Unit);
+
+    UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Reward Flag")
+    FText GetFlagName() const;
+
+    UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Reward Flag")
+    FText GetFlagDescription() const;
 };

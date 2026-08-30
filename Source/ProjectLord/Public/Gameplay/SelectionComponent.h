@@ -19,6 +19,7 @@ class UVMProgressQueue;
 class UVMSummarySlots;
 class UVMSelectionActionTree;
 class UVMCreatureCategory;
+class UVMAppealMetrics;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
@@ -116,6 +117,10 @@ public:
     UVMCreatureCategory* GetCategoryVM() const { return CategoryVM; }
     void SetCategoryVM(UVMCreatureCategory* InVM) { CategoryVM = InVM; }
 
+    UFUNCTION(BlueprintPure)
+    UVMAppealMetrics* GetAppealVM() const { return AppealVM; }
+    void SetAppealVM(UVMAppealMetrics* InVM) { AppealVM = InVM; }
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
@@ -169,4 +174,7 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMCreatureCategory> CategoryVM;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMAppealMetrics> AppealVM;
 };

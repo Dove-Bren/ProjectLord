@@ -30,6 +30,9 @@ public:
     UVMUnit* GetAttachedUnit() const { return AttachedUnit; }
     void SetAttachedUnit(UVMUnit* InUnit) { UE_MVVM_SET_PROPERTY_VALUE(AttachedUnit, InUnit); }
 
+    // TODO: Will need actual unit list for UI
+    int GetInterestedCount() const { return InterestedCount; }
+    void SetInterestedCount(int InCount) { UE_MVVM_SET_PROPERTY_VALUE(InterestedCount, InCount); }
 
 protected:
 
@@ -41,6 +44,9 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Reward Flag")
     int Reward;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Reward Flag")
+    int InterestedCount;
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Reward Flag")
     TObjectPtr<UVMUnit> AttachedUnit;

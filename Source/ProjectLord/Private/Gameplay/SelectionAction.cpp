@@ -7,6 +7,7 @@
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
@@ -94,6 +95,37 @@ bool UUnitBasedPurchase::CanPerform_Implementation(const FSelectionActionContext
 	// Must have a unit performing us
 	AUnit* UnitOwner = GetUnit(Context);
 	if (!ensure(IsValid(UnitOwner)))
+	{
+		return false;
+	}
+
+	return Super::CanPerform_Implementation(Context);
+}
+
+ARewardFlag* UFlagBasedPurchase::GetFlagInner(const FSelectionActionContext& Context) const
+{
+	return Cast<ARewardFlag>(Context.Selection->GetOwner());
+}
+
+ARewardFlag* UFlagBasedPurchase::GetFlag(const FSelectionActionContext& Context) const
+{
+	return GetFlagInner(Context);
+}
+
+void UFlagBasedPurchase::Setup(const FSelectionActionContext& Context)
+{
+	Super::Setup(Context);
+
+	ARewardFlag* FlagOwner = GetFlagInner(Context);
+	//TODO:
+	// FlagOwner->OnDeath.AddWeakLambda()...
+}
+
+bool UFlagBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
+{
+	// Must have a unit performing us
+	ARewardFlag* FlagOwner = GetFlag(Context);
+	if (!ensure(IsValid(FlagOwner)))
 	{
 		return false;
 	}
