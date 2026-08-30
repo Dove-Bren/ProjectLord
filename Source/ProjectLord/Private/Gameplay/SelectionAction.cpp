@@ -86,15 +86,13 @@ void UUnitBasedPurchase::Setup(const FSelectionActionContext& Context)
 	Super::Setup(Context);
 
 	AUnit* UnitOwner = GetUnitInner(Context);
-	//TODO:
-	// UnitOwner->OnDeath.AddWeakLambda()...
 }
 
 bool UUnitBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
 	// Must have a unit performing us
 	AUnit* UnitOwner = GetUnit(Context);
-	if (!ensure(IsValid(UnitOwner)))
+	if (!IsValid(UnitOwner))
 	{
 		return false;
 	}
@@ -125,7 +123,7 @@ bool UFlagBasedPurchase::CanPerform_Implementation(const FSelectionActionContext
 {
 	// Must have a unit performing us
 	ARewardFlag* FlagOwner = GetFlag(Context);
-	if (!ensure(IsValid(FlagOwner)))
+	if (!IsValid(FlagOwner))
 	{
 		return false;
 	}
@@ -165,7 +163,7 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionCon
 {
 	// Must have a building performing us
 	ABuilding* BuildingOwner = GetBuilding(Context);
-	if (!ensure(IsValid(BuildingOwner)))
+	if (!IsValid(BuildingOwner))
 	{
 		return false;
 	}
