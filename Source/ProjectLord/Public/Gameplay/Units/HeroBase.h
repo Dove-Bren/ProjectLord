@@ -93,7 +93,13 @@ public:
     // Return a score that represents this heroes eagerness to persue this flag.
     // A score of 0 or less indicates no interest.
     UFUNCTION(BlueprintPure, Category = "Reward Flag")
-    int ScoreFlag(ARewardFlag* Flag);
+    int ScoreFlag(ARewardFlag* Flag) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
+    void SetFlagTarget(ARewardFlag* Flag);
+
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
+    void ClearFlagTarget() { SetFlagTarget(nullptr); }
 
     virtual void BeginPlay() override;
 
@@ -151,6 +157,9 @@ protected:
 
     UPROPERTY()
     FActiveGameplayEffectHandle IntelligenceDamageModHandle;
+
+    UPROPERTY()
+    TWeakObjectPtr<ARewardFlag> CurrentFlagTarget;
 
     void UpdateAttributeDamageMod(FActiveGameplayEffectHandle& Handle, int Attribute);
 

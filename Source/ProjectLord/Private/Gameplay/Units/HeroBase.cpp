@@ -467,7 +467,7 @@ bool AHeroBase::PurchaseGood(FGoodOffer Offer)
 	return false;
 }
 
-int AHeroBase::ScoreFlag(ARewardFlag* Flag)
+int AHeroBase::ScoreFlag(ARewardFlag* Flag) const
 {
 	int Score = 0;
 	if (ensure(Flag) && Flag->GetReward() > 0)
@@ -499,6 +499,23 @@ int AHeroBase::ScoreFlag(ARewardFlag* Flag)
 	}
 
 	return Score;
+}
+
+void AHeroBase::SetFlagTarget(ARewardFlag* Flag)
+{
+	if (CurrentFlagTarget.IsValid())
+	{
+		if (auto CurFlag = CurrentFlagTarget.Pin())
+		{
+			CurFlag->RemoveInterestedUnit(this);
+		}
+	}
+
+	CurrentFlagTarget = Flag;
+	if (Flag)
+	{
+		CurrentFlagTarget->AddInterestedUnit(this);
+	}
 }
 
 float AHeroBase::DamageModPerAttribute = (1.0f / 3.0f);

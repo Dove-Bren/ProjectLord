@@ -8,6 +8,7 @@
 
 class UVMRewardFlag;
 class USelectionComponent;
+class AHeroBase;
 
 UENUM(BlueprintType)
 enum class ERewardFlagType : uint8
@@ -39,6 +40,7 @@ public:
     }
 
     virtual void BeginPlay() override;
+    virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -76,6 +78,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void RemoveInterestedUnit(AUnit* Unit);
 
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
+    bool PayHeroes(int Amount, const TArray<AHeroBase*>& Heroes);
+
+    UFUNCTION(BlueprintCallable, Category = "Reward Flag")
+    bool PayNearbyInterestedHeroes(int Amount, float Range);
 
     UFUNCTION(BlueprintPure, Category = "Reward Flag")
     FVector GetGroundLocation() const;
@@ -109,6 +116,13 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
+
+    void ExploreTick(float DeltaSeconds);
+    void DefendTick(float DeltaSeconds);
+    void FearTick(float DeltaSeconds);
+    void AttackTick(float DeltaSeconds);
+
+    double LastPayTime = 0;
 
     UFUNCTION()
     void OnRep_Team(EGameTeam OldValue);

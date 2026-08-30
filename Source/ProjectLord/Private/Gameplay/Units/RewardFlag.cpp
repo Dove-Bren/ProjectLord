@@ -6,6 +6,7 @@
 
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Units/HeroBase.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/RewardFlagViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
@@ -15,6 +16,9 @@ ARewardFlag::ARewardFlag()
 {
 	SelectionComponent = CreateDefaultSubobject<USelectionComponent>("Selection");
 	SelectionComponent->SetSelectable(true);
+
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
 void ARewardFlag::BeginPlay()
@@ -46,6 +50,80 @@ void ARewardFlag::BeginPlay()
 	SelectionComponent->SetAppealVM(AppealVM);
 }
 
+void ARewardFlag::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	switch (GetFlagType())
+	{
+	case ERewardFlagType::Explore:
+		ExploreTick(DeltaSeconds);
+		break;
+	case ERewardFlagType::Attack:
+		AttackTick(DeltaSeconds);
+		break;
+	case ERewardFlagType::Defend:
+		DefendTick(DeltaSeconds);
+		break;
+	case ERewardFlagType::Fear:
+		FearTick(DeltaSeconds);
+		break;
+	}
+}
+
+void ARewardFlag::ExploreTick(float DeltaSeconds)
+{
+	// Explore flags listen for a unit to be close
+	for (auto Unit : InterestedUnits)
+	{
+		if (FVector::DistSquaredXY(GetActorLocation(), Unit->GetActorLocation()) <= 500 * 500)
+		{
+			PayNearbyInterestedHeroes(GetReward(), 1000); // Larger range for pay to split on near-ties
+			SetReward(0);
+			Destroy();
+		}
+	}
+}
+
+void ARewardFlag::DefendTick(float DeltaSeconds)
+{
+	if (GetNumInterestedUnits() <= 0)
+	{
+		// Nobody defending, so reset timer
+		LastPayTime = 0;
+	}
+	else
+	{
+		const auto Now = GetGameTimeSinceCreation();
+		if (LastPayTime == 0)
+		{
+			LastPayTime = Now;
+		}
+		else if (Now - LastPayTime > 15)
+		{
+			LastPayTime = Now;
+			PayNearbyInterestedHeroes(100, 2000);
+
+			const int NewReward = GetReward() - 100;
+			SetReward(NewReward);
+			if (NewReward <= 0)
+			{
+				Destroy();
+			}
+		}
+	}
+}
+
+void ARewardFlag::FearTick(float DeltaSeconds)
+{
+	// TODO
+}
+
+void ARewardFlag::AttackTick(float DeltaSeconds)
+{
+	// Nothing to do
+}
+
 void ARewardFlag::EndPlay(EEndPlayReason::Type Reason)
 {
 	auto World = GetWorld();
@@ -56,6 +134,15 @@ void ARewardFlag::EndPlay(EEndPlayReason::Type Reason)
 		if (TeamState)
 		{
 			TeamState->RemoveFlag(this);
+		}
+	}
+
+	auto UnitsCopy = GetInterestedUnits();
+	for (auto Unit : UnitsCopy)
+	{
+		if (auto Hero = Cast<AHeroBase>(Unit))
+		{
+			Hero->ClearFlagTarget();
 		}
 	}
 
@@ -164,6 +251,39 @@ FVector ARewardFlag::GetGroundLocation() const
 	return GetActorLocation() - FVector(0, 0, 500);
 }
 
+bool ARewardFlag::PayHeroes(int Amount, const TArray<AHeroBase*>& Heroes)
+{
+	if (Heroes.IsEmpty())
+	{
+		return false;
+	}
+
+	int GoldEach = FMath::Max(1, FMath::CeilToInt((float)Amount / (float)Heroes.Num()));
+	for (auto Hero : Heroes)
+	{
+		Hero->AwardGold(GoldEach);
+	}
+	return true;
+}
+
+bool ARewardFlag::PayNearbyInterestedHeroes(int Amount, float Range)
+{
+	TArray<AHeroBase*> Heroes;
+	const double RangeSqr = Range * Range;
+	const FVector Root = GetActorLocation();
+	for (auto Unit : InterestedUnits)
+	{
+		if (auto Hero = Cast<AHeroBase>(Unit))
+		{
+			if (FVector::DistSquaredXY(Hero->GetActorLocation(), Root) <= RangeSqr)
+			{
+				Heroes.Add(Hero);
+			}
+		}
+	}
+	return PayHeroes(Amount, Heroes);
+}
+
 void ARewardFlag::OnRep_Team(EGameTeam OldValue)
 {
 	ViewModel->SetTeam(GetTeam());
@@ -192,6 +312,12 @@ void ARewardFlag::OnUnitDeath(AUnit* Unit)
 	if (Unit == AttachedUnit)
 	{
 		AttachedUnit->OnUnitDeath.RemoveAll(this);
+
+		if (ERewardFlagType::Attack == GetFlagType())
+		{
+			PayNearbyInterestedHeroes(GetReward(), 2000);
+		}
+
 		Destroy();
 	}
 }
