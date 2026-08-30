@@ -63,7 +63,7 @@ void AUnit::FaceActor(AActor* OtherActor)
 
 void AUnit::HandleUnitRecruited()
 {
-    // Register with team
+    // Register with team if not already done
     if (auto TeamState = GetTeamState())
     {
         TeamState->AddUnit(this);

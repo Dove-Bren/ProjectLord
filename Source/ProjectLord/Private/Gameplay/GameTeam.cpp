@@ -46,9 +46,12 @@ void AGameTeamState::SetCastle(ABuilding* Castle)
 
 void AGameTeamState::AddUnit(AUnit* Unit)
 {
-    TeamUnits.Add(Unit);
-    Unit->OnUnitFinalDeath.AddDynamic(this, &AGameTeamState::OnUnitFinalDeath);
-    OnTeamUnitsChanged.Broadcast();
+    if (!TeamUnits.Contains(Unit))
+    {
+        TeamUnits.Add(Unit);
+        Unit->OnUnitFinalDeath.AddDynamic(this, &AGameTeamState::OnUnitFinalDeath);
+        OnTeamUnitsChanged.Broadcast();
+    }
 }
 
 void AGameTeamState::RemoveUnit(AUnit* Unit)
