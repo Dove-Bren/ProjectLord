@@ -17,6 +17,7 @@ UGEVisitingBuilding::UGEVisitingBuilding()
     AppliedTags.AddTag(ULordGameplayTags::UnitStateVisiting());
     AppliedTags.AddTag(ULordGameplayTags::UnitStateInvulnerable()); // ALSO ADDING INVULN
     TagsComp->SetAndApplyTargetTagChanges(AppliedTags);
+    GEComponents.Add(TagsComp);
 
     // Units heal while visiting
     FGameplayModifierInfo Mod;

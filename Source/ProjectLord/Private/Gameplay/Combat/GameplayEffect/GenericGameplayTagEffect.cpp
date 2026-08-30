@@ -10,6 +10,7 @@ UGEGenericGameplayTag::UGEGenericGameplayTag()
 {
     DurationPolicy = EGameplayEffectDurationType::Infinite;
     TagContainer = CreateDefaultSubobject<UTargetTagsGameplayEffectComponent>(TEXT("TargetTagsComponent"));
+    GEComponents.Add(TagContainer);
 }
 
 void UGEGenericGameplayTag::AddTag(FGameplayTag Tag)
