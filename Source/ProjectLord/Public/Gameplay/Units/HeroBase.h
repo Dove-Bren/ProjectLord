@@ -6,6 +6,7 @@
 
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/HeroEquipment.h"
+#include "Gameplay/Units/RewardFlag.h"
 
 #include "HeroBase.generated.h"
 
@@ -89,6 +90,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
     bool PurchaseGood(FGoodOffer Offer);
 
+    // Return a score that represents this heroes eagerness to persue this flag.
+    // A score of 0 or less indicates no interest.
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
+    int ScoreFlag(ARewardFlag* Flag);
+
     virtual void BeginPlay() override;
 
 protected:
@@ -104,6 +110,11 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Hero")
     EEquipmentArchtype EquipmentType;
+
+    // Bonus added when calculating flag scores.
+    // Unit is roughly 100-gold's worth of motiviation.
+    UPROPERTY(EditDefaultsOnly, Category = "Hero")
+    TMap<ERewardFlagType, int> RewardFlagBonus;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;

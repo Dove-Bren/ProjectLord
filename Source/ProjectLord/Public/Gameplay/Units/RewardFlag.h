@@ -76,6 +76,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void RemoveInterestedUnit(AUnit* Unit);
 
+
+    UFUNCTION(BlueprintPure, Category = "Reward Flag")
+    FVector GetGroundLocation() const;
+
     UVMRewardFlag* GetViewModel() const { return ViewModel; }
 
 

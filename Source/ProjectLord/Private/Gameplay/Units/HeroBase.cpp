@@ -467,4 +467,38 @@ bool AHeroBase::PurchaseGood(FGoodOffer Offer)
 	return false;
 }
 
+int AHeroBase::ScoreFlag(ARewardFlag* Flag)
+{
+	int Score = 0;
+	if (ensure(Flag) && Flag->GetReward() > 0)
+	{
+		const double Dist = FVector::DistXY(Flag->GetActorLocation(), GetActorLocation());
+
+		// Heroes, in general, are more eager to go for flags that are close.
+		// As they level up, they are less eager to go for flags in general and require
+		// more money.
+		// Some heroes have affinities for some times of flags as well.
+		//
+		// I'm thinking every 100 gold is worth +1 point for a flag. A hero's bonus might
+		// also increase the score. And then after that, distance, hero level, etc. are negatives.
+
+		Score = Flag->GetReward() / 100;
+		if (const int* HeroBonus = RewardFlagBonus.Find(Flag->GetFlagType()))
+		{
+			Score += *HeroBonus;
+		}
+		
+		bool bIgnored;
+		int Level = (int)AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored);
+		const int LevelPenalty = FMath::Max(0, Level - 5); // Start reducing 1x per level after lvl 5
+		Score -= LevelPenalty;
+
+		constexpr double UU_PER_SCORE = 2500.0; // This is UU and is very much a magic number
+		int DistPenalty = FMath::FloorToInt(Dist / UU_PER_SCORE);
+		Score -= DistPenalty;
+	}
+
+	return Score;
+}
+
 float AHeroBase::DamageModPerAttribute = (1.0f / 3.0f);

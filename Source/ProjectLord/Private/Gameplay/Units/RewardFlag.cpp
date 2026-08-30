@@ -146,6 +146,24 @@ void ARewardFlag::RemoveInterestedUnit(AUnit* Unit)
 	}
 }
 
+FVector ARewardFlag::GetGroundLocation() const
+{
+	if (IsValid(AttachedUnit))
+	{
+		return AttachedUnit->GetActorLocation();
+	}
+
+	FHitResult Result;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+	if (GetWorld()->LineTraceSingleByChannel(Result, GetActorLocation(), GetActorLocation() - FVector(0, 0, 10000), ECC_Camera, CollisionParams))
+	{
+		return Result.Location;
+	}
+
+	return GetActorLocation() - FVector(0, 0, 500);
+}
+
 void ARewardFlag::OnRep_Team(EGameTeam OldValue)
 {
 	ViewModel->SetTeam(GetTeam());
