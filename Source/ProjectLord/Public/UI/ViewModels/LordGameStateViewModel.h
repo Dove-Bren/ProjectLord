@@ -33,6 +33,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GameState|Time")
     void ModifyGameSpeed(float InSpeed);
 
+    UFUNCTION(BlueprintCallable, Category = "GameState|Time")
+    void SetGamePaused(bool bPaused);
+
 
 protected:
 

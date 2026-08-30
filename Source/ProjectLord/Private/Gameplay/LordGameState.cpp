@@ -60,6 +60,11 @@ void ALordGameState::SetGameSpeed(float InSpeed)
 	OnRep_GameSpeed(OldSpeed);
 }
 
+void ALordGameState::SetGamePaused(bool bPaused)
+{
+	UGameplayStatics::SetGamePaused(this, bPaused);
+}
+
 void ALordGameState::OnRep_GameDays(double PrevGameDays)
 {
 	const int OldDays = FMath::FloorToInt(PrevGameDays);

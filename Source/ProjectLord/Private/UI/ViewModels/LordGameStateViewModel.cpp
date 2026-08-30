@@ -34,3 +34,11 @@ void UVMLordGameState::ModifyGameSpeed(float InSpeed)
 		ParentState->SetGameSpeed(InSpeed);
 	}
 }
+
+void UVMLordGameState::SetGamePaused(bool bPaused)
+{
+	if (ensure(ParentState.IsValid()))
+	{
+		ParentState->SetGamePaused(bPaused);
+	}
+}

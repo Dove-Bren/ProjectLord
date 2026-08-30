@@ -29,6 +29,7 @@ public:
 
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
+    virtual bool SetPause(bool bPause, FCanUnpause CanUnpauseDelegate) override;
 
     UFUNCTION(BlueprintPure)
     ALordPlayerState* GetLordPlayerState() const;
@@ -99,6 +100,11 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UPlacementComponent> PlacementComponent;
+
+    virtual void OnSetPaused(bool bPaused);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName = "OnSetPaused"))
+    void BP_OnSetPaused(bool bPaused);
 
     USelectionComponent* GetSelectableUnderMouse();
     FVector GetWorldPositionUnderMouse();

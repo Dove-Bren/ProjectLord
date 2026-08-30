@@ -18,6 +18,7 @@ ALordPlayerController::ALordPlayerController()
 {
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
+	bShouldPerformFullTickWhenPaused = true; // Allows camera to update when paused
 
 	PlacementComponent = CreateDefaultSubobject<UPlacementComponent>("Placement");
 }
@@ -37,6 +38,12 @@ void ALordPlayerController::BeginPlay()
 	// Set up VM
 	SelectionVM = CreateLordVM<UVMSelection>(this);
 	HoverVM = CreateLordVM<UVMSelection>(this);
+
+	// Fix camera blur. Idk why this is on the world...
+	if (ensure(GetWorld()))
+	{
+		GetWorld()->bIsCameraMoveableWhenPaused = true;
+	}
 }
 
 ALordPlayerState* ALordPlayerController::GetLordPlayerState() const
@@ -135,6 +142,11 @@ void ALordPlayerController::SetHoveredStaticElement(FStaticSelection StaticEleme
 	HoveredComponent = NullOpt; // Not based on a component anymore
 	HoverVM->SetFromStaticElement(StaticElement);
 	OnHoverChange();
+}
+
+void ALordPlayerController::OnSetPaused(bool bPaused)
+{
+	;
 }
 
 USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
@@ -255,6 +267,19 @@ void ALordPlayerController::Tick(float DeltaTime)
 			SetHovered(GetSelectableUnderMouse());
 		}
 	}
+}
+
+bool ALordPlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate)
+{
+	if (Super::SetPause(bPause, CanUnpauseDelegate))
+	{
+		// Emit events that can drive UI
+		OnSetPaused(bPause);
+		BP_OnSetPaused(bPause);
+
+		return true;
+	}
+	return false;
 }
 
 bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const

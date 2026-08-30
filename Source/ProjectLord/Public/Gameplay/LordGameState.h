@@ -42,6 +42,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GameTime")
     void SetGameSpeed(float InSpeed);
 
+    UFUNCTION(BlueprintCallable, Category = "GameTime")
+    void SetGamePaused(bool bPaused);
+
     UFUNCTION(BlueprintPure, Category = "GameTeam")
     AGameTeamState* GetTeam(EGameTeam Team) { return GameTeams[Team]; }
 
