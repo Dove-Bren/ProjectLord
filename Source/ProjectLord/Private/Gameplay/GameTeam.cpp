@@ -32,6 +32,12 @@ void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(ThisClass, TeamFlags);
 }
 
+void AGameTeamState::SetTeam(EGameTeam InTeam)
+{
+    Team = InTeam;
+    ViewModel->SetTeam(InTeam);
+}
+
 int AGameTeamState::AddGold(int InChange)
 {
     Gold = FMath::Clamp(Gold + InChange, 0, 9999999);

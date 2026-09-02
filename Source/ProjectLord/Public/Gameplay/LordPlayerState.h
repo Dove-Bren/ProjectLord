@@ -9,6 +9,7 @@
 
 #include "LordPlayerState.generated.h"
 
+class AFogOfWarManager;
 class UVMLordPlayerState;
 
 UCLASS(BlueprintType)

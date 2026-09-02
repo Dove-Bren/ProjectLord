@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
 
+#include "Gameplay/FogOfWarComponent.h"
 #include "Gameplay/GameplayUtils.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
@@ -28,15 +29,25 @@ ACreature::ACreature()
     GraveComponent->SetupAttachment(GetMesh()->GetAttachParent());
     GraveComponent->SetVisibility(false, true);
     GraveComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+    FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
 }
 
 void ACreature::RegisterAttributes()
 {
+    bool bIgnored;
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CreatureAttributeSet->GetMovementAttribute())
         .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
             {
                 GetCharacterMovement()->MaxWalkSpeed = MOVEMENT_STAT_TO_UE_SPEED(ChangeData.NewValue);
             });
+    GetCharacterMovement()->MaxWalkSpeed = AbilitySystemComponent->GetGameplayAttributeValue(CreatureAttributeSet->GetMovementAttribute(), bIgnored);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetSightAttribute())
+        .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+            {
+                FogOfWarComponent->SetRevealRadius(ChangeData.NewValue);
+            });
+    FogOfWarComponent->SetRevealRadius(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetSightAttribute(), bIgnored));
 }
 
 void ACreature::SetupSelectionData(USelectionComponent* InSelectionComponent)
@@ -68,6 +79,8 @@ void ACreature::EndPlay(EEndPlayReason::Type Reason)
     if (ensure(AbilitySystemComponent))
     {
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CreatureAttributeSet->GetMovementAttribute())
+            .RemoveAll(this);
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetSightAttribute())
             .RemoveAll(this);
     }
 }
@@ -119,6 +132,13 @@ void ACreature::SetAction(ECreatureAction InAction)
         Action = InAction;
         OnCreatureActionChanged.Broadcast(Action);
     }
+}
+
+void ACreature::SetTeam(EGameTeam InTeam)
+{
+    Super::SetTeam(InTeam);
+
+    FogOfWarComponent->SetTeam(InTeam);
 }
 
 void ACreature::OnEnterBuilding(AResidentialBuilding* Building)

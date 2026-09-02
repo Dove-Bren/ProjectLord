@@ -74,14 +74,21 @@ void ARewardFlag::Tick(float DeltaSeconds)
 void ARewardFlag::ExploreTick(float DeltaSeconds)
 {
 	// Explore flags listen for a unit to be close
+	bool bComplete = false;
 	for (auto Unit : InterestedUnits)
 	{
 		if (FVector::DistSquaredXY(GetActorLocation(), Unit->GetActorLocation()) <= 500 * 500)
 		{
-			PayNearbyInterestedHeroes(GetReward(), 1000); // Larger range for pay to split on near-ties
-			SetReward(0);
-			Destroy();
+			bComplete = true;
+			break;
 		}
+	}
+
+	if (bComplete)
+	{
+		PayNearbyInterestedHeroes(GetReward(), 1000); // Larger range for pay to split on near-ties
+		SetReward(0);
+		Destroy();
 	}
 }
 

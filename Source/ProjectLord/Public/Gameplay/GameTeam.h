@@ -17,7 +17,11 @@ enum class EGameTeam : uint8
     Player1,
     Player2,
     Neutral,
+
+    MAX UMETA(Hidden)
 };
+
+ENUM_RANGE_BY_COUNT(EGameTeam, EGameTeam::MAX);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTeamGoldChanged, int);
 DECLARE_MULTICAST_DELEGATE(FOnTeamUnitsChanged);
@@ -50,7 +54,7 @@ public:
     EGameTeam GetTeam() const { return Team; }
 
     UFUNCTION(BlueprintCallable, Category = "Team")
-    void SetTeam(EGameTeam InTeam) { Team = InTeam; }
+    void SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure, Category = "Team")
     int GetGold() const { return Gold; }

@@ -22,6 +22,7 @@ public class ProjectLord : ModuleRules
 			"ModelViewViewModel",
 			"UMG",
 			"NavigationSystem",
+			"Landscape",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

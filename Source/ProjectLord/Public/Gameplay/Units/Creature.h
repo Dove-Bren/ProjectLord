@@ -15,6 +15,7 @@ class UCreatureAttributeSet;
 class UStaticMesh;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+class UFogOfWarComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCreatureActionChanged, ECreatureAction);
 
@@ -58,6 +59,8 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetAction(ECreatureAction InAction);
 
+    virtual void SetTeam(EGameTeam InTeam) override;
+
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
@@ -71,6 +74,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TObjectPtr<UStaticMeshComponent> GraveComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
+    TObjectPtr<UFogOfWarComponent> FogOfWarComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     float DeadTime;

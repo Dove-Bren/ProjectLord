@@ -59,7 +59,7 @@ public:
     EGameTeam GetTeam() const { return Team; }
 
     UFUNCTION(BlueprintCallable)
-    void SetTeam(EGameTeam InTeam);
+    virtual void SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure)
     ECreatureCategory GetCategory() const { return Category; }
