@@ -24,6 +24,7 @@ class UUnitType;
 class UBuildingConstructionFadeComponent;
 class UNavModifierComponent;
 class UBoxComponent;
+class UFogOfWarComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingAvailableLevelChanged, int);
@@ -135,6 +136,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
     UBuildingConstructionFadeComponent* FadeComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
+    TObjectPtr<UFogOfWarComponent> FogOfWarComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     TObjectPtr<UBuildingType> BuildingType;

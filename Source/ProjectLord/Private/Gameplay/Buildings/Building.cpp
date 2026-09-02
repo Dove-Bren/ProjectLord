@@ -9,6 +9,7 @@
 #include "NavAreas/NavArea_Obstacle.h"
 
 #include "LordLogging.h"
+#include "Gameplay/FogOfWarComponent.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
@@ -56,6 +57,8 @@ ABuilding::ABuilding()
 
     FadeComponent = CreateDefaultSubobject<UBuildingConstructionFadeComponent>(TEXT("ConstructionFade"));
 
+    FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
+
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
@@ -63,6 +66,7 @@ void ABuilding::SetTeam(EGameTeam InTeam)
 {
     Team = InTeam;
     SelectionComponent->SetTeam(InTeam);
+    FogOfWarComponent->SetTeam(InTeam);
 }
 
 bool ABuilding::CanLevelUp() const
@@ -194,6 +198,16 @@ void ABuilding::BeginPlay()
         AbilitySystemComponent->ApplyGameplayEffectToSelf(UntargetEffect, 1, AbilitySystemComponent->MakeEffectContext());
     }
 
+    bool bIgnored;
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetSightAttribute())
+        .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+            {
+                FogOfWarComponent->SetRevealRadius(ChangeData.NewValue);
+            });
+    FogOfWarComponent->SetRevealRadius(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetSightAttribute(), bIgnored));
+
+    FogOfWarComponent->SetTeam(GetTeam());
+
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
     CombatComponent->OnHealthChange.AddDynamic(this, &ABuilding::HandleHealthChanged);
 
@@ -221,6 +235,12 @@ void ABuilding::EndPlay(EEndPlayReason::Type Reason)
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
     {
         State->OnGameDayChange.RemoveAll(this);
+    }
+
+    if (ensure(AbilitySystemComponent))
+    {
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetSightAttribute())
+            .RemoveAll(this);
     }
 }
 
