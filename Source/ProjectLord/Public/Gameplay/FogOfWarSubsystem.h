@@ -11,6 +11,7 @@
 class UFogOfWarComponent;
 class AFogOfWar;
 class UTextureRenderTarget2D;
+class APostProcessVolume;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API UFogOfWarSubsystem : public UWorldSubsystem, public FTickableGameObject
@@ -55,6 +56,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Fog of War")
     UTextureRenderTarget2D* GetTeamFogTarget(EGameTeam Team) const;
 
+    // Makes the in-world fog display the current fog for the given team.
+    UFUNCTION(BlueprintCallable, Category = "Fog of War")
+    void SetWorldFogForTeam(EGameTeam Team);
+
 protected:
 
     TArray<TWeakObjectPtr<UFogOfWarComponent>> Components;
@@ -67,7 +72,13 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
     TObjectPtr<UMaterialInstanceDynamic> FogRenderBrush;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
+    TObjectPtr<UMaterialInstanceDynamic> WorldFogVolumeBrush;
+
     TMap<EGameTeam, TArray<TPair<FVector, float>>> WorkMap;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
+    TObjectPtr<APostProcessVolume> WorldFogVolume;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
     int FogSheetScale;
@@ -118,6 +129,7 @@ protected:
         return EGameTeam::Monster != Team && EGameTeam::Neutral != Team;
     }
 
+    static FName BrushParam_Texture;
     static FName BrushParam_Location;
     static FName BrushParam_Radius;
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Gameplay/GameTeam.h"
 #include "FogOfWar.generated.h"
 
 class UMaterialInterface;
@@ -37,6 +38,12 @@ public:
 
     UPROPERTY(EditInstanceOnly, Category = "FogOfWar")
     UMaterialInterface* BrushMaterial;
+
+    UPROPERTY(EditInstanceOnly, Category = "FogOfWar")
+    UMaterialInterface* WorldFogMaterial;
+
+    UPROPERTY(EditInstanceOnly, Category = "FogOfWar")
+    EGameTeam DefaultTeamToDisplay = EGameTeam::Player1;
 
     virtual void BeginPlay() override;
 

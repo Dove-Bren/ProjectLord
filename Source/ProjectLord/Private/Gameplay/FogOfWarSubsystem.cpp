@@ -8,6 +8,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Misc/EnumRange.h"
 #include "Landscape.h"
+#include "Engine/PostProcessVolume.h"
 
 #include "LordLogging.h"
 #include "Gameplay/FogOfWar.h"
@@ -15,6 +16,7 @@
 
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Location = TEXT("Location");
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Radius = TEXT("Radius");
+/*static*/ FName UFogOfWarSubsystem::BrushParam_Texture = TEXT("Texture");
 
 UFogOfWarSubsystem::UFogOfWarSubsystem()
 {
@@ -120,6 +122,17 @@ void UFogOfWarSubsystem::Activate(AFogOfWar* FoWSettings)
 		}
 	}
 
+	// Set up world rendering
+	WorldFogVolumeBrush = UMaterialInstanceDynamic::Create(FoWSettings->WorldFogMaterial, this);
+
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	WorldFogVolume = GetWorld()->SpawnActor<APostProcessVolume>(Params);
+	WorldFogVolume->bUnbound = true;
+	WorldFogVolume->bEnabled = true;
+	WorldFogVolume->Settings.WeightedBlendables.Array.Add(FWeightedBlendable(1.0f, WorldFogVolumeBrush));
+
+	SetWorldFogForTeam(FoWSettings->DefaultTeamToDisplay);
 
 	for (EGameTeam Team : TEnumRange<EGameTeam>())
 	{
@@ -173,6 +186,11 @@ UTextureRenderTarget2D* UFogOfWarSubsystem::GetTeamFogTarget(EGameTeam Team) con
 	}
 
 	return FogRenderTargets[Team];
+}
+
+void UFogOfWarSubsystem::SetWorldFogForTeam(EGameTeam Team)
+{
+	WorldFogVolumeBrush->SetTextureParameterValue(BrushParam_Texture, GetTeamFogTarget(Team));
 }
 
 void UFogOfWarSubsystem::DoRevealPass()
