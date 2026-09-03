@@ -121,6 +121,9 @@ void UFogOfWarSubsystem::Activate(AFogOfWar* FoWSettings)
 			auto Target = UKismetRenderingLibrary::CreateRenderTarget2D(this, FogSheetWidth, FogSheetHeight, RTF_R8);
 			UKismetRenderingLibrary::ClearRenderTarget2D(this, Target, FLinearColor::Transparent);
 			FogRenderTargets.Add(Team, Target);
+
+			auto GameplayMap = MakeUnique<bool[]>(FogSheetWidth * FogSheetHeight);
+			GameplayMaps.Add(Team, MoveTemp(GameplayMap));
 		}
 	}
 
@@ -153,7 +156,15 @@ bool UFogOfWarSubsystem::IsInFog(EGameTeam Team, FVector Location) const
 
 	if (TeamHasFog(Team))
 	{
-		// ...
+		const int SheetX = FMath::FloorToInt(WorldXToSheetX(Location.X));
+		const int SheetY = FMath::FloorToInt(WorldYToSheetY(Location.Y));
+		if (SheetX < 0 || SheetX >= FogSheetWidth || SheetY < 0 || SheetY >= FogSheetHeight)
+		{
+			return true;
+		}
+
+		const int CellIdx = (SheetY * FogSheetWidth) + SheetX;
+		return !GameplayMaps[Team][CellIdx];
 	}
 
 	return false;
@@ -213,6 +224,11 @@ void UFogOfWarSubsystem::DoRevealPass()
 	// Add the things from the extra spots
 	for (auto Extra : ExtraRevealSpots)
 	{
+		if (Extra.Get<2>() <= 0)
+		{
+			continue;
+		}
+
 		WorkMap[Extra.Get<0>()]
 			.Emplace(Extra.Get<1>(), Extra.Get<2>());
 	}
@@ -229,13 +245,45 @@ void UFogOfWarSubsystem::DoRevealPass()
 
 		for (auto Point : WorkMap[Team])
 		{
-			// TODO batch this up somehow
-			float U = WorldXToSheetU(Point.Key.X);
-			float V = WorldYToSheetV(Point.Key.Y);
+			float SheetX = WorldXToSheetX(Point.Key.X);
+			float SheetY = WorldYToSheetY(Point.Key.Y);
 			float Radius = FMath::Clamp((Point.Value / (double)WorldSize.X), 0, .25);
-			FogRenderBrush->SetVectorParameterValue(BrushParam_Location, FVector(U, V, 0));
-			FogRenderBrush->SetScalarParameterValue(BrushParam_Radius, Radius);
-			UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), FogRenderTargets[Team], FogRenderBrush);
+
+			// Update high-quality GPU render target
+			// TODO batch this up somehow
+			{
+				float U = SheetXToSheetU(SheetX);
+				float V = SheetYToSheetV(SheetY);
+				FogRenderBrush->SetVectorParameterValue(BrushParam_Location, FVector(U, V, 0));
+				FogRenderBrush->SetScalarParameterValue(BrushParam_Radius, Radius);
+				UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), FogRenderTargets[Team], FogRenderBrush);
+			}
+
+			// Update low-quality gameplay driving map
+			{
+				const int SheetXCenter = FMath::FloorToInt(SheetX);
+				const int SheetYCenter = FMath::FloorToInt(SheetY);
+				const int RadiusCells = FMath::FloorToInt(Point.Value / FogSheetScale);
+				const int RadiusCellsSqr = RadiusCells * RadiusCells;
+
+				// Iterate over square containing circle we'll draw
+				for (int Y = SheetYCenter - RadiusCells; Y <= SheetYCenter + RadiusCells; Y++)
+				for (int X = SheetXCenter - RadiusCells; X <= SheetXCenter + RadiusCells; X++)
+				{
+					// Optimize this out by rolling into bounds
+					if (Y < 0 || X < 0 || Y >= FogSheetHeight || X >= FogSheetWidth)
+					{
+						continue;
+					}
+
+					const int HDistSqr = FMath::Square(X - SheetXCenter) + FMath::Square(Y - SheetYCenter);
+					if (HDistSqr <= RadiusCellsSqr)
+					{
+						const int CellIdx = (Y * FogSheetWidth) + X;
+						GameplayMaps[Team][CellIdx] = true;
+					}
+				}
+			}
 		}
 	}
 

@@ -77,6 +77,10 @@ protected:
 
     TMap<EGameTeam, TArray<TPair<FVector, float>>> WorkMap;
 
+    // CPU-only ugly version of where that's been revealed.
+    // Used for gameplay queries, but not for display.
+    TMap<EGameTeam, TUniquePtr<bool[]>> GameplayMaps;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
     TObjectPtr<APostProcessVolume> WorldFogVolume;
 
@@ -112,16 +116,16 @@ protected:
         return (float)(FMath::Max(0, (WorldY - WorldMin.Y)) / FogSheetScale);
     }
 
-    float WorldXToSheetU(double WorldX) const
+    float SheetXToSheetU(float SheetX) const
     {
         if (!IsActive()) return 0;
-        return WorldXToSheetX(WorldX) / FogSheetWidth;
+        return SheetX / FogSheetWidth;
     }
 
-    float WorldYToSheetV(double WorldY) const
+    float SheetYToSheetV(float SheetY) const
     {
         if (!IsActive()) return 0;
-        return WorldYToSheetY(WorldY) / FogSheetHeight;
+        return SheetY / FogSheetHeight;
     }
 
     constexpr static bool TeamHasFog(EGameTeam Team)

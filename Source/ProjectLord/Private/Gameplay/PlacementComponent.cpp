@@ -4,6 +4,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "Gameplay/FogOfWarSubsystem.h"
 #include "Gameplay/PlacementActor.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
@@ -69,7 +70,23 @@ bool UPlacementComponent::CanPlace() const
 		return false;
 	}
 
-	return !ShadowActor->HasOverlap();
+	if (ShadowActor->HasOverlap())
+	{
+		return false;
+	}
+
+	auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
+	if (!ensure(FogSubsystem))
+	{
+		return false;
+	}
+
+	if (FogSubsystem->IsInFog(EGameTeam::Player1, ShadowActor->GetActorLocation()))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 FVector UPlacementComponent::GetPlaceLocation() const
