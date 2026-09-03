@@ -132,5 +132,7 @@ protected:
     static FName BrushParam_Texture;
     static FName BrushParam_Location;
     static FName BrushParam_Radius;
+    static FName BrushParam_WorldMinOffset;
+    static FName BrushParam_WorldSize;
 
 };

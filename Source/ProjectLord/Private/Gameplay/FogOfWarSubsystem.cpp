@@ -17,6 +17,8 @@
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Location = TEXT("Location");
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Radius = TEXT("Radius");
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Texture = TEXT("Texture");
+/*static*/ FName UFogOfWarSubsystem::BrushParam_WorldMinOffset = TEXT("WorldMinOffset");
+/*static*/ FName UFogOfWarSubsystem::BrushParam_WorldSize = TEXT("WorldSize");
 
 UFogOfWarSubsystem::UFogOfWarSubsystem()
 {
@@ -124,6 +126,8 @@ void UFogOfWarSubsystem::Activate(AFogOfWar* FoWSettings)
 
 	// Set up world rendering
 	WorldFogVolumeBrush = UMaterialInstanceDynamic::Create(FoWSettings->WorldFogMaterial, this);
+	WorldFogVolumeBrush->SetVectorParameterValue(BrushParam_WorldMinOffset, WorldMin);
+	WorldFogVolumeBrush->SetVectorParameterValue(BrushParam_WorldSize, WorldSize);
 
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
