@@ -263,7 +263,7 @@ void UFogOfWarSubsystem::DoRevealPass()
 			{
 				const int SheetXCenter = FMath::FloorToInt(SheetX);
 				const int SheetYCenter = FMath::FloorToInt(SheetY);
-				const int RadiusCells = FMath::FloorToInt(Point.Value / FogSheetScale);
+				const int RadiusCells = FMath::FloorToInt((Point.Value + 275) / FogSheetScale);
 				const int RadiusCellsSqr = RadiusCells * RadiusCells;
 
 				// Iterate over square containing circle we'll draw
