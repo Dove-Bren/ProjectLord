@@ -11,9 +11,7 @@
 #include "UI/Units/HealthBarBase.h"
 #include "UI/ViewModels/Units/UnitViewModel.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
-#include "Gameplay/FogOfWarSubsystem.h"
 #include "Gameplay/LordGameState.h"
-#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
@@ -114,16 +112,6 @@ void AUnit::EndPlay(EEndPlayReason::Type Reason)
 void AUnit::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-
-    // TODO: This doesn't need to happen every frame
-    auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
-    if (FogSubsystem)
-    {
-        if (auto PC = Cast<ALordPlayerController>(GetGameInstance()->GetFirstLocalPlayerController()))
-        {
-            SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
-        }
-    }
 }
 
 void AUnit::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

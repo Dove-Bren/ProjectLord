@@ -8,7 +8,9 @@
 #include "AbilitySystemComponent.h"
 
 #include "Gameplay/FogOfWarComponent.h"
+#include "Gameplay/FogOfWarSubsystem.h"
 #include "Gameplay/GameplayUtils.h"
+#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/MinimapComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
@@ -100,6 +102,16 @@ void ACreature::Tick(float DeltaTime)
         SetAction(ECreatureAction::Dead);
         FadeTick();
     }
+
+    // TODO: This doesn't need to happen every frame
+    auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
+    if (FogSubsystem)
+    {
+        if (auto PC = Cast<ALordPlayerController>(GetGameInstance()->GetFirstLocalPlayerController()))
+        {
+            SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
+        }
+    }
 }
 
 void ACreature::SetHomeBuilding(AResidentialBuilding* Building)
@@ -174,6 +186,8 @@ void ACreature::OnDeath_Implementation()
 
     GetCharacterMovement()->StopMovementImmediately();
     GetCharacterMovement()->SetAvoidanceEnabled(false);
+
+    MinimapComponent->UnregisterFromMinimap();
 
     PlayDeathAnimation();
     

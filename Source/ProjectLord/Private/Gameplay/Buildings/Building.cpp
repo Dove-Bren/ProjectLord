@@ -10,6 +10,8 @@
 
 #include "LordLogging.h"
 #include "Gameplay/FogOfWarComponent.h"
+#include "Gameplay/FogOfWarSubsystem.h"
+#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/MinimapComponent.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/LordGameState.h"
@@ -63,6 +65,9 @@ ABuilding::ABuilding()
     MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
 void ABuilding::SetTeam(EGameTeam InTeam)
@@ -260,7 +265,15 @@ void ABuilding::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    // TODO: Building. Check if it's done?
+    // TODO: This doesn't need to happen every frame
+    auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
+    if (FogSubsystem)
+    {
+        if (auto PC = Cast<ALordPlayerController>(GetGameInstance()->GetFirstLocalPlayerController()))
+        {
+            SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
+        }
+    }
 }
 
 void ABuilding::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

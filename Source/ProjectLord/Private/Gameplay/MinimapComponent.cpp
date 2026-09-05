@@ -87,10 +87,7 @@ void UMinimapComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	auto Map = AMap::GetMap(this);
-	if (Map)
-	{
-		auto WorldLocation = GetWorldLocation();
-		ViewModel->SetWorldLocation(WorldLocation);
-	}
+	auto WorldLocation = GetWorldLocation();
+	ViewModel->SetWorldLocation(WorldLocation);
+	ViewModel->SetVisible(IsVisible());
 }
