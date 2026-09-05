@@ -13,6 +13,7 @@
 #include "LordLogging.h"
 #include "Gameplay/FogOfWar.h"
 #include "Gameplay/FogOfWarComponent.h"
+#include "Gameplay/Map.h"
 
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Location = TEXT("Location");
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Radius = TEXT("Radius");
@@ -70,81 +71,62 @@ void UFogOfWarSubsystem::Activate(AFogOfWar* FoWSettings)
 		UE_LOG(LordFogOfWar, Error, TEXT("UFogOfWarSubsystem::Activate: Already active!"));
 	}
 
-	if (!ensure(FoWSettings))
+	auto Map = AMap::GetMap(this);
+	if (!ensure(Map))
 	{
-		UE_LOG(LordFogOfWar, Error, TEXT("Failed to find Fog of War actor in world"));
+		UE_LOG(LordFogOfWar, Error, TEXT("Failed to find Map actor in world"));
 		return;
 	}
 
 	UE_LOG(LordFogOfWar, Log, TEXT("Reading Fog Of War settings from FogOfWar actor"));
 	FogSheetScale = FoWSettings->MapScale;
 	FogRenderBrush = UMaterialInstanceDynamic::Create(FoWSettings->BrushMaterial, this);
-	bActive = true;
-
-	if (FoWSettings->bAutoMapSize)
-	{
-		// Deduce world size by looking for landscape
-		auto Landscape = UGameplayStatics::GetActorOfClass(this, ALandscape::StaticClass());
-		if (ensure(Landscape))
-		{
-			FVector Origin;
-			FVector Extent;
-			Landscape->GetActorBounds(false, Origin, Extent, true);
-			WorldMin = Origin - FVector(Extent.X, Extent.Y, Extent.Z);
-			WorldSize = FVector(Extent.X * 2, Extent.Y * 2, Extent.Z * 2);
-			UE_LOG(LordFogOfWar, Log, TEXT("Read world size from landscape: %f x %f (origin: %f, %f, %f)"),
-				WorldSize.X, WorldSize.Y,
-				WorldMin.X, WorldMin.Y, WorldMin.Z
-			);
-		}
-	}
-	else
-	{
-		WorldSize = FVector(FoWSettings->MapWidth, FoWSettings->MapHeight, 0);
-		WorldMin = FoWSettings->MapMinPoint;
-	}
-
-	if (!ensure(!WorldSize.IsNearlyZero()))
-	{
-		UE_LOG(LordFogOfWar, Error, TEXT("World size is zero; inserting bogus values"));
-		WorldSize = FVector(128, 128, 100);
-	}
-
-	// Use world size to decide map size, and create render targets
-	FogSheetWidth = FMath::CeilToInt(WorldSize.X / (float) FogSheetScale);
-	FogSheetHeight = FMath::CeilToInt(WorldSize.Y / (float) FogSheetScale);
-	UE_LOG(LordFogOfWar, Log, TEXT("Calculated FoW Sheet size: %d x %d"), FogSheetWidth, FogSheetHeight);
-	for (EGameTeam Team : TEnumRange<EGameTeam>())
-	{
-		if (TeamHasFog(Team))
-		{
-			auto Target = UKismetRenderingLibrary::CreateRenderTarget2D(this, FogSheetWidth, FogSheetHeight, RTF_R8);
-			UKismetRenderingLibrary::ClearRenderTarget2D(this, Target, FLinearColor::Transparent);
-			FogRenderTargets.Add(Team, Target);
-
-			auto GameplayMap = MakeUnique<bool[]>(FogSheetWidth * FogSheetHeight);
-			GameplayMaps.Add(Team, MoveTemp(GameplayMap));
-		}
-	}
-
-	// Set up world rendering
-	WorldFogVolumeBrush = UMaterialInstanceDynamic::Create(FoWSettings->WorldFogMaterial, this);
-	WorldFogVolumeBrush->SetVectorParameterValue(BrushParam_WorldMinOffset, WorldMin);
-	WorldFogVolumeBrush->SetVectorParameterValue(BrushParam_WorldSize, WorldSize);
-
-	FActorSpawnParameters Params;
-	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	WorldFogVolume = GetWorld()->SpawnActor<APostProcessVolume>(Params);
-	WorldFogVolume->bUnbound = true;
-	WorldFogVolume->bEnabled = true;
-	WorldFogVolume->Settings.WeightedBlendables.Array.Add(FWeightedBlendable(1.0f, WorldFogVolumeBrush));
-
-	SetWorldFogForTeam(FoWSettings->DefaultTeamToDisplay);
 
 	for (EGameTeam Team : TEnumRange<EGameTeam>())
 	{
 		WorkMap.Emplace(Team);
 	}
+
+	// Rest has to wait for map data
+	EGameTeam StartingTeam = FoWSettings->DefaultTeamToDisplay;
+	Map->AddMapReadyHandler(FOnMapReady::CreateWeakLambda(this, [this, Map, StartingTeam, WorldFogMaterial = FoWSettings->WorldFogMaterial]()
+	{
+		bActive = true;
+
+		WorldMin = Map->GetMapMinPoint();
+		WorldSize = FVector(Map->GetMapWidth(), Map->GetMapHeight(), 1);
+
+		// Use world size to decide map size, and create render targets
+		FogSheetWidth = FMath::CeilToInt(WorldSize.X / (float)FogSheetScale);
+		FogSheetHeight = FMath::CeilToInt(WorldSize.Y / (float)FogSheetScale);
+		UE_LOG(LordFogOfWar, Log, TEXT("Calculated FoW Sheet size: %d x %d"), FogSheetWidth, FogSheetHeight);
+		for (EGameTeam Team : TEnumRange<EGameTeam>())
+		{
+			if (TeamHasFog(Team))
+			{
+				auto Target = UKismetRenderingLibrary::CreateRenderTarget2D(this, FogSheetWidth, FogSheetHeight, RTF_R8);
+				UKismetRenderingLibrary::ClearRenderTarget2D(this, Target, FLinearColor::Transparent);
+				FogRenderTargets.Add(Team, Target);
+
+				auto GameplayMap = MakeUnique<bool[]>(FogSheetWidth * FogSheetHeight);
+				GameplayMaps.Add(Team, MoveTemp(GameplayMap));
+			}
+		}
+
+		// Set up world rendering
+		WorldFogVolumeBrush = UMaterialInstanceDynamic::Create(WorldFogMaterial, this);
+		WorldFogVolumeBrush->SetVectorParameterValue(BrushParam_WorldMinOffset, WorldMin);
+		WorldFogVolumeBrush->SetVectorParameterValue(BrushParam_WorldSize, WorldSize);
+
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		WorldFogVolume = GetWorld()->SpawnActor<APostProcessVolume>(Params);
+		WorldFogVolume->bUnbound = true;
+		WorldFogVolume->bEnabled = true;
+		WorldFogVolume->Settings.WeightedBlendables.Array.Add(FWeightedBlendable(1.0f, WorldFogVolumeBrush));
+
+		SetWorldFogForTeam(StartingTeam);
+	}));
 }
 
 bool UFogOfWarSubsystem::IsInFog(EGameTeam Team, FVector Location) const

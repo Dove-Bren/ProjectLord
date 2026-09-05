@@ -22,20 +22,6 @@ public:
     UPROPERTY(EditInstanceOnly, Category = "FogOfWar")
     int MapScale = 16;
 
-    // Whether the map size should be determined automatically be checking the bounds
-    // of the landscape. Not this only works if the landscape is not set up to Stream.
-    UPROPERTY(EditInstanceOnly, Category = "FogOfWar")
-    bool bAutoMapSize = false;
-
-    UPROPERTY(EditInstanceOnly, Category = "FogOfWar", meta = (EditCondition = "!bAutoMapSize", EditConditionHides))
-    double MapWidth = 5000;
-
-    UPROPERTY(EditInstanceOnly, Category = "FogOfWar", meta = (EditCondition = "!bAutoMapSize", EditConditionHides))
-    double MapHeight = 5000;
-
-    UPROPERTY(EditInstanceOnly, Category = "FogOfWar", meta = (EditCondition = "!bAutoMapSize", EditConditionHides))
-    FVector MapMinPoint = FVector(0, 0, 0);
-
     UPROPERTY(EditInstanceOnly, Category = "FogOfWar")
     UMaterialInterface* BrushMaterial;
 

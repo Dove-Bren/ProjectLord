@@ -10,6 +10,7 @@
 
 #include "LordLogging.h"
 #include "Gameplay/FogOfWarComponent.h"
+#include "Gameplay/MinimapComponent.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
@@ -59,6 +60,8 @@ ABuilding::ABuilding()
 
     FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
 
+    MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
+
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
@@ -67,6 +70,7 @@ void ABuilding::SetTeam(EGameTeam InTeam)
     Team = InTeam;
     SelectionComponent->SetTeam(InTeam);
     FogOfWarComponent->SetTeam(InTeam);
+    MinimapComponent->SetTeam(InTeam);
 }
 
 bool ABuilding::CanLevelUp() const
@@ -205,8 +209,9 @@ void ABuilding::BeginPlay()
                 FogOfWarComponent->SetRevealRadius(ChangeData.NewValue);
             });
     FogOfWarComponent->SetRevealRadius(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetSightAttribute(), bIgnored));
-
     FogOfWarComponent->SetTeam(GetTeam());
+
+    MinimapComponent->SetTeam(GetTeam());
 
     CombatComponent->OnDeath.AddDynamic(this, &ABuilding::HandleDeath);
     CombatComponent->OnHealthChange.AddDynamic(this, &ABuilding::HandleHealthChanged);

@@ -9,6 +9,7 @@
 
 #include "Gameplay/FogOfWarComponent.h"
 #include "Gameplay/GameplayUtils.h"
+#include "Gameplay/MinimapComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Combat/GameplayEffect/VisitingBuildingGameplayEffect.h"
@@ -31,6 +32,7 @@ ACreature::ACreature()
     GraveComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
     FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
+    MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
 }
 
 void ACreature::RegisterAttributes()
@@ -70,6 +72,9 @@ void ACreature::BeginPlay()
 
     const float HalfHeight = GetSimpleCollisionHalfHeight();
     GraveComponent->SetRelativeLocation(FVector(0, 0, -HalfHeight));
+
+    FogOfWarComponent->SetTeam(GetTeam());
+    MinimapComponent->SetTeam(GetTeam());
 }
 
 void ACreature::EndPlay(EEndPlayReason::Type Reason)
@@ -139,6 +144,7 @@ void ACreature::SetTeam(EGameTeam InTeam)
     Super::SetTeam(InTeam);
 
     FogOfWarComponent->SetTeam(InTeam);
+    MinimapComponent->SetTeam(InTeam);
 }
 
 void ACreature::OnEnterBuilding(AResidentialBuilding* Building)

@@ -16,6 +16,7 @@ class UStaticMesh;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UFogOfWarComponent;
+class UMinimapComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCreatureActionChanged, ECreatureAction);
 
@@ -77,6 +78,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
     TObjectPtr<UFogOfWarComponent> FogOfWarComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Map")
+    TObjectPtr<UMinimapComponent> MinimapComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     float DeadTime;
