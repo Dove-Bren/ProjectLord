@@ -45,8 +45,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GameTime")
     void SetGamePaused(bool bPaused);
 
-    UFUNCTION(BlueprintPure, Category = "GameTeam")
-    AGameTeamState* GetTeam(EGameTeam Team) { return GameTeams[Team]; }
+    UFUNCTION(BlueprintCallable, Category = "GameTeam")
+    AGameTeamState* GetTeam(EGameTeam Team);
 
     UFUNCTION(BlueprintPure, Category = "UI")
     class UVMLordGameState* GetViewModel() const { return ViewModel; }
@@ -77,6 +77,9 @@ protected:
     void OnRep_GameTeams(TArray<AGameTeamState*> PrevTeams);
 
     void SetGlobalTimeDilation(float Rate);
+
+    void Setup();
+    bool bSetupComplete;
 
 public:
     virtual void BeginPlay() override;

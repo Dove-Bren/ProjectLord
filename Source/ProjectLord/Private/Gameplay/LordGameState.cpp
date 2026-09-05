@@ -11,6 +11,7 @@ ALordGameState::ALordGameState()
 {
 	GameSpeed = 1.0f;
 	GameDays = 0;
+	bSetupComplete = false;
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -31,6 +32,18 @@ void ALordGameState::BeginPlay()
 
 	ViewModel = CreateLordVM<UVMLordGameState>(this);
 	ViewModel->Setup(this);
+
+	Setup();
+}
+
+void ALordGameState::Setup()
+{
+	if (bSetupComplete)
+	{
+		return;
+	}
+
+	bSetupComplete = true;
 
 	for (EGameTeam Team : {EGameTeam::Monster, EGameTeam::Neutral, EGameTeam::Player1, EGameTeam::Player2})
 	{
@@ -63,6 +76,12 @@ void ALordGameState::SetGameSpeed(float InSpeed)
 void ALordGameState::SetGamePaused(bool bPaused)
 {
 	UGameplayStatics::SetGamePaused(this, bPaused);
+}
+
+AGameTeamState* ALordGameState::GetTeam(EGameTeam Team)
+{
+	Setup();
+	return GameTeams[Team];
 }
 
 void ALordGameState::OnRep_GameDays(double PrevGameDays)
