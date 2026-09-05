@@ -8,6 +8,7 @@
 
 class UVMRewardFlag;
 class USelectionComponent;
+class UMinimapComponent;
 class AHeroBase;
 
 UENUM(BlueprintType)
@@ -116,6 +117,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Map")
+    TObjectPtr<UMinimapComponent> MinimapComponent;
 
     void ExploreTick(float DeltaSeconds);
     void DefendTick(float DeltaSeconds);

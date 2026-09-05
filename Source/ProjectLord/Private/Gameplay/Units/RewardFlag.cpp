@@ -4,6 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 
+#include "Gameplay/MinimapComponent.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/HeroBase.h"
@@ -14,8 +15,10 @@
 
 ARewardFlag::ARewardFlag()
 {
-	SelectionComponent = CreateDefaultSubobject<USelectionComponent>("Selection");
+	SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
 	SelectionComponent->SetSelectable(true);
+
+	MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -48,6 +51,8 @@ void ARewardFlag::BeginPlay()
 	});
 	AppealVM->SetInterestedCount(GetNumInterestedUnits());
 	SelectionComponent->SetAppealVM(AppealVM);
+
+	MinimapComponent->SetTeam(GetTeam());
 }
 
 void ARewardFlag::Tick(float DeltaSeconds)
@@ -295,6 +300,7 @@ void ARewardFlag::OnRep_Team(EGameTeam OldValue)
 {
 	ViewModel->SetTeam(GetTeam());
 	SelectionComponent->SetTeam(GetTeam());
+	MinimapComponent->SetTeam(GetTeam());
 }
 
 void ARewardFlag::OnRep_Reward(int OldValue)
