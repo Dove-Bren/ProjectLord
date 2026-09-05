@@ -6,6 +6,8 @@
 #include "Map.generated.h"
 
 class UMinimapComponent;
+class UTextureRenderTarget2D;
+class USceneCaptureComponent2D;
 
 DECLARE_DELEGATE(FOnMapReady);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComponentsChange);
@@ -60,6 +62,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Map")
     const TArray<UMinimapComponent*>& GetMapComponents() const { return MapComponents; }
 
+    UFUNCTION(BlueprintPure, Category = "Map")
+    UTextureRenderTarget2D* GetMapTexture() const { return MapTexture; }
+
 protected:
 
     // Whether the map size should be determined automatically be checking the bounds
@@ -76,11 +81,25 @@ protected:
     UPROPERTY(EditInstanceOnly, Category = "Map", meta = (EditCondition = "!bAutoMapSize", EditConditionHides))
     FVector MapMinPoint = FVector(0, 0, 0);
 
+    UPROPERTY(EditInstanceOnly, Category = "Map")
+    int MapTextureLength = 512;
+
+    UPROPERTY(EditInstanceOnly, Category = "Map")
+    int MapTextureCaptureHeight = 500;
+
     UPROPERTY(VisibleInstanceOnly, Category = "Map")
     TArray<UMinimapComponent*> MapComponents;
+
+    UPROPERTY(VisibleInstanceOnly, Category = "Map")
+    TObjectPtr<UTextureRenderTarget2D> MapTexture;
+
+    UPROPERTY(VisibleInstanceOnly, Category = "Map")
+    TObjectPtr<USceneCaptureComponent2D> SceneCaptureComponent;
 
     bool bReady;
 
     DECLARE_MULTICAST_DELEGATE(FOnMapReadyBroadcast);
     FOnMapReadyBroadcast OnMapReady;
+
+    void CaptureMapTexture();
 };

@@ -2,7 +2,10 @@
 
 #include "Gameplay/Map.h"
 
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetRenderingLibrary.h"
 #include "Landscape.h"
 
 #include "LordLogging.h"
@@ -15,6 +18,23 @@
 AMap::AMap()
 {
 	bReady = false;
+
+	SceneCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureComponent"));
+	SceneCaptureComponent->PrimaryComponentTick.bStartWithTickEnabled = false;
+	SceneCaptureComponent->bCaptureEveryFrame = false;
+	SceneCaptureComponent->bCaptureOnMovement = false;
+	SceneCaptureComponent->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_LegacySceneCapture;
+	SceneCaptureComponent->ProjectionType = ECameraProjectionMode::Orthographic;
+	SceneCaptureComponent->CaptureSource = ESceneCaptureSource::SCS_BaseColor;
+	SceneCaptureComponent->ShowFlags.SetSkeletalMeshes(false);
+	SceneCaptureComponent->ShowFlags.SetStaticMeshes(false);
+	SceneCaptureComponent->ShowFlags.SetTranslucency(false);
+	SceneCaptureComponent->ShowFlags.SetParticles(false);
+	SceneCaptureComponent->ShowFlags.SetFog(false);
+	SceneCaptureComponent->ShowFlags.SetAtmosphere(false);
+
+	SetRootComponent(SceneCaptureComponent);
+	SetActorRotation(FRotator(-90, -90, 0));
 }
 
 void AMap::BeginPlay()
@@ -49,8 +69,27 @@ void AMap::BeginPlay()
 		MapHeight = 1000;
 	}
 
+	CaptureMapTexture();
+
 	bReady = true;
 	OnMapReady.Broadcast();
+}
+
+void AMap::CaptureMapTexture()
+{
+	// Make render target
+	MapTexture = UKismetRenderingLibrary::CreateRenderTarget2D(this, MapTextureLength, MapTextureLength, RTF_RGBA16f);
+
+	// Set up capturer
+	SceneCaptureComponent->TextureTarget = MapTexture;
+	SceneCaptureComponent->OrthoWidth = FMath::Max(MapWidth, MapHeight);
+
+	// Position in scene
+	SetActorLocation(MapMinPoint + FVector(MapWidth / 2, MapHeight / 2, MapTextureCaptureHeight));
+	SetActorRotation(FRotator(-90, -90, 0));
+
+	// Do capture
+	SceneCaptureComponent->CaptureScene();
 }
 
 void AMap::AddMapComponent(UMinimapComponent* Component)
