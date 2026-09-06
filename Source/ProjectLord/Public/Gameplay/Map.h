@@ -65,6 +65,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Map")
     UTextureRenderTarget2D* GetMapTexture() const { return MapTexture; }
 
+    UFUNCTION(BlueprintCallable, Category = "Map")
+    TArray<FVector2D> GetCameraBoundPoints() const;
+
 protected:
 
     // Whether the map size should be determined automatically be checking the bounds

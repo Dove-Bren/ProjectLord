@@ -9,6 +9,7 @@
 #include "Landscape.h"
 
 #include "LordLogging.h"
+#include "Gameplay/LordPlayerController.h"
 
 /*static*/ AMap* AMap::GetMap(const UObject* WorldContext)
 {
@@ -107,4 +108,30 @@ void AMap::RemoveMapComponent(UMinimapComponent* Component)
 	{
 		OnComponentsChange.Broadcast();
 	}
+}
+
+TArray<FVector2D> AMap::GetCameraBoundPoints() const
+{
+	TArray<FVector2D> Points;
+
+	auto PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (ensure(PC))
+	{
+		FVector2D ViewportSize;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		for (const auto& ScreenPos : {FVector2D(0, 0), FVector2D(ViewportSize.X, 0), FVector2D(ViewportSize.X, ViewportSize.Y), FVector2D(0, ViewportSize.Y)})
+		{
+			FVector WorldLocation;
+			FVector WorldDirection;
+			PC->DeprojectScreenPositionToWorld(ScreenPos.X, ScreenPos.Y, WorldLocation, WorldDirection);
+
+			// Adjust WorldLocation down to z=0 instead of being way up in the air
+			WorldLocation += WorldDirection * (-WorldLocation.Z / WorldDirection.Z);
+
+			Points.Add(FVector2D(WorldLocation.X, WorldLocation.Y));
+		}
+	}
+
+	return Points;
 }
