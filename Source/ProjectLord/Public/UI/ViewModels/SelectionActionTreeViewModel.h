@@ -78,8 +78,8 @@ public:
     void SetPage(FString InPageName) { PageName = InPageName; }
     FString GetPage() const { return PageName; }
 
-    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
-    virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
+    virtual bool CanPerform_Implementation() const override;
+    virtual bool Perform_Implementation() override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Tree")
@@ -93,7 +93,7 @@ class PROJECTLORD_API UTreeBackAction : public USelectionAction
 
 public:
 
-    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context) const override;
-    virtual bool Perform_Implementation(const FSelectionActionContext& Context) override;
+    virtual bool CanPerform_Implementation() const override;
+    virtual bool Perform_Implementation() override;
 
 };

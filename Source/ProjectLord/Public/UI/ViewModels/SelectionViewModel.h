@@ -100,7 +100,7 @@ public:
     bool GetOnSelectionChange() const { return OnSelectionChange; }
 
     void Reset(bool bTriggerUpdate = true);
-    void SetFromSelection(const USelectionComponent* Selection, FSelectionActionContext Context, bool bIncludeActions = true, bool bTriggerUpdate = true);
+    void SetFromSelection(const USelectionComponent* Selection, bool bIncludeActions = true, bool bTriggerUpdate = true);
     void SetFromStaticElement(FStaticSelection StaticElement, bool bTriggerUpdate = true);
     void TriggerSelectionChange() { UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(OnSelectionChange); }
 

@@ -70,9 +70,6 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Hover", meta = (DisplayName = "OnHoverChange"))
     void BP_OnHoverChange();
 
-    UFUNCTION(BlueprintCallable, Category = "Selection")
-    FSelectionActionContext MakeSelectionContext();
-
     UFUNCTION(BlueprintCallable, Category = "Placement")
     void PlaceBuilding(UBuildingType* Type, int Cost);
 

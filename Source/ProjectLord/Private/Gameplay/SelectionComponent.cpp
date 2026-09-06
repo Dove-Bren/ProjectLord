@@ -65,6 +65,7 @@ UVMSelectionActionTree* USelectionComponent::BuildDefaultActionTree()
 	Context.Selection = this;
 	Context.PlayerState = Cast<ALordPlayerState>(RawState);
 	Context.TeamState = GameState ? GameState->GetTeam(Team) : nullptr;
+	Context.ActionTree = VM;
 
 	ActionInstances.Empty();
 

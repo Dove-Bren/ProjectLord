@@ -101,20 +101,6 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 	}
 }
 
-FSelectionActionContext ALordPlayerController::MakeSelectionContext()
-{
-	FSelectionActionContext Context;
-
-	Context.PlayerState = GetLordPlayerState();
-	Context.TeamState = GetTeamState();
-	if (HasSelection())
-	{
-		Context.Selection = Selection.GetValue();
-	}
-
-	return Context;
-}
-
 void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost)
 {
 	PlacementComponent->StartPlacing(Type, Cost);
@@ -133,7 +119,7 @@ void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
 	{
 		bHasHoverInfo = true;
 		HoveredComponent = InHovered;
-		HoverVM->SetFromSelection(InHovered, MakeSelectionContext(), false, true);
+		HoverVM->SetFromSelection(InHovered, false, true);
 		OnHoverChange();
 	}
 }
@@ -289,7 +275,7 @@ bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
 void ALordPlayerController::OnSelectionChange()
 {
 	// Update VM
-	SelectionVM->SetFromSelection(HasSelection() ? GetSelection() : nullptr, MakeSelectionContext(), true, true);
+	SelectionVM->SetFromSelection(HasSelection() ? GetSelection() : nullptr, true, true);
 	BP_OnSelectionChange();
 }
 

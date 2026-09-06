@@ -116,28 +116,28 @@ void UVMSelectionActionTree::RefreshPage()
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CurrentActions);
 }
 
-bool UTreePageAction::CanPerform_Implementation(const FSelectionActionContext& Context) const
+bool UTreePageAction::CanPerform_Implementation() const
 {
-	/*auto TreeVM = Context.Selection->GetActionTreeVM();
+	/*auto TreeVM = Context.ActionTree;
 	return TreeVM && TreeVM->HasPage(GetPage());*/
 	return true;
 }
 
-bool UTreePageAction::Perform_Implementation(const FSelectionActionContext& Context)
+bool UTreePageAction::Perform_Implementation()
 {
-	auto TreeVM = Context.Selection->GetActionTreeVM();
+	auto TreeVM = Context.ActionTree;
 	return TreeVM->GoToPage(GetPage());
 }
 
-bool UTreeBackAction::CanPerform_Implementation(const FSelectionActionContext& Context) const
+bool UTreeBackAction::CanPerform_Implementation() const
 {
-	/*auto TreeVM = Context.Selection->GetActionTreeVM();
+	/*auto TreeVM = Context.ActionTree;
 	return TreeVM && !TreeVM->IsAtRoot();*/
 	return true;
 }
 
-bool UTreeBackAction::Perform_Implementation(const FSelectionActionContext& Context)
+bool UTreeBackAction::Perform_Implementation()
 {
-	auto TreeVM = Context.Selection->GetActionTreeVM();
+	auto TreeVM = Context.ActionTree;
 	return TreeVM->GoBack();
 }

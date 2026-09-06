@@ -29,7 +29,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     }
 }
 
-void UVMSelection::SetFromSelection(const USelectionComponent* Selection, FSelectionActionContext Context, bool bIncludeActions, bool bTriggerUpdate)
+void UVMSelection::SetFromSelection(const USelectionComponent* Selection, bool bIncludeActions, bool bTriggerUpdate)
 {
 	Reset(!Selection);
 	if (Selection)

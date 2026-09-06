@@ -33,10 +33,5 @@ void UVMSelectionAction::Perform()
 		return;
 	}
 
-	ALordPlayerController* PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(Action.Get(), 0));
-	if (ensure(PC))
-	{
-		FSelectionActionContext Context = PC->MakeSelectionContext();
-		Action.Get()->Perform(Context);
-	}
+	Action.Get()->Perform();
 }
