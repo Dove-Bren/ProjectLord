@@ -68,6 +68,7 @@ void UHeroInventory::SetArmor(UHeroItemStack* InArmor)
 void UHeroInventory::SetHealthPotions(UHeroItemStack* InHealthPotions)
 {
 	HealthPotions = InHealthPotions;
+	OnInventoryItemsChanged.Broadcast();
 }
 
 void UHeroInventory::DeductHealthPotion()
@@ -75,12 +76,14 @@ void UHeroInventory::DeductHealthPotion()
 	if (ensure(HealthPotions && HealthPotions->GetCount() > 0))
 	{
 		HealthPotions->SetCount(HealthPotions->GetCount() - 1);
+		OnInventoryItemsChanged.Broadcast();
 	}
 }
 
 void UHeroInventory::SetManaPotions(UHeroItemStack* InManaPotions)
 {
 	ManaPotions = InManaPotions;
+	OnInventoryItemsChanged.Broadcast();
 }
 
 void UHeroInventory::DeductManaPotion()
@@ -88,6 +91,7 @@ void UHeroInventory::DeductManaPotion()
 	if (ensure(ManaPotions && ManaPotions->GetCount() > 0))
 	{
 		ManaPotions->SetCount(ManaPotions->GetCount() - 1);
+		OnInventoryItemsChanged.Broadcast();
 	}
 }
 
@@ -121,10 +125,26 @@ bool UHeroInventory::Add(UHeroItemStack* Item)
 		SetArmor(Item);
 		return true;
 	case EItemType::HealthPotion:
-		SetHealthPotions(Item);
+		if (!HealthPotions || HealthPotions->IsEmpty() || HealthPotions->GetItemDef() != Item->GetItemDef())
+		{
+			SetHealthPotions(Item);
+		}
+		else
+		{
+			HealthPotions->AddCount(Item->GetCount());
+			OnInventoryItemsChanged.Broadcast();
+		}
 		return true;
 	case EItemType::ManaPotion:
-		SetManaPotions(Item);
+		if (!ManaPotions || ManaPotions->IsEmpty() || ManaPotions->GetItemDef() != Item->GetItemDef())
+		{
+			SetManaPotions(Item);
+		}
+		else
+		{
+			ManaPotions->AddCount(Item->GetCount());
+			OnInventoryItemsChanged.Broadcast();
+		}
 		return true;
 	case EItemType::Other:
 		return AddExtraItem(Item);
