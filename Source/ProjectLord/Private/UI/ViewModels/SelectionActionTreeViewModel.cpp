@@ -57,6 +57,16 @@ bool UVMSelectionActionTree::GoBack()
 	return false;
 }
 
+bool UVMSelectionActionTree::GoToRoot()
+{
+	if (!IsAtRoot())
+	{
+		GoToPageInternal(RootPageName, true);
+		return true;
+	}
+	return false;
+}
+
 const FString& UVMSelectionActionTree::GetCurrentPage() const
 {
 	return PageHistory.IsEmpty() ? RootPageName : PageHistory.Last();
@@ -80,9 +90,16 @@ bool UVMSelectionActionTree::GoToPageInternal(const FString& PageName, bool bUpd
 		return false;
 	}
 
-	if (bUpdateHistory && !PageName.IsEmpty())
+	if (bUpdateHistory)
 	{
-		PageHistory.Add(PageName);
+		if (PageName == RootPageName)
+		{
+			PageHistory.Empty();
+		}
+		else
+		{
+			PageHistory.Add(PageName);
+		}
 	}
 	UpdateActions(PageOpt->Actions);
 	return true;

@@ -37,6 +37,9 @@ void USelectionComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void USelectionComponent::Select()
 {
+	// Reset action tree
+	ActionTreeVM->GoToRoot();
+
 	OnSelected.Broadcast();
 }
 

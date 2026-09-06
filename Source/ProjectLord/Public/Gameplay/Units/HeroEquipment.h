@@ -135,7 +135,7 @@ public:
     int AddCount(int Amount) { return SetCount(GetCount() + Amount); }
 
     UFUNCTION(BlueprintCallable, Category = "ItemStack")
-    int SetCount(int NewCount) { Count = FMath::Max(0, GetCount() + NewCount); return GetCount(); }
+    int SetCount(int NewCount) { Count = FMath::Max(0, NewCount); return GetCount(); }
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")

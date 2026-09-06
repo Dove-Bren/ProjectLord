@@ -38,9 +38,10 @@ public:
     // Operation functions
     bool GoToPage(const FString& PageName);
     bool GoBack();
+    bool GoToRoot();
     bool HasPage(const FString& PageName) const { return !!FindPage(PageName); }
     const FString& GetCurrentPage() const;
-    bool IsAtRoot() const { return GetCurrentPage() != RootPageName; }
+    bool IsAtRoot() const { return GetCurrentPage() == RootPageName; }
 
     static const FString RootPageName;
 
