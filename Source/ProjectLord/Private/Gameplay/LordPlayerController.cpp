@@ -91,6 +91,7 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 {
 	if (HasSelection())
 	{
+		Selection.GetValue()->OnRemoved.RemoveAll(this);
 		Selection.GetValue()->Deselect();
 	}
 	Selection = NullOpt;

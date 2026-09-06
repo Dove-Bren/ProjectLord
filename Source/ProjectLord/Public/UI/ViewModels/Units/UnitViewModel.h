@@ -31,6 +31,12 @@ public:
 	bool IsHero() const { return bIsHero; }
 	void SetIsHero(bool bInIsHero) { UE_MVVM_SET_PROPERTY_VALUE(bIsHero, bInIsHero); }
 
+	bool IsSelected() const { return bIsSelected; }
+	void SetIsSelected(bool bInIsSelected) { UE_MVVM_SET_PROPERTY_VALUE(bIsSelected, bInIsSelected); }
+
+	UFUNCTION(BlueprintCallable, Category = "Unit")
+	void SelectUnit();
+
 private:
 	static UVMUnit* CreateForUnit(AUnit* Unit);
 
@@ -56,6 +62,9 @@ private:
 
 	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = IsHero, Category = "UnitType", meta = (AllowPrivateAccess = true))
 	bool bIsHero;
+
+	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = IsSelected, Category = "Selection", meta = (AllowPrivateAccess = true))
+	bool bIsSelected;
 
 	friend class AUnit;
 };

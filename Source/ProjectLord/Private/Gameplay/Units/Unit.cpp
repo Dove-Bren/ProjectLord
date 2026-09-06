@@ -289,6 +289,15 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
 
     InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
     InSelectionComponent->SetCategoryVM(UVMCreatureCategory::Make(this, GetCategory()));
+
+    InSelectionComponent->OnSelected.AddWeakLambda(this, [this]()
+    {
+        UnitVM->SetIsSelected(true);
+    });
+    InSelectionComponent->OnDeselected.AddWeakLambda(this, [this]()
+    {
+        UnitVM->SetIsSelected(false);
+    });
 }
 
 void AUnit::HandleDeath()
