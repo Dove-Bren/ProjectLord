@@ -9,6 +9,8 @@
 class UVMRewardFlag;
 class USelectionComponent;
 class UMinimapComponent;
+class UCombatComponent;
+class AUnit;
 class AHeroBase;
 
 UENUM(BlueprintType)
@@ -64,11 +66,11 @@ public:
     void SetReward(int inReward);
 
     UFUNCTION(BlueprintPure, Category = "Reward Flag")
-    bool IsAttached() const { return !!AttachedUnit; }
+    bool IsAttached() const { return !!AttachedComponent; }
     UFUNCTION(BlueprintPure, Category = "Reward Flag")
-    AUnit* GetAttachedUnit() const { return AttachedUnit; }
+    UCombatComponent* GetAttachedComponent() const { return AttachedComponent; }
     UFUNCTION(BlueprintCallable, Category = "Reward Flag")
-    void SetAttachedUnit(AUnit* InInit);
+    void SetAttachedComponent(UCombatComponent* InComponent);
 
     UFUNCTION(BlueprintPure, Category = "Reward Flag")
     const TSet<AUnit*> GetInterestedUnits() const { return InterestedUnits; }
@@ -102,8 +104,8 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Reward, Category = "Reward Flag")
     int Reward;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_AttachedUnit, Category = "Reward Flag")
-    TObjectPtr<AUnit> AttachedUnit;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_AttachedComponent, Category = "Reward Flag")
+    TObjectPtr<UCombatComponent> AttachedComponent;
 
     // Only kept up-to-date on server
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Reward Flag")
@@ -133,12 +135,12 @@ protected:
     UFUNCTION()
     void OnRep_Reward(int OldValue);
     UFUNCTION()
-    void OnRep_AttachedUnit(AUnit* OldValue);
+    void OnRep_AttachedComponent(UCombatComponent* OldValue);
     UFUNCTION()
     void OnRep_InterestedUnits(int OldValue);
 
     UFUNCTION()
-    void OnUnitDeath(AUnit* Unit);
+    void OnUnitDeath();
 
     UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "Reward Flag")
     FText GetFlagName() const;

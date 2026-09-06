@@ -9,7 +9,7 @@
 
 #include "RewardFlagViewModel.generated.h"
 
-class UVMUnit;
+class UVMCombatData;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMRewardFlag : public UVMLordBase
@@ -26,9 +26,11 @@ public:
     int GetReward() const { return Reward; }
     void SetReward(int InReward) { UE_MVVM_SET_PROPERTY_VALUE(Reward, InReward); }
 
-    bool IsAttached() const { return !!AttachedUnit; }
-    UVMUnit* GetAttachedUnit() const { return AttachedUnit; }
-    void SetAttachedUnit(UVMUnit* InUnit) { UE_MVVM_SET_PROPERTY_VALUE(AttachedUnit, InUnit); }
+    UFUNCTION(FieldNotify, BlueprintPure)
+    bool IsAttached() const { return !!AttachedComponentVM; }
+
+    UVMCombatData* GetAttachedComponentVM() const { return AttachedComponentVM; }
+    void SetAttachedCombatComponent(UVMCombatData* InVM) { UE_MVVM_SET_PROPERTY_VALUE(AttachedComponentVM, InVM); UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(IsAttached); }
 
     // TODO: Will need actual unit list for UI
     int GetInterestedCount() const { return InterestedCount; }
@@ -49,5 +51,5 @@ protected:
     int InterestedCount;
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Reward Flag")
-    TObjectPtr<UVMUnit> AttachedUnit;
+    TObjectPtr<UVMCombatData> AttachedComponentVM;
 };

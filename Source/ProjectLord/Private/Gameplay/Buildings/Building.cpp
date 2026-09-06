@@ -42,6 +42,7 @@ ABuilding::ABuilding()
     BuildingMesh->SetMobility(EComponentMobility::Stationary);
     BuildingMesh->SetupAttachment(Collision);
     BuildingMesh->SetCollisionObjectType(ECC_Pawn);
+    BuildingMesh->SetCanEverAffectNavigation(false);
 
     NavMeshMod = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavMeshMod"));
     NavMeshMod->SetAreaClass(UNavArea_Obstacle::StaticClass());

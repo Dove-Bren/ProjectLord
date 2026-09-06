@@ -9,6 +9,7 @@
 #include "Gameplay/LordPlayerState.h"
 #include "Gameplay/PlacementComponent.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
@@ -189,17 +190,14 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 			// Flag!
 			ERewardFlagType FlagType = ERewardFlagType::Explore;
 			FVector At;
-			AUnit* AttachUnit = nullptr;
+			UCombatComponent* AttachComponent = nullptr;
 			if (auto Over = GetSelectableUnderMouse())
 			{
 				// Defend or attack depending on team
 				FlagType = (Over->GetTeam() == GetTeam())
 					? ERewardFlagType::Defend
 					: ERewardFlagType::Attack;
-				if (AUnit* Unit = Cast<AUnit>(Over->GetOwner()))
-				{
-					AttachUnit = Unit;
-				}
+				AttachComponent = Over->GetOwner()->GetComponentByClass<UCombatComponent>();
 				At = Over->GetOwner()->GetActorLocation() + FVector(0, 0, 500);
 			}
 			else
@@ -209,9 +207,9 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 			}
 
 			ARewardFlag* Flag = ARewardFlag::Make(this, FlagClasses[FlagType], FlagType, At);
-			if (AttachUnit)
+			if (AttachComponent)
 			{
-				Flag->SetAttachedUnit(AttachUnit);
+				Flag->SetAttachedComponent(AttachComponent);
 			}
 			Flag->SetReward(0);
 			Flag->SetTeam(GetTeam());

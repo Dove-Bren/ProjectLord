@@ -7,11 +7,13 @@
 #include "Gameplay/MinimapComponent.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroBase.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/RewardFlagViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 #include "UI/ViewModels/Generic/AppealMetricsViewModel.h"
+#include "UI/ViewModels/Generic/CombatDataViewModel.h"
 
 ARewardFlag::ARewardFlag()
 {
@@ -32,7 +34,7 @@ void ARewardFlag::BeginPlay()
 	ViewModel->SetType(GetFlagType());
 	ViewModel->SetTeam(GetTeam());
 	ViewModel->SetReward(GetReward());
-	ViewModel->SetAttachedUnit(IsValid(GetAttachedUnit()) ? GetAttachedUnit()->GetUnitVM() : nullptr);
+	ViewModel->SetAttachedCombatComponent(IsValid(GetAttachedComponent()) ? UVMCombatData::Make(this, GetAttachedComponent()) : nullptr);
 
 	SelectionComponent->SetName(GetFlagName());
 	SelectionComponent->SetDesc(GetFlagDescription());
@@ -168,7 +170,7 @@ void ARewardFlag::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ThisClass, FlagType);
 	DOREPLIFETIME(ThisClass, Team);
 	DOREPLIFETIME(ThisClass, Reward);
-	DOREPLIFETIME(ThisClass, AttachedUnit);
+	DOREPLIFETIME(ThisClass, AttachedComponent);
 	DOREPLIFETIME(ThisClass, InterestedUnits);
 }
 
@@ -202,29 +204,29 @@ void ARewardFlag::SetReward(int InReward)
 	}
 }
 
-void ARewardFlag::SetAttachedUnit(AUnit* InUnit)
+void ARewardFlag::SetAttachedComponent(UCombatComponent* InComponent)
 {
-	if (InUnit != AttachedUnit)
+	if (InComponent != AttachedComponent)
 	{
-		if (AttachedUnit)
+		if (AttachedComponent)
 		{
 			FDetachmentTransformRules Rules(EDetachmentRule::KeepWorld, true);
 			DetachFromActor(Rules);
-			if (IsValid(AttachedUnit))
+			if (IsValid(AttachedComponent))
 			{
-				AttachedUnit->OnUnitDeath.RemoveAll(this);
+				AttachedComponent->OnDeath.RemoveAll(this);
 			}
 		}
-		const auto OldValue = AttachedUnit;
-		AttachedUnit = InUnit;
-		if (AttachedUnit)
+		const auto OldValue = AttachedComponent;
+		AttachedComponent = InComponent;
+		if (AttachedComponent)
 		{
 			FAttachmentTransformRules Rules(EAttachmentRule::KeepRelative, false);
-			AttachToActor(AttachedUnit, Rules);
+			AttachToActor(AttachedComponent->GetOwner(), Rules);
 			SetActorRelativeLocation(FVector(0, 0, 500));
-			AttachedUnit->OnUnitDeath.AddDynamic(this, &ARewardFlag::OnUnitDeath);
+			AttachedComponent->OnDeath.AddDynamic(this, &ARewardFlag::OnUnitDeath);
 		}
-		OnRep_AttachedUnit(OldValue);
+		OnRep_AttachedComponent(OldValue);
 	}
 }
 
@@ -247,9 +249,9 @@ void ARewardFlag::RemoveInterestedUnit(AUnit* Unit)
 
 FVector ARewardFlag::GetGroundLocation() const
 {
-	if (IsValid(AttachedUnit))
+	if (IsValid(AttachedComponent))
 	{
-		return AttachedUnit->GetActorLocation();
+		return AttachedComponent->GetOwner()->GetActorLocation();
 	}
 
 	FHitResult Result;
@@ -309,9 +311,9 @@ void ARewardFlag::OnRep_Reward(int OldValue)
 	OnRewardFlagRewardChanged.Broadcast(this, GetReward());
 }
 
-void ARewardFlag::OnRep_AttachedUnit(AUnit* OldValue)
+void ARewardFlag::OnRep_AttachedComponent(UCombatComponent* OldValue)
 {
-	ViewModel->SetAttachedUnit(IsValid(AttachedUnit) ? AttachedUnit->GetUnitVM() : nullptr);
+	ViewModel->SetAttachedCombatComponent(IsValid(GetAttachedComponent()) ? UVMCombatData::Make(this, GetAttachedComponent()) : nullptr);
 }
 
 void ARewardFlag::OnRep_InterestedUnits(int OldValue)
@@ -320,11 +322,11 @@ void ARewardFlag::OnRep_InterestedUnits(int OldValue)
 	OnRewardFlagInterestChanged.Broadcast(this, GetNumInterestedUnits());
 }
 
-void ARewardFlag::OnUnitDeath(AUnit* Unit)
+void ARewardFlag::OnUnitDeath()
 {
-	if (Unit == AttachedUnit)
+	if (AttachedComponent)
 	{
-		AttachedUnit->OnUnitDeath.RemoveAll(this);
+		AttachedComponent->OnDeath.RemoveAll(this);
 
 		if (ERewardFlagType::Attack == GetFlagType())
 		{
