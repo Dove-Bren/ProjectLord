@@ -24,6 +24,7 @@
 #include "Gameplay/Combat/GameplayEffect/GenericGameplayTagEffect.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
+#include "UI/ViewModels/SelectionActionTreeViewModel.h"
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
@@ -359,6 +360,15 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
     GoldVM->SetGold(BuildingGold);
     GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
     InSelectionComponent->SetGoldVM(GoldVM);
+
+
+    OnBuildingLevelChanged.AddWeakLambda(this, [this, InSelectionComponent](int NewLevel)
+        {
+            if (auto Tree = InSelectionComponent->GetActionTreeVM())
+            {
+                Tree->RefreshPage();
+            }
+        });
 }
 
 ABuildingController* ABuilding::GetBuildingController() const

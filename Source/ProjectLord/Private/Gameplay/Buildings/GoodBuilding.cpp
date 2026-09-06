@@ -6,6 +6,7 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 #include "Gameplay/Buildings/QueuedAction.h"
+#include "UI/ViewModels/SelectionActionTreeViewModel.h"
 #include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 AGoodBuilding::AGoodBuilding()
@@ -17,6 +18,8 @@ AGoodBuilding::AGoodBuilding()
 void AGoodBuilding::BeginPlay()
 {
     Super::BeginPlay();
+
+    SetupBaseGoods();
 
     QueueComponent->OnActionReady.AddDynamic(this, &AGoodBuilding::OnQueueActionReady);
 }
@@ -71,6 +74,13 @@ void AGoodBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent
     Super::SetupSelectionData(InSelectionComponent);
 
     InSelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
+    OnBuildingGoodsChanged.AddWeakLambda(this, [this, InSelectionComponent]()
+    {
+        if (auto Tree = InSelectionComponent->GetActionTreeVM())
+        {
+            Tree->RefreshPage();
+        }
+    });
 }
 
 void AGoodBuilding::OnQueueActionReady(UQueuedAction* Action)
