@@ -141,3 +141,90 @@ bool UTreeBackAction::Perform_Implementation()
 	auto TreeVM = Context.ActionTree;
 	return TreeVM->GoBack();
 }
+
+void UTreeCompositeBuildingPurchase::Setup(const FSelectionActionContext& InContext)
+{
+	Super::Setup(InContext);
+
+	for (auto ActionClass : Actions)
+	{
+		auto Action = NewObject<UBuildingBasedPurchase>(this, ActionClass);
+		Action->Setup(Context);
+		ActionInstances.Add(Action);
+	}
+
+	RefreshToShow();
+}
+
+bool UTreeCompositeBuildingPurchase::IsHidden_Implementation() const
+{
+	auto Action = GetCurrentAction();
+	if (Action)
+	{
+		return Action->IsHidden();
+	}
+	return true;
+}
+
+bool UTreeCompositeBuildingPurchase::CanPerform_Implementation() const
+{
+	auto Action = GetCurrentAction();
+	if (Action)
+	{
+		return Action->CanPerform();
+	}
+	return false;
+}
+
+bool UTreeCompositeBuildingPurchase::Perform_Implementation()
+{
+	auto Action = GetCurrentAction();
+	if (Action)
+	{
+		return Action->Perform();
+	}
+	return false;
+}
+
+void UTreeCompositeBuildingPurchase::RefreshToShow_Implementation()
+{
+	CurrentAction = nullptr;
+	for (auto Action : ActionInstances)
+	{
+		if (!Action->IsHidden())
+		{
+			CurrentAction = Action;
+
+			// Update our values
+			Name = CurrentAction->GetName();
+			Description = CurrentAction->GetDescription();
+			Icon = CurrentAction->GetIcon();
+
+			// Update VM (ugly code dupe from VM internal)
+			ViewModel->SetName(Name);
+			ViewModel->SetDescription(Description);
+			ViewModel->SetEnabled(CurrentAction->CanPerform());
+			ViewModel->SetHidden(false); // Wouldn't be in this block otherwise
+			if (auto CostAction = Cast<USelectionPurchase>(CurrentAction))
+			{
+				ViewModel->SetGoldCost(CostAction->GetGoldCost());
+			}
+
+			ViewModel->SetIcon(CurrentAction->GetIcon());
+			ViewModel->OverrideAction(CurrentAction);
+
+			break;
+		}
+	}
+
+	if (!CurrentAction)
+	{
+		ViewModel->SetHidden(true);
+	}
+	Super::RefreshToShow_Implementation();
+}
+
+USelectionAction* UTreeCompositeBuildingPurchase::GetCurrentAction() const
+{
+	return CurrentAction;
+}

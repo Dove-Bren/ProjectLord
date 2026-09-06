@@ -58,6 +58,9 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
     bool Perform();
 
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
+    void RefreshToShow();
+
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     FText GetName() const { return Name; }
 

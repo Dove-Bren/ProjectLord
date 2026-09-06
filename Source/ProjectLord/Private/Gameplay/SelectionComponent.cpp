@@ -40,6 +40,12 @@ void USelectionComponent::Select()
 	// Reset action tree
 	ActionTreeVM->GoToRoot();
 
+	// Refresh actions
+	for (auto Action : ActionInstances)
+	{
+		Action->RefreshToShow();
+	}
+
 	OnSelected.Broadcast();
 }
 

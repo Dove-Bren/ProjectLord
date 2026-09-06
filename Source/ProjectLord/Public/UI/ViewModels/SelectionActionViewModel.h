@@ -36,8 +36,14 @@ public:
 
     static UVMSelectionAction* Make(UObject* Outer, USelectionAction* Action);
 
+    // Not part of normal use
+    void OverrideAction(USelectionAction* NewAction);
+
     UFUNCTION(BlueprintCallable)
     void Perform();
+
+    UFUNCTION(BlueprintCallable)
+    void OnShown();
 
 
 protected:

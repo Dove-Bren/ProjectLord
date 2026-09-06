@@ -97,3 +97,31 @@ public:
     virtual bool Perform_Implementation() override;
 
 };
+
+UCLASS(Blueprintable)
+class PROJECTLORD_API UTreeCompositeBuildingPurchase : public UBuildingBasedPurchase
+{
+    GENERATED_BODY()
+
+public:
+
+    virtual void Setup(const FSelectionActionContext& Context) override;
+    virtual bool IsHidden_Implementation() const override;
+    virtual bool CanPerform_Implementation() const override;
+    virtual bool Perform_Implementation() override;
+
+    virtual void RefreshToShow_Implementation() override;
+
+    USelectionAction* GetCurrentAction() const;
+
+protected:
+    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+    TArray<TSubclassOf<UBuildingBasedPurchase>> Actions;
+
+    UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly)
+    TArray<UBuildingBasedPurchase*> ActionInstances;
+
+    UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly)
+    USelectionAction* CurrentAction;
+
+};

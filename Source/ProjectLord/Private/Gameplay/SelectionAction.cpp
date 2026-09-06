@@ -41,6 +41,11 @@ bool USelectionAction::Perform_Implementation()
 	return false;
 }
 
+void USelectionAction::RefreshToShow_Implementation()
+{
+	; // Nothing that needs doing
+}
+
 void USelectionPurchase::Setup(const FSelectionActionContext& InContext)
 {
 	Super::Setup(InContext);

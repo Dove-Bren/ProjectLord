@@ -26,6 +26,11 @@
 	return VM;
 }
 
+void UVMSelectionAction::OverrideAction(USelectionAction* NewAction)
+{
+	Action = NewAction;
+}
+
 void UVMSelectionAction::Perform()
 {
 	if (!ensure(Action.IsValid()))
@@ -34,4 +39,12 @@ void UVMSelectionAction::Perform()
 	}
 
 	Action.Get()->Perform();
+}
+
+void UVMSelectionAction::OnShown()
+{
+	if (Action.IsValid())
+	{
+		Action->RefreshToShow();
+	}
 }
