@@ -31,6 +31,9 @@ public:
     bool GetEnabled() const { return bEnabled; }
     void SetEnabled(bool InEnabled) { UE_MVVM_SET_PROPERTY_VALUE(bEnabled, InEnabled); }
 
+    bool IsHidden() const { return bHidden; }
+    void SetHidden(bool InHidden) { UE_MVVM_SET_PROPERTY_VALUE(bHidden, InHidden); }
+
     static UVMSelectionAction* Make(UObject* Outer, USelectionAction* Action);
 
     UFUNCTION(BlueprintCallable)
@@ -53,6 +56,9 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = "GetEnabled", Category = "Selection|Action")
     bool bEnabled;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = "IsHidden", Category = "Selection|Action")
+    bool bHidden;
 
     UPROPERTY()
     TWeakObjectPtr<USelectionAction> Action;

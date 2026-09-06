@@ -25,7 +25,7 @@ void UMinimapComponent::BeginPlay()
 	ViewModel->SetTeam(GetTeam());
 	ViewModel->SetIcon(GetMapIcon());
 	ViewModel->SetWorldLocation(GetWorldLocation());
-	ViewModel->SetVisible(IsVisible());
+	ViewModel->SetVisible(/*IsVisible()*/ false); // Start not visible, to try and avoid a visible blip of units in FoW
 
 	if (bAutoRegister)
 	{

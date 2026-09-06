@@ -19,6 +19,7 @@ void USelectionAction::Setup(const FSelectionActionContext& Context)
 {
 	ViewModel = UVMSelectionAction::Make(this, this);
 	ViewModel->SetEnabled(CanPerform(Context));
+	ViewModel->SetHidden(IsHidden(Context));
 }
 
 bool USelectionAction::IsHidden_Implementation(const FSelectionActionContext& Context) const
@@ -182,9 +183,13 @@ void UResearchGoodPurchase::Setup(const FSelectionActionContext& Context)
 	Super::Setup(Context);
 
 	auto BuildingOwner = GetBuildingInner(Context);
-	if (ensure(BuildingOwner))
+	auto GoodBuilding = Cast<AGoodBuilding>(BuildingOwner);
+	if (ensure(GoodBuilding))
 	{
-		// TODO building goods event
+		GoodBuilding->OnBuildingGoodsChanged.AddWeakLambda(this, [this, Context]()
+		{
+			ViewModel->SetHidden(IsHidden(Context));
+		});
 	}
 }
 

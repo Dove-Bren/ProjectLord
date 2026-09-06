@@ -105,6 +105,17 @@ bool UVMSelectionActionTree::GoToPageInternal(const FString& PageName, bool bUpd
 	return true;
 }
 
+void UVMSelectionActionTree::UpdateActions(TArray<UVMSelectionAction*> NewActions)
+{
+	CurrentActions = MoveTemp(NewActions);
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CurrentActions);
+}
+
+void UVMSelectionActionTree::RefreshPage()
+{
+	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CurrentActions);
+}
+
 bool UTreePageAction::CanPerform_Implementation(const FSelectionActionContext& Context) const
 {
 	/*auto TreeVM = Context.Selection->GetActionTreeVM();

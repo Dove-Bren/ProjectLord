@@ -53,6 +53,7 @@ void AGoodBuilding::AddGoodOffer(FGoodOffer InOffer)
     if (!HasGood(InOffer.Good))
     {
         Goods.Add(InOffer);
+        OnBuildingGoodsChanged.Broadcast();
     }
 }
 
@@ -62,6 +63,7 @@ void AGoodBuilding::SetupBaseGoods()
     {
         Goods.Add(Good);
     }
+    OnBuildingGoodsChanged.Broadcast();
 }
 
 void AGoodBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)

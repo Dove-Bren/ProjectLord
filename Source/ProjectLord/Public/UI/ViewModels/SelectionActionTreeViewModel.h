@@ -45,6 +45,9 @@ public:
 
     static const FString RootPageName;
 
+    UFUNCTION(BlueprintCallable)
+    void RefreshPage();
+
 
 protected:
 
@@ -61,7 +64,7 @@ protected:
     const FPage* FindPage(const FString& PageName) const;
     bool GoToPageInternal(const FString& PageName, bool bUpdateHistory = true);
 
-    void UpdateActions(TArray<UVMSelectionAction*> NewActions) { CurrentActions = MoveTemp(NewActions); UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CurrentActions); }
+    void UpdateActions(TArray<UVMSelectionAction*> NewActions);
 
 };
 

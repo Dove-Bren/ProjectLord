@@ -11,6 +11,8 @@
 class UGameGood;
 struct FGoodOffer;
 
+DECLARE_MULTICAST_DELEGATE(FOnBuildingGoodsChanged);
+
 // A building that can have goods
 UCLASS(Blueprintable)
 class PROJECTLORD_API AGoodBuilding : public AResidentialBuilding
@@ -19,6 +21,8 @@ class PROJECTLORD_API AGoodBuilding : public AResidentialBuilding
 
 public:
     AGoodBuilding();
+
+    FOnBuildingGoodsChanged OnBuildingGoodsChanged;
 
     UFUNCTION(BlueprintCallable)
     void AddGoodOffer(FGoodOffer InOffer);
