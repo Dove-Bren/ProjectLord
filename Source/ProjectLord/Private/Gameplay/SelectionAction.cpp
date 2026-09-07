@@ -19,8 +19,10 @@ void USelectionAction::Setup(const FSelectionActionContext& InContext)
 {
 	Context = InContext;
 
+	ESelectionActionFailureReason Reason;
+	bool bEnabled = CanPerform(Reason);
 	ViewModel = UVMSelectionAction::Make(this, this);
-	ViewModel->SetEnabled(CanPerform());
+	ViewModel->SetEnabled(bEnabled, Reason);
 	ViewModel->SetHidden(IsHidden());
 }
 
@@ -29,9 +31,10 @@ bool USelectionAction::IsHidden_Implementation() const
 	return false;
 }
 
-bool USelectionAction::CanPerform_Implementation() const
+bool USelectionAction::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	ensureMsgf(false, TEXT("Selection Action did not implement CanPerform"));
+	ReasonOut = ESelectionActionFailureReason::None;
 	return false;
 }
 
@@ -52,19 +55,25 @@ void USelectionPurchase::Setup(const FSelectionActionContext& InContext)
 
 	if (ALordPlayerController* PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
 	{
-		ViewModel->SetEnabled(CanPerform());
+		ESelectionActionFailureReason Reason;
+		bool bEnabled = CanPerform(Reason);
+		ViewModel->SetEnabled(bEnabled, Reason);
 		if (ensure(Context.TeamState))
 		{
 			Context.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, InContext](int Gold)
 				{
-					ViewModel->SetEnabled(CanPerform());
+					ESelectionActionFailureReason Reason;
+					bool bEnabled = CanPerform(Reason);
+					ViewModel->SetEnabled(bEnabled, Reason);
 				});
 		}
 	}
 }
 
-bool USelectionPurchase::CanPerform_Implementation() const
+bool USelectionPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
+	// Gold failure is communicated with red text on gold in the tooltip...
+	// TODO
 	return Context.TeamState->GetGold() >= GetGoldCost();
 }
 
@@ -96,16 +105,18 @@ void UUnitBasedPurchase::Setup(const FSelectionActionContext& InContext)
 	AUnit* UnitOwner = GetUnitInner();
 }
 
-bool UUnitBasedPurchase::CanPerform_Implementation() const
+bool UUnitBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	// Must have a unit performing us
 	AUnit* UnitOwner = GetUnit();
 	if (!IsValid(UnitOwner))
 	{
+		// Not sure what to put here...
+		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
-	return Super::CanPerform_Implementation();
+	return Super::CanPerform_Implementation(ReasonOut);
 }
 
 ARewardFlag* UFlagBasedPurchase::GetFlagInner() const
@@ -127,16 +138,17 @@ void UFlagBasedPurchase::Setup(const FSelectionActionContext& InContext)
 	// FlagOwner->OnDeath.AddWeakLambda()...
 }
 
-bool UFlagBasedPurchase::CanPerform_Implementation() const
+bool UFlagBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	// Must have a unit performing us
 	ARewardFlag* FlagOwner = GetFlag();
 	if (!IsValid(FlagOwner))
 	{
+		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
-	return Super::CanPerform_Implementation();
+	return Super::CanPerform_Implementation(ReasonOut);
 }
 
 ABuilding* UBuildingBasedPurchase::GetBuildingInner() const
@@ -159,30 +171,38 @@ void UBuildingBasedPurchase::Setup(const FSelectionActionContext& InContext)
 	{
 		// TODO building destruction
 		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(this, [this, InContext](int NewLevel) {
-			ViewModel->SetEnabled(CanPerform());
+			ESelectionActionFailureReason Reason;
+			bool bEnabled = CanPerform(Reason);
+			ViewModel->SetEnabled(bEnabled, Reason);
 		});
 		BuildingOwner->OnBuildingHealthChanged.AddWeakLambda(this, [this, InContext](int Health, int MaxHealth) {
-			ViewModel->SetEnabled(CanPerform());
+			ESelectionActionFailureReason Reason;
+			bool bEnabled = CanPerform(Reason);
+			ViewModel->SetEnabled(bEnabled, Reason);
 			});
 	}
 }
 
-bool UBuildingBasedPurchase::CanPerform_Implementation() const
+bool UBuildingBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	// Must have a building performing us
 	ABuilding* BuildingOwner = GetBuilding();
 	if (!IsValid(BuildingOwner))
 	{
+		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
 	// Check building level requirement
 	if (BuildingOwner->GetBuildingLevel() < RequiredBuildingLevel)
 	{
+		ReasonOut = RequiredBuildingLevel == 1 ? ReasonOut = ESelectionActionFailureReason::BuildingInProgress
+					: RequiredBuildingLevel == 2 ? ESelectionActionFailureReason::NeedLevel2
+					: ReasonOut = ESelectionActionFailureReason::NeedLevel3;
 		return false;
 	}
 
-	return Super::CanPerform_Implementation();
+	return Super::CanPerform_Implementation(ReasonOut);
 }
 
 void UResearchGoodPurchase::Setup(const FSelectionActionContext& InContext)
@@ -200,9 +220,9 @@ void UResearchGoodPurchase::Setup(const FSelectionActionContext& InContext)
 	}
 }
 
-bool UResearchGoodPurchase::CanPerform_Implementation() const
+bool UResearchGoodPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
-	if (!Super::CanPerform_Implementation())
+	if (!Super::CanPerform_Implementation(ReasonOut))
 	{
 		return false;
 	}
@@ -216,6 +236,7 @@ bool UResearchGoodPurchase::CanPerform_Implementation() const
 	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
 	if (!ensure(IsValid(BuildingOwner)))
 	{
+		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
@@ -223,6 +244,7 @@ bool UResearchGoodPurchase::CanPerform_Implementation() const
 
 	if (Queue->IsFull())
 	{
+		ReasonOut = ESelectionActionFailureReason::QueueFull;
 		return false;
 	}
 
@@ -259,16 +281,17 @@ bool UResearchGoodPurchase::Perform_Implementation()
 	return true;
 }
 
-bool UPlaceBuildingPurchase::CanPerform_Implementation() const
+bool UPlaceBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	// TODO: check building requirements
 
 	if (!ensure(IsValid(BuildingType)))
 	{
+		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
-	return Super::CanPerform_Implementation();
+	return Super::CanPerform_Implementation(ReasonOut);
 }
 
 bool UPlaceBuildingPurchase::Perform_Implementation()
@@ -294,16 +317,18 @@ void URecruitUnitPurchase::Setup(const FSelectionActionContext& InContext)
 	}
 }
 
-bool URecruitUnitPurchase::CanPerform_Implementation() const
+bool URecruitUnitPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
 	if (!ensure(IsValid(BuildingOwner)))
 	{
+		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
 	if (!BuildingOwner->CanFitResidentType(GetUnitType()))
 	{
+		ReasonOut = ESelectionActionFailureReason::GuildFull;
 		return false;
 	}
 	
@@ -311,10 +336,11 @@ bool URecruitUnitPurchase::CanPerform_Implementation() const
 
 	if (Queue->IsFull())
 	{
+		ReasonOut = ESelectionActionFailureReason::QueueFull;
 		return false;
 	}
 
-	return Super::CanPerform_Implementation();
+	return Super::CanPerform_Implementation(ReasonOut);
 }
 
 bool URecruitUnitPurchase::Perform_Implementation()

@@ -116,7 +116,7 @@ void UVMSelectionActionTree::RefreshPage()
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CurrentActions);
 }
 
-bool UTreePageAction::CanPerform_Implementation() const
+bool UTreePageAction::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	/*auto TreeVM = Context.ActionTree;
 	return TreeVM && TreeVM->HasPage(GetPage());*/
@@ -129,7 +129,7 @@ bool UTreePageAction::Perform_Implementation()
 	return TreeVM->GoToPage(GetPage());
 }
 
-bool UTreeBackAction::CanPerform_Implementation() const
+bool UTreeBackAction::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	/*auto TreeVM = Context.ActionTree;
 	return TreeVM && !TreeVM->IsAtRoot();*/
@@ -166,12 +166,12 @@ bool UTreeCompositeBuildingPurchase::IsHidden_Implementation() const
 	return true;
 }
 
-bool UTreeCompositeBuildingPurchase::CanPerform_Implementation() const
+bool UTreeCompositeBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	auto Action = GetCurrentAction();
 	if (Action)
 	{
-		return Action->CanPerform();
+		return Action->CanPerform(ReasonOut);
 	}
 	return false;
 }
@@ -201,9 +201,11 @@ void UTreeCompositeBuildingPurchase::RefreshToShow_Implementation()
 			Icon = CurrentAction->GetIcon();
 
 			// Update VM (ugly code dupe from VM internal)
+			ESelectionActionFailureReason Reason;
+			bool bEnabled = CanPerform(Reason);
 			ViewModel->SetName(Name);
 			ViewModel->SetDescription(Description);
-			ViewModel->SetEnabled(CurrentAction->CanPerform());
+			ViewModel->SetEnabled(bEnabled, Reason);
 			ViewModel->SetHidden(false); // Wouldn't be in this block otherwise
 			if (auto CostAction = Cast<USelectionPurchase>(CurrentAction))
 			{

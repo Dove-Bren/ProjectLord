@@ -12,6 +12,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
 	SetSelectionName({});
 	SetTeam(EGameTeam::Neutral);
 	SetIcon(nullptr);
+	SetFailureReason(ESelectionActionFailureReason::None);
 
     GoldVM = nullptr;
     ActionVM = nullptr;
@@ -65,6 +66,7 @@ void UVMSelection::SetFromStaticElement(FStaticSelection StaticElement, bool bTr
 	Reset(false);
 	SetSelectionName(StaticElement.Name);
 	SetSelectionDescription(StaticElement.Description);
+	SetFailureReason(StaticElement.Failure);
 
 	SetPresent(true);
 

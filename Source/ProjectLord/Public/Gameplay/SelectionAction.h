@@ -20,6 +20,19 @@ class AGameTeamState;
 class ARewardFlag;
 class UVMSelectionActionTree;
 
+UENUM(BlueprintType)
+enum class ESelectionActionFailureReason : uint8
+{
+    None,
+    QueueFull,
+    GuildFull,
+    NeedLevel2,
+    NeedLevel3,
+    BuildingInProgress,
+    RepairInProgress,
+
+};
+
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FSelectionActionContext
 {
@@ -53,7 +66,7 @@ public:
     bool IsHidden() const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Selection|Action")
-    bool CanPerform() const;
+    bool CanPerform(ESelectionActionFailureReason& ReasonOut) const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
     bool Perform();
@@ -99,7 +112,7 @@ class PROJECTLORD_API USelectionPurchase : public USelectionAction
 public:
 
     virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     int GetGoldCost() const { return GoldCost; }
@@ -124,7 +137,7 @@ class PROJECTLORD_API UUnitBasedPurchase : public USelectionPurchase
 public:
 
     virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     AUnit* GetUnit() const;
@@ -141,7 +154,7 @@ class PROJECTLORD_API UFlagBasedPurchase: public USelectionPurchase
 public:
 
     virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     ARewardFlag* GetFlag() const;
@@ -157,7 +170,7 @@ class PROJECTLORD_API UBuildingBasedPurchase : public USelectionPurchase
 public:
 
     virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     ABuilding* GetBuilding() const;
@@ -178,7 +191,7 @@ public:
 
     // Make sure building doesn't already have it
     virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
     virtual bool IsHidden_Implementation() const;
 
     virtual bool Perform_Implementation() override;
@@ -199,7 +212,7 @@ class PROJECTLORD_API UPlaceBuildingPurchase : public USelectionPurchase
 public:
 
     // Check for any special reqirements based on the building type
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
 
     virtual bool Perform_Implementation() override;
 
@@ -220,7 +233,7 @@ public:
 
     // Make sure building has room
     virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
 
     virtual bool Perform_Implementation() override;
 

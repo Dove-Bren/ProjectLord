@@ -9,6 +9,7 @@
 #include "SelectionActionViewModel.generated.h"
 
 class USelectionAction;
+enum class ESelectionActionFailureReason : uint8;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMSelectionAction : public UVMLordBase
@@ -29,10 +30,12 @@ public:
     void SetGoldCost(int InGoldCost) { UE_MVVM_SET_PROPERTY_VALUE(GoldCost, InGoldCost); }
 
     bool GetEnabled() const { return bEnabled; }
-    void SetEnabled(bool InEnabled) { UE_MVVM_SET_PROPERTY_VALUE(bEnabled, InEnabled); }
+    void SetEnabled(bool InEnabled, ESelectionActionFailureReason InDisableReason) { UE_MVVM_SET_PROPERTY_VALUE(DisableReason, InDisableReason); UE_MVVM_SET_PROPERTY_VALUE(bEnabled, InEnabled); }
 
     bool IsHidden() const { return bHidden; }
     void SetHidden(bool InHidden) { UE_MVVM_SET_PROPERTY_VALUE(bHidden, InHidden); }
+
+    ESelectionActionFailureReason GetDisableReason() const { return DisableReason; }
 
     static UVMSelectionAction* Make(UObject* Outer, USelectionAction* Action);
 
@@ -53,6 +56,9 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection|Action")
     FText Description;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection|Action")
+    ESelectionActionFailureReason DisableReason;
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Selection|Action")
     TObjectPtr<UTexture2D> Icon;

@@ -23,6 +23,8 @@ class UVMAppealMetrics;
 
 struct FSelectionActionContext;
 
+enum class ESelectionActionFailureReason : uint8;
+
 USTRUCT(BlueprintType)
 struct PROJECTLORD_API FStaticSelection
 {
@@ -35,6 +37,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText Description;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    ESelectionActionFailureReason Failure;
 };
 
 UCLASS(BlueprintType)
@@ -63,6 +68,10 @@ public:
     UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
     TObjectPtr<UTexture2D> Icon;
     void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Category = "Selection")
+    ESelectionActionFailureReason FailureReason;
+    void SetFailureReason(ESelectionActionFailureReason InFailureReason) { UE_MVVM_SET_PROPERTY_VALUE(FailureReason, InFailureReason); }
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMGold> GoldVM;

@@ -78,7 +78,7 @@ public:
     void SetPage(FString InPageName) { PageName = InPageName; }
     FString GetPage() const { return PageName; }
 
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
     virtual bool Perform_Implementation() override;
 
 protected:
@@ -93,7 +93,7 @@ class PROJECTLORD_API UTreeBackAction : public USelectionAction
 
 public:
 
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
     virtual bool Perform_Implementation() override;
 
 };
@@ -107,7 +107,7 @@ public:
 
     virtual void Setup(const FSelectionActionContext& Context) override;
     virtual bool IsHidden_Implementation() const override;
-    virtual bool CanPerform_Implementation() const override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
     virtual bool Perform_Implementation() override;
 
     virtual void RefreshToShow_Implementation() override;
