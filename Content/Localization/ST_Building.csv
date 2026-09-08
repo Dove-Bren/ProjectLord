@@ -9,8 +9,8 @@ Building.SlimeWell.Desc,"A well filled with slimy water. Hydrates your heroes, b
 Building.SkeleHouse.Name,"Destroyed House",
 Building.SkeleHouse.Desc,"This house has been destroyed, but something tells you the previous tenants don't want to talk about it.",
 
-Building.Castle.Name,"Palace",
-Building.Castle.Desc,"The Palace",
+Building.Castle.Name,"Royal Palace",
+Building.Castle.Desc,"Once, all Palaces in Ardania were built according to plans designed by Adolphus - the engineering genius from Volensia. Three hundred years ago, at a meeting of the Royal Supreme Court, The Dwarves were able to prove that Adolphus stole their ideas. The Court set such high licensing fees for use of the old plans, that the monarch and other lords hastened to build new, uniquely designed, houses. And Adolphus' four-towered Palaces have been abandoned monuments ever since.",
 Building.GuildRanger.Name,"Ranger's Guild",
 Building.GuildRanger.Desc,"The simple tents of the Rangers Guild bely the power and influence of its heroes. Once it seemed as though the days of Rangers Guild were numbered: Ardania was united, its enemies defeated and the wild lands tamed. What sort of life was left for restless spirits of Ardania's pathfinders? The guild was saved by Allar Halfmein, the First Master of the Hunt. He persuaded the Monarch to sign a decree giving Rangers Guild status as the sole provider of Royal Cartography. Now all matters of land and territory need a stamp of approval from the Rangers Guild.",
 Building.GuildWarrior.Name,"Warrior's Guild",
@@ -18,3 +18,6 @@ Building.GuildWarrior.Desc,"Thick stone walls, battlements, bright flags - the l
 
 Building.Market.Name,"Marketplace",
 Building.Market.Desc,"For many centuries, Marketplaces have been the centers of commerce in Ardania. In their stalls and scantily lit pavilions, the curious adventurer can find anything: potions, ancient artifacts, spices or food. (Though buyer beware: it's rumored some of those products have been sitting on the shelves since the invention of money!)\n\nBy prudent tradition, monarchs built Marketplaces in convenient and well-protected areas.",
+
+Building.House.Name,"Peasant House",
+Building.House.Desc,"Nothing special. Just the home of some anonymous peasant.",

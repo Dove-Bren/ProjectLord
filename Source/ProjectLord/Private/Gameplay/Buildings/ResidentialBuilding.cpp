@@ -5,6 +5,9 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "UI/ViewModels/Buildings/BuildingViewModel.h"
+#include "UI/ViewModels/Buildings/ResidentsViewModel.h"
+#include "UI/ViewModels/Buildings/VisitorsViewModel.h"
 #include "UI/ViewModels/Generic/SummarySlotsViewModel.h"
 
 AResidentialBuilding::AResidentialBuilding()
@@ -153,6 +156,31 @@ void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionCo
 	InSelectionComponent->SetSlotsVM(SlotsVM);
 }
 
+void AResidentialBuilding::SetupViewModel()
+{
+    Super::SetupViewModel();
+
+    auto VisitorsVM = CreateLordVM<UVMVisitors>(this);
+    BuildingVM->SetVisitorsVM(VisitorsVM);
+    PushVisitorsToVM();
+    OnVisitorsChanged.AddUObject(this, &ThisClass::PushVisitorsToVM);
+
+    auto ResidentsVM = CreateLordVM<UVMResidents>(this);
+    BuildingVM->SetResidentsVM(ResidentsVM);
+
+    OnResidentLimitChanged.AddWeakLambda(this, [this, ResidentsVM](auto ResidentType)
+    {
+        bool bAllowResidents = !ResidentTypeLimits.IsEmpty();
+        ResidentsVM->SetCanHaveResidents(bAllowResidents);
+    });
+    bool bAllowResidents = !ResidentTypeLimits.IsEmpty();
+    ResidentsVM->SetCanHaveResidents(bAllowResidents);
+
+    // Note: AFTER setting up bAllowResidents
+    PushResidentsToVM();
+    OnResidentsChanged.AddUObject(this, &ThisClass::PushResidentsToVM);
+}
+
 void AResidentialBuilding::HandleDeath()
 {
     // TODO: Eject and vacate!
@@ -168,6 +196,36 @@ void AResidentialBuilding::HandleDeath()
     }
 
     Super::HandleDeath();
+}
+
+void AResidentialBuilding::PushVisitorsToVM()
+{
+    auto VisitorsVM = BuildingVM->GetVisitorsVM();
+    if (ensure(VisitorsVM))
+    {
+        TArray<UVMUnit*> VisitorVMs;
+        for (auto Visitor : Visitors)
+        {
+            VisitorVMs.Add(Visitor->GetUnitVM());
+        }
+
+        VisitorsVM->SetVisitors(VisitorVMs);
+    }
+}
+
+void AResidentialBuilding::PushResidentsToVM()
+{
+    auto ResidentsVM = BuildingVM->GetResidentsVM();
+    if (ensure(ResidentsVM))
+    {
+        TArray<UVMUnit*> ResidentVMs;
+        for (auto Resident : Residents)
+        {
+            ResidentVMs.Add(Resident->GetUnitVM());
+        }
+
+        ResidentsVM->SetResidents(ResidentVMs);
+    }
 }
 
 int AResidentialBuilding::GetResidentTypeCount(const UUnitType* Type, bool bIncludeQueue) const

@@ -25,8 +25,10 @@
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
+#include "UI/ViewModels/Buildings/BuildingViewModel.h"
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
+#include "UI/ViewModels/Generic/LevelViewModel.h"
 
 ABuilding::ABuilding()
 {
@@ -225,6 +227,9 @@ void ABuilding::BeginPlay()
 
     RefreshMesh();
 
+    // Before selection data, so we can reuse VMs
+    SetupViewModel();
+
     // Set up selection Data
     SetupSelectionData(SelectionComponent);
 
@@ -354,13 +359,9 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
     InSelectionComponent->SetDesc(GetBuildingType()->BuildingDescription);
     InSelectionComponent->SetIcon(GetBuildingType()->BuildingIcon);
 
-    InSelectionComponent->SetCombatDataVM(UVMCombatData::Make(this, CombatComponent));
+    InSelectionComponent->SetCombatDataVM(CombatVM);
 
-    GoldVM = CreateLordVM<UVMGold>(this);
-    GoldVM->SetGold(BuildingGold);
-    GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
     InSelectionComponent->SetGoldVM(GoldVM);
-
 
     OnBuildingLevelChanged.AddWeakLambda(this, [this, InSelectionComponent](int NewLevel)
         {
@@ -369,6 +370,39 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
                 Tree->RefreshPage();
             }
         });
+}
+
+void ABuilding::SetupViewModel()
+{
+    CombatVM = UVMCombatData::Make(this, CombatComponent);
+
+    GoldVM = CreateLordVM<UVMGold>(this);
+    GoldVM->SetGold(BuildingGold);
+    GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
+
+    LevelVM = CreateLordVM<UVMLevel>(this);
+    LevelVM->SetLevel(GetBuildingLevel());
+
+    OnBuildingLevelChanged.AddWeakLambda(this, [this](int NewLevel)
+    {
+        LevelVM->SetLevel(NewLevel);
+    });
+
+    BuildingVM = CreateLordVM<UVMBuilding>(this);
+
+    auto Type = GetBuildingType();
+    if (ensure(Type))
+    {
+        BuildingVM->SetName(Type->BuildingName);
+        BuildingVM->SetDescription(Type->BuildingDescription);
+        BuildingVM->SetIcon(Type->BuildingIcon);
+    }
+    BuildingVM->SetCustomName(BuildingCustomName);
+    BuildingVM->SetTeam(GetTeam());
+
+    BuildingVM->SetLevelVM(LevelVM);
+    BuildingVM->SetGoldVM(GoldVM);
+    BuildingVM->SetCombatVM(CombatVM);
 }
 
 ABuildingController* ABuilding::GetBuildingController() const

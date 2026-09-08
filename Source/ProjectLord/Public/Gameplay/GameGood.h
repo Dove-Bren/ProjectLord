@@ -10,6 +10,7 @@
 class UTexture2D;
 class UHeroItemDef;
 class UUnitType;
+class UVMGameGood;
 
 // A "Good" that can be sold and purchased to heroes.
 // Was going to name this "HeroGood" but that felt confusing -- especially
@@ -20,6 +21,8 @@ class PROJECTLORD_API UGameGood : public UPrimaryDataAsset
     GENERATED_BODY()
 
 public:
+
+	virtual void PostInitProperties() override;
     
 	UFUNCTION(BlueprintPure, Category = "Game Good")
 	FText GetName() const { return Name; }
@@ -38,6 +41,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Game Good")
 	const UUnitType* GetUnitTypeRestriction() const { return UnitTypeRestriction; }
+
+	UFUNCTION(BlueprintPure, Category = "Game Good")
+	UVMGameGood* GetViewModel() const { return ViewModel; }
 
 
 
@@ -59,6 +65,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
 	TObjectPtr<const UUnitType> UnitTypeRestriction;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Game Good")
+	TObjectPtr<UVMGameGood> ViewModel;
 };
 
 USTRUCT(BlueprintType)

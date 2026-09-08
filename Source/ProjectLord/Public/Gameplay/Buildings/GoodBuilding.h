@@ -48,12 +48,15 @@ protected:
     TArray<FGoodOffer> Goods;
 
     virtual void SetupBaseGoods();
+    virtual void SetupViewModel() override;
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent) override;
 
     UFUNCTION()
     void OnQueueActionReady(UQueuedAction* Action);
 
     virtual int GetResidentsInQueue(const UUnitType* Type) const override;
+
+    void PushGoodsToVM();
 
 public:
 

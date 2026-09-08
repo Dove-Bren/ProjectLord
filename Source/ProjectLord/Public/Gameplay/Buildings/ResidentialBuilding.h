@@ -101,8 +101,13 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Residents")
     TMap<UUnitType*, int> ResidentTypeLimits;
 
+    virtual void SetupViewModel() override;
     virtual void HandleDeath() override;
     virtual int GetResidentsInQueue(const UUnitType* Type) const { return 0; }
+
+    void PushVisitorsToVM();
+    void PushResidentsToVM();
+
 
 public:
     virtual void BeginPlay() override;

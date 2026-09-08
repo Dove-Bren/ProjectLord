@@ -20,12 +20,15 @@ class UStaticMesh;
 class UStaticMeshComponent;
 class UBuildingActionQueueComponent;
 class UVMGold;
+class UVMLevel;
+class UVMCombatData;
 class UUnitType;
 class UBuildingConstructionFadeComponent;
 class UNavModifierComponent;
 class UBoxComponent;
 class UFogOfWarComponent;
 class UMinimapComponent;
+class UVMBuilding;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingAvailableLevelChanged, int);
@@ -223,10 +226,20 @@ protected:
     int BuildingAvailableLevel;
 
     UPROPERTY()
+    TObjectPtr<UVMBuilding> BuildingVM;
+
+    UPROPERTY()
     TObjectPtr<UVMGold> GoldVM;
+
+    UPROPERTY()
+    TObjectPtr<UVMLevel> LevelVM;
+
+    UPROPERTY()
+    TObjectPtr<UVMCombatData> CombatVM;
 
     virtual void SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
+    virtual void SetupViewModel();
     virtual void HandleBuildingUpgraded();
     virtual void SetAvailableLevel(int InAvailableLevel);
 

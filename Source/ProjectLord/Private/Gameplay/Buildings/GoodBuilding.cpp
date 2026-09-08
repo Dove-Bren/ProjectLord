@@ -6,7 +6,10 @@
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 #include "Gameplay/Buildings/QueuedAction.h"
+#include "UI/ViewModels/GameGoodViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
+#include "UI/ViewModels/Buildings/BuildingViewModel.h"
+#include "UI/ViewModels/Buildings/BuildingGoodsViewModel.h"
 #include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 AGoodBuilding::AGoodBuilding()
@@ -67,6 +70,31 @@ void AGoodBuilding::SetupBaseGoods()
         Goods.Add(Good);
     }
     OnBuildingGoodsChanged.Broadcast();
+}
+
+void AGoodBuilding::SetupViewModel()
+{
+    Super::SetupViewModel();
+
+    auto GoodsVM = CreateLordVM<UVMBuildingGoods>(this);
+    BuildingVM->SetGoodsVM(GoodsVM);
+
+    PushGoodsToVM();
+    OnBuildingGoodsChanged.AddUObject(this, &ThisClass::PushGoodsToVM);
+}
+
+void AGoodBuilding::PushGoodsToVM()
+{
+    auto GoodsVM = BuildingVM->GetGoodsVM();
+    if (ensure(GoodsVM))
+    {
+        TArray<UVMGameGood*> GoodVMs;
+        for (auto Good : Goods)
+        {
+            GoodVMs.Add(Good.Good->GetViewModel());
+        }
+        GoodsVM->SetGoods(GoodVMs);
+    }
 }
 
 void AGoodBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
