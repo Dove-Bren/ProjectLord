@@ -157,6 +157,7 @@ protected:
     AGameTeamState* GetTeamState() const;
 
     virtual void InitUnitVM();
+    virtual UVMUnit* ConstructUnitVM();
 
 private:
     void AddHealthbarWidget();

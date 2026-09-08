@@ -313,6 +313,11 @@ void AUnit::HandleAttack(AActor* Target, UCombatComponent* TargetComponent)
     FaceActor(Target);
 }
 
+UVMUnit* AUnit::ConstructUnitVM()
+{
+    return UVMUnit::CreateForUnit(this);
+}
+
 void AUnit::InitUnitVM()
 {
     if (IsValid(UnitVM))
@@ -320,9 +325,11 @@ void AUnit::InitUnitVM()
         return;
     }
 
-    UnitVM = UVMUnit::CreateForUnit(this);
+    UnitVM = ConstructUnitVM();
 
     // Note: For now, team is only ever set on construction of the AUnit.
+    UnitVM->SetName(GetUnitName());
+    UnitVM->SetDescription(GetUnitType()->UnitDescription);
     UnitVM->SetTeam(Team);
     UnitVM->SetIcon(GetUnitType()->UnitIcon);
     UnitVM->SetActionVM(SelectionComponent->GetActionVM()); // Could be null for non-creatures, but this should work correctly in that case.

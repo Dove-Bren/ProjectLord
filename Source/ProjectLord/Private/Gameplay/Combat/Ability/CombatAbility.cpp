@@ -4,6 +4,20 @@
 
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/Unit.h"
+#include "UI/ViewModels/CombatAbilityViewModel.h"
+
+UVMCombatAbility* UCombatAbility::GetOrCreateViewModel()
+{
+	if (!ViewModel)
+	{
+		ViewModel = CreateLordVM<UVMCombatAbility>(this);
+		ViewModel->SetAbilityName(GetAbilityName());
+		ViewModel->SetDescription(GetAbilityDescription());
+		ViewModel->SetIcon(GetAbilityIcon());
+	}
+
+	return ViewModel;
+}
 
 UCombatComponent* UCombatAbility::GetOwnerComponent() const
 {

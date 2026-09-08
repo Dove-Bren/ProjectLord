@@ -12,6 +12,7 @@
 class UTexture2D;
 class UCombatComponent;
 class UAnimMontage;
+class UVMCombatAbility;
 
 // Base class specialization for Unit Abilities, which have extra details for showing in the UI etc.
 UCLASS(Blueprintable)
@@ -23,7 +24,7 @@ public:
 
     const FText& GetAbilityName() const { return AbilityName; }
     const FText& GetAbilityDescription() const { return AbilityDescription; }
-    const UTexture2D* GetAbilityIcon() const { return AbilityIcon; }
+    UTexture2D* GetAbilityIcon() const { return AbilityIcon; }
     EAbilityTargetType GetTargetType() const { return TargetType; }
     bool IsHidden() const { return bHidden; }
 
@@ -31,6 +32,8 @@ public:
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
 
     UAnimMontage* GetAbilityAnimationFromOwner(EAbilityAnimType Type) const;
+
+    UVMCombatAbility* GetOrCreateViewModel();
     
 
 protected:
@@ -52,6 +55,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     bool bHidden;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Ability")
+    TObjectPtr<UVMCombatAbility> ViewModel;
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     UCombatComponent* GetOwnerComponent() const;

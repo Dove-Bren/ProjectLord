@@ -10,6 +10,8 @@
 #include "HeroEquipment.generated.h"
 
 class UTexture2D;
+class UVMHeroInventory;
+class UVMItemStack;
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -135,7 +137,10 @@ public:
     int AddCount(int Amount) { return SetCount(GetCount() + Amount); }
 
     UFUNCTION(BlueprintCallable, Category = "ItemStack")
-    int SetCount(int NewCount) { Count = FMath::Max(0, NewCount); return GetCount(); }
+    int SetCount(int NewCount);
+
+    UFUNCTION(BlueprintPure, Category = "ItemStack")
+    UVMItemStack* GetViewModel() const { return ViewModel; }
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
@@ -143,6 +148,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
     int Count;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
+    TObjectPtr<UVMItemStack> ViewModel;
 };
 
 DECLARE_MULTICAST_DELEGATE(FOnInventoryItemsChanged);
@@ -239,6 +247,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Inventory|ExtraItems")
     bool CanFit(UHeroItemStack* Item);
 
+    UFUNCTION(BlueprintPure, Category = "Inventory")
+    UVMHeroInventory* GetViewModel() const { return ViewModel; }
+
 
 protected:
 
@@ -262,6 +273,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
+    TObjectPtr<UVMHeroInventory> ViewModel;
 
     bool AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly = false);
 

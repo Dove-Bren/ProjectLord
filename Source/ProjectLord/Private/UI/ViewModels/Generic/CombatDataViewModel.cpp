@@ -9,35 +9,7 @@
 #include "Gameplay/Combat/GameplayEffect/VisibleGameplayEffect.h"
 #include "UI/ViewModels/GameplayEffectVM.h"
 
-namespace 
-{
-namespace AttributeWrapper
-{
-	DECLARE_DELEGATE_OneParam(FSetIntValue, int);
-	DECLARE_DELEGATE_OneParam(FSetFloatValue, float);
-
-	template<typename T,
-		typename = typename std::enable_if<std::is_convertible<float, T>::value>::type>
-	void RegisterAndCall(UVMCombatData* Self, UAbilitySystemComponent* ASC, FGameplayAttribute Attribute, TDelegate<void(T InValue)> Setter)
-	{
-		ASC->GetGameplayAttributeValueChangeDelegate(Attribute)
-			.AddWeakLambda(Self, [Setter](const FOnAttributeChangeData& ChangeData)
-				{
-					Setter.ExecuteIfBound(static_cast<T>(ChangeData.NewValue));
-				});
-		bool bIgnored;
-		Setter.ExecuteIfBound(static_cast<T>(ASC->GetGameplayAttributeValue(Attribute, bIgnored)));
-	}
-}
-}
-
-#define MAKE_ATTRIB_GET(AttributeName) Get##AttributeName##Attribute()
-
-#define REGISTER_INT(AttributeName)\
-	AttributeWrapper::RegisterAndCall(this, ASC, AttributeSet->MAKE_ATTRIB_GET(AttributeName), AttributeWrapper::FSetIntValue::CreateUObject(this, &UVMCombatData::Set##AttributeName));
-
-#define REGISTER_FLOAT(AttributeName) \
-	AttributeWrapper::RegisterAndCall(this, ASC, AttributeSet->MAKE_ATTRIB_GET(AttributeName), AttributeWrapper::FSetFloatValue::CreateUObject(this, &UVMCombatData::Set##AttributeName));
+#include "Gameplay/Attributes/AttributeListener.h"
 
 void UVMCombatData::Init(UCombatComponent* Component)
 {
@@ -45,36 +17,44 @@ void UVMCombatData::Init(UCombatComponent* Component)
 	auto ASC = Component->GetAbilitySubsystemComponent();
 	auto AttributeSet = Component->GetCombatAttributeSet();
 
-	REGISTER_INT(Health);
-	REGISTER_INT(MaxHealth);
+	REGISTER_ATTR_LISTENER_INT(Health);
+	REGISTER_ATTR_LISTENER_INT(MaxHealth);
 
-	REGISTER_INT(Mana);
-	REGISTER_INT(MaxMana);
+	REGISTER_ATTR_LISTENER_INT(Mana);
+	REGISTER_ATTR_LISTENER_INT(MaxMana);
 
-	REGISTER_INT(MeleeDefense);
-	REGISTER_INT(RangedDefense);
-	REGISTER_INT(MagicDefense);
+	REGISTER_ATTR_LISTENER_INT(MeleeDefense);
+	REGISTER_ATTR_LISTENER_INT(RangedDefense);
+	REGISTER_ATTR_LISTENER_INT(MagicDefense);
 
-	REGISTER_INT(MeleeDamage);
-	REGISTER_INT(RangedDamage);
-	REGISTER_INT(MagicDamage);
+	REGISTER_ATTR_LISTENER_INT(MeleeDamage);
+	REGISTER_ATTR_LISTENER_INT(RangedDamage);
+	REGISTER_ATTR_LISTENER_INT(MagicDamage);
 
-	REGISTER_FLOAT(Sight);
-	REGISTER_FLOAT(AttackRange);
+	REGISTER_ATTR_LISTENER_FLOAT(Sight);
+	REGISTER_ATTR_LISTENER_FLOAT(AttackRange);
 
-	Component->OnTargetChange.AddDynamic(this, &UVMCombatData::OnTargetChange);
+	Component->OnTargetChange.AddDynamic(this, &ThisClass::OnTargetChange);
 	SetTarget(Component->GetCombatTarget());
 
-	Component->OnInvulnerabilityChange.AddDynamic(this, &UVMCombatData::OnInvulnerabilityChange);
+	Component->OnInvulnerabilityChange.AddDynamic(this, &ThisClass::OnInvulnerabilityChange);
 	SetInvulnerable(Component->IsInvulnerable());
 
-	Component->OnEffectsChange.AddDynamic(this, &UVMCombatData::OnEffectsChange);
+	Component->OnEffectsChange.AddDynamic(this, &ThisClass::OnEffectsChange);
 	SetupEffects(Component->GetActiveVisibleEffects());
+
+	Component->OnAbilitiesChange.AddDynamic(this, &ThisClass::OnAbilitiesChange);
+	SetupAbilities(Component->GetCombatAbilities());
 }
 
 void UVMCombatData::OnEffectsChange(UCombatComponent* SelfComponent)
 {
 	SetupEffects(SelfComponent->GetActiveVisibleEffects());
+}
+
+void UVMCombatData::OnAbilitiesChange(UCombatComponent* Component)
+{
+	SetupAbilities(Component->GetCombatAbilities());
 }
 
 void UVMCombatData::SetupEffects(const TArray<const UVisibleGameplayEffect*>& InEffects)
@@ -89,6 +69,18 @@ void UVMCombatData::SetupEffects(const TArray<const UVisibleGameplayEffect*>& In
 	}
 
 	SetEffects(NewEffects);
+}
+
+void UVMCombatData::SetupAbilities(TArray<UCombatAbility*> InAbilities)
+{
+	TArray<UVMCombatAbility*> NewAbilities;
+
+	for (auto Ability : InAbilities)
+	{
+		NewAbilities.Add(Ability->GetOrCreateViewModel());
+	}
+
+	SetAbilities(NewAbilities);
 }
 
 #undef REGISTER_INT

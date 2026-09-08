@@ -9,7 +9,9 @@
 
 class UCombatComponent;
 class UVMGameplayEffect;
+class UVMCombatAbility;
 class UVisibleGameplayEffect;
+class UCombatAbility;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMCombatData: public UVMLordBase
@@ -39,6 +41,7 @@ public:
     bool IsDead() const { return GetHealth() <= 0; }
 
     TArray<UVMGameplayEffect*> GetEffects() const { return Effects; }
+    TArray<UVMCombatAbility*> GetAbilities() const { return Abilities; }
 
     UCombatComponent* GetTarget() const { return Target; }
 
@@ -113,6 +116,10 @@ protected:
     TArray<UVMGameplayEffect*> Effects;
     void SetEffects(TArray<UVMGameplayEffect*> InEffects) { UE_MVVM_SET_PROPERTY_VALUE(Effects, InEffects); }
 
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    TArray<UVMCombatAbility*> Abilities;
+    void SetAbilities(TArray<UVMCombatAbility*> InAbilities) { UE_MVVM_SET_PROPERTY_VALUE(Abilities, InAbilities); }
+
     UFUNCTION()
     void OnTargetChange(UCombatComponent* InTarget) { SetTarget(InTarget); }
 
@@ -122,6 +129,10 @@ protected:
     UFUNCTION()
     void OnEffectsChange(UCombatComponent* SelfComponent);
 
+    UFUNCTION()
+    void OnAbilitiesChange(UCombatComponent* Component);
+
     void SetupEffects(const TArray<const UVisibleGameplayEffect*>& Effects);
+    void SetupAbilities(TArray<UCombatAbility*> Abilities);
 
 };

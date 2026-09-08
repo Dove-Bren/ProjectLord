@@ -34,6 +34,7 @@ void UCombatComponent::BeginPlay()
         {
             AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
         }
+        OnAbilitiesChange.Broadcast(this);
 
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetHealthAttribute())
             .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
@@ -65,6 +66,7 @@ void UCombatComponent::BeginPlay()
         AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddWeakLambda(this, [this](UAbilitySystemComponent*, const FGameplayEffectSpec&, FActiveGameplayEffectHandle) {
             OnEffectsChange.Broadcast(this);
         });
+        // WAnt to listen for ability add/remove event, but there isn't one!
 	}
 
     if (auto OwnerPawn = Cast<APawn>(GetOwner()))
@@ -214,6 +216,16 @@ TArray<UCombatAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden
     }
 
     return Abilities;
+}
+
+void UCombatComponent::GiveCombatAbility(TSubclassOf<UCombatAbility> Ability)
+{
+    auto AbilitySystemComponent = GetAbilitySubsystemComponent();
+    if (ensure(AbilitySystemComponent))
+    {
+        AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
+        OnAbilitiesChange.Broadcast(this);
+    }
 }
 
 bool UCombatComponent::IsDead() const

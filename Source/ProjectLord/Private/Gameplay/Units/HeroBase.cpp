@@ -6,11 +6,13 @@
 #include "Gameplay/GameGood.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
-#include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
+#include "Gameplay/Attributes/AttributeListener.h"
+#include "Gameplay/Attributes/CreatureAttributeSet.h"
+#include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
-#include "UI/ViewModels/Units/UnitViewModel.h"
+#include "UI/ViewModels/Units/HeroViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 #include "UI/ViewModels/Generic/LevelViewModel.h"
 #include "UI/ViewModels/Generic/SummarySlotsViewModel.h"
@@ -37,6 +39,7 @@ void AHeroBase::BeginPlay()
 {
 	Super::BeginPlay();
 	Inventory->InitInventory(StarterWeapon, StarterArmor);
+	Cast<UVMHero>(GetUnitVM())->SetInventory(GetInventory()->GetViewModel());
 	HandleInventoryChange();
 
 	CombatComponent->OnAttackLand.AddDynamic(this, &AHeroBase::OnAttack);
@@ -169,11 +172,47 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 	InSelectionComponent->SetSlotsVM(SlotsVM);
 }
 
+UVMUnit* AHeroBase::ConstructUnitVM()
+{
+	return UVMHero::Make(this);
+}
+
 void AHeroBase::InitUnitVM()
 {
 	Super::InitUnitVM();
 
-	GetUnitVM()->SetIsHero(true);
+	auto HeroVM = Cast<UVMHero>(GetUnitVM());
+	HeroVM->SetHeroName(GetHeroName());
+	HeroVM->SetLevelVM(SelectionComponent->GetLevelVM());
+	HeroVM->SetInventory(GetInventory()->GetViewModel());
+
+	// TODO: Abilities
+	// CombatAbility->OnAbilitiesChanged().Add(...);
+
+	// Attributes
+	{
+		auto ASC = AbilitySystemComponent;
+		auto AttributeSet = LordHeroAttributeSet;
+		REGISTER_ATTR_LISTENER(Strength, HeroVM, FAttributeListener::FSetIntValue::CreateWeakLambda(HeroVM, [HeroVM](int NewValue) {
+			HeroVM->SetStrength(NewValue);
+		}));
+		REGISTER_ATTR_LISTENER(Agility, HeroVM, FAttributeListener::FSetIntValue::CreateWeakLambda(HeroVM, [HeroVM](int NewValue) {
+			HeroVM->SetAgility(NewValue);
+		}));
+		REGISTER_ATTR_LISTENER(Intelligence, HeroVM, FAttributeListener::FSetIntValue::CreateWeakLambda(HeroVM, [HeroVM](int NewValue) {
+			HeroVM->SetIntelligence(NewValue);
+		}));
+		REGISTER_ATTR_LISTENER(Stamina, HeroVM, FAttributeListener::FSetIntValue::CreateWeakLambda(HeroVM, [HeroVM](int NewValue) {
+			HeroVM->SetStamina(NewValue);
+		}));
+	}
+	{
+		auto ASC = AbilitySystemComponent;
+		auto AttributeSet = CreatureAttributeSet;
+		REGISTER_ATTR_LISTENER(Movement, HeroVM, FAttributeListener::FSetFloatValue::CreateWeakLambda(HeroVM, [HeroVM](int NewValue) {
+			HeroVM->SetMovement(NewValue);
+			}));
+	}
 }
 
 void AHeroBase::HandleInventoryChange()

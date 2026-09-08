@@ -2,11 +2,29 @@
 
 #include "Gameplay/Units/HeroEquipment.h"
 
+#include "UI/ViewModels/ItemStackViewModel.h"
+#include "UI/ViewModels/HeroInventoryViewModel.h"
+#include "UI/ViewModels/Generic/GoldViewModel.h"
+
 void UHeroItemStack::Init(const UHeroItemDef* InItemDef, int InCount)
 {
+	ViewModel = CreateLordVM<UVMItemStack>(this);
+
 	check(IsValid(InItemDef));
 	ItemDef = InItemDef;
+	ViewModel->SetItemName(ItemDef->GetItemName());
+	ViewModel->SetDescription(ItemDef->GetItemDescription());
+	ViewModel->SetIcon(ItemDef->GetItemIcon());
+	ViewModel->SetStacks(ItemDef->GetCanStack());
+
 	SetCount(InCount);
+}
+
+int UHeroItemStack::SetCount(int NewCount)
+{
+	Count = FMath::Max(0, NewCount);
+	ViewModel->SetCount(Count);
+	return GetCount();
 }
 
 UHeroInventory::UHeroInventory()
@@ -16,6 +34,12 @@ UHeroInventory::UHeroInventory()
 
 void UHeroInventory::InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor)
 {
+	ViewModel = CreateLordVM<UVMHeroInventory>(this);
+	auto GoldVM = CreateLordVM<UVMGold>(this);
+	ViewModel->SetGoldVM(GoldVM);
+	GoldVM->SetGold(GetPersonalGold());
+	GoldVM->SetTaxGold(GetGuildGold());
+
 	if (ensure(StarterWeapon))
 	{
 		SetWeapon(UHeroItemStack::Make(this, StarterWeapon, 1));
@@ -52,6 +76,7 @@ void UHeroInventory::SetWeapon(UHeroItemStack* InWeapon)
 	if (InWeapon != Weapon)
 	{
 		Weapon = InWeapon;
+		ViewModel->SetWeapon(Weapon->GetViewModel());
 		OnInventoryItemsChanged.Broadcast();
 	}
 }
@@ -61,6 +86,7 @@ void UHeroInventory::SetArmor(UHeroItemStack* InArmor)
 	if (InArmor != Armor)
 	{
 		Armor = InArmor;
+		ViewModel->SetArmor(Armor->GetViewModel());
 		OnInventoryItemsChanged.Broadcast();
 	}
 }
@@ -68,6 +94,7 @@ void UHeroInventory::SetArmor(UHeroItemStack* InArmor)
 void UHeroInventory::SetHealthPotions(UHeroItemStack* InHealthPotions)
 {
 	HealthPotions = InHealthPotions;
+	ViewModel->SetHealthPotion(InHealthPotions->GetViewModel());
 	OnInventoryItemsChanged.Broadcast();
 }
 
@@ -83,6 +110,7 @@ void UHeroInventory::DeductHealthPotion()
 void UHeroInventory::SetManaPotions(UHeroItemStack* InManaPotions)
 {
 	ManaPotions = InManaPotions;
+	ViewModel->SetManaPotion(InManaPotions->GetViewModel());
 	OnInventoryItemsChanged.Broadcast();
 }
 
@@ -98,6 +126,7 @@ void UHeroInventory::DeductManaPotion()
 int UHeroInventory::AddPersonalGold(int Amount)
 {
 	PersonalGold = FMath::Max(0, PersonalGold + Amount);
+	ViewModel->GetGoldVM()->SetGold(GetPersonalGold());
 	OnInventoryGoldChanged.Broadcast();
 	return PersonalGold;
 }
@@ -105,6 +134,7 @@ int UHeroInventory::AddPersonalGold(int Amount)
 int UHeroInventory::AddGuildGold(int Amount)
 {
 	GuildGold = FMath::Max(0, GuildGold + Amount);
+	ViewModel->GetGoldVM()->SetTaxGold(GetGuildGold());
 	OnInventoryGoldChanged.Broadcast();
 	return GuildGold;
 }
@@ -180,6 +210,17 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly)
 	if (!bSimulateOnly)
 	{
 		ExtraSlots.Add(ExtraItem);
+		{
+			TArray<UVMItemStack*> ExtraItemVMs;
+			for (auto Stack : ExtraSlots)
+			{
+				if (Stack && !Stack->IsEmpty())
+				{
+					ExtraItemVMs.Add(Stack->GetViewModel());
+				}
+			}
+			ViewModel->SetExtraItems(ExtraItemVMs);
+		}
 		OnInventoryItemsChanged.Broadcast();
 	}
 	return true;

@@ -25,6 +25,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackReceived, AActor*, Attacki
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInvulnerabilityChange, bool, bInvulnerable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEffectsChange, UCombatComponent*, SelfComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilitiesChange, UCombatComponent*, SelfComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, int, Health, int, MaxHealth);
 
 UCLASS(BlueprintType)
@@ -59,6 +60,9 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnHealthChange OnHealthChange;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnAbilitiesChange OnAbilitiesChange;
+
     UFUNCTION(BlueprintPure)
     bool IsDead() const;
 
@@ -91,6 +95,12 @@ public:
     // Get all Unit Abilities this Unit has access to
     UFUNCTION(BlueprintPure, Category = "Combat|Ability")
     TArray<UCombatAbility*> GetCombatAbilities(bool bIncludeHidden = false);
+
+    // Give a combat ability.
+    // This should be used instead of giving it directly to the GAS component, since
+    // this broadcasts the change.
+    UFUNCTION(BlueprintCallable, Category = "Combat|Ability")
+    void GiveCombatAbility(TSubclassOf<UCombatAbility> Ability);
 
 
     // Convenience Accessors
