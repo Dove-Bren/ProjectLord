@@ -5,7 +5,10 @@
 #include "Net/UnrealNetwork.h"
 
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/Castle.h"
+#include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/Units/Unit.h"
+#include "Gameplay/Units/UnitTypes.h"
 #include "UI/ViewModels/GameTeamStateViewModel.h"
 
 AGameTeamState::AGameTeamState()
@@ -45,9 +48,17 @@ int AGameTeamState::AddGold(int InChange)
     return Gold;
 }
 
-void AGameTeamState::SetCastle(ABuilding* Castle)
+void AGameTeamState::SetCastle(ACastle* Castle)
 {
+    if (!TeamCastle.IsExplicitlyNull())
+    {
+        RemoveBuilding(TeamCastle.Get());
+    }
     TeamCastle = Castle;
+    if (Castle)
+    {
+        AddBuilding(Castle);
+    }
 }
 
 void AGameTeamState::AddUnit(AUnit* Unit)
@@ -69,6 +80,25 @@ void AGameTeamState::RemoveUnit(AUnit* Unit)
     }
 }
 
+void AGameTeamState::AddBuilding(ABuilding* Building)
+{
+    if (!TeamBuildings.Contains(Building))
+    {
+        TeamBuildings.Add(Building);
+        Building->OnBuildingDestroyed.AddUObject(this, &ThisClass::RemoveBuilding);
+        OnTeamBuildingsChanged.Broadcast();
+    }
+}
+
+void AGameTeamState::RemoveBuilding(ABuilding* Building)
+{
+    if (TeamBuildings.Remove(Building))
+    {
+        OnTeamBuildingsChanged.Broadcast();
+        Building->OnBuildingDestroyed.RemoveAll(this);
+    }
+}
+
 void AGameTeamState::AddFlag(ARewardFlag* Flag)
 {
     TeamFlags.Add(Flag);
@@ -83,7 +113,44 @@ void AGameTeamState::RemoveFlag(ARewardFlag* Flag)
     }
 }
 
+TArray<AUnit*> AGameTeamState::GetTeamUnitsOfClass(TSubclassOf<AUnit> Type) const
+{
+    TArray<AUnit*> Units;
+    for (auto Unit : TeamUnits)
+    {
+        if (Unit->IsA(Type))
+        {
+            Units.Add(Unit);
+        }
+    }
+    return Units;
+}
+
+TArray<AUnit*> AGameTeamState::GetTeamUnitsOfType(const UUnitType* Type) const
+{
+    return GetTeamUnitsOfClass(Type->UnitClass);
+}
+
+TArray<ABuilding*> AGameTeamState::GetTeamBuildingsOfClass(TSubclassOf<ABuilding> Type) const
+{
+    TArray<ABuilding*> Buildings;
+    for (auto Building : TeamBuildings)
+    {
+        if (Building->IsA(Type))
+        {
+            Buildings.Add(Building);
+        }
+    }
+    return Buildings;
+}
+
+TArray<ABuilding*> AGameTeamState::GetTeamBuildingsOfType(const UBuildingType* Type) const
+{
+    return GetTeamBuildingsOfClass(Type->BuildingClass);
+}
+
 void AGameTeamState::OnUnitFinalDeath(AUnit* Unit)
 {
     RemoveUnit(Unit);
 }
+

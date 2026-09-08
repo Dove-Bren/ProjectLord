@@ -11,6 +11,7 @@
 #include "LordLogging.h"
 #include "Gameplay/FogOfWarComponent.h"
 #include "Gameplay/FogOfWarSubsystem.h"
+#include "Gameplay/GameTeam.h"
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/MinimapComponent.h"
 #include "Gameplay/LordGameplayTags.h"
@@ -36,19 +37,19 @@
 ABuilding::ABuilding()
 {
     // Set up defaults
-    Team = EGameTeam::Monster;
+    Team = EGameTeam::Neutral;
     MaxLevel = 1;
     BuildingLevel = 1; // This is for map buildings that are already built. Set back to 0 in placement logic.
     BuildingAvailableLevel = 1;
 
-    Collision = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
-    SetRootComponent(Collision);
-
     BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
     BuildingMesh->SetMobility(EComponentMobility::Stationary);
-    BuildingMesh->SetupAttachment(Collision);
     BuildingMesh->SetCollisionObjectType(ECC_Pawn);
     BuildingMesh->SetCanEverAffectNavigation(false);
+    RootComponent = BuildingMesh;
+
+    Collision = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
+    Collision->SetupAttachment(RootComponent);
 
     NavMeshMod = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavMeshMod"));
     NavMeshMod->SetAreaClass(UNavArea_Obstacle::StaticClass());
@@ -79,10 +80,33 @@ ABuilding::ABuilding()
 
 void ABuilding::SetTeam(EGameTeam InTeam)
 {
+    if (Team == InTeam)
+    {
+        return;
+    }
+
+    // Clean up old team
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        if (AGameTeamState* TeamState = State->GetTeam(GetTeam()))
+        {
+            TeamState->RemoveBuilding(this);
+        }
+    }
+
     Team = InTeam;
     SelectionComponent->SetTeam(InTeam);
     FogOfWarComponent->SetTeam(InTeam);
     MinimapComponent->SetTeam(InTeam);
+
+    // relookup team state now that it's changed and add ourselves
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        if (AGameTeamState* TeamState = State->GetTeam(GetTeam()))
+        {
+            TeamState->AddBuilding(this);
+        }
+    }
 }
 
 bool ABuilding::CanLevelUp() const
@@ -154,6 +178,7 @@ void ABuilding::RefreshMesh()
             auto Extent = BuildingMesh->GetBounds().BoxExtent;
             auto BuildingRotation = GetActorRotation();
             Collision->SetBoxExtent(Extent);
+            Collision->SetRelativeLocation(FVector(0, 0, Extent.Z));
             BuildingEntranceOffset = FVector(0, (Extent.X + 50), 0).RotateAngleAxis(BuildingRotation.Yaw, FVector(0, 0, 1));
             NavMeshMod->UpdateNavigationBounds();
         }
@@ -240,6 +265,13 @@ void ABuilding::BeginPlay()
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
     {
         State->OnGameDayChange.AddDynamic(this, &ABuilding::HandleGameDayChanged);
+    }
+
+    // Trigger a 'team change' to register with team
+    {
+        const EGameTeam RealTeam = GetTeam();
+        Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
+        SetTeam(RealTeam);
     }
 }
 
@@ -449,6 +481,8 @@ int ABuilding::GetBuildingMaxHealth() const
 void ABuilding::HandleDeath()
 {
     // TODO: Spawn break effects
+
+    OnBuildingDestroyed.Broadcast(this);
 
     this->Destroy();
 }

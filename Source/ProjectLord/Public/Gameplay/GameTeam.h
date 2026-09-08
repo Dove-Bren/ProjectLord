@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameTeam.generated.h"
 
+class ACastle;
 class ABuilding;
 class AUnit;
 class ARewardFlag;
+class UUnitType;
+class UBuildingType;
 class UVMGameTeamState;
 
 UENUM(BlueprintType)
@@ -25,6 +28,7 @@ ENUM_RANGE_BY_COUNT(EGameTeam, EGameTeam::MAX);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTeamGoldChanged, int);
 DECLARE_MULTICAST_DELEGATE(FOnTeamUnitsChanged);
+DECLARE_MULTICAST_DELEGATE(FOnTeamBuildingsChanged);
 DECLARE_MULTICAST_DELEGATE(FOnTeamFlagsChanged);
 
 UCLASS(BlueprintType)
@@ -46,6 +50,7 @@ public:
     FOnTeamGoldChanged OnTeamGoldChanged;
     FOnTeamUnitsChanged OnTeamUnitsChanged;
     FOnTeamFlagsChanged OnTeamFlagsChanged;
+    FOnTeamBuildingsChanged OnTeamBuildingsChanged;
 
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -63,10 +68,10 @@ public:
     int AddGold(int InChange);
 
     UFUNCTION(BlueprintPure, Category = "Team")
-    ABuilding* GetCastle() const { return TeamCastle.IsValid() ? TeamCastle.Get() : nullptr; }
+    ACastle* GetCastle() const { return TeamCastle.IsValid() ? TeamCastle.Get() : nullptr; }
 
     UFUNCTION(BlueprintCallable, Category = "Team")
-    void SetCastle(ABuilding* Castle);
+    void SetCastle(ACastle* Castle);
 
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<AUnit*>& GetUnits() const { return TeamUnits; }
@@ -76,6 +81,15 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Team")
     void RemoveUnit(AUnit* Unit);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
+    const TArray<ABuilding*>& GetBuildings() const { return TeamBuildings; }
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void AddBuilding(ABuilding* Building);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void RemoveBuilding(ABuilding* Building);
 
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<ARewardFlag*>& GetFlags() const { return TeamFlags; }
@@ -89,6 +103,20 @@ public:
     UFUNCTION(BlueprintPure, Category = "Team")
     UVMGameTeamState* GetViewModel() const { return ViewModel; }
 
+
+    // Team/Town convenience funcs
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    TArray<AUnit*> GetTeamUnitsOfClass(TSubclassOf<AUnit> Type) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    TArray<AUnit*> GetTeamUnitsOfType(const UUnitType* Type) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    TArray<ABuilding*> GetTeamBuildingsOfClass(TSubclassOf<ABuilding> Type) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    TArray<ABuilding*> GetTeamBuildingsOfType(const UBuildingType* Type) const;
+
 protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Replicated, Category = "Team")
@@ -98,10 +126,13 @@ protected:
     int Gold;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
-    TWeakObjectPtr<ABuilding> TeamCastle;
+    TWeakObjectPtr<ACastle> TeamCastle;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TArray<AUnit*> TeamUnits;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    TArray<ABuilding*> TeamBuildings;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TArray<ARewardFlag*> TeamFlags;

@@ -81,7 +81,7 @@ void ALordGameState::SetGamePaused(bool bPaused)
 AGameTeamState* ALordGameState::GetTeam(EGameTeam Team)
 {
 	Setup();
-	return GameTeams[Team];
+	return Team < EGameTeam::MAX ? GameTeams[Team] : nullptr;
 }
 
 void ALordGameState::OnRep_GameDays(double PrevGameDays)

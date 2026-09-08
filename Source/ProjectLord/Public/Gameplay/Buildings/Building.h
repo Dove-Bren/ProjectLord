@@ -30,6 +30,7 @@ class UFogOfWarComponent;
 class UMinimapComponent;
 class UVMBuilding;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingDestroyed, ABuilding*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingAvailableLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingNeedsRepairsChanged, bool);
@@ -45,6 +46,7 @@ public:
 
     UBuildingType* GetBuildingType() const { return BuildingType; }
 
+    FOnBuildingDestroyed OnBuildingDestroyed;
     FOnBuildingLevelChanged OnBuildingLevelChanged;
     FOnBuildingAvailableLevelChanged OnBuildingAvailableLevelChanged;
     FOnBuildingNeedsRepairsChanged OnBuildingNeedsRepairsChanged;

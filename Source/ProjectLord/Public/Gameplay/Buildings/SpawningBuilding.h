@@ -21,7 +21,7 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Spawner")
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawner")
     void DoSpawn();
 
 protected:

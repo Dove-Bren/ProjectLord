@@ -23,7 +23,7 @@
 AUnit::AUnit() : ACharacter()
 {
     // Set up defaults
-    Team = EGameTeam::Monster;
+    Team = EGameTeam::Neutral;
     Category = ECreatureCategory::Standard;
 
     // Adjust character stuff
@@ -97,6 +97,13 @@ void AUnit::BeginPlay()
     // TODO: We can make it so this only shows up on mouseover (Issue #25)
     // Note: AFTER selection data so we can reuse VMs
     AddHealthbarWidget();
+
+    // Trigger a 'team change' to register with team
+    {
+        const EGameTeam RealTeam = GetTeam();
+        Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
+        SetTeam(RealTeam);
+    }
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
