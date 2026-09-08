@@ -12,8 +12,11 @@
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
+#include "UI/InspectWidget.h"
+#include "UI/WidgetBlueprintClassRegistry.h"
 #include "UI/ViewModels/Units/HeroViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
+#include "UI/ViewModels/Generic/InspectableViewModel.h"
 #include "UI/ViewModels/Generic/LevelViewModel.h"
 #include "UI/ViewModels/Generic/SummarySlotsViewModel.h"
 
@@ -161,13 +164,15 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 			SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));
 		});
 
-	// Ugly optimization; inventory isn't actually set up yet, so don't bother doing this yet
-	/*SlotsVM->SetSlot(0, UVMSummarySlot::MakeItem(this, Inventory->GetWeapon()));
-	SlotsVM->SetSlot(1, UVMSummarySlot::MakeItem(this, Inventory->GetHealthPotions()));
-	SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(0) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[0]) : UVMSummarySlot::MakeEmpty(this));
-	SlotsVM->SetSlot(3, UVMSummarySlot::MakeItem(this, Inventory->GetArmor()));
-	SlotsVM->SetSlot(4, UVMSummarySlot::MakeItem(this, Inventory->GetManaPotions()));
-	SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));*/
+	const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
+	const TSubclassOf<UInspectWidget> HeroInspectWidgetClass = WidgetBlueprints ? WidgetBlueprints->HeroInspectWidget.LoadSynchronous() : nullptr;
+	if (ensure(HeroInspectWidgetClass))
+	{
+		auto InspectVM = UVMInspectable::Make(this, HeroInspectWidgetClass, FGetInspectVM::CreateWeakLambda(this, [this]() {
+			return GetUnitVM();
+		}));
+		InSelectionComponent->SetInspectVM(InspectVM);
+	}
 
 	InSelectionComponent->SetSlotsVM(SlotsVM);
 }

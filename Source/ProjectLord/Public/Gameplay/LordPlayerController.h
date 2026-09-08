@@ -16,6 +16,8 @@ class UInputMappingContext;
 class ALordPlayerState;
 class UVMSelection;
 class UPlacementComponent;
+class UVMLordBase;
+class UInspectWidget;
 
 struct FStaticSelection;
 
@@ -72,6 +74,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Placement")
     void PlaceBuilding(UBuildingType* Type, int Cost);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Inspection")
+    bool ShowInspectWidget(TSubclassOf<UInspectWidget> WidgetClass, UVMLordBase* VM);
 
 protected:
 

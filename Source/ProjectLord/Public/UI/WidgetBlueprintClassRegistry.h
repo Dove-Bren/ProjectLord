@@ -25,4 +25,10 @@ public:
     // Icon to use for the 'visitors' selection summary
     UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Selection")
     TSoftObjectPtr<class UTexture2D> VisitorIcon;
+
+    UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Units")
+    TSoftClassPtr<class UInspectWidget> HeroInspectWidget;
+
+    UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Units")
+    TSoftClassPtr<class UInspectWidget> BuildingInspectWidget;
 };

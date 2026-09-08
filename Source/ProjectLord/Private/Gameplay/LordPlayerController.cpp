@@ -12,6 +12,7 @@
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
+#include "UI/InspectWidget.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
@@ -104,6 +105,12 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost)
 {
 	PlacementComponent->StartPlacing(Type, Cost);
+}
+
+bool ALordPlayerController::ShowInspectWidget_Implementation(TSubclassOf<UInspectWidget> WidgetClass, UVMLordBase* VM)
+{
+	ensureMsgf(false, TEXT("PlayerController needs to implement ShowInspectWidget"));
+	return false;
 }
 
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)

@@ -20,6 +20,7 @@ class UTexture2D;
 class UVMSelectionActionTree;
 class UVMCreatureCategory;
 class UVMAppealMetrics;
+class UVMInspectable;
 
 struct FSelectionActionContext;
 
@@ -99,6 +100,9 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMAppealMetrics> AppealVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMInspectable> InspectVM;
 
     // Represent whether there's data in this VM or not.
     // Set to false when the VM is cleared, including between selections

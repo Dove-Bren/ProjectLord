@@ -23,6 +23,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
     ActionTreeVM = nullptr;
 	CategoryVM = nullptr;
 	AppealVM = nullptr;
+	InspectVM = nullptr;
 
     if (bTriggerUpdate)
     {
@@ -50,6 +51,7 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, bool b
 		ActionTreeVM = Selection->GetActionTreeVM();
 		CategoryVM = Selection->GetCategoryVM();
 		AppealVM = Selection->GetAppealVM();
+		InspectVM = Selection->GetInspectVM();
 		//TargetVM = Selection->GetTargetVM();
 
 		SetPresent(true);

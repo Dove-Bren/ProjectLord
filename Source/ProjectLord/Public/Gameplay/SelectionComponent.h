@@ -20,6 +20,7 @@ class UVMSummarySlots;
 class UVMSelectionActionTree;
 class UVMCreatureCategory;
 class UVMAppealMetrics;
+class UVMInspectable;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
@@ -121,6 +122,10 @@ public:
     UVMAppealMetrics* GetAppealVM() const { return AppealVM; }
     void SetAppealVM(UVMAppealMetrics* InVM) { AppealVM = InVM; }
 
+    UFUNCTION(BlueprintPure)
+    UVMInspectable* GetInspectVM() const { return InspectVM; }
+    void SetInspectVM(UVMInspectable* InVM) { InspectVM = InVM; }
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
@@ -177,4 +182,7 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMAppealMetrics> AppealVM;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMInspectable> InspectVM;
 };
