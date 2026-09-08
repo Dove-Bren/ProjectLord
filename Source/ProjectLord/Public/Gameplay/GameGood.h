@@ -21,8 +21,6 @@ class PROJECTLORD_API UGameGood : public UPrimaryDataAsset
     GENERATED_BODY()
 
 public:
-
-	virtual void PostInitProperties() override;
     
 	UFUNCTION(BlueprintPure, Category = "Game Good")
 	FText GetName() const { return Name; }
@@ -43,7 +41,7 @@ public:
 	const UUnitType* GetUnitTypeRestriction() const { return UnitTypeRestriction; }
 
 	UFUNCTION(BlueprintPure, Category = "Game Good")
-	UVMGameGood* GetViewModel() const { return ViewModel; }
+	UVMGameGood* GetOrCreateViewModel();
 
 
 

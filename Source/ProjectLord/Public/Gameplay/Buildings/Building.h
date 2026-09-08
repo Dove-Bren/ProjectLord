@@ -127,6 +127,9 @@ public:
     UFUNCTION(BlueprintPure)
     UStaticMeshComponent* GetBuildingMeshComponent() const { return BuildingMesh; }
 
+    UFUNCTION(BlueprintPure)
+    UVMBuilding* GetBuildingVM() const { return BuildingVM; }
+
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")

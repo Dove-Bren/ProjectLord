@@ -91,7 +91,7 @@ void AGoodBuilding::PushGoodsToVM()
         TArray<UVMGameGood*> GoodVMs;
         for (auto Good : Goods)
         {
-            GoodVMs.Add(Good.Good->GetViewModel());
+            GoodVMs.Add(Good.Good->GetOrCreateViewModel());
         }
         GoodsVM->SetGoods(GoodVMs);
     }

@@ -23,11 +23,14 @@
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Combat/GameplayEffect/GenericGameplayTagEffect.h"
 #include "Gameplay/Units/Unit.h"
+#include "UI/InspectWidget.h"
+#include "UI/WidgetBlueprintClassRegistry.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
 #include "UI/ViewModels/Buildings/BuildingViewModel.h"
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
+#include "UI/ViewModels/Generic/InspectableViewModel.h"
 #include "UI/ViewModels/Generic/LevelViewModel.h"
 
 ABuilding::ABuilding()
@@ -362,6 +365,16 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
     InSelectionComponent->SetCombatDataVM(CombatVM);
 
     InSelectionComponent->SetGoldVM(GoldVM);
+
+    const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
+    const TSubclassOf<UInspectWidget> BuildingInspectWidgetClass = WidgetBlueprints ? WidgetBlueprints->BuildingInspectWidget.LoadSynchronous() : nullptr;
+    if (ensure(BuildingInspectWidgetClass))
+    {
+        auto InspectVM = UVMInspectable::Make(this, BuildingInspectWidgetClass, FGetInspectVM::CreateWeakLambda(this, [this]() {
+            return BuildingVM;
+        }));
+        InSelectionComponent->SetInspectVM(InspectVM);
+    }
 
     OnBuildingLevelChanged.AddWeakLambda(this, [this, InSelectionComponent](int NewLevel)
         {

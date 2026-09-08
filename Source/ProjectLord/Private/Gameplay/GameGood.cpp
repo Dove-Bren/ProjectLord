@@ -4,12 +4,14 @@
 
 #include "UI/ViewModels/GameGoodViewModel.h"
 
-void UGameGood::PostInitProperties()
+UVMGameGood* UGameGood::GetOrCreateViewModel()
 {
-	Super::PostInitProperties();
-
-	ViewModel = CreateLordVM<UVMGameGood>(this);
-	ViewModel->SetName(GetName());
-	ViewModel->SetDescription(GetDescription());
-	ViewModel->SetIcon(GetIcon());
+	if (!ViewModel)
+	{
+		ViewModel = CreateLordVM<UVMGameGood>(this);
+		ViewModel->SetName(GetName());
+		ViewModel->SetDescription(GetDescription());
+		ViewModel->SetIcon(GetIcon());
+	}
+	return ViewModel;
 }
