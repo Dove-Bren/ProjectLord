@@ -7,6 +7,11 @@
 #include "Gameplay/LordPlayerController.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 
+bool UHoverableWidget::CanHover_Implementation() const
+{
+	return true;
+}
+
 FStaticSelection UHoverableWidget::GetHoverInfo_Implementation()
 {
 	ensureMsgf(false, TEXT("Selection info not implemented"));

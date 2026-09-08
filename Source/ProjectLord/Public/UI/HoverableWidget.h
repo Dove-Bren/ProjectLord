@@ -14,8 +14,8 @@ class PROJECTLORD_API UHoverableWidget : public UUserWidget
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintPure)
-    virtual bool CanHover() const { return true; }
+    UFUNCTION(BlueprintNativeEvent, BlueprintPure)
+    bool CanHover() const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
     FStaticSelection GetHoverInfo();
