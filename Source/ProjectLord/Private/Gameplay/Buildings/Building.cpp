@@ -207,6 +207,16 @@ void ABuilding::NotifyRepairComplete()
         HandleBuildingUpgraded();
     }
 
+    // Notify team state
+    // TODO maybe make event and make team state listen to all buildings?
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        if (AGameTeamState* TeamState = State->GetTeam(GetTeam()))
+        {
+            TeamState->NotifyBuildingRepairComplete(this);
+        }
+    }
+
     OnRepairComplete();
 }
 

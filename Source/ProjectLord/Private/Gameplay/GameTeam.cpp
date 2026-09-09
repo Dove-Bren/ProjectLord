@@ -77,6 +77,9 @@ void AGameTeamState::RemoveUnit(AUnit* Unit)
     {
         OnTeamUnitsChanged.Broadcast();
         Unit->OnUnitFinalDeath.RemoveAll(this);
+
+        // Clean up worker maps
+        NotifyRepairWorkerAbandoned(Unit, nullptr);
     }
 }
 
@@ -96,6 +99,9 @@ void AGameTeamState::RemoveBuilding(ABuilding* Building)
     {
         OnTeamBuildingsChanged.Broadcast();
         Building->OnBuildingDestroyed.RemoveAll(this);
+
+        // Clean up worker maps
+        RepairWorkers.Remove(Building);
     }
 }
 
@@ -147,6 +153,61 @@ TArray<ABuilding*> AGameTeamState::GetTeamBuildingsOfClass(TSubclassOf<ABuilding
 TArray<ABuilding*> AGameTeamState::GetTeamBuildingsOfType(const UBuildingType* Type) const
 {
     return GetTeamBuildingsOfClass(Type->BuildingClass);
+}
+
+ABuilding* AGameTeamState::GetNextBuildingToRepair(AUnit* Worker)
+{
+    // Iterate buildings, looking for ones that need repaired.
+    // Note: iterate from closest to unit to furthest
+    if (!ensure(!TeamBuildings.IsEmpty())) // At least castle should be there
+    {
+        return nullptr;
+    }
+
+    auto UnitPos = Worker->GetActorLocation();
+    TeamBuildings.Sort([UnitPos](const ABuilding& Left, const ABuilding& Right)
+        {
+            // return if Left should come before Right
+            return FVector::DistSquaredXY(UnitPos, Left.GetActorLocation())
+                < FVector::DistSquaredXY(UnitPos, Right.GetActorLocation());
+        });
+
+    for (auto Building : TeamBuildings)
+    {
+        if (Building->WantsRepair())
+        {
+            auto& Workers = RepairWorkers.FindOrAdd(Building);
+            constexpr int RepairWorkersPerBuilding = 2;
+            if (Workers.Num() < RepairWorkersPerBuilding)
+            {
+                Workers.Add(Worker);
+                return Building;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+void AGameTeamState::NotifyBuildingRepairComplete(ABuilding* Building)
+{
+    RepairWorkers.Remove(Building);
+}
+
+void AGameTeamState::NotifyRepairWorkerAbandoned(AUnit* Worker, ABuilding* BuildingOptional)
+{
+    if (BuildingOptional)
+    {
+        auto& Workers = RepairWorkers.FindOrAdd(BuildingOptional);
+        Workers.Remove(Worker);
+    }
+    else
+    {
+        for (auto& [Building, Workers] : RepairWorkers)
+        {
+            Workers.Remove(Worker);
+        }
+    }
 }
 
 void AGameTeamState::OnUnitFinalDeath(AUnit* Unit)

@@ -62,6 +62,9 @@ public:
     virtual void SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure)
+    AGameTeamState* GetTeamState() const;
+
+    UFUNCTION(BlueprintPure)
     ECreatureCategory GetCategory() const { return Category; }
 
     UFUNCTION(BlueprintPure)
@@ -154,7 +157,6 @@ protected:
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent);
 
     void ApplyLevelDamageMod(int Level);
-    AGameTeamState* GetTeamState() const;
 
     virtual void InitUnitVM();
     virtual UVMUnit* ConstructUnitVM();

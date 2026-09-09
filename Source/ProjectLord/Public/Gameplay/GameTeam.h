@@ -117,6 +117,17 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     TArray<ABuilding*> GetTeamBuildingsOfType(const UBuildingType* Type) const;
 
+
+    // Team/Town build and repair worker assignments
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    ABuilding* GetNextBuildingToRepair(AUnit* Worker);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void NotifyBuildingRepairComplete(ABuilding* Building);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void NotifyRepairWorkerAbandoned(AUnit* Worker, ABuilding* BuildingOptional);
+
 protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Replicated, Category = "Team")
@@ -136,6 +147,8 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TArray<ARewardFlag*> TeamFlags;
+
+    TMap<ABuilding*, TArray<AUnit*>> RepairWorkers;
 
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;
