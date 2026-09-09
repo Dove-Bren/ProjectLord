@@ -177,7 +177,7 @@ void ABuilding::RefreshMesh()
         {
             auto Extent = BuildingMesh->GetBounds().BoxExtent;
             auto BuildingRotation = GetActorRotation();
-            Collision->SetBoxExtent(Extent);
+            Collision->SetBoxExtent(Extent * FVector(2, 2, 1));
             Collision->SetRelativeLocation(FVector(0, 0, Extent.Z));
             BuildingEntranceOffset = FVector(0, (Extent.X + 50), 0).RotateAngleAxis(BuildingRotation.Yaw, FVector(0, 0, 1));
             NavMeshMod->UpdateNavigationBounds();

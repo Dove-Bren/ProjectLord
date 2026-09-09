@@ -22,7 +22,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawner")
-    void DoSpawn();
+    bool DoSpawn();
 
 protected:
     
@@ -38,6 +38,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     float SpawnChance = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
+    bool bSpawnToCapacityAtStart;
 
     void ResetTimer();
 

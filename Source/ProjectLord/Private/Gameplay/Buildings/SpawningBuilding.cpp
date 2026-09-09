@@ -7,12 +7,18 @@
 ASpawningBuilding::ASpawningBuilding()
 {
     SpawnTeam = Team;
+    bSpawnToCapacityAtStart = false;
 }
 
 void ASpawningBuilding::BeginPlay()
 {
     Super::BeginPlay();
     ResetTimer();
+
+    if (bSpawnToCapacityAtStart)
+    {
+        while (DoSpawn()) {}
+    }
 }
 
 void ASpawningBuilding::Tick(float DeltaSeconds)
@@ -29,13 +35,13 @@ void ASpawningBuilding::Tick(float DeltaSeconds)
     }
 }
 
-void ASpawningBuilding::DoSpawn_Implementation()
+bool ASpawningBuilding::DoSpawn_Implementation()
 {
     // Basic spawn; get a type and spawn it
     auto SpawnType = GetTypeToSpawn();
     if (!SpawnType)
     {
-        return;
+        return false;
     }
 
     auto Recruit = RecruitNewUnit(SpawnType);
@@ -43,6 +49,7 @@ void ASpawningBuilding::DoSpawn_Implementation()
     {
         Recruit->SetTeam(SpawnTeam);
     }
+    return true;
 }
 
 void ASpawningBuilding::ResetTimer()
