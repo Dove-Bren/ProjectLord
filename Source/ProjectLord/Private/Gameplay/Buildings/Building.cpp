@@ -143,6 +143,23 @@ void ABuilding::SetBuildingGold(int InGold)
     GoldVM->SetGold(BuildingGold);
 }
 
+int ABuilding::CollectBuildingGold()
+{
+    const int Gold = GetBuildingGold();
+    SetBuildingGold(0);
+
+    // Notify of collection
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        if (AGameTeamState* TeamState = State->GetTeam(GetTeam()))
+        {
+            TeamState->NotifyBuildingTaxCollected(this);
+        }
+    }
+
+    return Gold;
+}
+
 void ABuilding::PlaceExitingUnit(AUnit* Unit)
 {
     Unit->SetActorLocation(GetBuildingEntrance());
@@ -188,6 +205,11 @@ void ABuilding::RefreshMesh()
 bool ABuilding::WantsRepair() const
 {
     return GetBuildingHealth() < GetBuildingMaxHealth();
+}
+
+bool ABuilding::WantsTaxCollection() const
+{
+    return GetBuildingGold() > 0;
 }
 
 void ABuilding::NotifyRepairAction()

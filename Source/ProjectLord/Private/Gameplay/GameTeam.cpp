@@ -210,6 +210,61 @@ void AGameTeamState::NotifyRepairWorkerAbandoned(AUnit* Worker, ABuilding* Build
     }
 }
 
+ABuilding* AGameTeamState::GetNextBuildingToTax(AUnit* Worker)
+{
+    // Iterate buildings, looking for ones that need repaired.
+    // Note: iterate from closest to unit to furthest
+    if (!ensure(!TeamBuildings.IsEmpty())) // At least castle should be there
+    {
+        return nullptr;
+    }
+
+    auto UnitPos = Worker->GetActorLocation();
+    TeamBuildings.Sort([UnitPos](const ABuilding& Left, const ABuilding& Right)
+        {
+            // return if Left should come before Right
+            return FVector::DistSquaredXY(UnitPos, Left.GetActorLocation())
+                < FVector::DistSquaredXY(UnitPos, Right.GetActorLocation());
+        });
+
+    for (auto Building : TeamBuildings)
+    {
+        if (Building->WantsTaxCollection())
+        {
+            auto& Workers = TaxWorkers.FindOrAdd(Building);
+            constexpr int TaxWorkersPerBuilding = 1;
+            if (Workers.Num() < TaxWorkersPerBuilding)
+            {
+                Workers.Add(Worker);
+                return Building;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+void AGameTeamState::NotifyBuildingTaxCollected(ABuilding* Building)
+{
+    TaxWorkers.Remove(Building);
+}
+
+void AGameTeamState::NotifyTaxWorkerAbandoned(AUnit* Worker, ABuilding* BuildingOptional)
+{
+    if (BuildingOptional)
+    {
+        auto& Workers = TaxWorkers.FindOrAdd(BuildingOptional);
+        Workers.Remove(Worker);
+    }
+    else
+    {
+        for (auto& [Building, Workers] : TaxWorkers)
+        {
+            Workers.Remove(Worker);
+        }
+    }
+}
+
 void AGameTeamState::OnUnitFinalDeath(AUnit* Unit)
 {
     RemoveUnit(Unit);

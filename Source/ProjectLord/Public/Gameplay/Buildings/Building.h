@@ -88,6 +88,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetBuildingGold(int InGold);
 
+    UFUNCTION(BlueprintCallable)
+    int CollectBuildingGold();
+
     UFUNCTION(BlueprintPure)
     int GetBuildingHealth() const;
     UFUNCTION(BlueprintPure)
@@ -112,6 +115,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     bool WantsRepair() const;
+
+    UFUNCTION(BlueprintPure)
+    bool WantsTaxCollection() const;
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleBuildingPlacement();

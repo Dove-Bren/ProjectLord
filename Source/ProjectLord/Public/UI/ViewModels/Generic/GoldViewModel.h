@@ -15,6 +15,7 @@ class PROJECTLORD_API UVMGold : public UVMLordBase
 public:
     
     int GetGold() const { return Gold; }
+    UFUNCTION(BlueprintCallable)
     void SetGold(int InGold) { UE_MVVM_SET_PROPERTY_VALUE(Gold, InGold); UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetTotalGold); }
 
     int GetTaxGold() const { return TaxGold; }

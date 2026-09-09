@@ -128,6 +128,16 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     void NotifyRepairWorkerAbandoned(AUnit* Worker, ABuilding* BuildingOptional);
 
+    // ... Tax collecting assignments
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    ABuilding* GetNextBuildingToTax(AUnit* Worker);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void NotifyBuildingTaxCollected(ABuilding* Building);
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void NotifyTaxWorkerAbandoned(AUnit* Worker, ABuilding* BuildingOptional);
+
 protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Replicated, Category = "Team")
@@ -149,6 +159,7 @@ protected:
     TArray<ARewardFlag*> TeamFlags;
 
     TMap<ABuilding*, TArray<AUnit*>> RepairWorkers;
+    TMap<ABuilding*, TArray<AUnit*>> TaxWorkers;
 
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;
