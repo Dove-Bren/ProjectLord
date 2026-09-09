@@ -256,19 +256,6 @@ void AHeroBase::ApplyInventoryAttributes()
 {
 	for (const auto Def : LastAppliedInventoryDefs)
 	{
-		//for (auto& AttributeMod : Def->GetAttributesToApply())
-		//{
-		//	if (!AbilitySystemComponent->HasAttributeSetForAttribute(AttributeMod.Attribute))
-		//	{
-		//		continue; // Not an error;
-		//	}
-
-		//	// Don't support variation from items
-		//	ensure(AttributeMod.Variation == 0);
-
-		//	AbilitySystemComponent->ApplyModToAttribute(AttributeMod.Attribute, EGameplayModOp::AddFinal, AttributeMod.BaseValue);
-		//}
-
 		auto Context = AbilitySystemComponent->MakeEffectContext();
 		for (auto& Effect : Def->GetItemEffects())
 		{

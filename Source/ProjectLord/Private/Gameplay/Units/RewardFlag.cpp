@@ -5,6 +5,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "Gameplay/MinimapComponent.h"
+#include "Gameplay/FogOfWarSubsystem.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
@@ -95,6 +96,12 @@ void ARewardFlag::ExploreTick(float DeltaSeconds)
 	{
 		PayNearbyInterestedHeroes(GetReward(), 1000); // Larger range for pay to split on near-ties
 		SetReward(0);
+		
+		auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
+		if (FogSubsystem)
+		{
+			FogSubsystem->RevealFog(GetTeam(), GetActorLocation(), 2000);
+		}
 		Destroy();
 	}
 }
