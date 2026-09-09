@@ -29,7 +29,8 @@ int UHeroItemStack::SetCount(int NewCount)
 
 UHeroInventory::UHeroInventory()
 {
-	
+	GuildGold = 0;
+	PersonalGold = 0;
 }
 
 void UHeroInventory::InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor)

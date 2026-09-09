@@ -223,6 +223,20 @@ bool ACreature::AwardGoldToNearbyHeroes(int Gold)
         }
     }
 
+    // Make sure to add any recent combat participants
+    auto RecentAttackers = CombatComponent->GetRecentAttackers();
+    for (auto Attacker : RecentAttackers)
+    {
+        auto Actor = Attacker->GetOwner();
+        if (AHeroBase* Hero = Cast<AHeroBase>(Actor))
+        {
+            if (Hero->IsAlive() && Hero->GetTeam() != GetTeam())
+            {
+                Heroes.AddUnique(Hero);
+            }
+        }
+    }
+
     if (Heroes.IsEmpty())
     {
         return false;
