@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Unit")
 	void SelectUnit();
 
+	UFUNCTION(BlueprintCallable, Category = "Unit")
+	void FocusUnit();
+
 protected:
 	static UVMUnit* CreateForUnit(AUnit* Unit);
 

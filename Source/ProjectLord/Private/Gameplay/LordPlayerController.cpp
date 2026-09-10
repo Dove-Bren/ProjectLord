@@ -113,6 +113,11 @@ bool ALordPlayerController::ShowInspectWidget_Implementation(TSubclassOf<UInspec
 	return false;
 }
 
+void ALordPlayerController::SetFocusedActor_Implementation(const AActor* Actor)
+{
+	ensureMsgf(false, TEXT("PlayerController needs to implement SetFocusedActor"));
+}
+
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
 {
 	if (!InHovered && bHasHoverInfo)

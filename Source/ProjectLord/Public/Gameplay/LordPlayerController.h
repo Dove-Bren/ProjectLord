@@ -78,6 +78,9 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Inspection")
     bool ShowInspectWidget(TSubclassOf<UInspectWidget> WidgetClass, UVMLordBase* VM);
 
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+    void SetFocusedActor(const AActor* Actor);
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")

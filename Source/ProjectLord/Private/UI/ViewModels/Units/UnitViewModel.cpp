@@ -32,3 +32,15 @@ void UVMUnit::SelectUnit()
         }
     }
 }
+
+void UVMUnit::FocusUnit()
+{
+    if (IsValid(Model))
+    {
+        auto PC = UGameplayStatics::GetPlayerController(Model, 0);
+        if (auto LordPC = Cast<ALordPlayerController>(PC))
+        {
+            LordPC->SetFocusedActor(Model);
+        }
+    }
+}

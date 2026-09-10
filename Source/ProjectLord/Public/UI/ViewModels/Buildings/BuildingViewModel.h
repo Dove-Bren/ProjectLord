@@ -23,6 +23,8 @@ class PROJECTLORD_API UVMBuilding : public UVMLordBase
     GENERATED_BODY()
 
 public:
+
+    void SetBuilding(ABuilding* Building) { Model = Building; }
     
     FText GetName() const { return Name; }
     void SetName(FText InName) { UE_MVVM_SET_PROPERTY_VALUE(Name, InName); }
@@ -57,6 +59,9 @@ public:
     UVMVisitors* GetVisitorsVM() const { return VisitorsVM; }
     void SetVisitorsVM(UVMVisitors* InVisitorsVM) { UE_MVVM_SET_PROPERTY_VALUE(VisitorsVM, InVisitorsVM); }
 
+    UFUNCTION(BlueprintCallable, Category = "Unit")
+    void FocusBuilding();
+
 protected:
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Building")
     FText Name;
@@ -90,4 +95,7 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Building")
     TObjectPtr<UVMVisitors> VisitorsVM;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Building")
+    TWeakObjectPtr<ABuilding> Model;
 };
