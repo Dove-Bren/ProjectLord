@@ -31,3 +31,57 @@ ALordCameraPawn::ALordCameraPawn()
     FloatingMovement->Acceleration = 8000;
     FloatingMovement->Deceleration = 10000;
 }
+
+void ALordCameraPawn::SetFocusedActor(const AActor* Actor)
+{
+    FocusedActor = Actor;
+    ClearPanTarget();
+}
+
+void ALordCameraPawn::ClearFocusedActor()
+{
+    FocusedActor = nullptr;
+}
+
+void ALordCameraPawn::PanTo(FVector WorldPosition)
+{
+    PanTarget = WorldPosition;
+}
+
+void ALordCameraPawn::ClearPanTarget()
+{
+    PanTarget.Reset();
+}
+
+void ALordCameraPawn::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    FocusTick(DeltaSeconds);
+}
+
+void ALordCameraPawn::FocusTick(float DeltaSeconds)
+{
+    if (IsValid(FocusedActor) || PanTarget.IsSet())
+    {
+        const FVector TargetPos = IsValid(FocusedActor) ? FocusedActor->GetActorLocation() : PanTarget.GetValue();
+        const FVector MyPos = GetActorLocation();
+        const double DistSqr = FVector::DistSquaredXY(MyPos, TargetPos);
+        
+        // If really close OR too far, just jump there
+        if (DistSqr < 50 * 50 || DistSqr > 100 * 100)
+        {
+            SetActorLocation(TargetPos);
+            GetMovementComponent()->StopMovementImmediately();
+
+            // Clear pan target if that's where we were headed
+            ClearPanTarget();
+        }
+        else
+        {
+            FVector Direction = (TargetPos - MyPos);
+            Direction.Normalize();
+            AddMovementInput(Direction, FMath::Log2(DistSqr));
+        }
+    }
+}

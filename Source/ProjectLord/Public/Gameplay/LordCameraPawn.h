@@ -8,6 +8,7 @@
 
 #include "LordCameraPawn.generated.h"
 
+class AActor;
 class USpringArmComponent;
 class UCameraComponent;
 class UFloatingPawnMovement;
@@ -20,6 +21,20 @@ class PROJECTLORD_API ALordCameraPawn : public APawn
 public:
     ALordCameraPawn();
 
+    virtual void Tick(float DeltaSeconds) override;
+
+    UFUNCTION(BlueprintCallable, Category = "Focus")
+    void SetFocusedActor(const AActor* Actor);
+
+    UFUNCTION(BlueprintCallable, Category = "Focus")
+    void ClearFocusedActor();
+
+    UFUNCTION(BlueprintCallable, Category = "Focus")
+    void PanTo(FVector WorldPosition);
+
+    UFUNCTION(BlueprintCallable, Category = "Focus")
+    void ClearPanTarget();
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USpringArmComponent* SpringArm;
@@ -29,4 +44,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UFloatingPawnMovement* FloatingMovement;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Focus")
+    TObjectPtr<const AActor> FocusedActor;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Focus")
+    TOptional<FVector> PanTarget;
+
+    void FocusTick(float DeltaSeconds);
 };

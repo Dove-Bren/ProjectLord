@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 
+#include "Gameplay/LordCameraPawn.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/LordPlayerState.h"
 #include "Gameplay/PlacementComponent.h"
@@ -115,7 +116,20 @@ bool ALordPlayerController::ShowInspectWidget_Implementation(TSubclassOf<UInspec
 
 void ALordPlayerController::SetFocusedActor_Implementation(const AActor* Actor)
 {
-	ensureMsgf(false, TEXT("PlayerController needs to implement SetFocusedActor"));
+	ALordCameraPawn* Camera = Cast<ALordCameraPawn>(GetPawn());
+	if (ensure(Camera))
+	{
+		Camera->SetFocusedActor(Actor);
+	}
+}
+
+void ALordPlayerController::PanTo_Implementation(FVector WorldPosition)
+{
+	ALordCameraPawn* Camera = Cast<ALordCameraPawn>(GetPawn());
+	if (ensure(Camera))
+	{
+		Camera->PanTo(WorldPosition);
+	}
 }
 
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)

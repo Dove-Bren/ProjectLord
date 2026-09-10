@@ -81,6 +81,9 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
     void SetFocusedActor(const AActor* Actor);
 
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+    void PanTo(FVector WorldPosition);
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
