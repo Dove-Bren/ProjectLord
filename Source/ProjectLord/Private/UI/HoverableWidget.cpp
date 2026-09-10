@@ -7,6 +7,11 @@
 #include "Gameplay/LordPlayerController.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 
+UHoverableWidget::UHoverableWidget()
+{
+	bBlockMouseClicks = false;
+}
+
 bool UHoverableWidget::CanHover_Implementation() const
 {
 	return true;

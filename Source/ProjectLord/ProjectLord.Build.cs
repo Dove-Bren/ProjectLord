@@ -23,6 +23,8 @@ public class ProjectLord : ModuleRules
 			"UMG",
 			"NavigationSystem",
 			"Landscape",
+			"Slate",
+			"SlateCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

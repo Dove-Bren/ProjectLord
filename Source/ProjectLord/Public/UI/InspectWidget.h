@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/MouseBlockingUserWidget.h"
 #include "InspectWidget.generated.h"
 
 class UVMLordBase;
@@ -11,7 +11,7 @@ class UVMLordBase;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClose);
 
 UCLASS(Blueprintable, Abstract)
-class PROJECTLORD_API UInspectWidget : public UUserWidget
+class PROJECTLORD_API UInspectWidget : public UMouseBlockingUserWidget
 {
     GENERATED_BODY()
 

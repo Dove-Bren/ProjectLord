@@ -3,17 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/MouseBlockingUserWidget.h"
 #include "HoverableWidget.generated.h"
 
 struct FStaticSelection;
 
 UCLASS(Blueprintable, Abstract)
-class PROJECTLORD_API UHoverableWidget : public UUserWidget
+class PROJECTLORD_API UHoverableWidget : public UMouseBlockingUserWidget
 {
     GENERATED_BODY()
 
 public:
+    UHoverableWidget();
+
     UFUNCTION(BlueprintNativeEvent, BlueprintPure)
     bool CanHover() const;
 
