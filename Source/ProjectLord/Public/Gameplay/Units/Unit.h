@@ -25,6 +25,7 @@ class UWidgetComponent;
 class USelectionComponent;
 class UUnitType;
 class UAnimMontage;
+class UStaticMeshComponent;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -119,6 +120,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat|Abilities")
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    TObjectPtr<UStaticMeshComponent> SelectionRingComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TObjectPtr<UUnitType> UnitType;

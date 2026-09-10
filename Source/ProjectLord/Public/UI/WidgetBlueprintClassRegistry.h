@@ -31,4 +31,8 @@ public:
 
     UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Units")
     TSoftClassPtr<class UInspectWidget> BuildingInspectWidget;
+
+    // Icon to use for the 'visitors' selection summary
+    UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category = "Selection")
+    TSoftObjectPtr<class UMaterialInterface> SelectionRingMaterial;
 };

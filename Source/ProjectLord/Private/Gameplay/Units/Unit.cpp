@@ -3,6 +3,7 @@
 #include "Gameplay/Units/Unit.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
@@ -37,6 +38,12 @@ AUnit::AUnit() : ACharacter()
     Movement->AvoidanceConsiderationRadius = 100.f;
 
     GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+
+    SelectionRingComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Selection Ring"));
+    SelectionRingComponent->SetupAttachment(RootComponent);
+    SelectionRingComponent->SetRelativeRotation(FRotator(0, -45 + 180, 0));
+    SelectionRingComponent->SetVisibility(false);
+    SelectionRingComponent->SetCollisionProfileName(TEXT("NoCollision"));
 
     // GAS
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
@@ -80,6 +87,17 @@ void AUnit::BeginPlay()
     if (ensure(AbilitySystemComponent))
     {
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    }
+
+    // Adjust ring component to bottom of mesh, and big enough for the character
+    {
+        float Radius, HalfHeight;
+        GetSimpleCollisionCylinder(Radius, HalfHeight);
+
+        // Want it to be 4x the character and ring component mesh is expected to be 100x100 (so half-width is 50)
+        const float HScale = (Radius * 4) / 50.0f;
+        SelectionRingComponent->SetRelativeLocation(FVector(0, 0, -HalfHeight));
+        SelectionRingComponent->SetWorldScale3D(FVector(HScale, HScale, 1));
     }
     
     RegisterAttributes();
@@ -300,10 +318,12 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
     InSelectionComponent->OnSelected.AddWeakLambda(this, [this]()
     {
         UnitVM->SetIsSelected(true);
+        SelectionRingComponent->SetVisibility(true);
     });
     InSelectionComponent->OnDeselected.AddWeakLambda(this, [this]()
     {
         UnitVM->SetIsSelected(false);
+        SelectionRingComponent->SetVisibility(false);
     });
 }
 
