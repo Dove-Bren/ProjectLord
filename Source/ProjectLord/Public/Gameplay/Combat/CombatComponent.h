@@ -27,6 +27,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInvulnerabilityChange, bool, bInv
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEffectsChange, UCombatComponent*, SelfComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilitiesChange, UCombatComponent*, SelfComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, int, Health, int, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnManaChange, int, Mana, int, MaxMana);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UCombatComponent : public UActorComponent
@@ -59,6 +60,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnHealthChange OnHealthChange;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnManaChange OnManaChange;
 
     UPROPERTY(BlueprintAssignable)
     FOnAbilitiesChange OnAbilitiesChange;
@@ -135,6 +139,9 @@ public:
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Health Changed"))
     void ReceiveOnHealthChange(int Health, int MaxHealth);
 
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Mana Changed"))
+    void ReceiveOnManaChange(int Mana, int MaxMana);
+
     UFUNCTION(BlueprintNativeEvent, Category = "Ability")
     FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
 
@@ -180,6 +187,7 @@ protected:
 
     void BroadcastDeath();
     void BroadcastHealthChange();
+    void BroadcastManaChange();
     void BroadcastAttack(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackLand(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackReceived(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);

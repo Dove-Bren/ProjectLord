@@ -67,6 +67,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     TArray<TSubclassOf<UGameplayEffect>> GetItemEffects() const { return Effects; }
 
+    UFUNCTION(BlueprintPure, Category = "Item|Definition")
+    TSubclassOf<UCombatAbility> GetUseAbility() const { return UseAbility; }
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     FText ItemName;
@@ -82,6 +85,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     TArray<TSubclassOf<UGameplayEffect>> Effects;
+
+    // Ability to use on a unit when it uses this item
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
+    TSubclassOf<UCombatAbility> UseAbility;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     bool bCanStack;
@@ -135,6 +142,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "ItemStack")
     int AddCount(int Amount) { return SetCount(GetCount() + Amount); }
+
+    UFUNCTION(BlueprintCallable, Category = "ItemStack")
+    int DecrementCount() { return AddCount(-1); }
 
     UFUNCTION(BlueprintCallable, Category = "ItemStack")
     int SetCount(int NewCount);

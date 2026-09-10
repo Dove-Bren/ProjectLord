@@ -101,6 +101,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Reward Flag")
     void ClearFlagTarget() { SetFlagTarget(nullptr); }
 
+    UFUNCTION(BlueprintCallable, Category = "Hero")
+    bool AttemptUseHealthPotion();
+
+    UFUNCTION(BlueprintCallable, Category = "Hero")
+    bool AttemptUseManaPotion();
+
     virtual void BeginPlay() override;
 
 protected:
@@ -150,6 +156,18 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
     void OnGoldAwarded(int Amount);
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    void OnHealthPotionUsed();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    void OnManaPotionUsed();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Hero")
+    bool ShouldUseHealthPotion() const;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Hero")
+    bool ShouldUseManaPotion() const;
+
     UPROPERTY()
     FActiveGameplayEffectHandle StrengthDamageModHandle;
 
@@ -175,5 +193,8 @@ private:
 
     UFUNCTION()
     void OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent);
+
+    UFUNCTION()
+    void OnHealthChanged(int Health, int MaxHealth);
 
 };

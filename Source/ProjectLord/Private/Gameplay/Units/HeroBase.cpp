@@ -46,6 +46,7 @@ void AHeroBase::BeginPlay()
 	Inventory->OnInventoryItemsChanged.AddUObject(this, &ThisClass::HandleInventoryChange);
 
 	CombatComponent->OnAttackLand.AddDynamic(this, &AHeroBase::OnAttack);
+	CombatComponent->OnHealthChange.AddDynamic(this, &ThisClass::OnHealthChanged);
 }
 
 void AHeroBase::SetupBaseAttributes()
@@ -297,6 +298,68 @@ void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComp
 {
 	constexpr int BaseGain = 1;
 	AddHeroXP(BaseGain);
+
+	if (IsAlive() && ShouldUseManaPotion())
+	{
+		if (AttemptUseHealthPotion())
+		{
+			OnManaPotionUsed();
+		}
+	}
+}
+
+void AHeroBase::OnHealthChanged(int Health, int MaxHealth)
+{
+	// Check if we need to use a potion
+	if (IsAlive() && ShouldUseHealthPotion())
+	{
+		if (AttemptUseHealthPotion())
+		{
+			OnHealthPotionUsed();
+		}
+	}
+}
+
+bool AHeroBase::AttemptUseHealthPotion()
+{
+	auto Potions = Inventory->GetHealthPotions();
+	if (!Potions || Potions->IsEmpty())
+	{
+		return false;
+	}
+
+	auto Def = Potions->GetItemDef();
+	auto UseAbility = Def->GetUseAbility();
+	if (!ensure(UseAbility))
+	{
+		return false;
+	}
+
+	FGameplayAbilitySpec AbilitySpec(UseAbility);
+	AbilitySystemComponent->GiveAbilityAndActivateOnce(AbilitySpec);
+	Potions->DecrementCount();
+	return true;
+}
+
+bool AHeroBase::AttemptUseManaPotion()
+{
+	auto Potions = Inventory->GetManaPotions();
+	if (!Potions || Potions->IsEmpty())
+	{
+		return false;
+	}
+
+	auto Def = Potions->GetItemDef();
+	auto UseAbility = Def->GetUseAbility();
+	if (!ensure(UseAbility))
+	{
+		return false;
+	}
+
+	FGameplayAbilitySpec AbilitySpec(UseAbility);
+	AbilitySystemComponent->GiveAbilityAndActivateOnce(AbilitySpec);
+	Potions->DecrementCount();
+	return true;
 }
 
 bool AHeroBase::CanApply(const UGameGood* Good) const
@@ -359,6 +422,24 @@ void AHeroBase::AwardGold(int Amount)
 	Inventory->AddGuildGold(Guild);
 
 	OnGoldAwarded(Amount);
+}
+
+bool AHeroBase::ShouldUseHealthPotion_Implementation() const
+{
+	bool bIgnored;
+	const float Health = AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetHealthAttribute(), bIgnored);
+	const float MaxHealth = AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetMaxHealthAttribute(), bIgnored);
+
+	return Health < (MaxHealth * .2f);
+}
+
+bool AHeroBase::ShouldUseManaPotion_Implementation() const
+{
+	bool bIgnored;
+	const float Mana = AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetManaAttribute(), bIgnored);
+	const float MaxMana = AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetMaxManaAttribute(), bIgnored);
+
+	return Mana < (MaxMana * .2f);
 }
 
 EHeroDesireLevel AHeroBase::CheckDesireLevelForItem(const UHeroItemDef* Item) const

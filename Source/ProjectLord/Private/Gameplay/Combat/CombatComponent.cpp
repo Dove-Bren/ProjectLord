@@ -58,6 +58,24 @@ void UCombatComponent::BeginPlay()
                     }
                 });
 
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetManaAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    if (ChangeData.OldValue != ChangeData.NewValue)
+                    {
+                        BroadcastManaChange();
+                    }
+                });
+
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetMaxManaAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    if (ChangeData.OldValue != ChangeData.NewValue)
+                    {
+                        BroadcastManaChange();
+                    }
+                });
+
 
 
         AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddWeakLambda(this, [this](const FActiveGameplayEffect&) {
@@ -432,6 +450,20 @@ void UCombatComponent::BroadcastHealthChange()
         const int MaxHealth = (int) ASC->GetGameplayAttributeValue(AttributeSet->GetMaxHealthAttribute(), bIgnored);
         OnHealthChange.Broadcast(Health, MaxHealth);
         ReceiveOnHealthChange(Health, MaxHealth);
+    }
+}
+
+void UCombatComponent::BroadcastManaChange()
+{
+    auto ASC = GetAbilitySubsystemComponent();
+    auto AttributeSet = GetCombatAttributeSet();
+    if (ensure(ASC && AttributeSet))
+    {
+        bool bIgnored;
+        const int Mana = (int)ASC->GetGameplayAttributeValue(AttributeSet->GetManaAttribute(), bIgnored);
+        const int MaxMana = (int)ASC->GetGameplayAttributeValue(AttributeSet->GetMaxManaAttribute(), bIgnored);
+        OnManaChange.Broadcast(Mana, MaxMana);
+        ReceiveOnManaChange(Mana, MaxMana);
     }
 }
 

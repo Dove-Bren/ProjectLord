@@ -5,6 +5,7 @@
 #include "Gameplay/Units/HeroEquipment.h"
 #include "Gameplay/Units/UnitTypes.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
+#include "UI/ViewModels/ItemStackViewModel.h"
 
 UVMSummarySlots::UVMSummarySlots()
 {
@@ -29,12 +30,20 @@ void UVMSummarySlots::Init()
 	}
 
 	UVMSummarySlot* VM = CreateLordVM<UVMSummarySlot>(Outer);
-	auto Def = Stack->GetItemDef();
-
-	VM->SetIcon(Def->GetItemIcon());
-	if (Def->GetCanStack())
+	auto StackVM = Stack->GetViewModel();
+	StackVM->AddFieldValueChangedDelegate(UVMItemStack::FFieldNotificationClassDescriptor::Icon, FFieldValueChangedDelegate::CreateWeakLambda(VM, [VM, StackVM](auto Emitter, auto Field)
 	{
-		VM->SetCount(Stack->GetCount());
+		VM->SetIcon(StackVM->GetIcon());
+	}));
+	VM->SetIcon(StackVM->GetIcon());
+
+	if (StackVM->DoesStack())
+	{
+		StackVM->AddFieldValueChangedDelegate(UVMItemStack::FFieldNotificationClassDescriptor::Count, FFieldValueChangedDelegate::CreateWeakLambda(VM, [VM, StackVM](auto Emitter, auto Field)
+		{
+			VM->SetCount(StackVM->GetCount());
+		}));
+		VM->SetCount(StackVM->GetCount());
 	}
 
 	return VM;
