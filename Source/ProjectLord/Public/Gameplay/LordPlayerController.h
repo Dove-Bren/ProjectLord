@@ -69,6 +69,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Hover")
     void SetHoveredStaticElement(FStaticSelection StaticElement);
 
+    UFUNCTION(BlueprintCallable, Category = "Hover")
+    void ClearHovered(bool bBroadcast = true);
+
     UFUNCTION(BlueprintImplementableEvent, Category = "Hover", meta = (DisplayName = "OnHoverChange"))
     void BP_OnHoverChange();
 

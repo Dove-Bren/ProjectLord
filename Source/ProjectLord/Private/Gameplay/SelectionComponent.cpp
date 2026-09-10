@@ -37,6 +37,8 @@ void USelectionComponent::EndPlay(const EEndPlayReason::Type Reason)
 
 void USelectionComponent::Select()
 {
+	bSelected = true;
+
 	// Reset action tree
 	ActionTreeVM->GoToRoot();
 
@@ -51,7 +53,20 @@ void USelectionComponent::Select()
 
 void USelectionComponent::Deselect()
 {
+	bSelected = false;
 	OnDeselected.Broadcast();
+}
+
+void USelectionComponent::Hover()
+{
+	bHovered = true;
+	OnHovered.Broadcast();
+}
+
+void USelectionComponent::Unhover()
+{
+	bHovered = false;
+	OnUnhovered.Broadcast();
 }
 
 void USelectionComponent::SetTeam(EGameTeam InTeam)

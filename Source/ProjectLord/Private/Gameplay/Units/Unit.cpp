@@ -396,6 +396,20 @@ void AUnit::AddHealthbarWidget()
     {
         Widget->ReceiveUnitVM(UnitVM);
     }
+
+    SelectionComponent->OnHovered.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    SelectionComponent->OnUnhovered.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    SelectionComponent->OnSelected.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    SelectionComponent->OnDeselected.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    RefreshHealthbarVisibility();
+}
+
+void AUnit::RefreshHealthbarVisibility_Implementation()
+{
+    if (ensure(HealthbarWidgetComponent))
+    {
+        HealthbarWidgetComponent->SetVisibility(SelectionComponent->IsSelected() || SelectionComponent->IsHovered());
+    }
 }
 
 void AUnit::ApplyLevelDamageMod(int Level)

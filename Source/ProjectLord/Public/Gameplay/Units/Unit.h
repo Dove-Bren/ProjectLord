@@ -115,6 +115,9 @@ protected:
 
     virtual void PlayDeathAnimation();
 
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    void RefreshHealthbarVisibility();
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
 

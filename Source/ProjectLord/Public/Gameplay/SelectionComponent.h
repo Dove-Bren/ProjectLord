@@ -25,6 +25,8 @@ class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
 DECLARE_MULTICAST_DELEGATE(FOnDeselected);
+DECLARE_MULTICAST_DELEGATE(FOnHovered);
+DECLARE_MULTICAST_DELEGATE(FOnUnhovered);
 DECLARE_MULTICAST_DELEGATE(FOnRemoved);
 
 // Exists because uprop containers cannot have other containers, so need a struct wrapper
@@ -50,6 +52,8 @@ public:
 
     FOnSelected OnSelected;
     FOnDeselected OnDeselected;
+    FOnHovered OnHovered;
+    FOnUnhovered OnUnhovered;
     FOnRemoved OnRemoved;
 
     UFUNCTION(BlueprintPure)
@@ -63,6 +67,18 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void Deselect();
+
+    UFUNCTION(BlueprintCallable)
+    void Hover();
+
+    UFUNCTION(BlueprintCallable)
+    void Unhover();
+
+    UFUNCTION(BlueprintPure)
+    bool IsSelected() const { return bSelected; }
+    
+    UFUNCTION(BlueprintPure)
+    bool IsHovered() const { return bHovered; }
 
     // Runtime getters & setters
     UFUNCTION(BlueprintPure)
@@ -143,6 +159,12 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
     bool bSelectable;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
+    bool bSelected;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
+    bool bHovered;
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     FText Name;

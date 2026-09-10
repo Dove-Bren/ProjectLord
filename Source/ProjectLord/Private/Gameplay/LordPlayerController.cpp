@@ -134,18 +134,13 @@ void ALordPlayerController::PanTo_Implementation(FVector WorldPosition)
 
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
 {
-	if (!InHovered && bHasHoverInfo)
-	{
-		bHasHoverInfo = false;
-		HoveredComponent = NullOpt;
-		HoverVM->Reset(true);
-		OnHoverChange();
-	}
-	else if (InHovered && InHovered != HoveredComponent)
+	ClearHovered(!IsValid(InHovered)); // Don't broadcast if we're about to update afterwards
+	if (IsValid(InHovered))
 	{
 		bHasHoverInfo = true;
 		HoveredComponent = InHovered;
 		HoverVM->SetFromSelection(InHovered, false, true);
+		HoveredComponent.GetValue()->Hover();
 		OnHoverChange();
 	}
 }
@@ -156,6 +151,25 @@ void ALordPlayerController::SetHoveredStaticElement(FStaticSelection StaticEleme
 	HoveredComponent = NullOpt; // Not based on a component anymore
 	HoverVM->SetFromStaticElement(StaticElement);
 	OnHoverChange();
+}
+
+void ALordPlayerController::ClearHovered(bool bBroadcast)
+{
+	if (HasHover())
+	{
+		if (HoveredComponent.IsSet())
+		{
+			HoveredComponent.GetValue()->Unhover();
+		}
+		bHasHoverInfo = false;
+		HoveredComponent = NullOpt;
+		HoverVM->Reset(bBroadcast);
+
+		if (bBroadcast)
+		{
+			OnHoverChange();
+		}
+	}
 }
 
 void ALordPlayerController::OnSetPaused(bool bPaused)
