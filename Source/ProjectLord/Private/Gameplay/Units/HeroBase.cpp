@@ -4,6 +4,7 @@
 
 #include "GameplayEffect.h"
 #include "Gameplay/GameGood.h"
+#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
@@ -13,6 +14,7 @@
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
 #include "UI/InspectWidget.h"
+#include "UI/ToastNotification.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
 #include "UI/ViewModels/Units/HeroViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
@@ -218,6 +220,20 @@ void AHeroBase::InitUnitVM()
 		REGISTER_ATTR_LISTENER(Movement, HeroVM, FAttributeListener::FSetFloatValue::CreateWeakLambda(HeroVM, [HeroVM](int NewValue) {
 			HeroVM->SetMovement(NewValue);
 			}));
+	}
+}
+
+void AHeroBase::OnDeath_Implementation()
+{
+	Super::OnDeath_Implementation();
+
+	if (auto TeamState = GetTeamState())
+	{
+		if (auto LordController = TeamState->GetPrimaryPlayerController())
+		{
+			auto HeroType = GetUnitType();
+			LordController->AddToastNotification(FToastNotification(EToastNotificationType::HeroDead, HeroType->UnitIcon, GetHeroName()));
+		}
 	}
 }
 

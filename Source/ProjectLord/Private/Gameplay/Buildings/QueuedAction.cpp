@@ -3,8 +3,12 @@
 #include "Gameplay/Buildings/QueuedAction.h"
 
 #include "LordLogging.h"
+#include "Gameplay/GameTeam.h"
+#include "Gameplay/LordGameState.h"
+#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Units/UnitTypes.h"
+#include "UI/ToastNotification.h"
 
 void UQueuedGoodAction::Init(int InGold, FGoodOffer InOffer)
 {
@@ -27,7 +31,20 @@ void UQueuedAction::Perform(AGoodBuilding* Building)
 
 void UQueuedGoodAction::Perform(AGoodBuilding* Building)
 {
-	Building->AddGoodOffer(GetGood());
+	auto GoodOffer = GetGood();
+	Building->AddGoodOffer(GoodOffer);
+
+	// Toast!
+	if (auto State = GetWorld()->GetGameState<ALordGameState>())
+	{
+		if (AGameTeamState* TeamState = State->GetTeam(Building->GetTeam()))
+		{
+			if (auto Controller = TeamState->GetPrimaryPlayerController())
+			{
+				Controller->AddToastNotification(FToastNotification(EToastNotificationType::ResearchComplete, GoodOffer.Good->GetIcon(), GoodOffer.Good->GetName()));
+			}
+		}
+	}
 }
 
 void UQueuedRecruitAction::Perform(AGoodBuilding* Building)

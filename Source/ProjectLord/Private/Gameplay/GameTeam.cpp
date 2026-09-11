@@ -4,6 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 
+#include "Gameplay/LordPlayerController.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
@@ -59,6 +60,11 @@ void AGameTeamState::SetCastle(ACastle* Castle)
     {
         AddBuilding(Castle);
     }
+}
+
+void AGameTeamState::SetPrimaryPlayerController(ALordPlayerController* InController)
+{
+    PrimaryController = InController;
 }
 
 void AGameTeamState::AddUnit(AUnit* Unit)

@@ -45,6 +45,14 @@ Menu.Tab.BuildingResidents.Tooltip,"Residents",
 Menu.Tab.BuildingGoods.Title,"Goods",
 Menu.Tab.BuildingGoods.Tooltip,"List of Goods",
 
+Toast.ResearchComplete,"Research completed:",
+Toast.ConstructionComplete,"Construction complete:",
+Toast.UpgradeComplete,"Building upgraded:",
+Toast.HeroDead,"Hero is dead:",
+Toast.BuildingDestroyed,"Sire, we lost",
+Toast.NewQuest,"New quest:",
+Toast.QuestComplete,"Quest completed:",
+
 Menu.Misc.Level,"Level",
 
 Button.EscMenu.Return,"Return",

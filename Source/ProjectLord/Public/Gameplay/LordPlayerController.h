@@ -18,8 +18,10 @@ class UVMSelection;
 class UPlacementComponent;
 class UVMLordBase;
 class UInspectWidget;
+class ULordGameHUDWidget;
 
 struct FStaticSelection;
+struct FToastNotification;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
@@ -41,6 +43,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     AGameTeamState* GetTeamState() const;
+
+    UFUNCTION(BlueprintPure)
+    ULordGameHUDWidget* GetHUDWidget() const { return HUDWidget; }
 
     UFUNCTION(BlueprintPure, Category = "Selection")
     bool HasSelection() const { return Selection.IsSet(); };
@@ -87,6 +92,9 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
     void PanTo(FVector WorldPosition);
 
+    UFUNCTION(BlueprintCallable, Category = "Toast")
+    void AddToastNotification(FToastNotification Notification);
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
@@ -97,6 +105,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
     TObjectPtr<UInputMappingContext> StartingInputContext;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
+    TSubclassOf<ULordGameHUDWidget> HUDClass;
 
     TOptional<USelectionComponent*> Selection;
     TOptional<USelectionComponent*> HoveredComponent;
@@ -112,7 +123,13 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UPlacementComponent> PlacementComponent;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<ULordGameHUDWidget> HUDWidget;
+
     virtual void OnSetPaused(bool bPaused);
+
+    UFUNCTION(BlueprintNativeEvent, Category = "HUD")
+    ULordGameHUDWidget* ConstructHUD();
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName = "OnSetPaused"))
     void BP_OnSetPaused(bool bPaused);

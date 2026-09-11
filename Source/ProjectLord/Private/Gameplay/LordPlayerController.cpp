@@ -14,6 +14,8 @@
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/InspectWidget.h"
+#include "UI/LordGameHUDWidget.h"
+#include "UI/ToastNotification.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
@@ -46,6 +48,19 @@ void ALordPlayerController::BeginPlay()
 	if (ensure(GetWorld()))
 	{
 		GetWorld()->bIsCameraMoveableWhenPaused = true;
+	}
+
+	// Set up HUD
+	HUDWidget = ConstructHUD();
+	check(IsValid(HUDWidget));
+	HUDWidget->AddToViewport();
+
+	// TODO: Wait for team states to be set up instead of assuming they are
+	auto TeamState = GetTeamState();
+	if (ensure(TeamState))
+	{
+		// TODO need authority check? Auth || isServer or something?
+		TeamState->SetPrimaryPlayerController(this);
 	}
 }
 
@@ -130,6 +145,11 @@ void ALordPlayerController::PanTo_Implementation(FVector WorldPosition)
 	{
 		Camera->PanTo(WorldPosition);
 	}
+}
+
+void ALordPlayerController::AddToastNotification(FToastNotification Notification)
+{
+	GetHUDWidget()->AddToastNotification(MoveTemp(Notification));
 }
 
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
@@ -305,6 +325,16 @@ bool ALordPlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate
 		return true;
 	}
 	return false;
+}
+
+ULordGameHUDWidget* ALordPlayerController::ConstructHUD_Implementation()
+{
+	if (ensure(IsValid(HUDClass)))
+	{
+		return CreateWidget<ULordGameHUDWidget>(this, HUDClass);
+	}
+
+	return nullptr;
 }
 
 bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const

@@ -11,6 +11,7 @@ class AUnit;
 class ARewardFlag;
 class UUnitType;
 class UBuildingType;
+class ALordPlayerController;
 class UVMGameTeamState;
 
 UENUM(BlueprintType)
@@ -72,6 +73,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Team")
     void SetCastle(ACastle* Castle);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
+    ALordPlayerController* GetPrimaryPlayerController() const { return PrimaryController.IsValid() ? PrimaryController.Get() : nullptr; }
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void SetPrimaryPlayerController(ALordPlayerController* Controller);
 
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<AUnit*>& GetUnits() const { return TeamUnits; }
@@ -148,6 +155,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TWeakObjectPtr<ACastle> TeamCastle;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    TWeakObjectPtr<ALordPlayerController> PrimaryController;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TArray<AUnit*> TeamUnits;

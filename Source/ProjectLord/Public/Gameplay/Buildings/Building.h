@@ -212,6 +212,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bIndestructible = false;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bToastWhenConstructed;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bToastWhenDestroyed;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;
 

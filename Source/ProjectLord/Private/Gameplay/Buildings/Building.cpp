@@ -27,6 +27,7 @@
 #include "Gameplay/Combat/GameplayEffect/GenericGameplayTagEffect.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/InspectWidget.h"
+#include "UI/ToastNotification.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
@@ -43,6 +44,8 @@ ABuilding::ABuilding()
     MaxLevel = 1;
     BuildingLevel = 1; // This is for map buildings that are already built. Set back to 0 in placement logic.
     BuildingAvailableLevel = 1;
+    bToastWhenConstructed = false;
+    bToastWhenDestroyed = false;
 
     BuildingMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Building Mesh"));
     BuildingMesh->SetMobility(EComponentMobility::Stationary);
@@ -248,6 +251,20 @@ void ABuilding::HandleBuildingUpgraded()
 {
     // Update building level
     SetLevel(BuildingAvailableLevel);
+
+    if (bToastWhenConstructed)
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        if (AGameTeamState* TeamState = State->GetTeam(GetTeam()))
+        {
+            if (auto LordController = TeamState->GetPrimaryPlayerController())
+            {
+                const auto ToastType = BuildingAvailableLevel == 1 ? EToastNotificationType::ConstructionComplete
+                                        : EToastNotificationType::UpgradeComplete;
+                LordController->AddToastNotification(FToastNotification(ToastType, BuildingType->BuildingIcon, GetBuildingName()));
+            }
+        }
+    }
 
     OnUpgradeComplete();
 }
@@ -514,7 +531,19 @@ int ABuilding::GetBuildingMaxHealth() const
 
 void ABuilding::HandleDeath()
 {
-    // TODO: Spawn break effects
+    // TODO: Spawn break effects?
+
+    if (bToastWhenDestroyed)
+    if (auto State = GetWorld()->GetGameState<ALordGameState>())
+    {
+        if (AGameTeamState* TeamState = State->GetTeam(GetTeam()))
+        {
+            if (auto LordController = TeamState->GetPrimaryPlayerController())
+            {
+                LordController->AddToastNotification(FToastNotification(EToastNotificationType::BuildingDestroyed, BuildingType->BuildingIcon, GetBuildingName()));
+            }
+        }
+    }
 
     OnBuildingDestroyed.Broadcast(this);
 

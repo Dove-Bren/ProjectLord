@@ -14,6 +14,8 @@
 
 AGoodBuilding::AGoodBuilding()
 {
+    bToastWhenConstructed = true;
+    bToastWhenDestroyed = true;
 
     QueueComponent = CreateDefaultSubobject<UBuildingActionQueueComponent>(TEXT("Queue"));
 }
