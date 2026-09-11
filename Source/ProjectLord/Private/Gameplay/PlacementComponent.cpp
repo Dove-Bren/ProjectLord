@@ -52,7 +52,7 @@ ABuilding* UPlacementComponent::AttemptToPlace()
 	}
 
 	FActorSpawnParameters Params;
-	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FTransform Transform(ShadowActor->GetActorLocation());
 	auto Building = GetWorld()->SpawnActor<ABuilding>(PlaceType->BuildingClass, Transform, Params);
 	return Building;

@@ -123,6 +123,9 @@ public:
     void HandleBuildingPlacement();
 
     UFUNCTION(BlueprintCallable)
+    void ClearFoliageAround();
+
+    UFUNCTION(BlueprintCallable)
     virtual void RefreshMesh();
 
     // Called by a repairer every time they repair the building

@@ -201,5 +201,6 @@ bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At)
 	}
 	
 	Building->SetTeam(GetTeam());
+	Building->ClearFoliageAround();
 	return true;
 }

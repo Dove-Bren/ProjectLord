@@ -6,7 +6,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "NavModifierComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "NavAreas/NavArea_Obstacle.h"
+#include "Engine/OverlapResult.h"
 
 #include "LordLogging.h"
 #include "Gameplay/FogOfWarComponent.h"
@@ -548,4 +550,27 @@ void ABuilding::HandleBuildingPlacement_Implementation()
 
     FadeComponent->Activate();
     FadeComponent->Enable();
+
+    ClearFoliageAround();
+}
+
+void ABuilding::ClearFoliageAround()
+{
+    // Do 3x the size of the actual building (one building's length on each side)
+    auto Extent = BuildingMesh->GetBounds().BoxExtent;
+    auto Shape = FCollisionShape::MakeBox(Extent * 3);
+
+    TArray<FOverlapResult> Overlaps;
+    FCollisionObjectQueryParams ObjectParams;
+    ObjectParams.AddObjectTypesToQuery(ECC_GameTraceChannel2); // Foliage custom channel
+    if (GetWorld()->OverlapMultiByObjectType(Overlaps, GetActorLocation(), FQuat::Identity, ObjectParams, Shape))
+    {
+        for (auto& Overlap : Overlaps)
+        {
+            if (auto ISC = Cast<UInstancedStaticMeshComponent>(Overlap.GetComponent()))
+            {
+                ISC->RemoveInstance(Overlap.GetItemIndex());
+            }
+        }
+    }
 }
