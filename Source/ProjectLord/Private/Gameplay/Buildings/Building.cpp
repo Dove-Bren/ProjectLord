@@ -64,7 +64,7 @@ ABuilding::ABuilding()
     AbilitySystemComponent->SetIsReplicated(true);
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
-    CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>(TEXT("CombatAttributeSet"));
+    BuildingAttributeSet = CreateDefaultSubobject<UBuildingAttributeSet>(TEXT("BuildingAttributeSet"));
 
     CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
 
@@ -130,7 +130,7 @@ void ABuilding::StartLevelUp()
         SetAvailableLevel(GetBuildingLevel() + 1); // Updates health values
 
         // restore
-        AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetHealthAttribute(),
+        AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
             Health);
     }
 }
@@ -291,12 +291,12 @@ void ABuilding::BeginPlay()
     }
 
     bool bIgnored;
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetSightAttribute())
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BuildingAttributeSet->GetSightAttribute())
         .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
             {
                 FogOfWarComponent->SetRevealRadius(ChangeData.NewValue);
             });
-    FogOfWarComponent->SetRevealRadius(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetSightAttribute(), bIgnored));
+    FogOfWarComponent->SetRevealRadius(AbilitySystemComponent->GetGameplayAttributeValue(BuildingAttributeSet->GetSightAttribute(), bIgnored));
     FogOfWarComponent->SetTeam(GetTeam());
 
     MinimapComponent->SetTeam(GetTeam());
@@ -342,7 +342,7 @@ void ABuilding::EndPlay(EEndPlayReason::Type Reason)
 
     if (ensure(AbilitySystemComponent))
     {
-        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetSightAttribute())
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BuildingAttributeSet->GetSightAttribute())
             .RemoveAll(this);
     }
 }
@@ -474,7 +474,12 @@ void ABuilding::SetupViewModel()
 
     GoldVM = CreateLordVM<UVMGold>(this);
     GoldVM->SetGold(BuildingGold);
-    GoldVM->SetGoldGeneration(GoldGeneratedPerDay);
+    GoldVM->SetGoldGeneration(GetGoldGeneratedPerDay());
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BuildingAttributeSet->GetGoldGenerationAttribute())
+        .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+            {
+                GoldVM->SetGoldGeneration(ChangeData.NewValue);
+            });
 
     LevelVM = CreateLordVM<UVMLevel>(this);
     LevelVM->SetLevel(GetBuildingLevel());
@@ -520,13 +525,19 @@ FText ABuilding::GetBuildingName() const
 int ABuilding::GetBuildingHealth() const
 {
     bool bIgnored;
-    return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetHealthAttribute(), bIgnored));
+    return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(BuildingAttributeSet->GetHealthAttribute(), bIgnored));
 }
 
 int ABuilding::GetBuildingMaxHealth() const
 {
     bool bIgnored;
-    return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetMaxHealthAttribute(), bIgnored));
+    return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(BuildingAttributeSet->GetMaxHealthAttribute(), bIgnored));
+}
+
+int ABuilding::GetGoldGeneratedPerDay() const
+{
+    bool bIgnored;
+    return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(BuildingAttributeSet->GetGoldGenerationAttribute(), bIgnored));
 }
 
 void ABuilding::HandleDeath()
@@ -554,9 +565,10 @@ void ABuilding::HandleGameDayChanged(int GameDay)
 {
     if (GameDay > 0)
     {
-        if (GoldGeneratedPerDay > 0)
+        const int Generated = GetGoldGeneratedPerDay();
+        if (Generated > 0)
         {
-            SetBuildingGold(GetBuildingGold() + GoldGeneratedPerDay);
+            SetBuildingGold(GetBuildingGold() + Generated);
         }
     }
 }
@@ -574,7 +586,7 @@ void ABuilding::HandleBuildingPlacement_Implementation()
 {
     SetLevel(0);
     SetAvailableLevel(1);
-    AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetHealthAttribute(),
+    AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
         (int) ((float) GetBuildingMaxHealth() * 0.1f));
 
     FadeComponent->Activate();

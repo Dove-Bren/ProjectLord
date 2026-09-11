@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameplayTagAssetInterface.h"
 
+#include "Gameplay/Attributes/BuildingAttributeSet.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/GameTeam.h"
 
 #include "Building.generated.h"
 
 class UBuildingType;
-class UCombatAttributeSet;
 class UAbilitySystemComponent;
 class UCombatComponent;
 class ABuildingController;
@@ -95,6 +95,8 @@ public:
     int GetBuildingHealth() const;
     UFUNCTION(BlueprintPure)
     int GetBuildingMaxHealth() const;
+    UFUNCTION(BlueprintPure)
+    int GetGoldGeneratedPerDay() const;
 
     UFUNCTION(BlueprintCallable)
     void PlaceExitingUnit(AUnit* Unit);
@@ -105,7 +107,10 @@ public:
     FVector GetBuildingEntrance() const;
 
     UFUNCTION(BlueprintPure)
-    UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
+    UBuildingAttributeSet* GetBuildingAttributeSet() const { return BuildingAttributeSet; }
+
+    UFUNCTION(BlueprintPure)
+    UCombatAttributeSet* GetCombatAttributeSet() const { return BuildingAttributeSet; }
 
     UFUNCTION(BlueprintPure)
     UStaticMesh* GetBuildingMesh() const;
@@ -167,21 +172,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     FText BuildingCustomName;
 
-    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsResidents;*/
-
-    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsVisitors;*/
-
-    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsGoods;*/
-
-    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    bool bSupportsGold;*/
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
-    int GoldGeneratedPerDay;
-
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     int MaxLevel;
 
@@ -225,7 +215,7 @@ protected:
     TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building|Definition|Attributes")
-    TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+    TObjectPtr<UBuildingAttributeSet> BuildingAttributeSet;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combat")
     TObjectPtr<UCombatComponent> CombatComponent;
