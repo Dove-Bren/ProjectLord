@@ -118,10 +118,15 @@ void UCombatComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
     }
 
     constexpr double CombatTimeoutSeconds = 10;
-    if (LastCombatTime != 0
-        && GetTimeSinceLastCombatAction() > CombatTimeoutSeconds)
+    if (LastCombatTime != 0)
     {
-        ClearRecentCombatData();
+        const auto TimeSince = GetTimeSinceLastCombatAction();
+
+        // If it's been long enough, clear
+        if (TimeSince > CombatTimeoutSeconds)
+        {
+            ClearRecentCombatData();
+        }
     }
 }
 
@@ -427,6 +432,10 @@ void UCombatComponent::MarkCombatTime()
 
 void UCombatComponent::ClearRecentCombatData()
 {
+    for (auto RevengeTarget : RecentRevengeTargets)
+    {
+        RevengeTarget->OnDeathLocal.RemoveAll(this);
+    }
     RecentRevengeTargets.Empty();
 
     // Set time sentinel to denote there's no data
@@ -436,6 +445,7 @@ void UCombatComponent::ClearRecentCombatData()
 void UCombatComponent::BroadcastDeath()
 {
     OnDeath.Broadcast();
+    OnDeathLocal.Broadcast();
     ReceiveOnDeath();
 }
 
@@ -501,8 +511,16 @@ void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldControlle
 
 void UCombatComponent::AddRevengeTarget(UCombatComponent* RevengeTarget)
 {
-    RecentRevengeTargets.AddUnique(RevengeTarget);
-    MarkCombatTime();
+    if (!RecentRevengeTargets.Contains(RevengeTarget))
+    {
+        RecentRevengeTargets.Add(RevengeTarget);
+        RevengeTarget->OnDeathLocal.AddWeakLambda(this, [this, RevengeTarget]()
+        {
+            RecentRevengeTargets.Remove(RevengeTarget);
+            RevengeTarget->OnDeathLocal.RemoveAll(this);
+        });
+        MarkCombatTime();
+    }
 }
 
 void UCombatComponent::HandleAttackFrom(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)

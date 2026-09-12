@@ -19,6 +19,7 @@ struct FGameplayAbilitySpecHandle;
 struct FActiveGameplayEffectHandle;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
+DECLARE_MULTICAST_DELEGATE(FOnDeathLocal);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackReceived, AActor*, AttackingActor, UCombatComponent*, AttackingCombatComponent);
@@ -39,6 +40,8 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnDeath OnDeath;
+
+    FOnDeathLocal OnDeathLocal;
 
     UPROPERTY(BlueprintAssignable)
     FOnAttack OnAttack;
