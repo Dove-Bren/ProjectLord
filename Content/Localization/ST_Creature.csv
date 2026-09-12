@@ -29,6 +29,9 @@ Creature.Warrior.Desc,"The warriors of Ardania are the most steadfast of heroes;
 Creature.Ranger.Name,"Ranger",
 Creature.Ranger.Desc,"These dependable fellows love their job, Your Majesty. That job: wandering and shooting monsters. Sure, you still have to pay them, but you can't buy that level of enthusiasm.",
 
+Creature.Wizard.Name,"Mage",
+Creature.Wizard.Desc,"What mages lack in personal grooming skills, they more than make up for in explosive potential. The most powerful mages are one-man wrecking crews, with the ability to flatten a town with just a few spells. Unfortunately, when they start going a bit dotty, they can be a real hazard to anyone - and anything - around them. That's why, in his infinite wisdom, Brashnard created Ardania's first retirement home for Mages. Thick iron walls, comfortable chairs and exciting social activities for the retired wizard in your family!",
+
 Monster.DevSlime.Name,"Dev Slime",
 Monster.DevSlime.Desc,"A poorly modeled and animated slime, used only for testing mechanics",
 

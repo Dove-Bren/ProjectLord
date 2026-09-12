@@ -8,3 +8,6 @@ Ability.Knight.Attack.Desc,"Basic Attack",
 
 Ability.Ranger.Ranged_Attack.Name,"Ranged Attack",
 Ability.Ranger.Ranged_Attack.Desc,"Fire a ranged shot, doing 1x ranged damage",
+
+Ability.Wizard.Basic_Attack.Name,"Attack",
+Ability.Wizard.Basic_Attack.Desc,"Fire a ranged shot, doing 1x magic damage",
