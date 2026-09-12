@@ -86,7 +86,10 @@ public:
     int GetBuildingGold() const { return BuildingGold; }
 
     UFUNCTION(BlueprintCallable)
-    void SetBuildingGold(int InGold);
+    virtual void SetBuildingGold(int InGold);
+
+    UFUNCTION(BlueprintCallable)
+    virtual void AddBuildingGold(int InGold);
 
     UFUNCTION(BlueprintCallable)
     int CollectBuildingGold();
@@ -119,10 +122,10 @@ public:
     bool IsUnderConstruction() const { return GetBuildingLevel() < GetBuildingAvailableLevel(); }
 
     UFUNCTION(BlueprintPure)
-    bool WantsRepair() const;
+    virtual bool WantsRepair() const;
 
     UFUNCTION(BlueprintPure)
-    bool WantsTaxCollection() const;
+    virtual bool WantsTaxCollection() const;
 
     UFUNCTION(BlueprintNativeEvent)
     void HandleBuildingPlacement();

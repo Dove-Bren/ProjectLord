@@ -148,6 +148,11 @@ void ABuilding::SetBuildingGold(int InGold)
     GoldVM->SetGold(BuildingGold);
 }
 
+void ABuilding::AddBuildingGold(int InGold)
+{
+    SetBuildingGold(FMath::Max(GetBuildingGold() + InGold));
+}
+
 int ABuilding::CollectBuildingGold()
 {
     const int Gold = GetBuildingGold();

@@ -26,6 +26,20 @@ void ACastle::Tick(float DeltaSeconds)
 		NextSpawnTime = Time + 10 + FMath::RandRange(5.0f, 20.0f);
 		AttemptSpawnRound();
 	}
+
+	if (int Gold = CollectBuildingGold())
+	{
+		// Deposit directly into team gold
+		if (auto TeamState = GetTeamState())
+		{
+			TeamState->AddGold(Gold);
+		}
+	}
+}
+
+bool ACastle::WantsTaxCollection() const
+{
+	return false;
 }
 
 AGameTeamState* ACastle::GetTeamState() const
@@ -191,7 +205,7 @@ bool ACastle::SpawnNearby(const UBuildingType* Type)
 bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At)
 {
 	FActorSpawnParameters Params;
-	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FTransform Transform(FRotator(0.0f, FMath::FRandRange(0.0f, 360.0f), 0.0f), At);
 	auto Building = GetWorld()->SpawnActor<ABuilding>(Type->BuildingClass, Transform, Params);
 
