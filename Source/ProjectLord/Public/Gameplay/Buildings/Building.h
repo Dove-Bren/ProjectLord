@@ -99,6 +99,8 @@ public:
     UFUNCTION(BlueprintPure)
     int GetBuildingMaxHealth() const;
     UFUNCTION(BlueprintPure)
+    bool AtFullHealth() const { return GetBuildingHealth() >= GetBuildingMaxHealth(); }
+    UFUNCTION(BlueprintPure)
     int GetGoldGeneratedPerDay() const;
 
     UFUNCTION(BlueprintCallable)
@@ -122,7 +124,7 @@ public:
     bool IsUnderConstruction() const { return GetBuildingLevel() < GetBuildingAvailableLevel(); }
 
     UFUNCTION(BlueprintPure)
-    virtual bool WantsRepair() const;
+    virtual bool WantsRepair() const { return !AtFullHealth(); }
 
     UFUNCTION(BlueprintPure)
     virtual bool WantsTaxCollection() const;

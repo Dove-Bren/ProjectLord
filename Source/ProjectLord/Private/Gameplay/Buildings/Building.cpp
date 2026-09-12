@@ -212,11 +212,6 @@ void ABuilding::RefreshMesh()
     }
 }
 
-bool ABuilding::WantsRepair() const
-{
-    return GetBuildingHealth() < GetBuildingMaxHealth();
-}
-
 bool ABuilding::WantsTaxCollection() const
 {
     return GetBuildingGold() > 0;
@@ -581,7 +576,7 @@ void ABuilding::HandleGameDayChanged(int GameDay)
 void ABuilding::HandleHealthChanged(int Health, int MaxHealth)
 {
     OnBuildingHealthChanged.Broadcast(Health, MaxHealth);
-    if (WantsRepair())
+    if (!AtFullHealth())
     {
         OnBuildingNeedsRepairsChanged.Broadcast(true);
     }
