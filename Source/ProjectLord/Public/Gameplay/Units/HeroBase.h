@@ -107,6 +107,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Hero")
     bool AttemptUseManaPotion();
 
+    virtual void HandleUnitRecruited() override;
+
     virtual void BeginPlay() override;
 
 protected:
@@ -127,6 +129,12 @@ protected:
     // Unit is roughly 100-gold's worth of motiviation.
     UPROPERTY(EditDefaultsOnly, Category = "Hero")
     TMap<ERewardFlagType, int> RewardFlagBonus;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+    TArray<FString> FirstNames;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+    TArray<FString> LastNames;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;
@@ -168,6 +176,9 @@ protected:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Hero")
     bool ShouldUseManaPotion() const;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Hero")
+    FText GenerateHeroName() const;
 
     UPROPERTY()
     FActiveGameplayEffectHandle StrengthDamageModHandle;

@@ -378,6 +378,30 @@ bool AHeroBase::AttemptUseManaPotion()
 	return true;
 }
 
+void AHeroBase::HandleUnitRecruited()
+{
+	Super::HandleUnitRecruited();
+
+	HeroName = GenerateHeroName();
+	Cast<UVMHero>(GetUnitVM())->SetHeroName(HeroName);
+	SelectionComponent->SetCustomName(GetHeroName());
+}
+
+FText AHeroBase::GenerateHeroName_Implementation() const
+{
+	const int FirstCount = FirstNames.Num();
+	const int LastCount = LastNames.Num();
+
+	if (FirstCount <= 0 || LastCount <= 0)
+	{
+		return FText::FromString(TEXT("Generic Hero"));
+	}
+
+	const FString& FirstName = FirstNames[FMath::RandRange(0, FirstCount - 1)];
+	const FString& LastName = LastNames[FMath::RandRange(0, LastCount - 1)];
+	return FText::FromString(FString::Printf(TEXT("%s %s"), *FirstName, *LastName));
+}
+
 bool AHeroBase::CanApply(const UGameGood* Good) const
 {
 	// Respect a unit type filter, if present
