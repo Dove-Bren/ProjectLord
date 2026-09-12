@@ -565,7 +565,8 @@ bool AHeroBase::CanAcceptItem(const UHeroItemDef* Item) const
 	}
 	if (EItemType::ManaPotion == ItemType)
 	{
-		return Inventory->GetNumManaPotions() < 9;
+		return CombatComponent->GetAbilitiesRequireMana()
+			&& Inventory->GetNumManaPotions() < 9;
 	}
 	auto ItemStack = UHeroItemStack::Make(Inventory, Item, 1);
 	return Inventory->CanFit(ItemStack);

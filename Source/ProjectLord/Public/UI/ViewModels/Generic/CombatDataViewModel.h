@@ -39,6 +39,7 @@ public:
     float GetAttackRange() const { return AttackRange; }
 
     bool IsInvulnerable() const { return bInvulnerable; }
+    bool UsesMana() const { return bUsesMana; }
 
     UFUNCTION(FieldNotify, BlueprintPure, Category = "Combat Data")
     bool IsDead() const { return GetHealth() <= 0; }
@@ -118,6 +119,10 @@ protected:
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = "IsInvulnerable", Category = "Combat Data")
     bool bInvulnerable;
     void SetInvulnerable(bool bInInvulnerable) { UE_MVVM_SET_PROPERTY_VALUE(bInvulnerable, bInInvulnerable); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = "UsesMana", Category = "Combat Data")
+    bool bUsesMana;
+    void SetUsesMana(bool bInUsesMana) { UE_MVVM_SET_PROPERTY_VALUE(bUsesMana, bInUsesMana); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     TArray<UVMGameplayEffect*> Effects;

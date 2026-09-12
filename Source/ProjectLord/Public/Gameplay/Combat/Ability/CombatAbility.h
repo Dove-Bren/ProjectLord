@@ -29,6 +29,7 @@ public:
     EAbilityTargetType GetTargetType() const { return TargetType; }
     bool IsHidden() const { return bHidden; }
     FDamageTypeMap GetDamageTypeHint() const { return DamageTypeHint; }
+    int GetManaCost() const { return ManaCost; }
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
@@ -57,6 +58,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     FDamageTypeMap DamageTypeHint;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    int ManaCost;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     bool bHidden;

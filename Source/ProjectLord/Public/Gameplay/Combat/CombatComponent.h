@@ -113,6 +113,10 @@ public:
     UFUNCTION(BlueprintPure, Category = "Combat|Ability")
     FDamageTypeMap GetRelevantDamageTypes() const;
 
+    // Check if any abilities require mana
+    UFUNCTION(BlueprintPure, Category = "Combat|Ability")
+    bool GetAbilitiesRequireMana() const;
+
 
 
     // Convenience Accessors
@@ -210,6 +214,11 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
     TArray<TSubclassOf<UCombatAbility>> DefaultAbilities;
+
+    // If true, component will report that it can use mana even if no abilities
+    // say they require it (yet)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+    bool bOverrideNeedMana = false;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCombatComponent> TargetComponent;

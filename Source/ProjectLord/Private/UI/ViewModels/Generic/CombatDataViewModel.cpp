@@ -34,8 +34,11 @@ void UVMCombatData::Init(UCombatComponent* Component)
 	REGISTER_ATTR_LISTENER_FLOAT(Sight);
 	REGISTER_ATTR_LISTENER_FLOAT(AttackRange);
 
-	// Listener for damage types handled by abilities listener
-	SetDamageTypes(Component->GetRelevantDamageTypes());
+	// Listeners for these handled by abilities listener
+	{
+		SetDamageTypes(Component->GetRelevantDamageTypes());
+		SetUsesMana(Component->GetAbilitiesRequireMana());
+	}
 
 	Component->OnTargetChange.AddDynamic(this, &ThisClass::OnTargetChange);
 	SetTarget(Component->GetCombatTarget());
@@ -59,8 +62,9 @@ void UVMCombatData::OnAbilitiesChange(UCombatComponent* Component)
 {
 	SetupAbilities(Component->GetCombatAbilities());
 
-	// Also refresh damage types
+	// Also refresh other ability-driven data
 	SetDamageTypes(Component->GetRelevantDamageTypes());
+	SetUsesMana(Component->GetAbilitiesRequireMana());
 }
 
 void UVMCombatData::SetupEffects(const TArray<const UVisibleGameplayEffect*>& InEffects)

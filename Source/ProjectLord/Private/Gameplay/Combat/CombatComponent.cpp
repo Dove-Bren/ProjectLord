@@ -261,6 +261,25 @@ FDamageTypeMap UCombatComponent::GetRelevantDamageTypes() const
     return Map;
 }
 
+bool UCombatComponent::GetAbilitiesRequireMana() const
+{
+    if (bOverrideNeedMana)
+    {
+        return true;
+    }
+
+    for (auto Ability : GetCombatAbilities(true))
+    {
+        if (Ability->GetManaCost() > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 bool UCombatComponent::IsDead() const
 {
     bool bIgnored;
