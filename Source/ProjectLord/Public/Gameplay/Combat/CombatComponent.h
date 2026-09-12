@@ -101,13 +101,18 @@ public:
 
     // Get all Unit Abilities this Unit has access to
     UFUNCTION(BlueprintPure, Category = "Combat|Ability")
-    TArray<UCombatAbility*> GetCombatAbilities(bool bIncludeHidden = false);
+    TArray<UCombatAbility*> GetCombatAbilities(bool bIncludeHidden = false) const;
 
     // Give a combat ability.
     // This should be used instead of giving it directly to the GAS component, since
     // this broadcasts the change.
     UFUNCTION(BlueprintCallable, Category = "Combat|Ability")
     void GiveCombatAbility(TSubclassOf<UCombatAbility> Ability);
+
+    // Get all damage types that are used by any ability currently owned by this unit
+    UFUNCTION(BlueprintPure, Category = "Combat|Ability")
+    FDamageTypeMap GetRelevantDamageTypes() const;
+
 
 
     // Convenience Accessors

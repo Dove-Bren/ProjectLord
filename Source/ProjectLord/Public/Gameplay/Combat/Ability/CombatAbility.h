@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Abilities/GameplayAbility.h"
+#include "Gameplay/Combat/CombatTypes.h"
 #include "Gameplay/Combat/Ability/AbilityEnums.h"
 
 #include "CombatAbility.generated.h"
@@ -27,6 +28,7 @@ public:
     UTexture2D* GetAbilityIcon() const { return AbilityIcon; }
     EAbilityTargetType GetTargetType() const { return TargetType; }
     bool IsHidden() const { return bHidden; }
+    FDamageTypeMap GetDamageTypeHint() const { return DamageTypeHint; }
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
@@ -52,6 +54,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     EAbilityAnimType AnimType;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    FDamageTypeMap DamageTypeHint;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     bool bHidden;

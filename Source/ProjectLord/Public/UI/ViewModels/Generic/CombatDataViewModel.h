@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/ViewModels/LordViewModelBase.h"
+#include "Gameplay/Combat/CombatTypes.h"
 
 #include "CombatDataViewModel.generated.h"
 
@@ -31,6 +32,8 @@ public:
     int GetMeleeDamage() const { return MeleeDamage; }
     int GetRangedDamage() const { return RangedDamage; }
     int GetMagicDamage() const { return MagicDamage; }
+
+    FDamageTypeMap GetDamageTypes() const { return DamageTypes; }
 
     float GetSight() const { return Sight; }
     float GetAttackRange() const { return AttackRange; }
@@ -95,6 +98,10 @@ protected:
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     int MagicDamage;
     void SetMagicDamage(int InMagicDamage) { UE_MVVM_SET_PROPERTY_VALUE(MagicDamage, InMagicDamage); }
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
+    FDamageTypeMap DamageTypes;
+    void SetDamageTypes(FDamageTypeMap InDamageTypes) { UE_MVVM_SET_PROPERTY_VALUE(DamageTypes, InDamageTypes); }
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Combat Data")
     float Sight;

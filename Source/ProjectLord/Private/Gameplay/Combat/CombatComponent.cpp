@@ -216,7 +216,7 @@ UCombatAttributeSet* UCombatComponent::GetCombatAttributeSet() const
     return nullptr;
 }
 
-TArray<UCombatAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden)
+TArray<UCombatAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden) const
 {
     TArray<UCombatAbility*> Abilities;
 
@@ -249,6 +249,16 @@ void UCombatComponent::GiveCombatAbility(TSubclassOf<UCombatAbility> Ability)
         AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
         OnAbilitiesChange.Broadcast(this);
     }
+}
+
+FDamageTypeMap UCombatComponent::GetRelevantDamageTypes() const
+{
+    FDamageTypeMap Map;
+    for (auto Ability : GetCombatAbilities(true))
+    {
+        Map.Merge(Ability->GetDamageTypeHint());
+    }
+    return Map;
 }
 
 bool UCombatComponent::IsDead() const
