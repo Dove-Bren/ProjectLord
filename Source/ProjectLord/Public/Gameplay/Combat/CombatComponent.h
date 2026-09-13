@@ -84,6 +84,15 @@ public:
     UFUNCTION(BlueprintPure)
     bool IsAlive() const { return !IsDead(); }
 
+    UFUNCTION(BlueprintPure)
+    int GetHealth() const;
+
+    UFUNCTION(BlueprintPure)
+    int GetMaxHealth() const;
+
+    UFUNCTION(BlueprintPure)
+    float GetThreat() const;
+
     UFUNCTION(BlueprintPure, Category = "Combat")
     bool IsCloseEnoughToAttack(const UCombatComponent* OtherCombatComponent) const;
 
@@ -184,8 +193,17 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Combat")
     bool IsTargetable() const;
 
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    bool IsTargetableEnemy(const UCombatComponent* Other, bool bRequireAlive = true) const;
+
     UFUNCTION(BlueprintCallable, Category = "Combat")
-    UCombatComponent* GetNearestEnemy(bool bAlive = true);
+    UCombatComponent* GetNearestEnemy(bool bAlive = true) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    TArray<UCombatComponent*> GetNearbyEnemies(float Radius = -1, bool bAlive = true) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    TArray<UCombatComponent*> GetNearbyAllies(float Radius = -1, bool bAlive = true) const;
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
     TArray<UCombatComponent*> GetRecentAttackers() const;

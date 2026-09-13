@@ -35,8 +35,7 @@ AHeroBase::AHeroBase() : ACreature()
 
 int AHeroBase::GetHeroMaxXP() const
 {
-	bool bIgnored;
-	const int Level = FMath::Clamp((int) AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored), 1, 9999);
+	const int Level = FMath::Clamp(GetHeroLevel(), 1, 9999);
 	return 8 + ((Level-1) * 1);
 }
 
@@ -223,6 +222,12 @@ void AHeroBase::InitUnitVM()
 	}
 }
 
+int AHeroBase::GetHeroLevel() const
+{
+	bool bIgnored;
+	return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(UCombatAttributeSet::GetLevelAttribute(), bIgnored));
+}
+
 void AHeroBase::OnDeath_Implementation()
 {
 	Super::OnDeath_Implementation();
@@ -301,8 +306,7 @@ void AHeroBase::DoLevelUp()
 {
 	HeroXP = 0;
 
-	bool bIgnored;
-	const int Level = AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored);
+	const int Level = GetHeroLevel();
 	AbilitySystemComponent->SetNumericAttributeBase(CombatAttributeSet->GetLevelAttribute(), Level + 1);
 
 	// Update derived attributes
@@ -377,6 +381,64 @@ bool AHeroBase::AttemptUseManaPotion()
 	AbilitySystemComponent->GiveAbilityAndActivateOnce(AbilitySpec);
 	Potions->DecrementCount();
 	return true;
+}
+
+bool AHeroBase::HeroShouldFleeFromNearby() const
+{
+	const int Threat = GetCombinedNearbyEnemyThreat();
+	if (Threat <= 0)
+	{
+		return false;
+	}
+
+	const int Confidence = GetHeroConfidence();
+	return Confidence < Threat;
+}
+
+int AHeroBase::GetCombinedNearbyEnemyThreat() const
+{
+	float AdjustedLevelSum = 0;
+	for (auto Enemy : CombatComponent->GetNearbyEnemies())
+	{
+		// TODO: Add threat!
+		AdjustedLevelSum += Enemy->GetThreat();
+	}
+	return AdjustedLevelSum;
+}
+
+int AHeroBase::GetHeroConfidence() const
+{
+	const int HeroLevel = GetHeroLevel();
+
+	int NearbyAllyLevel = 0;
+	for (auto Ally : CombatComponent->GetNearbyAllies())
+	{
+		if (auto AllyHero = Cast<AHeroBase>(Ally->GetOwner()))
+		{
+			NearbyAllyLevel += AllyHero->GetHeroLevel();
+		}
+		else
+		{
+			NearbyAllyLevel += 1;
+		}
+	}
+
+	return HeroLevel + NearbyAllyLevel;
+}
+
+bool AHeroBase::ShouldFlee() const
+{
+	if (Super::ShouldFlee())
+	{
+		return true;
+	}
+
+	if (HasBuilding() && HeroShouldFleeFromNearby())
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void AHeroBase::HandleUnitRecruited()
@@ -642,8 +704,7 @@ int AHeroBase::ScoreFlag(ARewardFlag* Flag) const
 			Score += *HeroBonus;
 		}
 		
-		bool bIgnored;
-		int Level = (int)AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetLevelAttribute(), bIgnored);
+		int Level = GetHeroLevel();
 		const int LevelPenalty = FMath::Max(0, Level - 5); // Start reducing 1x per level after lvl 5
 		Score -= LevelPenalty;
 

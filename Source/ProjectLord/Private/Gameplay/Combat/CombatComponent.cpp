@@ -291,9 +291,26 @@ bool UCombatComponent::GetAbilitiesRequireMana() const
 
 bool UCombatComponent::IsDead() const
 {
+    
+    return GetHealth() <= 0;
+}
+
+int UCombatComponent::GetHealth() const
+{
     bool bIgnored;
-    int Health = FMath::TruncToInt(GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetHealthAttribute(), bIgnored));
-    return Health <= 0;
+    return FMath::TruncToInt(GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetHealthAttribute(), bIgnored));
+}
+
+int UCombatComponent::GetMaxHealth() const
+{
+    bool bIgnored;
+    return FMath::TruncToInt(GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetMaxHealthAttribute(), bIgnored));
+}
+
+float UCombatComponent::GetThreat() const
+{
+    // MAke attribute, and scale by health %?
+    return 1;
 }
 
 bool UCombatComponent::IsCloseEnoughToAttack(const UCombatComponent* OtherCombatComponent) const
@@ -612,7 +629,15 @@ void UCombatComponent::HandleAttackFrom(AActor* AttackingActor, UCombatComponent
     BroadcastAttackReceived(AttackingActor, AttackingCombatComponent);
 }
 
-UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive)
+bool UCombatComponent::IsTargetableEnemy(const UCombatComponent* Other, bool bRequireAlive) const
+{
+    return (!bRequireAlive || !Other->IsDead())
+        && (GetTeam() != Other->GetTeam())
+        && (Other->IsTargetable())
+        ;
+}
+
+UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive) const
 {
     auto Owner = GetOwner();
     auto ASC = GetAbilitySubsystemComponent();
@@ -627,12 +652,58 @@ UCombatComponent* UCombatComponent::GetNearestEnemy(bool bAlive)
 
     return UGameplayUtils::GetNearestCombatComponentNearLocationEx(GetWorld(), GetOwner()->GetActorLocation(), Sight,
         [this, bAlive](const UCombatComponent* Other) -> bool {
-            return (bAlive && Other->IsDead())
-                || (GetTeam() == Other->GetTeam())
-                || (!Other->IsTargetable())
-                ;
+            return !IsTargetableEnemy(Other, bAlive);
         }
         );
+}
+
+TArray<UCombatComponent*> UCombatComponent::GetNearbyEnemies(float Radius, bool bAlive) const
+{
+    auto Owner = GetOwner();
+    auto ASC = GetAbilitySubsystemComponent();
+    auto AttributeSet = GetCombatAttributeSet();
+    if (!ensure(Owner) || !ensure(ASC) || !ensure(AttributeSet))
+    {
+        return {};
+    }
+
+    if (Radius <= 0)
+    {
+        bool bIgnored;
+        Radius = ASC->GetGameplayAttributeValue(AttributeSet->GetSightAttribute(), bIgnored);
+    }
+
+    auto Nearby = UGameplayUtils::GetCombatComponentsNearLocation(GetWorld(), GetOwner()->GetActorLocation(), Radius);
+    Nearby.RemoveAll([this, bAlive](const UCombatComponent* Other) -> bool { return !IsTargetableEnemy(Other, bAlive); });
+    return Nearby;
+
+}
+
+TArray<UCombatComponent*> UCombatComponent::GetNearbyAllies(float Radius, bool bAlive) const
+{
+    auto Owner = GetOwner();
+    auto ASC = GetAbilitySubsystemComponent();
+    auto AttributeSet = GetCombatAttributeSet();
+    if (!ensure(Owner) || !ensure(ASC) || !ensure(AttributeSet))
+    {
+        return {};
+    }
+
+    if (Radius <= 0)
+    {
+        bool bIgnored;
+        Radius = ASC->GetGameplayAttributeValue(AttributeSet->GetSightAttribute(), bIgnored);
+    }
+
+    auto Nearby = UGameplayUtils::GetCombatComponentsNearLocation(GetWorld(), GetOwner()->GetActorLocation(), Radius);
+    Nearby.RemoveAll([this, bAlive](const UCombatComponent* Other) -> bool
+        {
+            return (bAlive && Other->IsDead())
+                || Other->GetTeam() != GetTeam()
+                ;
+        });
+    return Nearby;
+
 }
 
 TArray<UCombatComponent*> UCombatComponent::GetRecentAttackers() const

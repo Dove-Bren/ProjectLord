@@ -151,6 +151,16 @@ void ACreature::SetAction(ECreatureAction InAction)
     }
 }
 
+bool ACreature::ShouldFlee() const
+{
+    if (!HasBuilding())
+    {
+        return false; // Nowhere to flee to
+    }
+
+    return CombatComponent->GetHealth() < CombatComponent->GetMaxHealth() / 4;
+}
+
 void ACreature::SetTeam(EGameTeam InTeam)
 {
     Super::SetTeam(InTeam);

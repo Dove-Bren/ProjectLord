@@ -60,6 +60,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetAction(ECreatureAction InAction);
 
+    UFUNCTION(BlueprintPure)
+    virtual bool ShouldFlee() const;
+
     virtual void SetTeam(EGameTeam InTeam) override;
 
 

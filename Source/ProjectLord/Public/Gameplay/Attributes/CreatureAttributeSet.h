@@ -44,4 +44,3 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(UCreatureAttributeSet, WanderRadius);
 };
 
-#undef DEF_REP_ATTRIBUTE

@@ -43,6 +43,9 @@ public:
     FOnLevelUp OnLevelUp;
 
     UFUNCTION(BlueprintPure)
+    int GetHeroLevel() const;
+
+    UFUNCTION(BlueprintPure)
     int GetHeroXP() const { return HeroXP; }
 
     UFUNCTION(BlueprintPure)
@@ -108,6 +111,17 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Hero")
     bool AttemptUseManaPotion();
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    bool HeroShouldFleeFromNearby() const;
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    int GetCombinedNearbyEnemyThreat() const;
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    int GetHeroConfidence() const;
+
+    virtual bool ShouldFlee() const override;
 
     virtual void HandleUnitRecruited() override;
 

@@ -97,4 +97,3 @@ protected:
 
 };
 
-#undef DEF_REP_ATTRIBUTE
