@@ -584,7 +584,7 @@ void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldControlle
 
 void UCombatComponent::AddRevengeTarget(UCombatComponent* RevengeTarget)
 {
-    if (!RecentRevengeTargets.Contains(RevengeTarget))
+    if (RevengeTarget && !RecentRevengeTargets.Contains(RevengeTarget))
     {
         RecentRevengeTargets.Add(RevengeTarget);
         RevengeTarget->OnDeathLocal.AddWeakLambda(this, [this, RevengeTarget]()
