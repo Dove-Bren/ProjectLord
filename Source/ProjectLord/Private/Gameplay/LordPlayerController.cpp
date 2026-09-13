@@ -4,12 +4,14 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "NavigationSystem.h"
 
 #include "Gameplay/LordCameraPawn.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/LordPlayerState.h"
 #include "Gameplay/PlacementComponent.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
@@ -238,6 +240,7 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 			ERewardFlagType FlagType = ERewardFlagType::Explore;
 			FVector At;
 			UCombatComponent* AttachComponent = nullptr;
+			bool bCanPlace = true;
 			if (auto Over = GetSelectableUnderMouse())
 			{
 				// Defend or attack depending on team
@@ -250,19 +253,31 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 			else
 			{
 				FlagType = ERewardFlagType::Explore;
-				At = GetWorldPositionUnderMouse() + FVector(0, 0, 500);
+				auto AtDirect = GetWorldPositionUnderMouse();
+				At = AtDirect + FVector(0, 0, 500);
+
+				// Make sure we can actually place it
+				{
+					const UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+					const ANavigationData* NavData = NavSys->GetNavDataForProps(GetNavAgentPropertiesRef(), GetNavAgentLocation());
+					const FVector Start = GetTeamState()->GetCastle()->GetActorLocation();
+					bCanPlace = NavSys->TestPathSync(FPathFindingQuery(this, *NavData, Start, AtDirect, nullptr), EPathFindingMode::Hierarchical);
+				}
 			}
 
-			ARewardFlag* Flag = ARewardFlag::Make(this, FlagClasses[FlagType], FlagType, At);
-			if (AttachComponent)
+			if (bCanPlace)
 			{
-				Flag->SetAttachedComponent(AttachComponent);
-			}
-			Flag->SetReward(0);
-			Flag->SetTeam(GetTeam());
+				ARewardFlag* Flag = ARewardFlag::Make(this, FlagClasses[FlagType], FlagType, At);
+				if (AttachComponent)
+				{
+					Flag->SetAttachedComponent(AttachComponent);
+				}
+				Flag->SetReward(0);
+				Flag->SetTeam(GetTeam());
 
-			GetTeamState()->AddFlag(Flag);
-			SetSelection(Flag->GetComponentByClass<USelectionComponent>());
+				GetTeamState()->AddFlag(Flag);
+				SetSelection(Flag->GetComponentByClass<USelectionComponent>());
+			}
 		}
 	}
 	else
