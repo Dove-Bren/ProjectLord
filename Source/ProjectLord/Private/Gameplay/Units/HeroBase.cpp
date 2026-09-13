@@ -123,6 +123,24 @@ void AHeroBase::SetupBaseAttributes()
 		}
 
 	}
+
+	// Set up confidence
+	{
+		auto HeroAttributeSet = LordHeroAttributeSet;
+
+		UGameplayEffect* GE_ConfidenceMod = NewObject<UGameplayEffect>(this, TEXT("ConfidenceLevelMod"));
+		GE_ConfidenceMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
+		auto ConfidenceAttribute = HeroAttributeSet->GetConfidenceAttribute();
+
+		FGameplayModifierInfo Mod;
+		Mod.Attribute = ConfidenceAttribute;
+		Mod.ModifierOp = EGameplayModOp::AddBase;
+		Mod.ModifierMagnitude = FScalableFloat(1);
+		GE_ConfidenceMod->Modifiers.Add(MoveTemp(Mod));
+
+		FGameplayEffectSpec Spec(GE_ConfidenceMod, AbilitySystemComponent->MakeEffectContext(), GetHeroLevel());
+		ConfidenceLevelModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+	}
 }
 
 void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
@@ -311,6 +329,7 @@ void AHeroBase::DoLevelUp()
 
 	// Update derived attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
+	UpdateConfidenceLevelMod();
 	OnLevelUp.Broadcast(Level);
 	BP_OnLevelUp();
 }
@@ -391,7 +410,7 @@ bool AHeroBase::HeroShouldFleeFromNearby() const
 		return false;
 	}
 
-	const int Confidence = GetHeroConfidence();
+	const int Confidence = GetHeroCombinedConfidence();
 	return Confidence < Threat;
 }
 
@@ -406,9 +425,15 @@ int AHeroBase::GetCombinedNearbyEnemyThreat() const
 	return AdjustedLevelSum;
 }
 
-int AHeroBase::GetHeroConfidence() const
+int AHeroBase::GetHeroSoloConfidence() const
 {
-	const int HeroLevel = GetHeroLevel();
+	bool bIgnored;
+	return FMath::FloorToInt(AbilitySystemComponent->GetGameplayAttributeValue(ULordHeroAttributeSet::GetConfidenceAttribute(), bIgnored));
+}
+
+int AHeroBase::GetHeroCombinedConfidence() const
+{
+	const int HeroConfidence = GetHeroSoloConfidence();
 
 	int NearbyAllyLevel = 0;
 	for (auto Ally : CombatComponent->GetNearbyAllies())
@@ -423,7 +448,7 @@ int AHeroBase::GetHeroConfidence() const
 		}
 	}
 
-	return HeroLevel + NearbyAllyLevel;
+	return HeroConfidence + NearbyAllyLevel;
 }
 
 bool AHeroBase::ShouldFlee() const
@@ -658,6 +683,11 @@ bool AHeroBase::HasAbility(TSubclassOf<UGameplayAbility> AbilityClass) const
 void AHeroBase::UpdateAttributeDamageMod(FActiveGameplayEffectHandle& AttributeHandle, int Level)
 {
 	AbilitySystemComponent->SetActiveGameplayEffectLevel(AttributeHandle, Level);
+}
+
+void AHeroBase::UpdateConfidenceLevelMod()
+{
+	AbilitySystemComponent->SetActiveGameplayEffectLevel(ConfidenceLevelModHandle, GetHeroLevel());
 }
 
 bool AHeroBase::PurchaseGood(FGoodOffer Offer)

@@ -52,6 +52,10 @@ protected:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Stamina, Category = "Attributes|Characteristics")
     FGameplayAttributeData Stamina = 1;
 
+    // Confidence metric used to determine when heroes flee
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Confidence, Category = "Attributes|Combat")
+    FGameplayAttributeData Confidence = 0;
+
     UFUNCTION()
     virtual void OnRep_StartingHealth(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, StartingHealth)
 
@@ -70,6 +74,9 @@ protected:
     UFUNCTION()
     virtual void OnRep_Stamina(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, Stamina)
 
+    UFUNCTION()
+    virtual void OnRep_Confidence(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(ULordHeroAttributeSet, Confidence)
+
 public:
 
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, StartingHealth);
@@ -79,6 +86,8 @@ public:
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Agility);
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Intelligence);
     ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Stamina);
+
+    ATTRIBUTE_ACCESSORS_BASIC(ULordHeroAttributeSet, Confidence);
 
     virtual void Init(UCombatAttributeSet* CombatAttribs);
     virtual void UpdateDerivedUnitValues();

@@ -91,6 +91,9 @@ public:
     int GetMaxHealth() const;
 
     UFUNCTION(BlueprintPure)
+    int GetRawThreat() const;
+
+    UFUNCTION(BlueprintPure)
     float GetThreat() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")

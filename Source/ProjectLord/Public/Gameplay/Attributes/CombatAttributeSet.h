@@ -74,6 +74,9 @@ protected:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttackRange, Category = "Attributes|AI Characteristics")
     FGameplayAttributeData AttackRange = 100;
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Threat, Category = "Attributes|AI Characteristics")
+    FGameplayAttributeData Threat = 0;
+
     UFUNCTION()
     virtual void OnRep_Level(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, Level)
 
@@ -113,6 +116,9 @@ protected:
     UFUNCTION()
     virtual void OnRep_AttackRange(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, AttackRange)
 
+    UFUNCTION()
+    virtual void OnRep_Threat(const FGameplayAttributeData& OldValue) DEF_REP_ATTRIBUTE(UCombatAttributeSet, Threat)
+
 
 public:
 
@@ -133,6 +139,7 @@ public:
 
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Sight);
     ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, AttackRange);
+    ATTRIBUTE_ACCESSORS_BASIC(UCombatAttributeSet, Threat);
 
     void ResetHealthMana();
 

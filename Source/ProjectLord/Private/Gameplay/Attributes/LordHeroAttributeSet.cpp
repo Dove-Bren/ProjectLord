@@ -17,6 +17,8 @@ void ULordHeroAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(ULordHeroAttributeSet, Agility);
 	DOREPLIFETIME(ULordHeroAttributeSet, Intelligence);
 	DOREPLIFETIME(ULordHeroAttributeSet, Stamina);
+
+	DOREPLIFETIME(ULordHeroAttributeSet, Confidence);
 }
 
 void ULordHeroAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -35,6 +37,8 @@ void ULordHeroAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	ROUND_ATTRIB_TO_INT(Agility);
 	ROUND_ATTRIB_TO_INT(Intelligence);
 	ROUND_ATTRIB_TO_INT(Stamina);
+
+	ROUND_ATTRIB_TO_INT(Confidence);
 
 	// Clamp Characteristics to 1+ ints since some math formulas assume they are positive
 	if (Attribute == GetStrengthAttribute()
@@ -82,6 +86,8 @@ void ULordHeroAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Att
 	ROUND_ATTRIB_TO_INT(Agility);
 	ROUND_ATTRIB_TO_INT(Intelligence);
 	ROUND_ATTRIB_TO_INT(Stamina);
+
+	ROUND_ATTRIB_TO_INT(Confidence);
 }
 
 void ULordHeroAttributeSet::Init(UCombatAttributeSet* InCombatAttribs)

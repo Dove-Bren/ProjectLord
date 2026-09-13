@@ -94,6 +94,25 @@ void UCombatComponent::BeginPlay()
             OnEffectsChange.Broadcast(this);
         });
         // WAnt to listen for ability add/remove event, but there isn't one!
+
+        // Set up modifier for threat based on level
+        {
+            UGameplayEffect* GE_ThreatMod = NewObject<UGameplayEffect>(this, TEXT("ThreatLevelMod"));
+            GE_ThreatMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
+            auto ThreatAttribute = UCombatAttributeSet::GetThreatAttribute();
+
+            FGameplayModifierInfo Mod;
+            Mod.Attribute = ThreatAttribute;
+            Mod.ModifierOp = EGameplayModOp::AddBase;
+            FAttributeBasedFloat Curve;
+            Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(UCombatAttributeSet::GetLevelAttribute(), EGameplayEffectAttributeCaptureSource::Source, false);
+            Curve.Coefficient = 1;
+            Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
+            GE_ThreatMod->Modifiers.Add(MoveTemp(Mod));
+
+            FGameplayEffectSpec Spec(GE_ThreatMod, AbilitySystemComponent->MakeEffectContext(), 1);
+            /*ConfidenceLevelModHandle = */AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+        }
 	}
 
     if (auto OwnerPawn = Cast<APawn>(GetOwner()))
@@ -307,10 +326,16 @@ int UCombatComponent::GetMaxHealth() const
     return FMath::TruncToInt(GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetMaxHealthAttribute(), bIgnored));
 }
 
+int UCombatComponent::GetRawThreat() const
+{
+    bool bIgnored;
+    return FMath::TruncToInt(GetAbilitySubsystemComponent()->GetGameplayAttributeValue(UCombatAttributeSet::GetThreatAttribute(), bIgnored));
+}
+
 float UCombatComponent::GetThreat() const
 {
-    // MAke attribute, and scale by health %?
-    return 1;
+    const int Raw = GetRawThreat();
+    return Raw * (GetHealth() / GetMaxHealth());
 }
 
 bool UCombatComponent::IsCloseEnoughToAttack(const UCombatComponent* OtherCombatComponent) const

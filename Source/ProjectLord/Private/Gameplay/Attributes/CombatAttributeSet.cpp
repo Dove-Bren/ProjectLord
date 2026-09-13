@@ -25,6 +25,7 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 	DOREPLIFETIME(UCombatAttributeSet, Sight);
 	DOREPLIFETIME(UCombatAttributeSet, AttackRange);
+	DOREPLIFETIME(UCombatAttributeSet, Threat);
 }
 
 void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -53,6 +54,9 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	ROUND_ATTRIB_TO_INT(MeleeDamage);
 	ROUND_ATTRIB_TO_INT(RangedDamage);
 	ROUND_ATTRIB_TO_INT(MagicDamage);*/
+
+
+	ROUND_ATTRIB_TO_INT(Threat);
 
 	// Clamp Health to max
 	if (Attribute == GetHealthAttribute())
@@ -113,6 +117,8 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	ROUND_ATTRIB_TO_INT(MeleeDamage);
 	ROUND_ATTRIB_TO_INT(RangedDamage);
 	ROUND_ATTRIB_TO_INT(MagicDamage);
+
+	ROUND_ATTRIB_TO_INT(Threat);
 
 	// Clamp Health to max
 	if (Attribute == GetHealthAttribute())

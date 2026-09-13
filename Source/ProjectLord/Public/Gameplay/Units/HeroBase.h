@@ -119,7 +119,10 @@ public:
     int GetCombinedNearbyEnemyThreat() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")
-    int GetHeroConfidence() const;
+    int GetHeroCombinedConfidence() const;
+
+    UFUNCTION(BlueprintPure, Category = "Combat")
+    int GetHeroSoloConfidence() const;
 
     virtual bool ShouldFlee() const override;
 
@@ -206,9 +209,13 @@ protected:
     FActiveGameplayEffectHandle IntelligenceDamageModHandle;
 
     UPROPERTY()
+    FActiveGameplayEffectHandle ConfidenceLevelModHandle;
+
+    UPROPERTY()
     TWeakObjectPtr<ARewardFlag> CurrentFlagTarget;
 
     void UpdateAttributeDamageMod(FActiveGameplayEffectHandle& Handle, int Attribute);
+    void UpdateConfidenceLevelMod();
 
     static float DamageModPerAttribute;
 
