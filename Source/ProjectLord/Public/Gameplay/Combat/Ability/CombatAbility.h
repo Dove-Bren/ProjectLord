@@ -38,8 +38,9 @@ public:
 
     UVMCombatAbility* GetOrCreateViewModel();
 
-    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
+    virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
     virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+    virtual UGameplayEffect* GetCostGameplayEffect() const override;
     
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -74,6 +75,9 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Ability")
     TObjectPtr<UVMCombatAbility> ViewModel;
 
+    //UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Ability")
+    //TObjectPtr<UGameplayEffect> ManaCostEffectOverride;
+
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     UCombatComponent* GetOwnerComponent() const;
     
@@ -82,6 +86,8 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Ability|Combat")
     void ReportAbilityHit(UCombatComponent* HitComponent);
+
+    static UGameplayEffect* MakeManaCostGE(UObject* Outer, int Cost);
 };
 
 // Exists because uprop containers cannot have other containers, so need a struct wrapper

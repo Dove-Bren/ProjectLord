@@ -397,9 +397,23 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility() const
 FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(EAbilityTargetType TargetType) const
 {
     // Should be SpecHandles, but GAS leaks the internal class here
+    auto ASC = GetAbilitySubsystemComponent();
     FGameplayTagContainer TagContainer(UAbilityEnumsFunctionLibrary::GetTagForTargetType(TargetType));
     TArray<FGameplayAbilitySpec*> AvailableAbilities;
-    GetAbilitySubsystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
+
+    ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
+
+    // Ability list is not actually filtered to what can be activated (based on cost), so do that filtering now...
+    AvailableAbilities.RemoveAll([ASC](const FGameplayAbilitySpec* Spec) -> bool {
+        // Note: This is largely copied from UAbilitySystemComponent::TryActivateAbility
+        auto Ability = Spec->Ability;
+        if (!Ability) return true;
+
+        auto ActorInfo = ASC->AbilityActorInfo.Get();
+        if (!ActorInfo || !ActorInfo->OwnerActor.IsValid() || !ActorInfo->AvatarActor.IsValid()) return true;
+
+        return !Ability->CanActivateAbility(Spec->Handle, ActorInfo);
+    });
 
     if (!AvailableAbilities.IsEmpty())
     {

@@ -4,6 +4,7 @@
 
 #include "AbilitySystemComponent.h"
 
+#include "LordLogging.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Units/Unit.h"
@@ -73,9 +74,9 @@ UAnimMontage* UCombatAbility::GetAbilityAnimationFromOwner(EAbilityAnimType Type
 	return UnitOwner->GetAnimForAbilityType(Type);
 }
 
-bool UCombatAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+bool UCombatAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags))
 	{
 		return false;
 	}
@@ -104,6 +105,18 @@ void UCombatAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, const FG
 	}
 }
 
+UGameplayEffect* UCombatAbility::GetCostGameplayEffect() const
+{
+	UGameplayEffect* Cost = Super::GetCostGameplayEffect();
+	// Encoding as a cost GE doesn't really buy us anything, so don't bother
+	/*if (!Cost)
+	{
+		Cost = ManaCostEffectOverride;
+	}*/
+
+	return Cost;
+}
+
 #if WITH_EDITOR
 void UCombatAbility::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
@@ -116,6 +129,36 @@ void UCombatAbility::PostEditChangeProperty(FPropertyChangedEvent& PropertyChang
 		// Choosing to leave any previous one in there since the user can just uncheck that one manually or leave it if it makes sense.
 		AbilityTags.AddTag(UAbilityEnumsFunctionLibrary::GetTagForTargetType(TargetType));
 	}
+
+	// Encoding as a cost GE doesn't really buy us anything, so don't bother
+	//else if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, ManaCost))
+	//{
+	//	if (ManaCost > 0)
+	//	{
+	//		if (Super::GetCostGameplayEffect())
+	//		{
+	//			UE_LOG(LordCombatAbility, Error, TEXT("Trying to set a mana cost, but ability already has a cost effect. This will not work!"));
+	//			// Fall thhrough and make it anyways, so that all someone has to do is delete the existing cost
+	//		}
+
+	//		ManaCostEffectOverride = MakeManaCostGE(this, ManaCost);
+	//	}
+	//}
 }
 #endif // WITH_EDITOR  
+
+/*static*/ UGameplayEffect* UCombatAbility::MakeManaCostGE(UObject* Outer, int Cost)
+{
+	UGameplayEffect* GE_ManaCost = NewObject<UGameplayEffect>(Outer, TEXT("ManaCostMod"));
+	GE_ManaCost->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+	// Units heal while visiting
+	FGameplayModifierInfo Mod;
+	Mod.Attribute = UCombatAttributeSet::GetManaAttribute();
+	Mod.ModifierOp = EGameplayModOp::AddBase;
+	Mod.ModifierMagnitude = FScalableFloat(Cost);
+	GE_ManaCost->Modifiers.Add(Mod);
+
+	return GE_ManaCost;
+}
 
