@@ -76,6 +76,15 @@ void UCombatComponent::BeginPlay()
                     }
                 });
 
+        AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetLevelAttribute())
+            .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
+                {
+                    if (ChangeData.OldValue != ChangeData.NewValue)
+                    {
+                        HandleLevelChange(ChangeData.NewValue);
+                    }
+                });
+
 
 
         AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddWeakLambda(this, [this](const FActiveGameplayEffect&) {
@@ -244,7 +253,7 @@ TArray<UCombatAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden
 void UCombatComponent::GiveCombatAbility(TSubclassOf<UCombatAbility> Ability)
 {
     auto AbilitySystemComponent = GetAbilitySubsystemComponent();
-    if (ensure(AbilitySystemComponent))
+    if (ensure(AbilitySystemComponent) && !AbilitySystemComponent->FindAbilitySpecFromClass(Ability))
     {
         AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
         OnAbilitiesChange.Broadcast(this);
@@ -360,10 +369,35 @@ bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
     return false;
 }
 
-FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility_Implementation() const
+bool UCombatComponent::TrySelfBuff()
+{
+    FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Self);
+    if (BuffAbility.IsValid())
+    {
+        if (GetAbilitySubsystemComponent()->TryActivateAbility(BuffAbility))
+        {
+            BroadcastBuff(GetOwner(), this);
+            return true;
+        }
+        else
+        {
+            UE_LOG(LordCombat, Warning, TEXT("Failed to activate ability"));
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to activate ability"));
+        }
+    }
+
+    return false;
+}
+
+FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility() const
+{
+    return GetPreferredAbility(EAbilityTargetType::Enemy);
+}
+
+FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(EAbilityTargetType TargetType) const
 {
     // Should be SpecHandles, but GAS leaks the internal class here
-    FGameplayTagContainer TagContainer(ULordGameplayTags::AbilityTypeAttack());
+    FGameplayTagContainer TagContainer(UAbilityEnumsFunctionLibrary::GetTagForTargetType(TargetType));
     TArray<FGameplayAbilitySpec*> AvailableAbilities;
     GetAbilitySubsystemComponent()->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
 
@@ -524,6 +558,16 @@ void UCombatComponent::BroadcastAttackReceived(AActor* AttackingActor, UCombatCo
     ReceiveOnAttackReceived(AttackingActor, AttackingCombatComponent);
 }
 
+void UCombatComponent::BroadcastBuff(AActor* Target, UCombatComponent* TargetCombatComponent)
+{
+    OnBuff.Broadcast(Target, TargetCombatComponent);
+}
+
+void UCombatComponent::BroadcastHeal(AActor* Target, UCombatComponent* TargetCombatComponent)
+{
+    OnHeal.Broadcast(Target, TargetCombatComponent);
+}
+
 void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldController, AController* InNewController)
 {
     auto OldController = Cast<AUnitController>(InOldController);
@@ -624,6 +668,17 @@ TArray<const UVisibleGameplayEffect*> UCombatComponent::GetActiveVisibleEffects(
     }
 
     return VisibleEffects;
+}
+
+void UCombatComponent::HandleLevelChange(int NewLevel)
+{
+    if (auto Abilities = LevelUpAbilities.Find(NewLevel))
+    {
+        for (auto& Ability : Abilities->Array)
+        {
+            GiveCombatAbility(Ability);
+        }
+    }
 }
 
 /*static*/ UCombatComponent* UCombatComponent::GetComponentForActor(AActor* Actor)

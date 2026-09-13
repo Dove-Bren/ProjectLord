@@ -10,6 +10,7 @@ enum class EAbilityTargetType : uint8
 {
 	Enemy,
 	Ally,
+	Self,
 };
 
 UENUM(BlueprintType)
@@ -19,5 +20,17 @@ enum class EAbilityAnimType : uint8
 	HarmingLarge,
 	HelpingNormal,
 	HelpingLarge,
+};
+
+UCLASS()
+class PROJECTLORD_API UAbilityEnumsFunctionLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	static FGameplayTag GetTagForTargetType(EAbilityTargetType Type);
+
 };
 

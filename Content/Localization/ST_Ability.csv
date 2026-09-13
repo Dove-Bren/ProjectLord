@@ -11,3 +11,6 @@ Ability.Ranger.Ranged_Attack.Desc,"Fire a ranged shot, doing 1x ranged damage",
 
 Ability.Wizard.Basic_Attack.Name,"Attack",
 Ability.Wizard.Basic_Attack.Desc,"Fire a ranged shot, doing 1x magic damage",
+Ability.Wizard.MagicShield.Name,"Magic Shield",
+Ability.Wizard.MagicShield.Desc,"Grants +50 protection to all attacks for 50 seconds.",
+ 

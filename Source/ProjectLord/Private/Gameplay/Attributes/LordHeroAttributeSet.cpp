@@ -116,8 +116,10 @@ int ULordHeroAttributeSet::CalculateBaseHealth() const
 int ULordHeroAttributeSet::CalculateBaseMana() const
 {
 	// Note that mana uses same start + bonus amounts as health
+	const float IntValue = GetIntelligence();
 	return GetStartingHealth() // Starting amount
-		+ ((GetIntelligence() + GetExtraHealthPerLevel()) * (CombatAttribs->GetLevel() - 1)) // Amount-per-level (int + bonus) * number of level ups
+		+ FMath::RoundToInt(IntValue * 3.5)
+		+ ((IntValue + GetExtraHealthPerLevel()) * (CombatAttribs->GetLevel() - 1)) // Amount-per-level (int + bonus) * number of level ups
 		;
 }
 

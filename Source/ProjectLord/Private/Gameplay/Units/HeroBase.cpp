@@ -307,7 +307,8 @@ void AHeroBase::DoLevelUp()
 
 	// Update derived attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
-	OnLevelUp();
+	OnLevelUp.Broadcast(Level);
+	BP_OnLevelUp();
 }
 
 void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent)

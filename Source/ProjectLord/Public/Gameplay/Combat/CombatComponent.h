@@ -23,6 +23,8 @@ DECLARE_MULTICAST_DELEGATE(FOnDeathLocal);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackReceived, AActor*, AttackingActor, UCombatComponent*, AttackingCombatComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuff, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeal, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInvulnerabilityChange, bool, bInvulnerable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEffectsChange, UCombatComponent*, SelfComponent);
@@ -51,6 +53,12 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnAttackReceived OnAttackReceived;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnBuff OnBuff;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnHeal OnHeal;
 
     UPROPERTY(BlueprintAssignable)
     FOnTargetChange OnTargetChange;
@@ -98,6 +106,11 @@ public:
     // Attack the passed in unit from this combat component
     UFUNCTION(BlueprintCallable, Category = "Combat")
     bool AttackUnit(UCombatComponent* TargetCombatComponent);
+
+    // Check for any self buffs we should apply, and try to start one.
+    // Returns true if a self-buffing ability was activated.
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    bool TrySelfBuff();
 
     // Get all Unit Abilities this Unit has access to
     UFUNCTION(BlueprintPure, Category = "Combat|Ability")
@@ -154,8 +167,11 @@ public:
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Mana Changed"))
     void ReceiveOnManaChange(int Mana, int MaxMana);
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Ability")
+    UFUNCTION(BlueprintCallable, Category = "Ability")
     FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
+    FGameplayAbilitySpecHandle GetPreferredAbility(EAbilityTargetType TargetType) const;
 
     void SetTarget(UCombatComponent* InTarget);
 
@@ -196,6 +212,7 @@ protected:
     void ClearRecentCombatData();
     void AddRevengeTarget(UCombatComponent* RevengeTarget);
     void HandleAttackFrom(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
+    void HandleLevelChange(int NewLevel);
 
     void BroadcastDeath();
     void BroadcastHealthChange();
@@ -203,6 +220,8 @@ protected:
     void BroadcastAttack(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackLand(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackReceived(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
+    void BroadcastBuff(AActor* Target, UCombatComponent* TargetCombatComponent);
+    void BroadcastHeal(AActor* Target, UCombatComponent* TargetCombatComponent);
 
     // From the given array of available attack availabilities, select which one the unit would prefer to use.
     // The default implementation picks the most damaging ability.
@@ -212,8 +231,14 @@ protected:
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
     const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;
 
+    // Abilities the owning unit will have by default
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
     TArray<TSubclassOf<UCombatAbility>> DefaultAbilities;
+
+    // Abilities that are granted at certain level intervals.
+    // Note that this does NOT work if level jumps up multiple levels at once.
+    UPROPERTY(EditDefaultsOnly, Category = "Hero")
+    TMap<int, FCombatAbilityClassArray> LevelUpAbilities;
 
     // If true, component will report that it can use mana even if no abilities
     // say they require it (yet)

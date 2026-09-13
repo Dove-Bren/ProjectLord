@@ -25,6 +25,11 @@ UGEVisitingBuilding::UGEVisitingBuilding()
     Mod.ModifierOp = EGameplayModOp::AddBase;
     Mod.ModifierMagnitude = FScalableFloat(5);
     Modifiers.Add(Mod);
+    // and mana
+    Mod.Attribute = UCombatAttributeSet::GetManaAttribute();
+    Mod.ModifierOp = EGameplayModOp::AddBase;
+    Mod.ModifierMagnitude = FScalableFloat(1);
+    Modifiers.Add(Mod);
 
     // Heal triggers every second
     Period = 1.0f;

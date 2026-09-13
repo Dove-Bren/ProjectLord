@@ -37,7 +37,13 @@ public:
     UAnimMontage* GetAbilityAnimationFromOwner(EAbilityAnimType Type) const;
 
     UVMCombatAbility* GetOrCreateViewModel();
+
+    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
+    virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
     
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR  
 
 protected:
 
@@ -76,4 +82,14 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Ability|Combat")
     void ReportAbilityHit(UCombatComponent* HitComponent);
+};
+
+// Exists because uprop containers cannot have other containers, so need a struct wrapper
+USTRUCT(BlueprintType)
+struct PROJECTLORD_API FCombatAbilityClassArray
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+    TArray<TSubclassOf<UCombatAbility>> Array;
 };

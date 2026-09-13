@@ -29,6 +29,7 @@ enum class EHeroDesireLevel : uint8
 };
 
 DECLARE_MULTICAST_DELEGATE(FOnXPChange);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelUp, int /*NewLevel*/);
 
 UCLASS(Blueprintable, meta = (PrioritizeCategories = "Hero Inventory"))
 class PROJECTLORD_API AHeroBase : public ACreature
@@ -39,6 +40,7 @@ public:
     AHeroBase();
 
     FOnXPChange OnXPChange;
+    FOnLevelUp OnLevelUp;
 
     UFUNCTION(BlueprintPure)
     int GetHeroXP() const { return HeroXP; }
@@ -159,8 +161,8 @@ protected:
 
     void DoLevelUp();
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
-    void OnLevelUp();
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero", meta = (DisplayName = "OnLevelUp"))
+    void BP_OnLevelUp();
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
     void OnGoldAwarded(int Amount);

@@ -26,6 +26,18 @@ public:
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Type")
     static FGameplayTag K2_AbilityTypeAttack() { return AbilityTypeAttack(); }
 
+    MAKE_TAG(AbilityTargetEnemy, "Ability.Target.Enemy");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Target")
+    static FGameplayTag K2_AbilityTargetEnemy() { return AbilityTargetEnemy(); }
+
+    MAKE_TAG(AbilityTargetSelf, "Ability.Target.Self");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Target")
+    static FGameplayTag K2_AbilityTargetSelf() { return AbilityTargetSelf(); }
+
+    MAKE_TAG(AbilityTargetAlly, "Ability.Target.Ally");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Target")
+    static FGameplayTag K2_AbilityTargetAlly() { return AbilityTargetAlly(); }
+
     MAKE_TAG(DamageTypeMagic, "Damage.Type.Magic");
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Damage|Type")
     static FGameplayTag K2_DamageTypeMagic() { return DamageTypeMagic(); }
