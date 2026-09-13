@@ -302,21 +302,17 @@ bool UCombatComponent::IsCloseEnoughToAttack(const UCombatComponent* OtherCombat
     auto Owner = GetOwner();
     auto Target = OtherCombatComponent->GetOwner();
     const auto AttackRange = GetAbilitySubsystemComponent()->GetGameplayAttributeValue(GetCombatAttributeSet()->GetAttackRangeAttribute(), bIgnored);
-    const auto Dist = Owner->GetDistanceTo(Target);
+    const auto Dist = FVector::DistXY(Owner->GetActorLocation(), Target->GetActorLocation());
 
     // Things have different sized hitboxes. Buildings for example are large, and
     // it might not be feasible to get within X units of the _center_ of it.
     // So check distance to the outer edge of the target's size, roughly;
-    FVector OwnerOrigin, OwnerBounds;
-    FVector TargetOrigin, TargetBounds;
 
-    Owner->GetActorBounds(true, OwnerOrigin, OwnerBounds);
-    Target->GetActorBounds(true, TargetOrigin, TargetBounds);
-
-    // Note: not sure if square, or if x/y would be bigger. So average.
-    // Maybe should take max?
-    const double OwnerHalfWidth = (OwnerBounds.X + OwnerBounds.Y) / 2.0f;
-    const double TargetHalfWidth = (TargetBounds.X + TargetBounds.Y) / 2.0f;
+    float Ignored;
+    float OwnerHalfWidth = 0;
+    float TargetHalfWidth = 0;
+    Owner->GetSimpleCollisionCylinder(OwnerHalfWidth, Ignored);
+    Target->GetSimpleCollisionCylinder(TargetHalfWidth, Ignored);
 
     return Dist <= (AttackRange + OwnerHalfWidth + TargetHalfWidth);
 }
