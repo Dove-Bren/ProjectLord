@@ -42,8 +42,9 @@ void UCombatComponent::BeginPlay()
                     if (ChangeData.OldValue != ChangeData.NewValue)
                     {
                         BroadcastHealthChange();
-                        if (ChangeData.OldValue > 0 && ChangeData.NewValue <= 0)
+                        if (!bDead && ChangeData.NewValue <= 0)
                         {
+                            bDead = true;
                             BroadcastDeath();
                         }
                     }
@@ -310,8 +311,7 @@ bool UCombatComponent::GetAbilitiesRequireMana() const
 
 bool UCombatComponent::IsDead() const
 {
-    
-    return GetHealth() <= 0;
+    return bDead;
 }
 
 int UCombatComponent::GetHealth() const

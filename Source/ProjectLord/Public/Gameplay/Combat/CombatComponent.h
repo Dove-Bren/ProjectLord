@@ -261,11 +261,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Hero")
     TMap<int, FCombatAbilityClassArray> LevelUpAbilities;
 
-    // If true, component will report that it can use mana even if no abilities
-    // say they require it (yet)
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
-    bool bOverrideNeedMana = false;
-
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCombatComponent> TargetComponent;
 
@@ -274,6 +269,14 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
     double LastCombatTime;
+
+    // If true, component will report that it can use mana even if no abilities
+    // say they require it (yet)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+    bool bOverrideNeedMana = false;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    bool bDead;
 
     UFUNCTION()
     void OnOwnerPossessed(APawn* Pawn, AController* OldController, AController* NewController);
