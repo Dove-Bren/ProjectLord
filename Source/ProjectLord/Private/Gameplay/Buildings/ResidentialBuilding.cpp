@@ -233,7 +233,7 @@ int AResidentialBuilding::GetResidentTypeCount(const UUnitType* Type, bool bIncl
     int Count = 0;
     for (const auto Resident : Residents)
     {
-        if (Resident->GetUnitType() == Type)
+        if (Resident && Resident->GetUnitType() == Type)
         {
             Count++;
         }
