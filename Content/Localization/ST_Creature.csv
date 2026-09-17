@@ -34,6 +34,8 @@ Creature.Wizard.Desc,"What mages lack in personal grooming skills, they more tha
 
 Monster.DevSlime.Name,"Dev Slime",
 Monster.DevSlime.Desc,"A poorly modeled and animated slime, used only for testing mechanics",
+Monster.GiantRat.Name,"Giant Rat",
+Monster.GiantRat.Desc,"A big ol' rat",
 
 Monster.SkeletalFighter.Name,"Skeleton",
 Monster.SkeletalFighter.Desc,"Just bones, a sword, and a desire to kill.",
