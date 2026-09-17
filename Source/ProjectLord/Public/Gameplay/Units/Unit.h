@@ -66,9 +66,6 @@ public:
     AGameTeamState* GetTeamState() const;
 
     UFUNCTION(BlueprintPure)
-    ECreatureCategory GetCategory() const { return Category; }
-
-    UFUNCTION(BlueprintPure)
     bool IsDead() const;
 
     UFUNCTION(BlueprintPure)
@@ -129,9 +126,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TObjectPtr<UUnitType> UnitType;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
-    ECreatureCategory Category;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
     EGameTeam Team;

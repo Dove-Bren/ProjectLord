@@ -21,11 +21,14 @@
 #include "Gameplay/Units/HeroBase.h"
 #include "Gameplay/SelectionComponent.h"
 #include "UI/ViewModels/Generic/ActionViewModel.h"
+#include "UI/ViewModels/Generic/CreatureCategoryViewModel.h"
 
 #define MOVEMENT_STAT_TO_UE_SPEED(InMovement) (InMovement * 50)
 
 ACreature::ACreature()
 {
+    Category = ECreatureCategory::Standard;
+
 	CreatureAttributeSet = CreateDefaultSubobject<UCreatureAttributeSet>(TEXT("CreatureAttributeSet"));
     GraveComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grave"));
 
@@ -66,6 +69,8 @@ void ACreature::SetupSelectionData(USelectionComponent* InSelectionComponent)
     VM->SetAction(GetAction());
     
     InSelectionComponent->SetActionVM(VM);
+
+    InSelectionComponent->SetCategoryVM(UVMCreatureCategory::Make(this, GetCategory()));
 }
 
 void ACreature::BeginPlay()

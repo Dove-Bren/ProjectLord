@@ -57,6 +57,9 @@ public:
     UFUNCTION(BlueprintPure)
     ECreatureAction GetAction() const { return Action; }
 
+    UFUNCTION(BlueprintPure)
+    ECreatureCategory GetCategory() const { return Category; }
+
     UFUNCTION(BlueprintCallable)
     void SetAction(ECreatureAction InAction);
 
@@ -90,6 +93,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     ECreatureAction Action;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
+    ECreatureCategory Category;
 
     virtual void RegisterAttributes() override;
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
