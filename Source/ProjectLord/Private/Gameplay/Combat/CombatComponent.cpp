@@ -387,7 +387,7 @@ bool UCombatComponent::CanAttack() const
 
 bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
 {
-    FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility();
+    FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility(TargetCombatComponent->GetOwner());
     if (AttackAbility.IsValid())
     {
         if (GetAbilitySubsystemComponent()->TryActivateAbility(AttackAbility))
@@ -409,7 +409,7 @@ bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
 
 bool UCombatComponent::TrySelfBuff()
 {
-    FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Self);
+    FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Self, GetOwner());
     if (BuffAbility.IsValid())
     {
         if (GetAbilitySubsystemComponent()->TryActivateAbility(BuffAbility))
@@ -427,12 +427,12 @@ bool UCombatComponent::TrySelfBuff()
     return false;
 }
 
-FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility() const
+FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility(const AActor* Target) const
 {
-    return GetPreferredAbility(EAbilityTargetType::Enemy);
+    return GetPreferredAbility(EAbilityTargetType::Enemy, Target);
 }
 
-FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(EAbilityTargetType TargetType) const
+FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(EAbilityTargetType TargetType, const AActor* Target) const
 {
     // Should be SpecHandles, but GAS leaks the internal class here
     auto ASC = GetAbilitySubsystemComponent();
@@ -442,7 +442,7 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(
     ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
 
     // Ability list is not actually filtered to what can be activated (based on cost), so do that filtering now...
-    AvailableAbilities.RemoveAll([ASC](const FGameplayAbilitySpec* Spec) -> bool {
+    AvailableAbilities.RemoveAll([ASC, Target](const FGameplayAbilitySpec* Spec) -> bool {
         // Note: This is largely copied from UAbilitySystemComponent::TryActivateAbility
         auto Ability = Spec->Ability;
         if (!Ability) return true;
@@ -450,7 +450,20 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(
         auto ActorInfo = ASC->AbilityActorInfo.Get();
         if (!ActorInfo || !ActorInfo->OwnerActor.IsValid() || !ActorInfo->AvatarActor.IsValid()) return true;
 
-        return !Ability->CanActivateAbility(Spec->Handle, ActorInfo);
+        if (!Ability->CanActivateAbility(Spec->Handle, ActorInfo))
+        {
+            return true; // remove
+        }
+
+        if (auto CombatAbility = Cast<UCombatAbility>(Ability))
+        {
+            if (!CombatAbility->CheckTargetValid(Target))
+            {
+                return true; // remove
+            }
+        }
+
+        return false;
     });
 
     if (!AvailableAbilities.IsEmpty())
@@ -461,7 +474,7 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(
         AbilitiesCopy.Reserve(AvailableAbilities.Num());
         Algo::Transform(AvailableAbilities, AbilitiesCopy, [](FGameplayAbilitySpec* SpecPtr) { return *SpecPtr; });
 
-        int Selected = PickPreferredAttackAbility(AbilitiesCopy);
+        int Selected = PickPreferredAttackAbility(AbilitiesCopy, Target);
         if (Selected >= 0 && Selected < AvailableAbilities.Num())
         {
             return AvailableAbilities[Selected]->Handle;
@@ -471,11 +484,11 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(
     return FGameplayAbilitySpecHandle(); // Invalid handle
 }
 
-const int UCombatComponent::PickPreferredAttackAbility_Implementation(const TArray<FGameplayAbilitySpec>& AttackAbilities) const
+const int UCombatComponent::PickPreferredAttackAbility_Implementation(const TArray<FGameplayAbilitySpec>& AttackAbilities, const AActor* Target) const
 {
     int MaxIndex = -1;
     int MaxLevel = MIN_int32;
-    for (int i = 0; i < AttackAbilities.Num(); i++)
+    for (int i = AttackAbilities.Num() - 1; i >= 0; i--)
     {
         const auto& Ability = AttackAbilities[i];
         if (Ability.Level > MaxLevel)

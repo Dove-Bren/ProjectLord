@@ -7,6 +7,7 @@
 #include "LordLogging.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
+#include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/CombatAbilityViewModel.h"
 
@@ -72,6 +73,37 @@ UAnimMontage* UCombatAbility::GetAbilityAnimationFromOwner(EAbilityAnimType Type
 	}
 
 	return UnitOwner->GetAnimForAbilityType(Type);
+}
+
+bool UCombatAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	/*if (auto RequiredCategory = GetRequiredTargetCategory())
+	{
+		// GAS doesn't provide target here?
+	}*/
+
+	return true;
+}
+
+bool UCombatAbility::CheckTargetValid(const AActor* Target) const
+{
+	if (auto RequiredCategory = GetRequiredTargetCategory())
+	{
+		if (const ACreature* Creature = Cast<ACreature>(Target))
+		{
+			if (Creature->GetCategory() != RequiredCategory.GetValue())
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 bool UCombatAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const

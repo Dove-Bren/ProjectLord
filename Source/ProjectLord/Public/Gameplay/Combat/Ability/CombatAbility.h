@@ -15,6 +15,8 @@ class UCombatComponent;
 class UAnimMontage;
 class UVMCombatAbility;
 
+enum class ECreatureCategory : uint8;
+
 // Base class specialization for Unit Abilities, which have extra details for showing in the UI etc.
 UCLASS(Blueprintable)
 class PROJECTLORD_API UCombatAbility : public UGameplayAbility
@@ -30,6 +32,7 @@ public:
     bool IsHidden() const { return bHidden; }
     FDamageTypeMap GetDamageTypeHint() const { return DamageTypeHint; }
     int GetManaCost() const { return ManaCost; }
+    TOptional<ECreatureCategory> GetRequiredTargetCategory() const { return bRequireCreatureCategory ? TOptional<ECreatureCategory>(TargetCategory) : NullOpt; }
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
@@ -38,9 +41,12 @@ public:
 
     UVMCombatAbility* GetOrCreateViewModel();
 
+    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
     virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const override;
     virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
     virtual UGameplayEffect* GetCostGameplayEffect() const override;
+
+    virtual bool CheckTargetValid(const AActor* Target) const;
     
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -66,11 +72,17 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     FDamageTypeMap DamageTypeHint;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition", meta = (EditCondition = "bRequireCreatureCategory", EditConditionHides))
+    ECreatureCategory TargetCategory;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     int ManaCost;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     bool bHidden;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    bool bRequireCreatureCategory;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Ability")
     TObjectPtr<UVMCombatAbility> ViewModel;

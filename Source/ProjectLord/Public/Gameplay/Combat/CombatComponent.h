@@ -180,10 +180,10 @@ public:
     void ReceiveOnManaChange(int Mana, int MaxMana);
 
     UFUNCTION(BlueprintCallable, Category = "Ability")
-    FGameplayAbilitySpecHandle GetPreferredAttackAbility() const;
+    FGameplayAbilitySpecHandle GetPreferredAttackAbility(const AActor* Target) const;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
-    FGameplayAbilitySpecHandle GetPreferredAbility(EAbilityTargetType TargetType) const;
+    FGameplayAbilitySpecHandle GetPreferredAbility(EAbilityTargetType TargetType, const AActor* Target) const;
 
     void SetTarget(UCombatComponent* InTarget);
 
@@ -250,7 +250,7 @@ protected:
     // and otherwise fall back to default.
     // Note abilities in param are shallow copies and should not be cached or mutated
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Ability")
-    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities) const;
+    const int PickPreferredAttackAbility(const TArray<FGameplayAbilitySpec>& AttackAbilities, const AActor* Target) const;
 
     // Abilities the owning unit will have by default
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")

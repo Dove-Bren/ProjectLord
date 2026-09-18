@@ -75,6 +75,11 @@ void AResidentialBuilding::RemoveAllVisitors()
 
 void AResidentialBuilding::AddVisitor(ACreature* Visitor)
 {
+    if (!ensure(!!Visitor))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Null visitor!"));
+        return;
+    }
 	Visitors.Add(Visitor);
     OnVisitorsChanged.Broadcast();
     OnVisitorAdded.Broadcast(Visitor);
@@ -206,6 +211,10 @@ void AResidentialBuilding::PushVisitorsToVM()
         TArray<UVMUnit*> VisitorVMs;
         for (auto Visitor : Visitors)
         {
+            if (!ensure(Visitor))
+            {
+                continue;
+            }
             VisitorVMs.Add(Visitor->GetUnitVM());
         }
 

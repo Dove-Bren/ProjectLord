@@ -8,6 +8,8 @@ Ability.Knight.Attack.Desc,"Basic Attack",
 
 Ability.Ranger.Ranged_Attack.Name,"Ranged Attack",
 Ability.Ranger.Ranged_Attack.Desc,"Fire a ranged shot, doing 1x ranged damage",
+Ability.Ranger.HuntersShot.Name,"Hunter's Shot",
+Ability.Ranger.HuntersShot.Desc,"Skillfully shoot furry enemies, dealing 4x ranged damage to beasts",
 
 Ability.Wizard.Basic_Attack.Name,"Attack",
 Ability.Wizard.Basic_Attack.Desc,"Fire a ranged shot, doing 1x magic damage",
