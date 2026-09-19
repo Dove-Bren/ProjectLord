@@ -20,6 +20,8 @@ Building.GuildWizard.Desc,"The Wizards Guild is the most enigmatic guilds in Ard
 
 Building.Market.Name,"Marketplace",
 Building.Market.Desc,"For many centuries, Marketplaces have been the centers of commerce in Ardania. In their stalls and scantily lit pavilions, the curious adventurer can find anything: potions, ancient artifacts, spices or food. (Though buyer beware: it's rumored some of those products have been sitting on the shelves since the invention of money!)\n\nBy prudent tradition, monarchs built Marketplaces in convenient and well-protected areas.",
+Building.Blacksmith.Name,"Blacksmith",
+Building.Blacksmith.Desc,"Every blacksmith in Ardania must be a member of the "Fellowship of the Forge". This Fellowship defines everything - from the plan of the shop, to the size of the doors and anvils! To get the badge of a master blacksmith, apprentices train for years, making metal scoops, whistles, horseshoes and nails. But with all that training and toil comes the ability to craft quality weapons and armor for Ardania's discerning heroes!",
 
 Building.House.Name,"Peasant House",
 Building.House.Desc,"Nothing special. Just the home of some anonymous peasant.",

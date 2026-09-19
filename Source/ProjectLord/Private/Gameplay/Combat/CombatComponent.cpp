@@ -611,8 +611,8 @@ void UCombatComponent::ClearRecentCombatData()
 
 void UCombatComponent::BroadcastDeath()
 {
-    OnDeath.Broadcast();
     OnDeathLocal.Broadcast();
+    OnDeath.Broadcast();
     ReceiveOnDeath();
 }
 
