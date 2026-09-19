@@ -487,13 +487,20 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(
 const int UCombatComponent::PickPreferredAttackAbility_Implementation(const TArray<FGameplayAbilitySpec>& AttackAbilities, const AActor* Target) const
 {
     int MaxIndex = -1;
-    int MaxLevel = MIN_int32;
+    int MaxPriority = MIN_int32;
+
+    // Walk backwards to decide ties by thhe most recently-added ability
     for (int i = AttackAbilities.Num() - 1; i >= 0; i--)
     {
         const auto& Ability = AttackAbilities[i];
-        if (Ability.Level > MaxLevel)
+        int Priority = 0;
+        if (const auto CombatAbility = Cast<UCombatAbility>(Ability.Ability))
         {
-            MaxLevel = Ability.Level;
+            Priority = CombatAbility->GetPriority();
+        }
+        if (Priority > MaxPriority)
+        {
+            MaxPriority = Priority;
             MaxIndex = i;
         }
     }

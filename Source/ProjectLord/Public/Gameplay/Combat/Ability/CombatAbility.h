@@ -33,6 +33,7 @@ public:
     FDamageTypeMap GetDamageTypeHint() const { return DamageTypeHint; }
     int GetManaCost() const { return ManaCost; }
     TOptional<ECreatureCategory> GetRequiredTargetCategory() const { return bRequireCreatureCategory ? TOptional<ECreatureCategory>(TargetCategory) : NullOpt; }
+    int GetPriority() const { return Priority; }
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
@@ -74,6 +75,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition", meta = (EditCondition = "bRequireCreatureCategory", EditConditionHides))
     ECreatureCategory TargetCategory;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    int Priority;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     int ManaCost;
