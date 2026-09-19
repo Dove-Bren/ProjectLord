@@ -94,13 +94,15 @@ bool UCombatAbility::CheckTargetValid(const AActor* Target) const
 {
 	if (auto RequiredCategory = GetRequiredTargetCategory())
 	{
+		// Must match category. Find true path, but fall back to false.
 		if (const ACreature* Creature = Cast<ACreature>(Target))
 		{
-			if (Creature->GetCategory() != RequiredCategory.GetValue())
+			if (Creature->GetCategory() == RequiredCategory.GetValue())
 			{
-				return false;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	return true;
