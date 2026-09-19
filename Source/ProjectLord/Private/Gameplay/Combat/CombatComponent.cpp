@@ -350,11 +350,38 @@ bool UCombatComponent::IsCloseEnoughToAttack(const UCombatComponent* OtherCombat
     // it might not be feasible to get within X units of the _center_ of it.
     // So check distance to the outer edge of the target's size, roughly;
 
-    float Ignored;
+    float OwnerHalfWidth;
+    float TargetHalfWidth;
+
+    /*float Ignored;
     float OwnerHalfWidth = 0;
     float TargetHalfWidth = 0;
     Owner->GetSimpleCollisionCylinder(OwnerHalfWidth, Ignored);
-    Target->GetSimpleCollisionCylinder(TargetHalfWidth, Ignored);
+    Target->GetSimpleCollisionCylinder(TargetHalfWidth, Ignored);*/
+    if (const ABuilding* OwnerUnit = Cast<ABuilding>(Owner))
+    {
+        float Ignored;
+        OwnerUnit->GetBuildingMeshComponent()->CalcBoundingCylinder(OwnerHalfWidth, Ignored);
+    }
+    else
+    {
+        FVector OwnerOrigin, OwnerBounds;
+        Owner->GetActorBounds(true, OwnerOrigin, OwnerBounds);
+        OwnerHalfWidth = (OwnerBounds.X + OwnerBounds.Y) / 2.0f;
+    }
+
+    if (const ABuilding* TargetUnit = Cast<ABuilding>(Target))
+    {
+        float Ignored;
+        TargetUnit->GetBuildingMeshComponent()->CalcBoundingCylinder(TargetHalfWidth, Ignored);
+    }
+    else
+    {
+        FVector TargetOrigin, TargetBounds;
+        Target->GetActorBounds(true, TargetOrigin, TargetBounds);
+        TargetHalfWidth = (TargetBounds.X + TargetBounds.Y) / 2.0f;
+    }
+
 
     return Dist <= (AttackRange + OwnerHalfWidth + TargetHalfWidth);
 }
@@ -424,6 +451,11 @@ bool UCombatComponent::TrySelfBuff()
         }
     }
 
+    return false;
+}
+
+bool UCombatComponent::TryAllyBuff()
+{
     return false;
 }
 

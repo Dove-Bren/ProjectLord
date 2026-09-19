@@ -124,6 +124,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Combat")
     bool TrySelfBuff();
 
+    // Check for any ally buffs we should apply, and try to start one.
+    // Returns true if a buff ability was activated.
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    bool TryAllyBuff();
+
     // Get all Unit Abilities this Unit has access to
     UFUNCTION(BlueprintPure, Category = "Combat|Ability")
     TArray<UCombatAbility*> GetCombatAbilities(bool bIncludeHidden = false) const;
