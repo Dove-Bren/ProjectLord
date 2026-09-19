@@ -45,6 +45,7 @@ void AHeroBase::BeginPlay()
 	Inventory->InitInventory(StarterWeapon, StarterArmor);
 	Cast<UVMHero>(GetUnitVM())->SetInventory(GetInventory()->GetViewModel());
 	Inventory->OnInventoryItemsChanged.AddUObject(this, &ThisClass::HandleInventoryChange);
+	HandleInventoryChange();
 
 	CombatComponent->OnAttackLand.AddDynamic(this, &AHeroBase::OnAttack);
 	CombatComponent->OnHealthChange.AddDynamic(this, &ThisClass::OnHealthChanged);
