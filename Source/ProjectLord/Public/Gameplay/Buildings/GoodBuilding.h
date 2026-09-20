@@ -12,6 +12,7 @@ class UGameGood;
 struct FGoodOffer;
 
 DECLARE_MULTICAST_DELEGATE(FOnBuildingGoodsChanged);
+DECLARE_MULTICAST_DELEGATE(FOnBuildingQueueChanged);
 
 // A building that can have goods
 UCLASS(Blueprintable)
@@ -23,6 +24,7 @@ public:
     AGoodBuilding();
 
     FOnBuildingGoodsChanged OnBuildingGoodsChanged;
+    FOnBuildingQueueChanged OnBuildingQueueChanged;
 
     UFUNCTION(BlueprintCallable)
     void AddGoodOffer(FGoodOffer InOffer);

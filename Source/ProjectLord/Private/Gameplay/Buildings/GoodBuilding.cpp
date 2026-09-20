@@ -27,6 +27,7 @@ void AGoodBuilding::BeginPlay()
     SetupBaseGoods();
 
     QueueComponent->OnActionReady.AddDynamic(this, &AGoodBuilding::OnQueueActionReady);
+    QueueComponent->OnQueueChange.AddWeakLambda(this, [this]() { OnBuildingQueueChanged.Broadcast(); });
 }
 
 bool AGoodBuilding::HasGood(UGameGood* GoodType, bool bCheckQueue) const

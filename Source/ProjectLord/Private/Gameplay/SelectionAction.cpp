@@ -350,10 +350,25 @@ void URecruitUnitPurchase::Setup(const FSelectionActionContext& InContext)
 {
 	Super::Setup(InContext);
 
-	auto BuildingOwner = GetBuildingInner();
-	if (ensure(BuildingOwner))
+	auto ResidentOwner = Cast<AResidentialBuilding>(GetBuildingInner());
+	if (ensure(ResidentOwner))
 	{
-		// TODO building unit counts changed event
+		ResidentOwner->OnResidentsChanged.AddWeakLambda(this, [this, InContext]()
+			{
+				ESelectionActionFailureReason Reason;
+				bool bEnabled = CanPerform(Reason);
+				ViewModel->SetEnabled(bEnabled, Reason);
+			});
+		auto GoodOwner = Cast<AGoodBuilding>(ResidentOwner);
+		if (ensure(GoodOwner))
+		{
+			GoodOwner->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext]()
+				{
+					ESelectionActionFailureReason Reason;
+					bool bEnabled = CanPerform(Reason);
+					ViewModel->SetEnabled(bEnabled, Reason);
+				});
+		}
 	}
 }
 
