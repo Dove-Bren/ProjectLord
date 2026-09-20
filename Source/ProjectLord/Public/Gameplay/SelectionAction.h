@@ -206,7 +206,7 @@ protected:
     FGoodOffer Good;
 };
 
-UCLASS(Blueprintable, Abstract)
+UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API UPlaceBuildingPurchase : public USelectionPurchase
 {
     GENERATED_BODY()
@@ -221,12 +221,14 @@ public:
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Place")
     UBuildingType* GetBuildingType() const { return BuildingType; }
 
+    virtual void PostInitProperties() override;
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Place")
     TObjectPtr<UBuildingType> BuildingType;
 };
 
-UCLASS(Blueprintable, Abstract)
+UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API URecruitUnitPurchase : public UBuildingBasedPurchase
 {
     GENERATED_BODY()
@@ -241,6 +243,8 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Recruit")
     UUnitType* GetUnitType() const { return UnitType; }
+
+    virtual void PostInitProperties() override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Recruit")

@@ -294,6 +294,19 @@ bool UResearchGoodPurchase::Perform_Implementation()
 	return true;
 }
 
+void UPlaceBuildingPurchase::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	// Get name, desc, icon from the building type
+	if (IsValid(BuildingType))
+	{
+		Name = BuildingType->BuildingName;
+		Description = BuildingType->BuildingDescription;
+		Icon = BuildingType->BuildingIcon;
+	}
+}
+
 bool UPlaceBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
 {
 	// TODO: check building requirements
@@ -317,6 +330,20 @@ bool UPlaceBuildingPurchase::Perform_Implementation()
 
 	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost());
 	return true;
+}
+
+void URecruitUnitPurchase::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	// Get name, desc, icon from the unit type
+	auto Type = GetUnitType();
+	if (IsValid(Type))
+	{
+		Name = Type->UnitName;
+		Description = Type->UnitDescription;
+		Icon = Type->UnitIcon;
+	}
 }
 
 void URecruitUnitPurchase::Setup(const FSelectionActionContext& InContext)
