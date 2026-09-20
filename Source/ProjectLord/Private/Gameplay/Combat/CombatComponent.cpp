@@ -786,6 +786,13 @@ TArray<UCombatComponent*> UCombatComponent::GetNearbyAllies(float Radius, bool b
 
 }
 
+TArray<UCombatComponent*> UCombatComponent::GetNearbyHurtAllies(float Radius) const
+{
+    auto Allies = GetNearbyAllies(Radius, true);
+    Allies.RemoveAll([](const UCombatComponent* Ally) -> bool { return Ally->GetHealth() >= Ally->GetMaxHealth(); });
+    return Allies;
+}
+
 TArray<UCombatComponent*> UCombatComponent::GetRecentAttackers() const
 {
     return RecentRevengeTargets;

@@ -214,6 +214,9 @@ public:
     TArray<UCombatComponent*> GetNearbyAllies(float Radius = -1, bool bAlive = true) const;
 
     UFUNCTION(BlueprintCallable, Category = "Combat")
+    TArray<UCombatComponent*> GetNearbyHurtAllies(float Radius = -1) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Combat")
     TArray<UCombatComponent*> GetRecentAttackers() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")

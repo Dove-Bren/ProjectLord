@@ -32,6 +32,9 @@ Creature.Ranger.Desc,"These dependable fellows love their job, Your Majesty. Tha
 Creature.Wizard.Name,"Mage",
 Creature.Wizard.Desc,"What mages lack in personal grooming skills, they more than make up for in explosive potential. The most powerful mages are one-man wrecking crews, with the ability to flatten a town with just a few spells. Unfortunately, when they start going a bit dotty, they can be a real hazard to anyone - and anything - around them. That's why, in his infinite wisdom, Brashnard created Ardania's first retirement home for Mages. Thick iron walls, comfortable chairs and exciting social activities for the retired wizard in your family!",
 
+Creature.Cleric.Name,"Cleric",
+Creature.Cleric.Desc,"You know, Your Majesty, Clerics are an odd bunch. They shave their hair off, and spend their hours in the quiet contemplation of the divine. Something to do with the sound of one sandal clapping, I'm told. I wouldn't go to a Cleric if you're looking for some witty conversational repartee, but they are an invaluable resource - their healing skills can spell the difference between victory and defeat for your heroes!",
+
 Monster.DevSlime.Name,"Dev Slime",
 Monster.DevSlime.Desc,"A poorly modeled and animated slime, used only for testing mechanics",
 Monster.GiantRat.Name,"Giant Rat",
