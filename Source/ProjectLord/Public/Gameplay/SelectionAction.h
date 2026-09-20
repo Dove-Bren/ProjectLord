@@ -88,13 +88,13 @@ public:
 
 protected:
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Basic")
     FText Name;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Basic")
     FText Description;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Basic")
     TObjectPtr<UTexture2D> Icon;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Selection|Action")
@@ -120,7 +120,7 @@ public:
 
 protected:
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Purchase")
     int GoldCost;
 
     UFUNCTION(BlueprintCallable, Category = "Selection|Action")
@@ -178,11 +178,11 @@ public:
     ABuilding* GetBuildingInner() const;
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Purchase")
     int RequiredBuildingLevel = 0;
 };
 
-UCLASS(Blueprintable, Abstract)
+UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API UResearchGoodPurchase : public UBuildingBasedPurchase
 {
     GENERATED_BODY()
@@ -198,6 +198,8 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
     FGoodOffer GetGood() const { return Good; }
+
+    virtual void PostInitProperties() override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")

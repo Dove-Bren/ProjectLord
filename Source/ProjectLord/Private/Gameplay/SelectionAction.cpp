@@ -205,6 +205,19 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(ESelectionActionFailureRe
 	return Super::CanPerform_Implementation(ReasonOut);
 }
 
+void UResearchGoodPurchase::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	// Get name, desc, icon from the linked good
+	if (Good.Good)
+	{
+		Name = Good.Good->GetName();
+		Description = Good.Good->GetDescription();
+		Icon = Good.Good->GetIcon();
+	}
+}
+
 void UResearchGoodPurchase::Setup(const FSelectionActionContext& InContext)
 {
 	Super::Setup(InContext);
