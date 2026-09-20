@@ -601,7 +601,10 @@ void UCombatComponent::ClearRecentCombatData()
 {
     for (auto RevengeTarget : RecentRevengeTargets)
     {
-        RevengeTarget->OnDeathLocal.RemoveAll(this);
+        if (ensure(RevengeTarget)) // Why do these become null sometimes? The target gets nulled I think, but why isn't OnDeathLocal cleaning htem up before then?
+        {
+            RevengeTarget->OnDeathLocal.RemoveAll(this);
+        }
     }
     RecentRevengeTargets.Empty();
 
