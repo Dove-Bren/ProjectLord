@@ -17,6 +17,7 @@ Creature.Action.Building,"is building",
 Creature.Action.CollectingTaxes,"is collecting taxes",
 Creature.Action.BringingGold,"is bringing gold",
 Creature.Action.CarryingGold,"is carrying gold",
+Creature.Action.Buffing,"is conjuring",
 
 Creature.Category.Standard,"",
 Creature.Category.Beast,"Beast",

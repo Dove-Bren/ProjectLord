@@ -15,4 +15,9 @@ Ability.Wizard.Basic_Attack.Name,"Attack",
 Ability.Wizard.Basic_Attack.Desc,"Fire a ranged shot, doing 1x magic damage",
 Ability.Wizard.MagicShield.Name,"Magic Shield",
 Ability.Wizard.MagicShield.Desc,"Grants +50 protection to all attacks for 50 seconds.",
+
+Ability.Cleric.Basic_Attack.Name,"Attack",
+Ability.Cleric.Basic_Attack.Desc,"Fire a ranged shot, doing 1x magic damage",
+Ability.Cleric.Heal.Name,"Holy Heal",
+Ability.Cleric.Heal.Desc,"Heals target friendly unit for 6x magic damage",
  
