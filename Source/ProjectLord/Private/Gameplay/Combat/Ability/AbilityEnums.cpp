@@ -16,5 +16,7 @@
 		return ULordGameplayTags::AbilityTargetAlly();
 	case EAbilityTargetType::Self:
 		return ULordGameplayTags::AbilityTargetSelf();
+	case EAbilityTargetType::Heal:
+		return ULordGameplayTags::AbilityTargetHeal();
 	}
 }

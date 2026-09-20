@@ -100,6 +100,9 @@ public:
     bool IsCloseEnoughToAttack(const UCombatComponent* OtherCombatComponent) const;
 
     UFUNCTION(BlueprintPure, Category = "Combat|State")
+    bool HasHeal() const;
+
+    UFUNCTION(BlueprintPure, Category = "Combat|State")
     bool CanAttack() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")
@@ -118,6 +121,10 @@ public:
     // Attack the passed in unit from this combat component
     UFUNCTION(BlueprintCallable, Category = "Combat")
     bool AttackUnit(UCombatComponent* TargetCombatComponent);
+
+    // Heal the passed in unit from this combat component
+    UFUNCTION(BlueprintCallable, Category = "Combat")
+    bool HealUnit(UCombatComponent* TargetCombatComponent);
 
     // Check for any self buffs we should apply, and try to start one.
     // Returns true if a self-buffing ability was activated.
@@ -185,10 +192,10 @@ public:
     void ReceiveOnManaChange(int Mana, int MaxMana);
 
     UFUNCTION(BlueprintCallable, Category = "Ability")
-    FGameplayAbilitySpecHandle GetPreferredAttackAbility(const AActor* Target) const;
+    FGameplayAbilitySpecHandle GetPreferredAttackAbility(const AActor* Target, bool& bFound) const;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
-    FGameplayAbilitySpecHandle GetPreferredAbility(EAbilityTargetType TargetType, const AActor* Target) const;
+    FGameplayAbilitySpecHandle GetPreferredAbility(EAbilityTargetType TargetType, const AActor* Target, bool& bFound) const;
 
     void SetTarget(UCombatComponent* InTarget);
 

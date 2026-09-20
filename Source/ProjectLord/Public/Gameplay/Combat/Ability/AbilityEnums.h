@@ -11,6 +11,7 @@ enum class EAbilityTargetType : uint8
 	Enemy,
 	Ally,
 	Self,
+	Heal,
 };
 
 UENUM(BlueprintType)

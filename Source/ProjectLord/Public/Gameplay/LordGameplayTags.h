@@ -38,6 +38,10 @@ public:
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Target")
     static FGameplayTag K2_AbilityTargetAlly() { return AbilityTargetAlly(); }
 
+    MAKE_TAG(AbilityTargetHeal, "Ability.Target.Heal");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Target")
+    static FGameplayTag K2_AbilityTargetHeal() { return AbilityTargetHeal(); }
+
     MAKE_TAG(DamageTypeMagic, "Damage.Type.Magic");
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Damage|Type")
     static FGameplayTag K2_DamageTypeMagic() { return DamageTypeMagic(); }

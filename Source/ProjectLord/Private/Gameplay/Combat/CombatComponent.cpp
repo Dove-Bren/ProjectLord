@@ -386,6 +386,18 @@ bool UCombatComponent::IsCloseEnoughToAttack(const UCombatComponent* OtherCombat
     return Dist <= (AttackRange + OwnerHalfWidth + TargetHalfWidth);
 }
 
+bool UCombatComponent::HasHeal() const
+{
+    for (auto Ability : GetCombatAbilities())
+    {
+        if (EAbilityTargetType::Heal == Ability->GetTargetType())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int UCombatComponent::GetDefenseFor(EDamageType InType) const
 {
     FGameplayAttribute Attribute;
@@ -414,8 +426,9 @@ bool UCombatComponent::CanAttack() const
 
 bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
 {
-    FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility(TargetCombatComponent->GetOwner());
-    if (AttackAbility.IsValid())
+    bool bValid;
+    FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility(TargetCombatComponent->GetOwner(), bValid);
+    if (bValid)
     {
         if (GetAbilitySubsystemComponent()->TryActivateAbility(AttackAbility))
         {
@@ -434,10 +447,40 @@ bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
     return false;
 }
 
+bool UCombatComponent::HealUnit(UCombatComponent* TargetCombatComponent)
+{
+    bool bValid;
+    FGameplayAbilitySpecHandle HealAbility = GetPreferredAbility(EAbilityTargetType::Heal, TargetCombatComponent->GetOwner(), bValid);
+    if (bValid)
+    {
+        if (GetAbilitySubsystemComponent()->TryActivateAbility(HealAbility))
+        {
+            // Only refresh our combat time if the other unit is in combat still
+            // We want to stay in combat as long as combat is relevant because healers
+            // choose targets differently when in combat and when not.
+            if (TargetCombatComponent->GetTimeSinceLastCombatAction() < 5)
+            {
+                MarkCombatTime();
+            }
+            BroadcastHeal(TargetCombatComponent->GetOwner(), TargetCombatComponent);
+            //TargetCombatComponent->HandleAttackFrom(GetOwner(), this);
+            return true;
+        }
+        else
+        {
+            UE_LOG(LordCombat, Warning, TEXT("Failed to activate ability"));
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to activate ability"));
+        }
+    }
+
+    return false;
+}
+
 bool UCombatComponent::TrySelfBuff()
 {
-    FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Self, GetOwner());
-    if (BuffAbility.IsValid())
+    bool bValid;
+    FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Self, GetOwner(), bValid);
+    if (bValid)
     {
         if (GetAbilitySubsystemComponent()->TryActivateAbility(BuffAbility))
         {
@@ -456,20 +499,38 @@ bool UCombatComponent::TrySelfBuff()
 
 bool UCombatComponent::TryAllyBuff()
 {
+    bool bValid;
+    FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Ally, GetOwner(), bValid);
+    if (bValid)
+    {
+        if (GetAbilitySubsystemComponent()->TryActivateAbility(BuffAbility))
+        {
+            BroadcastBuff(GetOwner(), this);
+            return true;
+        }
+        else
+        {
+            UE_LOG(LordCombat, Warning, TEXT("Failed to activate ability"));
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to activate ability"));
+        }
+    }
+
     return false;
 }
 
-FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility(const AActor* Target) const
+FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAttackAbility(const AActor* Target, bool& bFound) const
 {
-    return GetPreferredAbility(EAbilityTargetType::Enemy, Target);
+    return GetPreferredAbility(EAbilityTargetType::Enemy, Target, bFound);
 }
 
-FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(EAbilityTargetType TargetType, const AActor* Target) const
+FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(EAbilityTargetType TargetType, const AActor* Target, bool& bFound) const
 {
     // Should be SpecHandles, but GAS leaks the internal class here
     auto ASC = GetAbilitySubsystemComponent();
     FGameplayTagContainer TagContainer(UAbilityEnumsFunctionLibrary::GetTagForTargetType(TargetType));
     TArray<FGameplayAbilitySpec*> AvailableAbilities;
+
+    bFound = false;
 
     ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagContainer, AvailableAbilities);
 
@@ -509,6 +570,7 @@ FGameplayAbilitySpecHandle UCombatComponent::GetPreferredAbility_Implementation(
         int Selected = PickPreferredAttackAbility(AbilitiesCopy, Target);
         if (Selected >= 0 && Selected < AvailableAbilities.Num())
         {
+            bFound = true;
             return AvailableAbilities[Selected]->Handle;
         }
     }
