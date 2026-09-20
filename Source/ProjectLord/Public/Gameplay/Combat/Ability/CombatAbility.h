@@ -25,6 +25,8 @@ class PROJECTLORD_API UCombatAbility : public UGameplayAbility
 
 public:
 
+    UCombatAbility();
+
     const FText& GetAbilityName() const { return AbilityName; }
     const FText& GetAbilityDescription() const { return AbilityDescription; }
     UTexture2D* GetAbilityIcon() const { return AbilityIcon; }

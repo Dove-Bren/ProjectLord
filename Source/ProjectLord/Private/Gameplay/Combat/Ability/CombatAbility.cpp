@@ -11,17 +11,36 @@
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/CombatAbilityViewModel.h"
 
+UCombatAbility::UCombatAbility()
+{
+	// We use view models that are generated at runtime, so we can't 
+	//InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+
+	// TODO: Figure out a way to make this work better. We _should_ be able to
+	// use non-instanced, and create the view model on creation.
+	// PostInitProperties didn't seem to work when I tried using it before, but I
+	// don't remember why.
+}
+
 UVMCombatAbility* UCombatAbility::GetOrCreateViewModel()
 {
-	if (!ViewModel)
+	// Note: CANNOT call something like this on non-instanced abilities.
+	// The contract for non-instanced states only defaults can be changed (via BP suclasses)
+	// and any other change is not supported.
+	// And indeed, doing this changes the ViewModel pointer on _all_ CombatAbility instances even
+	// of different types.
+	// This doesn't even work when using the `InstancedPerActor' policy, and I'm not sure why.
+	// For now, just always making a new one which is very wasteful.
+	//if (!ViewModel)
+	UVMCombatAbility* VM;
 	{
-		ViewModel = CreateLordVM<UVMCombatAbility>(this);
-		ViewModel->SetAbilityName(GetAbilityName());
-		ViewModel->SetDescription(GetAbilityDescription());
-		ViewModel->SetIcon(GetAbilityIcon());
+		VM = CreateLordVM<UVMCombatAbility>(this);
+		VM->SetAbilityName(GetAbilityName());
+		VM->SetDescription(GetAbilityDescription());
+		VM->SetIcon(GetAbilityIcon());
 	}
 
-	return ViewModel;
+	return VM;
 }
 
 UCombatComponent* UCombatAbility::GetOwnerComponent() const

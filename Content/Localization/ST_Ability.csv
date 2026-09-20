@@ -4,7 +4,7 @@ Ability.Monster.Melee.Attack.Name,"Attack",
 Ability.Monster.Melee.Attack.Desc,"Basic Attack",
 
 Ability.Knight.Attack.Name,"Attack",
-Ability.Knight.Attack.Desc,"Basic Attack",
+Ability.Knight.Attack.Desc,"Attacks with a melee strike, dealing 1x melee damage",
 
 Ability.Ranger.Ranged_Attack.Name,"Ranged Attack",
 Ability.Ranger.Ranged_Attack.Desc,"Fire a ranged shot, doing 1x ranged damage",
