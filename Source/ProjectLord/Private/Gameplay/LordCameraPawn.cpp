@@ -64,7 +64,8 @@ void ALordCameraPawn::FocusTick(float DeltaSeconds)
 {
     if (IsValid(FocusedActor) || PanTarget.IsSet())
     {
-        const FVector TargetPos = IsValid(FocusedActor) ? FocusedActor->GetActorLocation() : PanTarget.GetValue();
+        const FVector TargetPos = (IsValid(FocusedActor) ? FocusedActor->GetActorLocation() : PanTarget.GetValue())
+                        * FVector(1, 1, 0); // Always focus on z=0
         const FVector MyPos = GetActorLocation();
         const double DistSqr = FVector::DistSquaredXY(MyPos, TargetPos);
         
