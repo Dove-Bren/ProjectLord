@@ -306,7 +306,7 @@ void AResidentialBuilding::HandleBuildingAttacked(AActor* AttackingActor, UComba
     NotifyCreatures.Append(GetBuildingVisitors());
     for (auto Resident : GetBuildingResidents())
     {
-        if (Resident->IsAlive() && Resident->GetSquaredHorizontalDistanceTo(this) < 1024 * 1024)
+        if (ensure(Resident) && Resident->IsAlive() && Resident->GetSquaredHorizontalDistanceTo(this) < 1024 * 1024)
         {
             NotifyCreatures.Add(Resident);
         }
@@ -314,7 +314,10 @@ void AResidentialBuilding::HandleBuildingAttacked(AActor* AttackingActor, UComba
 
     for (auto Creature : NotifyCreatures)
     {
-        Creature->NotifyResidenceAttacked(this, AttackingActor, AttackingCombatComponent);
+        if (ensure(Creature))
+        {
+            Creature->NotifyResidenceAttacked(this, AttackingActor, AttackingCombatComponent);
+        }
     }
 }
 
