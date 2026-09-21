@@ -37,6 +37,26 @@ void ASpawningBuilding::Tick(float DeltaSeconds)
 
 bool ASpawningBuilding::DoSpawn_Implementation()
 {
+    int NumToSpawn = FMath::Max(FMath::Floor(SpawnCount), 0);
+    if (FMath::Frac(SpawnCount) > 0)
+    {
+        if (FMath::FRand() < FMath::Frac(SpawnCount))
+        {
+            NumToSpawn++;
+        }
+    }
+
+    bool bSuccess = false;
+    while (NumToSpawn-- > 0)
+    {
+        bSuccess |= SpawnOneUnit();
+    }
+
+    return bSuccess;
+}
+
+bool ASpawningBuilding::SpawnOneUnit_Implementation()
+{
     // Basic spawn; get a type and spawn it
     auto SpawnType = GetTypeToSpawn();
     if (!SpawnType)

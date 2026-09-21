@@ -39,6 +39,12 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     float SpawnChance = 1.0f;
 
+    // Number of units to spawn each period, with fractions being treated
+    // as 'chance of spawning one more.'
+    // Ex:  1.5 means always spawn 1, and 50% to spawn another.
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
+    float SpawnCount = 1.0f;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     bool bSpawnToCapacityAtStart;
 
@@ -49,5 +55,8 @@ protected:
 
     // Helper functions for basic spawning. May not be useful in child classes
     virtual UUnitType* GetTypeToSpawn() const;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawner")
+    bool SpawnOneUnit();
 
 };
