@@ -31,6 +31,7 @@ AHeroBase::AHeroBase() : ACreature()
 	LordHeroAttributeSet = CreateDefaultSubobject<ULordHeroAttributeSet>(TEXT("LordHeroAttributeSet"));
 	Inventory = CreateDefaultSubobject<UHeroInventory>(TEXT("Hero Inventory"));
 	Action = ECreatureAction::HeroIdle;
+	bEvacuatesOnAttack = true;
 }
 
 int AHeroBase::GetHeroMaxXP() const
@@ -49,6 +50,11 @@ void AHeroBase::BeginPlay()
 
 	CombatComponent->OnAttackLand.AddDynamic(this, &AHeroBase::OnAttack);
 	CombatComponent->OnHealthChange.AddDynamic(this, &ThisClass::OnHealthChanged);
+}
+
+void AHeroBase::NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+	Super::NotifyResidenceAttacked(Building, AttackingActor, AttackingCombatComponent);
 }
 
 void AHeroBase::SetupBaseAttributes()

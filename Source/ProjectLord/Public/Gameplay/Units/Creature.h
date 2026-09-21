@@ -68,6 +68,8 @@ public:
 
     virtual void SetTeam(EGameTeam InTeam) override;
 
+    virtual void NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
+
 
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
@@ -96,6 +98,11 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     ECreatureCategory Category;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
+    bool bEvacuatesOnAttack = false;
+
+    virtual bool ShouldEvacuate() const;
 
     virtual void RegisterAttributes() override;
     virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
@@ -146,6 +153,9 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Building", meta = (DisplayName = "OnExitBuilding"))
     void BP_OnExitBuilding(AResidentialBuilding* Building);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Building", meta = (DisplayName = "OnBuildingAttacked"))
+    void BP_OnBuildingAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingComponent);
 
     virtual void OnEnterBuilding(AResidentialBuilding* Building);
     virtual void OnExitBuilding(AResidentialBuilding* Building);

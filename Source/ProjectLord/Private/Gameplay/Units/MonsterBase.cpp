@@ -10,6 +10,7 @@ AMonsterBase::AMonsterBase() : ACreature()
 	Team = EGameTeam::Monster;
 	Gold = 5;
 	Action = ECreatureAction::MonsterIdle;
+	bEvacuatesOnAttack = true;
 }
 
 void AMonsterBase::OnDeath_Implementation()

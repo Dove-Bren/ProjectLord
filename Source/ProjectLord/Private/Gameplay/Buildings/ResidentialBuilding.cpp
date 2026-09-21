@@ -2,6 +2,7 @@
 
 #include "Gameplay/Buildings/ResidentialBuilding.h"
 
+#include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/UnitTypes.h"
@@ -17,6 +18,8 @@ AResidentialBuilding::AResidentialBuilding()
 void AResidentialBuilding::BeginPlay()
 {
 	Super::BeginPlay();
+
+    CombatComponent->OnAttackReceived.AddDynamic(this, &ThisClass::HandleBuildingAttacked);
 }
 
 void AResidentialBuilding::EndPlay(EEndPlayReason::Type Reason)
@@ -293,6 +296,26 @@ TSet<UUnitType*> AResidentialBuilding::GetAllResidentTypes() const
     }
 
     return Types;
+}
+
+void AResidentialBuilding::HandleBuildingAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+    // Broadcast event to any visitors and even nearby residents.
+    TSet<ACreature*> NotifyCreatures; // Making a new set to avoid concur-mod, and also to collapse duplicates
+
+    NotifyCreatures.Append(GetBuildingVisitors());
+    for (auto Resident : GetBuildingResidents())
+    {
+        if (Resident->IsAlive() && Resident->GetSquaredHorizontalDistanceTo(this) < 1024 * 1024)
+        {
+            NotifyCreatures.Add(Resident);
+        }
+    }
+
+    for (auto Creature : NotifyCreatures)
+    {
+        Creature->NotifyResidenceAttacked(this, AttackingActor, AttackingCombatComponent);
+    }
 }
 
 

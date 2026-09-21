@@ -108,6 +108,9 @@ protected:
     void PushVisitorsToVM();
     void PushResidentsToVM();
 
+    UFUNCTION()
+    virtual void HandleBuildingAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
+
 
 public:
     virtual void BeginPlay() override;

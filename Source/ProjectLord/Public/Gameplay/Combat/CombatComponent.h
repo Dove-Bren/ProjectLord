@@ -239,6 +239,8 @@ public:
     TArray<const UGameplayEffect*> GetActiveEffects() const;
     TArray<const UVisibleGameplayEffect*> GetActiveVisibleEffects() const;
 
+    void AddExtraRevengeTarget(UCombatComponent* RevengeTarget) { AddRevengeTarget(RevengeTarget); }
+
     UFUNCTION(BlueprintCallable, Category = "Combat")
     static UCombatComponent* GetComponentForActor(AActor* Actor);
 

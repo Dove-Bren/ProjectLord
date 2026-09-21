@@ -174,6 +174,32 @@ void ACreature::SetTeam(EGameTeam InTeam)
     MinimapComponent->SetTeam(InTeam);
 }
 
+void ACreature::NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+    if (bEvacuatesOnAttack && IsInsideBuilding() && GetVisitingBuilding() == Building)
+    {
+        // Leave the building if it's attacked, if we're done healing
+        if (ShouldEvacuate())
+        {
+            LeaveCurrentBuilding();
+        }
+    }
+
+    BP_OnBuildingAttacked(Building, AttackingActor, AttackingCombatComponent);
+
+    if (!IsInsideBuilding())
+    {
+        // Set attacker as a revenge target, which will get picked up to attack if we don't have
+        // a target already
+        CombatComponent->AddExtraRevengeTarget(AttackingCombatComponent);
+    }
+}
+
+bool ACreature::ShouldEvacuate() const
+{
+    return CombatComponent->GetHealth() >= CombatComponent->GetMaxHealth();
+}
+
 void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
 {
     // TODO I think units actually fade when entering a building.

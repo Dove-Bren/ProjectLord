@@ -130,6 +130,8 @@ public:
 
     virtual void BeginPlay() override;
 
+    virtual void NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent) override;
+
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
