@@ -5,6 +5,8 @@ Ability.Monster.Melee.Attack.Desc,"Basic Attack",
 
 Ability.Knight.Attack.Name,"Attack",
 Ability.Knight.Attack.Desc,"Attacks with a melee strike, dealing 1x melee damage",
+Ability.Knight.Taunt.Name,"Taunt",
+Ability.Knight.Taunt.Desc,"Deals 1.5x melee damage and compels the target to attack the warrior",
 
 Ability.Ranger.Ranged_Attack.Name,"Ranged Attack",
 Ability.Ranger.Ranged_Attack.Desc,"Fire a ranged shot, doing 1x ranged damage",

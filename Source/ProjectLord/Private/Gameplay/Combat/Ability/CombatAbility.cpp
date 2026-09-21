@@ -7,6 +7,7 @@
 #include "LordLogging.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
+#include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/CombatAbilityViewModel.h"
@@ -111,17 +112,21 @@ bool UCombatAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 bool UCombatAbility::CheckTargetValid(const AActor* Target) const
 {
+	if (!CanTargetBuildings() && Cast<ABuilding>(Target))
+	{
+		return false;
+	}
+
 	if (auto RequiredCategory = GetRequiredTargetCategory())
 	{
 		// Must match category. Find true path, but fall back to false.
 		if (const ACreature* Creature = Cast<ACreature>(Target))
 		{
-			if (Creature->GetCategory() == RequiredCategory.GetValue())
+			if (Creature->GetCategory() != RequiredCategory.GetValue())
 			{
-				return true;
+				return false;
 			}
 		}
-		return false;
 	}
 
 	return true;

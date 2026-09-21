@@ -32,8 +32,10 @@ public:
     UFUNCTION(BlueprintPure)
     UCombatComponent* GetTargetComponent() const { return Target; }
 
-    UFUNCTION(BlueprintCallable)
     void SetTarget(UCombatComponent* InTarget) { if (Target != InTarget) { Target = InTarget; OnAITargetChange.Broadcast(Target); } }
+
+    UFUNCTION(BlueprintCallable)
+    void OverrideTarget(UCombatComponent* InTarget);
 
     void NotifyUnitDied();
     void NotifyUnitAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);

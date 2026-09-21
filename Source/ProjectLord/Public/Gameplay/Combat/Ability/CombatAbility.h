@@ -36,6 +36,7 @@ public:
     int GetManaCost() const { return ManaCost; }
     TOptional<ECreatureCategory> GetRequiredTargetCategory() const { return bRequireCreatureCategory ? TOptional<ECreatureCategory>(TargetCategory) : NullOpt; }
     int GetPriority() const { return Priority; }
+    bool CanTargetBuildings() const { return bCanTargetBuildings; }
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
@@ -89,6 +90,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     bool bRequireCreatureCategory;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    bool bCanTargetBuildings;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Ability")
     TObjectPtr<UVMCombatAbility> ViewModel;

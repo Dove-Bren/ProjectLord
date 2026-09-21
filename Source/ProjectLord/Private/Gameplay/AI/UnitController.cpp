@@ -49,6 +49,14 @@ void AUnitController::NotifyUnitDied()
 	
 }
 
+void AUnitController::OverrideTarget(UCombatComponent* InTarget)
+{
+	auto BB = GetBlackboardComponent();
+	FName AttackTargetKey = TEXT("AttackTargetCombatComponent");
+
+	BB->SetValueAsObject(AttackTargetKey, InTarget);
+}
+
 void AUnitController::OnUnitAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
 {
 	auto BB = GetBlackboardComponent();
