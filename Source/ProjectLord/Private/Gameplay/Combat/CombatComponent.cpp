@@ -842,6 +842,7 @@ TArray<UCombatComponent*> UCombatComponent::GetNearbyAllies(float Radius, bool b
         {
             return (bAlive && Other->IsDead())
                 || Other->GetTeam() != GetTeam()
+                || !Other->IsTargetable() // Exclude any allies that are in buildings, etc.
                 ;
         });
     return Nearby;
