@@ -50,6 +50,37 @@ AGameTeamState* AMonsterTeamController::GetTeamState() const
 	return nullptr;
 }
 
+ABuilding* AMonsterTeamController::GetNearestPlayerBuilding(FVector From) const
+{
+	auto GameState = GetWorld()->GetGameState<ALordGameState>();
+	if (!ensure(GameState))
+	{
+		return nullptr;
+	}
+
+	ABuilding* Closest = nullptr;
+	double ClosestDistSqr = DOUBLE_BIG_NUMBER;
+
+	for (auto PlayerTeam : { EGameTeam::Player1, EGameTeam::Player2 })
+	{
+		auto PlayerTeamState = GameState->GetTeam(PlayerTeam);
+		if (PlayerTeamState)
+		{
+			for (auto Building : PlayerTeamState->GetBuildings())
+			{
+				const double DistSqr = FVector::DistSquaredXY(Building->GetActorLocation(), From);
+				if (!Closest || DistSqr < ClosestDistSqr)
+				{
+					Closest = Building;
+					ClosestDistSqr = DistSqr;
+				}
+			}
+		}
+	}
+
+	return Closest;
+}
+
 void AMonsterTeamController::HandleDayChange(int GameDays)
 {
 	ActivateSpawners(GameDays);

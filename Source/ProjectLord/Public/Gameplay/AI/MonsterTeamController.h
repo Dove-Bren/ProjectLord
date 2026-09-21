@@ -31,6 +31,9 @@ public:
     UFUNCTION(BlueprintPure)
     AGameTeamState* GetTeamState() const;
 
+    UFUNCTION(BlueprintCallable)
+    ABuilding* GetNearestPlayerBuilding(FVector From) const;
+
 protected:
 
     void ActivateSpawners(int GameDays);

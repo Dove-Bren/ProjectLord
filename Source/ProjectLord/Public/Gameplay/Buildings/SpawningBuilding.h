@@ -51,11 +51,15 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     float SpawnCount = 1.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner|Definition")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     bool bSpawnToCapacityAtStart;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner|Definition")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     bool bStartActivated;
+
+    // If true, spawned units will automatically attack nearby players
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
+    bool bAutoAttackSpawns;
 
     UPROPERTY(VisibleInstanceOnly, Category = "Spawner")
     bool bActivated;
@@ -73,7 +77,12 @@ protected:
 
     virtual void OnActivated();
 
+    virtual void DoUnitSwarm(AUnit* Unit);
+
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Spawner", meta = (DisplayName = "OnActivated"))
     void BP_OnActivated();
+
+    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Spawner", meta = (DisplayName = "OnUnitSpawned"))
+    void BP_OnUnitSpawned(AUnit* SpawnedUnit);
 
 };

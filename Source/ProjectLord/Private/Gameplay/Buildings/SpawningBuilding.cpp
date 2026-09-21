@@ -2,6 +2,9 @@
 
 #include "Gameplay/Buildings/SpawningBuilding.h"
 
+#include "Gameplay/LordGameState.h"
+#include "Gameplay/AI/MonsterTeamController.h"
+#include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Units/Creature.h"
 
 ASpawningBuilding::ASpawningBuilding()
@@ -84,11 +87,54 @@ bool ASpawningBuilding::SpawnOneUnit_Implementation()
     }
 
     auto Recruit = RecruitNewUnit(SpawnType);
-    if (Recruit && SpawnTeam != Team)
+    if (Recruit)
     {
-        Recruit->SetTeam(SpawnTeam);
+        if (SpawnTeam != Team)
+        {
+            Recruit->SetTeam(SpawnTeam);
+        }
+
+        if (bAutoAttackSpawns)
+        {
+            DoUnitSwarm(Recruit);
+        }
+
+        BP_OnUnitSpawned(Recruit);
     }
     return true;
+}
+
+void ASpawningBuilding::DoUnitSwarm(AUnit* Unit)
+{
+    if (!ensure(EGameTeam::Monster == Unit->GetTeam()))
+    {
+        return;
+    }
+
+    // Get teamstate -> monster controller
+    auto GameState = GetWorld()->GetGameState<ALordGameState>();
+    if (!ensure(GameState))
+    {
+        return;
+    }
+
+    auto MonsterTeamState = GameState->GetTeam(Unit->GetTeam());
+    if (!ensure(MonsterTeamState))
+    {
+        return;
+    }
+
+    auto MonsterController = MonsterTeamState->GetPrimaryMonsterController();
+    if (!ensure(MonsterController))
+    {
+        return;
+    }
+
+    auto Building = MonsterController->GetNearestPlayerBuilding(GetActorLocation());
+    if (Building)
+    {
+        Unit->GetUnitController()->OverrideTarget(Building->GetCombatComponent());
+    }
 }
 
 void ASpawningBuilding::ResetTimer()

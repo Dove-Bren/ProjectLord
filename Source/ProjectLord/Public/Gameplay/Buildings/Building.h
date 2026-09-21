@@ -149,6 +149,9 @@ public:
     UStaticMeshComponent* GetBuildingMeshComponent() const { return BuildingMesh; }
 
     UFUNCTION(BlueprintPure)
+    UCombatComponent* GetCombatComponent() const { return CombatComponent; }
+
+    UFUNCTION(BlueprintPure)
     UVMBuilding* GetBuildingVM() const { return BuildingVM; }
 
 protected:
