@@ -12,6 +12,7 @@ class ARewardFlag;
 class UUnitType;
 class UBuildingType;
 class ALordPlayerController;
+class AMonsterTeamController;
 class UVMGameTeamState;
 
 UENUM(BlueprintType)
@@ -79,6 +80,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Team")
     void SetPrimaryPlayerController(ALordPlayerController* Controller);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
+    AMonsterTeamController* GetPrimaryMonsterController() const { return MonsterController.IsValid() ? MonsterController.Get() : nullptr; }
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void SetPrimaryMonsterController(AMonsterTeamController* Controller);
 
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<AUnit*>& GetUnits() const { return TeamUnits; }
@@ -158,6 +165,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TWeakObjectPtr<ALordPlayerController> PrimaryController;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    TWeakObjectPtr<AMonsterTeamController> MonsterController;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TArray<AUnit*> TeamUnits;

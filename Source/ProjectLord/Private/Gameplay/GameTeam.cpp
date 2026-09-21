@@ -4,7 +4,10 @@
 
 #include "Net/UnrealNetwork.h"
 
+#include "Gameplay/GameLevelSettings.h"
+#include "Gameplay/LordGameState.h"
 #include "Gameplay/LordPlayerController.h"
+#include "Gameplay/AI/MonsterTeamController.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
@@ -23,6 +26,10 @@ void AGameTeamState::BeginPlay()
 
     ViewModel = CreateLordVM<UVMGameTeamState>(this);
     ViewModel->Setup(this);
+
+    auto GameState = GetWorld()->GetGameState<ALordGameState>();
+    const auto Settings = GameState->GetLevelSettings();
+    AddGold(Settings->GetStartingGold());
 }
 
 void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,6 +72,11 @@ void AGameTeamState::SetCastle(ACastle* Castle)
 void AGameTeamState::SetPrimaryPlayerController(ALordPlayerController* InController)
 {
     PrimaryController = InController;
+}
+
+void AGameTeamState::SetPrimaryMonsterController(AMonsterTeamController* InController)
+{
+    MonsterController = InController;
 }
 
 void AGameTeamState::AddUnit(AUnit* Unit)

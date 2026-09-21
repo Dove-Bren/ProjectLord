@@ -4,7 +4,9 @@
 
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 
+#include "Gameplay/GameLevelSettings.h"
 #include "UI/ViewModels/LordGameStateViewModel.h"
 
 ALordGameState::ALordGameState()
@@ -44,6 +46,24 @@ void ALordGameState::Setup()
 	}
 
 	bSetupComplete = true;
+
+	// Find game settings, or make default
+	{
+		for (TActorIterator<AGameLevelSettings> It(GetWorld()); It; ++It)
+		{
+			LevelSettings = *It;
+			break;
+		}
+
+		if (!LevelSettings)
+		{
+			FActorSpawnParameters Params;
+			Params.bNoFail = true;
+			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			LevelSettings = GetWorld()->SpawnActor<AGameLevelSettings>();
+			check(LevelSettings);
+		}
+	}
 
 	for (EGameTeam Team : {EGameTeam::Monster, EGameTeam::Neutral, EGameTeam::Player1, EGameTeam::Player2})
 	{

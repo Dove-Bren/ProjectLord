@@ -24,6 +24,12 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawner")
     bool DoSpawn();
 
+    UFUNCTION(BlueprintPure, Category = "Spawner")
+    bool IsActivated() const { return bActivated; }
+
+    UFUNCTION(BlueprintCallable, Category = "Spawner")
+    void ActivateSpawner();
+
 protected:
     
     // What team spawned creatures should be. Can be different than the building's team
@@ -45,8 +51,14 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
     float SpawnCount = 1.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner|Definition")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner|Definition")
     bool bSpawnToCapacityAtStart;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner|Definition")
+    bool bStartActivated;
+
+    UPROPERTY(VisibleInstanceOnly, Category = "Spawner")
+    bool bActivated;
 
     void ResetTimer();
 
@@ -58,5 +70,10 @@ protected:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawner")
     bool SpawnOneUnit();
+
+    virtual void OnActivated();
+
+    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Spawner", meta = (DisplayName = "OnActivated"))
+    void BP_OnActivated();
 
 };

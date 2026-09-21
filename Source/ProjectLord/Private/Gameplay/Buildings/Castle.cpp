@@ -14,6 +14,7 @@ void ACastle::BeginPlay()
 	Super::BeginPlay();
 
 	NextSpawnTime = GetGameTimeSinceCreation() + .5f;
+	bStartActivated = true;
 }
 
 void ACastle::Tick(float DeltaSeconds)

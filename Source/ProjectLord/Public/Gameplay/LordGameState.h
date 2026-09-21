@@ -9,6 +9,8 @@
 
 #include "LordGameState.generated.h"
 
+class AGameLevelSettings;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameDayChange, int, GameDays);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameTimeChange, double, GameDays);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameSpeedChange, float, GameSpeed);
@@ -48,6 +50,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "GameTeam")
     AGameTeamState* GetTeam(EGameTeam Team);
 
+    UFUNCTION(BlueprintPure, Category = "Settings")
+    const AGameLevelSettings* GetLevelSettings() const { return LevelSettings; }
+
     UFUNCTION(BlueprintPure, Category = "UI")
     class UVMLordGameState* GetViewModel() const { return ViewModel; }
 
@@ -63,6 +68,9 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "GameTeam")
     TMap<EGameTeam, AGameTeamState*> GameTeams;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Settings")
+    TObjectPtr<AGameLevelSettings> LevelSettings;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<class UVMLordGameState> ViewModel;

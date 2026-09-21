@@ -8,6 +8,8 @@ ASpawningBuilding::ASpawningBuilding()
 {
     SpawnTeam = Team;
     bSpawnToCapacityAtStart = false;
+    bActivated = false;
+    bStartActivated = false;
 }
 
 void ASpawningBuilding::BeginPlay()
@@ -19,19 +21,36 @@ void ASpawningBuilding::BeginPlay()
     {
         while (DoSpawn()) {}
     }
+
+    if (bStartActivated)
+    {
+        ActivateSpawner();
+    }
 }
 
 void ASpawningBuilding::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    if ((SpawnTimeRemaining -= DeltaSeconds) <= 0)
+    if (IsActivated())
     {
-        if (SpawnChance >= 1.0f || FMath::FRand() < SpawnChance)
+        if ((SpawnTimeRemaining -= DeltaSeconds) <= 0)
         {
-            DoSpawn();
+            if (SpawnChance >= 1.0f || FMath::FRand() < SpawnChance)
+            {
+                DoSpawn();
+            }
+            ResetTimer();
         }
-        ResetTimer();
+    }
+}
+
+void ASpawningBuilding::ActivateSpawner()
+{
+    if (!bActivated)
+    {
+        bActivated = true;
+        OnActivated();
     }
 }
 
@@ -95,4 +114,10 @@ UUnitType* ASpawningBuilding::GetTypeToSpawn() const
     }
 
     return EligibleTypes[FMath::RandRange(0, EligibleTypes.Num() - 1)];
+}
+
+void ASpawningBuilding::OnActivated()
+{
+    ResetTimer();
+    BP_OnActivated();
 }
