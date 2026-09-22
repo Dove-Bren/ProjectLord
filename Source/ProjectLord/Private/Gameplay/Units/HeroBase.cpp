@@ -358,7 +358,7 @@ void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComp
 
 	if (IsAlive() && ShouldUseManaPotion())
 	{
-		if (AttemptUseHealthPotion())
+		if (AttemptUseManaPotion())
 		{
 			OnManaPotionUsed();
 		}
