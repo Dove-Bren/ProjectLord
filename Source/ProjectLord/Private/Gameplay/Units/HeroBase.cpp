@@ -267,6 +267,16 @@ void AHeroBase::OnDeath_Implementation()
 	}
 }
 
+void AHeroBase::OnFinalDeath()
+{
+	if (auto TeamState = GetTeamState())
+	{
+		TeamState->AddDeadHero(/*this*/);
+	}
+
+	Super::OnFinalDeath();
+}
+
 void AHeroBase::HandleInventoryChange()
 {
 	// TODO: Check if anything actually changed and only

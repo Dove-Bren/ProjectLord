@@ -57,6 +57,11 @@ void ASpawningBuilding::ActivateSpawner()
     }
 }
 
+void ASpawningBuilding::SetSpawnTeam(EGameTeam InTeam)
+{
+    SpawnTeam = InTeam;
+}
+
 bool ASpawningBuilding::DoSpawn_Implementation()
 {
     int NumToSpawn = FMath::Max(FMath::Floor(SpawnCount), 0);

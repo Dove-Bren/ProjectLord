@@ -137,6 +137,11 @@ void AGameTeamState::RemoveFlag(ARewardFlag* Flag)
     }
 }
 
+void AGameTeamState::AddDeadHero(/*TODO: Saved, trimmed hero info?*/)
+{
+    DeadHeroCount++;
+}
+
 TArray<AUnit*> AGameTeamState::GetTeamUnitsOfClass(TSubclassOf<AUnit> Type) const
 {
     TArray<AUnit*> Units;

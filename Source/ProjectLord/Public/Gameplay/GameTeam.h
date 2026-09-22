@@ -114,6 +114,16 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     void RemoveFlag(ARewardFlag* Flag);
 
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void AddDeadHero(/*TODO: Saved, trimmed hero info?*/);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
+    int GetDeadHeroCount() const { return DeadHeroCount; }
+
+    // TODO
+    /*UFUNCTION(BlueprintPure, Category = "Team")
+    const TArray<FHeroData>& GetDeadHeroes() const { return DeadHeroes; }*/
+
     UFUNCTION(BlueprintPure, Category = "Team")
     UVMGameTeamState* GetViewModel() const { return ViewModel; }
 
@@ -159,6 +169,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
     int Gold;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
+    int DeadHeroCount;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
     TWeakObjectPtr<ACastle> TeamCastle;

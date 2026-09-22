@@ -33,6 +33,14 @@ protected:
     // List of building types to count as houses
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Castle")
     TArray<const UBuildingType*> HouseTypes;
+
+    // List of building types to count as sewers
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Castle")
+    TArray<const UBuildingType*> SewerTypes;
+
+    // List of building types to count as cemeteries
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Castle")
+    TArray<const UBuildingType*> CemeteryTypes;
     
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Castle|Spawning")
     float NextSpawnTime;
@@ -50,6 +58,12 @@ protected:
     int GetHouseCount() const;
 
     UFUNCTION(BlueprintPure, Category = "Town")
+    int GetSewerCount() const;
+
+    UFUNCTION(BlueprintPure, Category = "Town")
+    int GetCemeteryCount() const;
+
+    UFUNCTION(BlueprintPure, Category = "Town")
     int GetHeroCount() const;
 
     UFUNCTION(BlueprintPure, Category = "Town")
@@ -57,6 +71,10 @@ protected:
 
     UFUNCTION(BlueprintPure, Category = "Town")
     int GetDesiredHouseCount() const;
+    UFUNCTION(BlueprintPure, Category = "Town")
+    int GetDesiredSewerCount() const;
+    UFUNCTION(BlueprintPure, Category = "Town")
+    int GetDesiredCemeteryCount() const;
     UFUNCTION(BlueprintPure, Category = "Town")
     int GetDesiredTaxCollectorCount() const;
     UFUNCTION(BlueprintPure, Category = "Town")

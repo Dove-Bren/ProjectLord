@@ -6,6 +6,7 @@
 #include "Gameplay/PlacementActor.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
+#include "Gameplay/Buildings/SpawningBuilding.h"
 #include "Gameplay/Units/HeroBase.h"
 #include "Gameplay/Units/UnitTypes.h"
 
@@ -69,6 +70,40 @@ int ACastle::GetHouseCount() const
 	return Count;
 }
 
+int ACastle::GetSewerCount() const
+{
+	int Count = 0;
+	auto TeamState = GetTeamState();
+	if (ensure(TeamState))
+	{
+		// just here to make this visible
+		ensure(!SewerTypes.IsEmpty());
+		for (auto SewerType : SewerTypes)
+		{
+			Count += TeamState->GetTeamBuildingsOfType(SewerType).Num();
+		}
+	}
+
+	return Count;
+}
+
+int ACastle::GetCemeteryCount() const
+{
+	int Count = 0;
+	auto TeamState = GetTeamState();
+	if (ensure(TeamState))
+	{
+		// just here to make this visible
+		ensure(!CemeteryTypes.IsEmpty());
+		for (auto CemeteryType : CemeteryTypes)
+		{
+			Count += TeamState->GetTeamBuildingsOfType(CemeteryType).Num();
+		}
+	}
+
+	return Count;
+}
+
 int ACastle::GetHeroCount() const
 {
 	int Count = 0;
@@ -98,6 +133,31 @@ int ACastle::GetDesiredHouseCount() const
 	return 5;
 }
 
+int ACastle::GetDesiredSewerCount() const
+{
+	const int BuildingCount = GetBuildingCount();
+	if (BuildingCount < 8)
+	{
+		return 0;
+	}
+	if (BuildingCount < 16)
+	{
+		return 1;
+	}
+	return 2;
+}
+
+int ACastle::GetDesiredCemeteryCount() const
+{
+	auto TeamState = GetTeamState();
+	if (ensure(TeamState))
+	{
+		return TeamState->GetDeadHeroCount() > 0 ? 1 : 0;
+	}
+	//else
+	return 0;
+}
+
 int ACastle::GetDesiredTaxCollectorCount() const
 {
 	// Idk why but this always seems to be 6
@@ -122,8 +182,25 @@ void ACastle::AttemptSpawnRound()
 		}
 	}
 
-	// TODO spawn windmills, sewers, etc.
-	// and graveyard?
+	if (GetSewerCount() < GetDesiredSewerCount() && ensure(SewerTypes.Num() > 0))
+	{
+		const int RandIdx = FMath::RandRange(0, SewerTypes.Num() - 1);
+		if (SpawnNearby(SewerTypes[RandIdx]))
+		{
+			return;
+		}
+	}
+
+	if (GetCemeteryCount() < GetDesiredCemeteryCount() && ensure(CemeteryTypes.Num() > 0))
+	{
+		const int RandIdx = FMath::RandRange(0, CemeteryTypes.Num() - 1);
+		if (SpawnNearby(CemeteryTypes[RandIdx]))
+		{
+			return;
+		}
+	}
+
+	// TODO spawn windmills
 }
 
 bool ACastle::SpawnNearby(const UBuildingType* Type)
@@ -217,5 +294,16 @@ bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At)
 	
 	Building->SetTeam(GetTeam());
 	Building->ClearFoliageAround();
+
+	if (auto SpawningBuilding = Cast<ASpawningBuilding>(Building))
+	{
+		auto NewType = SpawningBuilding->GetBuildingType();
+		if (SewerTypes.Contains(NewType) || CemeteryTypes.Contains(NewType))
+		{
+			EGameTeam NewSpawnTeam = (GetTeam() == EGameTeam::Monster) ? EGameTeam::Neutral : EGameTeam::Monster;
+			SpawningBuilding->SetSpawnTeam(NewSpawnTeam);
+		}
+	}
+
 	return true;
 }

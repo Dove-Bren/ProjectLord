@@ -173,6 +173,7 @@ protected:
     virtual void InitUnitVM() override;
     virtual UVMUnit* ConstructUnitVM() override;
     virtual void OnDeath_Implementation() override;
+    virtual void OnFinalDeath() override;
 
     virtual void HandleInventoryChange();
 

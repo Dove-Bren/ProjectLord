@@ -30,6 +30,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Spawner")
     void ActivateSpawner();
 
+    void SetSpawnTeam(EGameTeam Team);
+
 protected:
     
     // What team spawned creatures should be. Can be different than the building's team

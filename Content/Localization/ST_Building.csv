@@ -27,3 +27,7 @@ Building.Blacksmith.Desc,"Every blacksmith in Ardania must be a member of the "F
 
 Building.House.Name,"Peasant House",
 Building.House.Desc,"Nothing special. Just the home of some anonymous peasant.",
+Building.Sewer.Name,"Sewer",
+Building.Sewer.Desc,"A sewer that looks suspiciously like well...",
+Building.Cemetery.Name,"Cemetery",
+Building.Cemetery.Desc,"Dead heroes are here. Sometimes other baddies too.",
