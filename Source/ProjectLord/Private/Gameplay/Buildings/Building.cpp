@@ -261,7 +261,7 @@ void ABuilding::HandleBuildingUpgraded()
             {
                 const auto ToastType = BuildingAvailableLevel == 1 ? EToastNotificationType::ConstructionComplete
                                         : EToastNotificationType::UpgradeComplete;
-                LordController->AddToastNotification(FToastNotification(ToastType, BuildingType->BuildingIcon, GetBuildingName()));
+                LordController->AddToastNotification(FToastNotification(ToastType, BuildingType->BuildingIcon, GetBuildingName(), SelectionComponent));
             }
         }
     }
@@ -551,7 +551,7 @@ void ABuilding::HandleDeath()
         {
             if (auto LordController = TeamState->GetPrimaryPlayerController())
             {
-                LordController->AddToastNotification(FToastNotification(EToastNotificationType::BuildingDestroyed, BuildingType->BuildingIcon, GetBuildingName()));
+                LordController->AddToastNotification(FToastNotification(EToastNotificationType::BuildingDestroyed, BuildingType->BuildingIcon, GetBuildingName(), SelectionComponent));
             }
         }
     }

@@ -7,6 +7,7 @@
 
 class UTexture2D;
 class UVMToast;
+class USelectionComponent;
 
 UENUM(BlueprintType)
 enum class EToastNotificationType : uint8
@@ -33,11 +34,17 @@ struct FToastNotification
 	TObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Toast")
+	TObjectPtr<USelectionComponent> Selection;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Toast")
 	FText Content;
 
 	FToastNotification() : FToastNotification(EToastNotificationType::NewQuest, nullptr, FText::GetEmpty()) {}
 	FToastNotification(EToastNotificationType InType, UTexture2D* InIcon, FText InContent)
-		: Type(InType), Icon(InIcon), Content(InContent) {}
+		: FToastNotification(InType, InIcon, InContent, nullptr) {}
+	FToastNotification(EToastNotificationType InType, UTexture2D* InIcon, FText InContent, USelectionComponent* InSelection)
+		: Type(InType), Icon(InIcon), Selection(InSelection), Content(InContent) {
+	}
 
 	UVMToast* MakeViewModel(UObject* Outer);
 };

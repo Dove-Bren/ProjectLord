@@ -10,6 +10,7 @@ UVMToast* FToastNotification::MakeViewModel(UObject* Outer)
 	VM->SetType(Type);
 	VM->SetContent(Content);
 	VM->SetIcon(Icon);
+	VM->SetSelectSourceComponent(Selection);
 
 	return VM;
 }

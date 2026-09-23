@@ -41,7 +41,8 @@ void UQueuedGoodAction::Perform(AGoodBuilding* Building)
 		{
 			if (auto Controller = TeamState->GetPrimaryPlayerController())
 			{
-				Controller->AddToastNotification(FToastNotification(EToastNotificationType::ResearchComplete, GoodOffer.Good->GetIcon(), GoodOffer.Good->GetName()));
+
+				Controller->AddToastNotification(FToastNotification(EToastNotificationType::ResearchComplete, GoodOffer.Good->GetIcon(), GoodOffer.Good->GetName(), Building->GetComponentByClass<USelectionComponent>()));
 			}
 		}
 	}

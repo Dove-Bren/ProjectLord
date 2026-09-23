@@ -262,7 +262,7 @@ void AHeroBase::OnDeath_Implementation()
 		if (auto LordController = TeamState->GetPrimaryPlayerController())
 		{
 			auto HeroType = GetUnitType();
-			LordController->AddToastNotification(FToastNotification(EToastNotificationType::HeroDead, HeroType->UnitIcon, GetHeroName()));
+			LordController->AddToastNotification(FToastNotification(EToastNotificationType::HeroDead, HeroType->UnitIcon, GetHeroName(), SelectionComponent));
 		}
 	}
 }

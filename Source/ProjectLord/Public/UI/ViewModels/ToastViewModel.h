@@ -10,6 +10,7 @@
 #include "ToastViewModel.generated.h"
 
 class UTexture2D;
+class USelectionComponent;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMToast : public UVMLordBase
@@ -27,6 +28,11 @@ public:
     FText GetContent() const { return Content; }
     void SetContent(FText InContent) { UE_MVVM_SET_PROPERTY_VALUE(Content, InContent); }
 
+    void SetSelectSourceComponent(USelectionComponent* Source) { SelectSourceComponent = Source; }
+
+    UFUNCTION(BlueprintCallable)
+    void SelectSource();
+
 
 protected:
 
@@ -38,4 +44,6 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Toast")
     FText Content;
+
+    TObjectPtr<USelectionComponent> SelectSourceComponent;
 };
