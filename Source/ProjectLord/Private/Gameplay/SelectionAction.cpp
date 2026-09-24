@@ -230,6 +230,12 @@ void UResearchGoodPurchase::Setup(const FSelectionActionContext& InContext)
 		{
 			ViewModel->SetHidden(IsHidden());
 		});
+		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext]()
+		{
+			ESelectionActionFailureReason Reason;
+			bool bEnabled = CanPerform(Reason);
+			ViewModel->SetEnabled(bEnabled, Reason);
+		});
 	}
 }
 
