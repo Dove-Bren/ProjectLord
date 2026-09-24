@@ -10,6 +10,8 @@ void UVMSelection::Reset(bool bTriggerUpdate)
 	SetPresent(false);
 
 	SetSelectionName({});
+	SetSelectionDescription({});
+	SetCustomName({});
 	SetTeam(EGameTeam::Neutral);
 	SetIcon(nullptr);
 	SetFailureReason(ESelectionActionFailureReason::None);
