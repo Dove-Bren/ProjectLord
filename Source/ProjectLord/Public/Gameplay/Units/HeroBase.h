@@ -157,7 +157,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
     TArray<FString> LastNames;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;
 
     // How much XP this hero has accumulated so far this level
