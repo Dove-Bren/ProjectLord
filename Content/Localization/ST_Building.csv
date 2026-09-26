@@ -31,3 +31,7 @@ Building.Sewer.Name,"Sewer",
 Building.Sewer.Desc,"A sewer is a sign of a growing city. Strange noises can be heard within.",
 Building.Cemetery.Name,"Cemetery",
 Building.Cemetery.Desc,"Dead heroes are here. Sometimes other baddies too.",
+
+
+WorldObject.Chest.Name,"Treasure Chest",
+WorldObject.Chest.Desc,"It's treasure!",

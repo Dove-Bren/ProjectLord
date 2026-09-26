@@ -9,7 +9,7 @@
 
 class UFogOfWarSubsystem;
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, meta = (BlueprintSpawnableComponent))
 class PROJECTLORD_API UFogOfWarComponent : public UActorComponent
 {
     GENERATED_BODY()

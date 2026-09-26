@@ -39,7 +39,7 @@ struct PROJECTLORD_API FActionArray
     TArray<TSubclassOf<USelectionAction>> Array;
 };
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, meta=(BlueprintSpawnableComponent))
 class PROJECTLORD_API USelectionComponent : public UActorComponent
 {
     GENERATED_BODY()

@@ -11,7 +11,7 @@ class UTexture2D;
 class AMinimap;
 class UVMMinimapIcon;
 
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, meta = (BlueprintSpawnableComponent))
 class PROJECTLORD_API UMinimapComponent : public UActorComponent
 {
     GENERATED_BODY()

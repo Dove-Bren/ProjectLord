@@ -9,7 +9,7 @@
 class ABuilding;
 class UMaterialInstanceDynamic;
 
-UCLASS()
+UCLASS(Blueprintable, meta = (BlueprintSpawnableComponent))
 class PROJECTLORD_API UBuildingConstructionFadeComponent : public UActorComponent
 {
     GENERATED_BODY()
