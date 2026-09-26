@@ -132,6 +132,9 @@ void ABuilding::StartLevelUp()
         // restore
         AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
             Health);
+
+        // Start mesh blending again
+        FadeComponent->Enable();
     }
 }
 
@@ -226,13 +229,13 @@ void ABuilding::NotifyRepairAction()
 
 void ABuilding::NotifyRepairComplete()
 {
-    RefreshMesh();
-
     // Newly constructed?
     if (BuildingLevel < BuildingAvailableLevel)
     {
         HandleBuildingUpgraded();
     }
+
+    RefreshMesh();
 
     // Notify team state
     // TODO maybe make event and make team state listen to all buildings?
