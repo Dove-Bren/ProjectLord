@@ -294,6 +294,7 @@ bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At)
 	
 	Building->SetTeam(GetTeam());
 	Building->ClearFoliageAround();
+	Building->PaintFoundation();
 
 	if (auto SpawningBuilding = Cast<ASpawningBuilding>(Building))
 	{

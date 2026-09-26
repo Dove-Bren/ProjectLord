@@ -136,6 +136,9 @@ public:
     void ClearFoliageAround();
 
     UFUNCTION(BlueprintCallable)
+    void PaintFoundation();
+
+    UFUNCTION(BlueprintCallable)
     virtual void RefreshMesh();
 
     // Called by a repairer every time they repair the building

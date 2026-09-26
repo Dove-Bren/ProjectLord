@@ -14,6 +14,7 @@
 #include "Gameplay/FogOfWarComponent.h"
 #include "Gameplay/FogOfWarSubsystem.h"
 #include "Gameplay/GameTeam.h"
+#include "Gameplay/LandscapePainter.h"
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/MinimapComponent.h"
 #include "Gameplay/LordGameplayTags.h"
@@ -596,6 +597,8 @@ void ABuilding::HandleBuildingPlacement_Implementation()
     FadeComponent->Enable();
 
     ClearFoliageAround();
+    PaintFoundation();
+
 }
 
 void ABuilding::ClearFoliageAround()
@@ -616,5 +619,14 @@ void ABuilding::ClearFoliageAround()
                 ISC->RemoveInstance(Overlap.GetItemIndex());
             }
         }
+    }
+}
+
+void ABuilding::PaintFoundation()
+{
+    auto LandscapePainter = ALandscapePainter::GetLandscapePainter(this);
+    if (ensure(LandscapePainter))
+    {
+        LandscapePainter->Paint(ELandscapePaint::Foundation, GetActorLocation(), BuildingMesh->GetBounds().SphereRadius * 1.5);
     }
 }
