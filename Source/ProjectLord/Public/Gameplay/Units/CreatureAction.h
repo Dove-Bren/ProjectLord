@@ -16,6 +16,7 @@ enum class ECreatureAction : uint8
     InCombat,
     Fleeing, // "is fleeing"
     Dead, // "is dead"
+    Conjuring, // "is conjuring"
 
     ExploreQuest, // Explore flag "is doing an exploration quest"
     DefendQuest, // Protect flag, "is protecting lands"
@@ -23,6 +24,8 @@ enum class ECreatureAction : uint8
 
     GoingHome,
     Shopping,
+    CollectingLoot, // "is collecting loot"
+    Looting, // "looting
 
     Patrolling,
     Building,
