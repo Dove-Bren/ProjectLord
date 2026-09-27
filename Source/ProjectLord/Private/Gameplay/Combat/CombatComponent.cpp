@@ -9,7 +9,7 @@
 #include "LordLogging.h"
 #include "Gameplay/GameplayUtils.h"
 #include "Gameplay/LordGameplayTags.h"
-#include "Gameplay/AI/UnitController.h"
+#include "Gameplay/AI/CombatControllerBase.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/Building.h"
@@ -119,7 +119,7 @@ void UCombatComponent::BeginPlay()
     if (auto OwnerPawn = Cast<APawn>(GetOwner()))
     {
         OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UCombatComponent::OnOwnerPossessed);
-        if (auto OwnerController = OwnerPawn->GetController<AUnitController>())
+        if (auto OwnerController = OwnerPawn->GetController<ACombatControllerBase>())
         {
             OnOwnerPossessed(OwnerPawn, nullptr, OwnerController);
         }
@@ -739,8 +739,8 @@ void UCombatComponent::BroadcastHeal(AActor* Target, UCombatComponent* TargetCom
 
 void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldController, AController* InNewController)
 {
-    auto OldController = Cast<AUnitController>(InOldController);
-    auto NewController = Cast<AUnitController>(InNewController);
+    auto OldController = Cast<ACombatControllerBase>(InOldController);
+    auto NewController = Cast<ACombatControllerBase>(InNewController);
     if (OldController)
     {
         OldController->OnAITargetChange.RemoveAll(this);

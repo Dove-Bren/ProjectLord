@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "AIController.h"
+#include "Gameplay/AI/CombatControllerBase.h"
 
 #include "BuildingController.generated.h"
 
@@ -12,7 +12,7 @@ class UBehaviorTree;
 class UCombatComponent;
 
 UCLASS(Blueprintable)
-class PROJECTLORD_API ABuildingController : public AAIController
+class PROJECTLORD_API ABuildingController : public ACombatControllerBase
 {
     GENERATED_BODY()
 
@@ -23,7 +23,4 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure)
     UBehaviorTree* GetBehaviorTree() const;
-
-    UFUNCTION(BlueprintNativeEvent, BlueprintPure)
-    UCombatComponent* GetTargetComponent() const;
 };

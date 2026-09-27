@@ -11,6 +11,8 @@ Building.SkeleHouse.Desc,"This house has been destroyed, but something tells you
 
 Building.Castle.Name,"Royal Palace",
 Building.Castle.Desc,"Once, all Palaces in Ardania were built according to plans designed by Adolphus - the engineering genius from Volensia. Three hundred years ago, at a meeting of the Royal Supreme Court, The Dwarves were able to prove that Adolphus stole their ideas. The Court set such high licensing fees for use of the old plans, that the monarch and other lords hastened to build new, uniquely designed, houses. And Adolphus' four-towered Palaces have been abandoned monuments ever since.",
+Building.GuardHouse.Name,"Guardhouse",
+Building.GuardHouse.Desc,"The design of Guardhouse in Ardania hasn't change for many long centuries. Round-shaped, and crafted of high-quality stone, Guardhouses included archer galleries, a garrison, an arsenal, and a cosy vaults for the storage of collected taxes.",
 Building.GuildRanger.Name,"Ranger's Guild",
 Building.GuildRanger.Desc,"The simple tents of the Rangers Guild bely the power and influence of its heroes. Once it seemed as though the days of Rangers Guild were numbered: Ardania was united, its enemies defeated and the wild lands tamed. What sort of life was left for restless spirits of Ardania's pathfinders? The guild was saved by Allar Halfmein, the First Master of the Hunt. He persuaded the Monarch to sign a decree giving Rangers Guild status as the sole provider of Royal Cartography. Now all matters of land and territory need a stamp of approval from the Rangers Guild.",
 Building.GuildWarrior.Name,"Warrior's Guild",

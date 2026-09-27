@@ -326,7 +326,7 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
 
 void AUnit::HandleDeath()
 {
-    GetUnitController()->NotifyUnitDied();
+    GetUnitController()->NotifyPawnDied();
 
     // Rebroadcast
     OnDeath();
