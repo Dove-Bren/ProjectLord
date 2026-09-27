@@ -50,6 +50,8 @@ Monster.SkeletalFighter.Name,"Skeleton",
 Monster.SkeletalFighter.Desc,"Just bones, a sword, and a desire to kill.",
 Monster.SkeletonArcher.Name,"Skeleton Archer",
 Monster.SkeletonArcher.Desc,"The animated bones of an archer, preserved in death by powerful dark magic.",
+Monster.Serpent.Name,"Serpent",
+Monster.Serpent.Desc,"They say flying serpents are the reason why heroes who stray too far from their guilds tend to disappear.",
 
 Creature.Peasant.Name,"Peasant",
 Creature.Peasant.Desc,"Peasants are the backbone of industry. They construct and maintain the buildins in your kingdom, Your Majesty.",
