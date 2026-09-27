@@ -22,4 +22,7 @@ Ability.Cleric.Basic_Attack.Name,"Attack",
 Ability.Cleric.Basic_Attack.Desc,"Fire a ranged shot, doing 1x magic damage",
 Ability.Cleric.Heal.Name,"Holy Heal",
 Ability.Cleric.Heal.Desc,"Heals target friendly unit for 6x magic damage",
+
+Ability.Rogue.Attack.Name,"Attack",
+Ability.Rogue.Attack.Desc,"Attacks with a melee strike, dealing 1x melee damage",
  

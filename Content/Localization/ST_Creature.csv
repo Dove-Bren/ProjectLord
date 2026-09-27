@@ -38,6 +38,9 @@ Creature.Wizard.Desc,"What mages lack in personal grooming skills, they more tha
 Creature.Cleric.Name,"Cleric",
 Creature.Cleric.Desc,"You know, Your Majesty, Clerics are an odd bunch. They shave their hair off, and spend their hours in the quiet contemplation of the divine. Something to do with the sound of one sandal clapping, I'm told. I wouldn't go to a Cleric if you're looking for some witty conversational repartee, but they are an invaluable resource - their healing skills can spell the difference between victory and defeat for your heroes!",
 
+Creature.Rogue.Name,"Rogue",
+Creature.Rogue.Desc,"Rogues are cheerful young women with fleet fingers and sharp minds. They know the true value of gold and won't engage in fights they can't win. I advise you to watch your pursestrings in their presence, Your Majesty - and you might want to leave the good crown at home.",
+
 Monster.DevSlime.Name,"Dev Slime",
 Monster.DevSlime.Desc,"A poorly modeled and animated slime, used only for testing mechanics",
 Monster.GiantRat.Name,"Giant Rat",
