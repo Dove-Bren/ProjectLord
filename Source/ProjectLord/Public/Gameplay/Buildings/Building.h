@@ -95,6 +95,9 @@ public:
     int CollectBuildingGold();
 
     UFUNCTION(BlueprintPure)
+    bool CanDepositTaxesHere() const { return bCanAcceptTaxes; }
+
+    UFUNCTION(BlueprintPure)
     int GetBuildingHealth() const;
     UFUNCTION(BlueprintPure)
     int GetBuildingMaxHealth() const;
@@ -218,6 +221,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bToastWhenDestroyed;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    bool bCanAcceptTaxes;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
     EGameTeam Team;

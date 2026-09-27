@@ -15,15 +15,19 @@ void ACombatControllerBase::OnPossess(APawn* InPawn)
 void ACombatControllerBase::OnBehaviorTreeStarted()
 {
 	auto BB = GetBlackboardComponent();
-	auto AttackTargetKey = BB->GetKeyID(TEXT("AttackTargetCombatComponent"));
 
-	BB->RegisterObserver(AttackTargetKey, this, FOnBlackboardChangeNotification::CreateUObject(this, &ThisClass::OnBBTargetChanged));
-	OnBBTargetChanged(*BB, AttackTargetKey);
-
-	auto Combat = GetPawn()->GetComponentByClass<UCombatComponent>();
-	if (ensure(Combat))
+	if (BB)
 	{
-		Combat->OnAttackReceived.AddDynamic(this, &ThisClass::OnPawnAttacked);
+		auto AttackTargetKey = BB->GetKeyID(TEXT("AttackTargetCombatComponent"));
+
+		BB->RegisterObserver(AttackTargetKey, this, FOnBlackboardChangeNotification::CreateUObject(this, &ThisClass::OnBBTargetChanged));
+		OnBBTargetChanged(*BB, AttackTargetKey);
+
+		auto Combat = GetPawn()->GetComponentByClass<UCombatComponent>();
+		if (ensure(Combat))
+		{
+			Combat->OnAttackReceived.AddDynamic(this, &ThisClass::OnPawnAttacked);
+		}
 	}
 }
 

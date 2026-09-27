@@ -16,6 +16,7 @@ void ACastle::BeginPlay()
 
 	NextSpawnTime = GetGameTimeSinceCreation() + .5f;
 	bStartActivated = true;
+	bCanAcceptTaxes = true;
 }
 
 void ACastle::Tick(float DeltaSeconds)
