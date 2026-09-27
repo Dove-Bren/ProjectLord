@@ -3,8 +3,6 @@
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
 #include "Gameplay/SelectionAction.h"
-#include "Gameplay/LordPlayerController.h"
-#include "Gameplay/LordPlayerState.h"
 
 #include "Kismet/GameplayStatics.h"
 

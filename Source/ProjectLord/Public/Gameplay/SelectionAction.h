@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Gameplay/GameGood.h"
+#include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 
 #include "SelectionAction.generated.h"
 
@@ -204,6 +205,30 @@ public:
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
     FGoodOffer Good;
+};
+
+UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
+class PROJECTLORD_API UResearchPlayerSpellPurchase : public UBuildingBasedPurchase
+{
+    GENERATED_BODY()
+
+public:
+
+    // Make sure building doesn't already have it
+    virtual void Setup(const FSelectionActionContext& Context) override;
+    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual bool IsHidden_Implementation() const;
+
+    virtual bool Perform_Implementation() override;
+
+    UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
+    UPlayerSpell* GetSpell() const { return Spell; }
+
+    virtual void PostInitProperties() override;
+
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
+    TObjectPtr<UPlayerSpell> Spell;
 };
 
 UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))

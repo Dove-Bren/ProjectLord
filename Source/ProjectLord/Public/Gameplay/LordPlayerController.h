@@ -19,6 +19,10 @@ class UPlacementComponent;
 class UVMLordBase;
 class UInspectWidget;
 class ULordGameHUDWidget;
+class UCombatComponent;
+class UAbilitySystemComponent;
+class UPlayerSpell;
+class UPlayerSpellCastingComponent;
 
 struct FStaticSelection;
 struct FToastNotification;
@@ -83,6 +87,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Placement")
     void PlaceBuilding(UBuildingType* Type, int Cost);
 
+    UFUNCTION(BlueprintCallable, Category = "SpellCasting")
+    void CastSpell(UPlayerSpell* Spell);
+
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Inspection")
     bool ShowInspectWidget(TSubclassOf<UInspectWidget> WidgetClass, UVMLordBase* VM);
 
@@ -94,6 +101,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Toast")
     void AddToastNotification(FToastNotification Notification);
+
+    USelectionComponent* GetSelectableUnderMouse() const;
+    UCombatComponent* GetCombatUnderMouse() const;
+    FVector GetWorldPositionUnderMouse() const;
+
+    UAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystemComponent; }
 
 protected:
 
@@ -123,6 +136,12 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UPlacementComponent> PlacementComponent;
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat|Abilities")
+    TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UPlayerSpellCastingComponent> SpellCastingComponent;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<ULordGameHUDWidget> HUDWidget;
 
@@ -133,9 +152,6 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName = "OnSetPaused"))
     void BP_OnSetPaused(bool bPaused);
-
-    USelectionComponent* GetSelectableUnderMouse();
-    FVector GetWorldPositionUnderMouse();
     bool CanSelect(const AActor* ClickedActor) const;
 
     void OnSelectionChange();

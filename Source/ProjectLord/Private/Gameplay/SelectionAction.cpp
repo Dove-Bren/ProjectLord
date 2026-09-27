@@ -13,6 +13,7 @@
 #include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
+#include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
 void USelectionAction::Setup(const FSelectionActionContext& InContext)
@@ -293,6 +294,119 @@ bool UResearchGoodPurchase::Perform_Implementation()
 
 	auto Action = NewObject<UQueuedGoodAction>(Queue);
 	Action->Init(GetGoldCost(), GetGood());
+
+	DeductGoldCost();
+	Queue->QueueAction(Action);
+
+	return true;
+}
+
+void UResearchPlayerSpellPurchase::PostInitProperties()
+{
+	Super::PostInitProperties();
+
+	// Get name, desc, icon from the linked good
+	if (Spell)
+	{
+		Name = Spell->GetSpellName();
+		Description = Spell->GetSpellDescription();
+		Icon = Spell->GetSpellIcon();
+	}
+}
+
+void UResearchPlayerSpellPurchase::Setup(const FSelectionActionContext& InContext)
+{
+	Super::Setup(InContext);
+
+	auto BuildingOwner = GetBuildingInner();
+	auto GoodBuilding = Cast<AGoodBuilding>(BuildingOwner);
+	if (ensure(GoodBuilding))
+	{
+		GoodBuilding->OnBuildingSpellsChanged.AddWeakLambda(this, [this, InContext]()
+			{
+				ViewModel->SetHidden(IsHidden());
+			});
+		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext]()
+			{
+				ESelectionActionFailureReason Reason;
+				bool bEnabled = CanPerform(Reason);
+				ViewModel->SetEnabled(bEnabled, Reason);
+			});
+	}
+}
+
+bool UResearchPlayerSpellPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+{
+	if (!Super::CanPerform_Implementation(ReasonOut))
+	{
+		return false;
+	}
+
+	if (IsHidden())
+	{
+		return false;
+	}
+
+	// Check if building has spell already
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	if (!ensure(IsValid(BuildingOwner)))
+	{
+		ReasonOut = ESelectionActionFailureReason::None;
+		return false;
+	}
+
+	if (BuildingOwner->GetBuildingPlayerSpells().Contains(GetSpell()))
+	{
+		ReasonOut = ESelectionActionFailureReason::None;
+		return false;
+	}
+
+	auto Queue = BuildingOwner->GetQueueComponent();
+
+	if (Queue->IsFull())
+	{
+		ReasonOut = ESelectionActionFailureReason::QueueFull;
+		return false;
+	}
+
+	// Inspect queue
+	for (auto Action : Queue->GetQueue())
+	{
+		if (auto SpellAction = Cast<UQueuedSpellAction>(Action))
+		{
+			if (SpellAction->GetSpell() == GetSpell())
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool UResearchPlayerSpellPurchase::IsHidden_Implementation() const
+{
+	// Check if building has spell already
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	if (!ensure(IsValid(BuildingOwner)))
+	{
+		return false;
+	}
+
+	return BuildingOwner->GetBuildingPlayerSpells().Contains(GetSpell());
+}
+
+bool UResearchPlayerSpellPurchase::Perform_Implementation()
+{
+	AGoodBuilding* Building = Cast<AGoodBuilding>(GetBuilding());
+	if (!ensure(Building))
+	{
+		return false;
+	}
+	auto Queue = Building->GetQueueComponent();
+
+	auto Action = NewObject<UQueuedSpellAction>(Queue);
+	Action->Init(GetGoldCost(), GetSpell());
 
 	DeductGoldCost();
 	Queue->QueueAction(Action);

@@ -23,6 +23,14 @@ enum class EAbilityAnimType : uint8
 	HelpingLarge,
 };
 
+UENUM(BlueprintType)
+enum class ESpellTargetType : uint8
+{
+	Enemy,
+	Ally,
+	Ground,
+};
+
 UCLASS()
 class PROJECTLORD_API UAbilityEnumsFunctionLibrary : public UBlueprintFunctionLibrary
 {

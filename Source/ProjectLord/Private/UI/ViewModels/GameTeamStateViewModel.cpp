@@ -5,8 +5,11 @@
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/SelectionComponent.h"
 #include "Gameplay/Buildings/Building.h"
+#include "Gameplay/Buildings/Castle.h"
+#include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
+#include "UI/ViewModels/PlayerSpellViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
 UVMGameTeamState::UVMGameTeamState()
@@ -55,6 +58,31 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 		};
 	State->OnTeamFlagsChanged.AddWeakLambda(this, UpdateFlags);
 	UpdateFlags();
+
+	auto UpdateSpells = [this]()
+		{
+			TArray<UVMPlayerSpell*> VMs;
+			if (auto TeamState = ParentState.Pin())
+			{
+				for (auto Spell : TeamState->GetCurrentSpells())
+				{
+					VMs.Add(Spell->MakeViewModel(this));
+				}
+			}
+			UpdateTeamSpells(MoveTemp(VMs));
+		};
+	State->OnTeamSpellsChanged.AddWeakLambda(this, UpdateSpells);
+	UpdateSpells();
+
+	auto UpdateSpellPricing = [this](int NewGold)
+		{
+			for (auto SpellVM : GetTeamSpells())
+			{
+				SpellVM->SetCanAfford(SpellVM->GetBaseCost() <= NewGold);
+			}
+		};
+	State->OnTeamGoldChanged.AddWeakLambda(this, UpdateSpellPricing);
+	UpdateSpellPricing(State->GetGold());
 }
 
 void UVMGameTeamState::SelectCastle()

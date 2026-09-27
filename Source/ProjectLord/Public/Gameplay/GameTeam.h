@@ -14,6 +14,7 @@ class UBuildingType;
 class ALordPlayerController;
 class AMonsterTeamController;
 class UVMGameTeamState;
+class UPlayerSpell;
 
 UENUM(BlueprintType)
 enum class EGameTeam : uint8
@@ -32,6 +33,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnTeamGoldChanged, int);
 DECLARE_MULTICAST_DELEGATE(FOnTeamUnitsChanged);
 DECLARE_MULTICAST_DELEGATE(FOnTeamBuildingsChanged);
 DECLARE_MULTICAST_DELEGATE(FOnTeamFlagsChanged);
+DECLARE_MULTICAST_DELEGATE(FOnTeamSpellsChanged);
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API AGameTeamState : public AActor
@@ -53,6 +55,7 @@ public:
     FOnTeamUnitsChanged OnTeamUnitsChanged;
     FOnTeamFlagsChanged OnTeamFlagsChanged;
     FOnTeamBuildingsChanged OnTeamBuildingsChanged;
+    FOnTeamSpellsChanged OnTeamSpellsChanged;
 
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -162,6 +165,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     void NotifyTaxWorkerAbandoned(AUnit* Worker, ABuilding* BuildingOptional);
 
+    // Spells we have based on town
+    UFUNCTION(BlueprintPure, Category = "Team")
+    const TArray<UPlayerSpell*>& GetCurrentSpells() const { return CurrentSpells; }
+
 protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Replicated, Category = "Team")
@@ -194,9 +201,14 @@ protected:
     TMap<ABuilding*, TArray<AUnit*>> RepairWorkers;
     TMap<ABuilding*, TArray<AUnit*>> TaxWorkers;
 
+    TArray<UPlayerSpell*> CurrentSpells;
+
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;
 
     UFUNCTION()
     void OnUnitFinalDeath(AUnit* Unit);
+
+    void RefreshSpells();
+    TSet<UPlayerSpell*> DiscoverSpellsFromBuildings() const; // uncached
 };

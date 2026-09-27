@@ -9,6 +9,7 @@
 class UTexture2D;
 class UUnitType;
 class AGoodBuilding;
+class UPlayerSpell;
 
 UCLASS(Blueprintable, Abstract)
 class PROJECTLORD_API UQueuedAction : public UObject
@@ -54,6 +55,26 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Queue|Action")
     FGoodOffer Good;
+};
+
+UCLASS(BlueprintType)
+class PROJECTLORD_API UQueuedSpellAction : public UQueuedAction
+{
+    GENERATED_BODY()
+
+public:
+
+    void Init(int InGold, UPlayerSpell* InSpell);
+
+    UFUNCTION(BlueprintPure, Category = "Building|Queue|Action")
+    UPlayerSpell* GetSpell() const { return Spell; }
+
+    virtual void Perform(AGoodBuilding* Building) override;
+
+protected:
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Queue|Action")
+    TObjectPtr<UPlayerSpell> Spell;
 };
 
 UCLASS(BlueprintType)

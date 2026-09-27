@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "NavigationSystem.h"
+#include "AbilitySystemComponent.h"
 
 #include "Gameplay/LordCameraPawn.h"
 #include "Gameplay/LordGameState.h"
@@ -13,6 +14,7 @@
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Combat/PlayerSpell/PlayerSpellCastingComponent.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/InspectWidget.h"
@@ -28,6 +30,8 @@ ALordPlayerController::ALordPlayerController()
 	bShouldPerformFullTickWhenPaused = true; // Allows camera to update when paused
 
 	PlacementComponent = CreateDefaultSubobject<UPlacementComponent>("Placement");
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
+	SpellCastingComponent = CreateDefaultSubobject<UPlayerSpellCastingComponent>("PlayerSpellCasting");
 }
 
 void ALordPlayerController::BeginPlay()
@@ -122,7 +126,14 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 
 void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost)
 {
+	if (SpellCastingComponent->IsCasting()) SpellCastingComponent->CancelCasting();
 	PlacementComponent->StartPlacing(Type, Cost);
+}
+
+void ALordPlayerController::CastSpell(UPlayerSpell* Spell)
+{
+	if (PlacementComponent->IsPlacing()) PlacementComponent->CancelPlacing();
+	SpellCastingComponent->StartCasting(Spell);
 }
 
 bool ALordPlayerController::ShowInspectWidget_Implementation(TSubclassOf<UInspectWidget> WidgetClass, UVMLordBase* VM)
@@ -199,7 +210,7 @@ void ALordPlayerController::OnSetPaused(bool bPaused)
 	;
 }
 
-USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
+USelectionComponent* ALordPlayerController::GetSelectableUnderMouse() const
 {
 	FHitResult HitResult;
 	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Camera), true, HitResult)
@@ -214,7 +225,20 @@ USelectionComponent* ALordPlayerController::GetSelectableUnderMouse()
 	return nullptr;
 }
 
-FVector ALordPlayerController::GetWorldPositionUnderMouse()
+UCombatComponent* ALordPlayerController::GetCombatUnderMouse() const
+{
+	FHitResult HitResult;
+	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Camera), true, HitResult)
+		&& IsValid(HitResult.GetActor()))
+	{
+		// CanSelect was called already, so should have a selection component
+		return HitResult.GetActor()->GetComponentByClass<UCombatComponent>();
+	}
+
+	return nullptr;
+}
+
+FVector ALordPlayerController::GetWorldPositionUnderMouse() const
 {
 	FHitResult HitResult;
 	if (GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Camera), true, HitResult))
@@ -233,6 +257,10 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 		if (PlacementComponent->IsPlacing())
 		{
 			PlacementComponent->CancelPlacing();
+		}
+		else if (SpellCastingComponent->IsCasting())
+		{
+			SpellCastingComponent->CancelCasting();
 		}
 		else
 		{
@@ -295,6 +323,15 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 
 				Building->SetTeam(GetTeam());
 				Building->HandleBuildingPlacement();
+			}
+		}
+		else if (SpellCastingComponent->IsCasting())
+		{
+			if (SpellCastingComponent->AttemptToCast())
+			{
+				; // Anything to actually do?
+
+				// Do not deselect spell, so it can be cast over and over
 			}
 		}
 		else

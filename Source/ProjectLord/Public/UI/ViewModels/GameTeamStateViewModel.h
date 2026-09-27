@@ -12,6 +12,7 @@
 class UVMGold;
 class UVMUnit;
 class UVMRewardFlag;
+class UVMPlayerSpell;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMGameTeamState : public UVMLordBase
@@ -34,6 +35,9 @@ public:
     TArray<UVMRewardFlag*> GetTeamFlags() const { return TeamFlagVMs; }
     void UpdateTeamFlags(TArray<UVMRewardFlag*> InVMs) { UE_MVVM_SET_PROPERTY_VALUE(TeamFlagVMs, InVMs); }
 
+    TArray<UVMPlayerSpell*> GetTeamSpells() const { return TeamSpellVMs; }
+    void UpdateTeamSpells(TArray<UVMPlayerSpell*> InVMs) { UE_MVVM_SET_PROPERTY_VALUE(TeamSpellVMs, InVMs); }
+
     UFUNCTION(BlueprintCallable)
     void SelectCastle();
 
@@ -49,6 +53,9 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = GetTeamFlags, Category = "TeamState")
     TArray<UVMRewardFlag*> TeamFlagVMs;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter = GetTeamSpells, Category = "TeamState")
+    TArray<UVMPlayerSpell*> TeamSpellVMs;
 
     UPROPERTY()
     TWeakObjectPtr<class AGameTeamState> ParentState;

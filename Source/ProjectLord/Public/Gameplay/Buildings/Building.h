@@ -28,6 +28,7 @@ class UNavModifierComponent;
 class UBoxComponent;
 class UFogOfWarComponent;
 class UMinimapComponent;
+class UPlayerSpell;
 class UVMBuilding;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingDestroyed, ABuilding*);
@@ -35,6 +36,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingAvailableLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingNeedsRepairsChanged, bool);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnBuildingHealthChanged, int /*Health*/, int /*MaxHealth*/);
+DECLARE_MULTICAST_DELEGATE(FOnBuildingSpellsChanged);
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ABuilding : public APawn, public IGameplayTagAssetInterface
@@ -51,6 +53,7 @@ public:
     FOnBuildingAvailableLevelChanged OnBuildingAvailableLevelChanged;
     FOnBuildingNeedsRepairsChanged OnBuildingNeedsRepairsChanged;
     FOnBuildingHealthChanged OnBuildingHealthChanged;
+    FOnBuildingSpellsChanged OnBuildingSpellsChanged;
 
     UFUNCTION(BlueprintPure)
     ABuildingController* GetBuildingController() const;
@@ -109,6 +112,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void PlaceExitingUnit(AUnit* Unit);
 
+    UFUNCTION(BlueprintCallable)
+    void AddBuildingPlayerSpell(UPlayerSpell* Spell);
+
 
 
     UFUNCTION(BlueprintPure)
@@ -156,6 +162,9 @@ public:
 
     UFUNCTION(BlueprintPure)
     UCombatComponent* GetCombatComponent() const { return CombatComponent; }
+
+    UFUNCTION(BlueprintPure)
+    TArray<UPlayerSpell*> GetBuildingPlayerSpells() const { return BuildingPlayerSpells; }
 
     UFUNCTION(BlueprintPure)
     UVMBuilding* GetBuildingVM() const { return BuildingVM; }
@@ -239,6 +248,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Combat")
+    TArray<UPlayerSpell*> BuildingPlayerSpells;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
     int BuildingGold;

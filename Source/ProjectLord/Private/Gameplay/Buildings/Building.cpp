@@ -146,6 +146,15 @@ void ABuilding::SetAvailableLevel(int InAvailableLevel)
     OnBuildingAvailableLevelChanged.Broadcast(GetBuildingAvailableLevel());
 }
 
+void ABuilding::AddBuildingPlayerSpell(UPlayerSpell* Spell)
+{
+    if (!BuildingPlayerSpells.Contains(Spell))
+    {
+        BuildingPlayerSpells.Add(Spell);
+        OnBuildingSpellsChanged.Broadcast();
+    }
+}
+
 void ABuilding::SetBuildingGold(int InGold)
 {
     BuildingGold = InGold;

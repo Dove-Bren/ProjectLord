@@ -11,6 +11,7 @@
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
+#include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Units/UnitTypes.h"
 #include "UI/ViewModels/GameTeamStateViewModel.h"
@@ -30,6 +31,8 @@ void AGameTeamState::BeginPlay()
     auto GameState = GetWorld()->GetGameState<ALordGameState>();
     const auto Settings = GameState->GetLevelSettings();
     AddGold(Settings->GetStartingGold());
+
+    OnTeamBuildingsChanged.AddUObject(this, &ThisClass::RefreshSpells);
 }
 
 void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -107,6 +110,7 @@ void AGameTeamState::AddBuilding(ABuilding* Building)
     {
         TeamBuildings.Add(Building);
         Building->OnBuildingDestroyed.AddUObject(this, &ThisClass::RemoveBuilding);
+        Building->OnBuildingSpellsChanged.AddUObject(this, &ThisClass::RefreshSpells);
         OnTeamBuildingsChanged.Broadcast();
     }
 }
@@ -117,6 +121,7 @@ void AGameTeamState::RemoveBuilding(ABuilding* Building)
     {
         OnTeamBuildingsChanged.Broadcast();
         Building->OnBuildingDestroyed.RemoveAll(this);
+        Building->OnBuildingSpellsChanged.RemoveAll(this);
 
         // Clean up worker maps
         RepairWorkers.Remove(Building);
@@ -291,5 +296,50 @@ void AGameTeamState::NotifyTaxWorkerAbandoned(AUnit* Worker, ABuilding* Building
 void AGameTeamState::OnUnitFinalDeath(AUnit* Unit)
 {
     RemoveUnit(Unit);
+}
+
+void AGameTeamState::RefreshSpells()
+{
+    TArray<UPlayerSpell*> OldList = CurrentSpells; // Copy
+    TSet<UPlayerSpell*> NewList = DiscoverSpellsFromBuildings();
+
+    bool bChanged = false;
+    for (auto Spell : NewList)
+    {
+        if (!OldList.Remove(Spell))
+        {
+            // Old list didn't have; found a new one
+            bChanged = true;
+            break;
+        }
+    }
+
+    if (!bChanged && !OldList.IsEmpty())
+    {
+        // Something got removed
+        bChanged = true;
+    }
+
+    if (bChanged)
+    {
+        CurrentSpells.Empty();
+        for (auto Spell : NewList)
+        {
+            CurrentSpells.Add(Spell);
+        }
+
+        OnTeamSpellsChanged.Broadcast();
+    }
+
+}
+
+TSet<UPlayerSpell*> AGameTeamState::DiscoverSpellsFromBuildings() const
+{
+    TSet<UPlayerSpell*> Spells;
+    for (const auto Building : TeamBuildings)
+    {
+        Spells.Append(Building->GetBuildingPlayerSpells());
+    }
+    return Spells;
 }
 
