@@ -146,6 +146,12 @@ void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionCo
         OnResidentsChanged.AddWeakLambda(this, [this, ResidentType, Slot]() {
                 Slot->SetCount(GetResidentTypeCount(ResidentType, false));
             });
+        OnResidentLimitChanged.AddWeakLambda(this, [this, Slot](auto ResidentType) {
+            if (const int Limit = GetResidentTypeLimit(ResidentType))
+            {
+                Slot->SetMaxCount(Limit);
+            }
+        });
     }
 
     auto VisitorSlot = UVMSummarySlot::MakeVisitorCount(this);
@@ -272,7 +278,7 @@ int AResidentialBuilding::GetResidentTypeLimit(const UUnitType* Type) const
 bool AResidentialBuilding::CanFitResidentType(const UUnitType* Type) const
 {
     const int Limit = GetResidentTypeLimit(Type);
-    return Limit <= 0 || GetResidentTypeCount(Type, true) < Limit;
+    return Limit > 0 && GetResidentTypeCount(Type, true) < Limit;
 }
 
 void AResidentialBuilding::SetResidentTypeLimit(UUnitType* Type, int Limit)

@@ -20,11 +20,6 @@ void ASpawningBuilding::BeginPlay()
     Super::BeginPlay();
     ResetTimer();
 
-    if (bSpawnToCapacityAtStart)
-    {
-        while (DoSpawn()) {}
-    }
-
     if (bStartActivated)
     {
         ActivateSpawner();
@@ -35,15 +30,26 @@ void ASpawningBuilding::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    if (IsActivated())
+    // Don't do any spawning while still being constructed to lvl 1
+    if (GetBuildingLevel() >= 1)
     {
-        if ((SpawnTimeRemaining -= DeltaSeconds) <= 0)
+        // Check in tick to allow buildings to get 'placed' and set up to build
+        if (bSpawnToCapacityAtStart)
         {
-            if (SpawnChance >= 1.0f || FMath::FRand() < SpawnChance)
+            while (DoSpawn()) {}
+            bSpawnToCapacityAtStart = false;
+        }
+
+        if (IsActivated())
+        {
+            if ((SpawnTimeRemaining -= DeltaSeconds) <= 0)
             {
-                DoSpawn();
+                if (SpawnChance >= 1.0f || FMath::FRand() < SpawnChance)
+                {
+                    DoSpawn();
+                }
+                ResetTimer();
             }
-            ResetTimer();
         }
     }
 }
