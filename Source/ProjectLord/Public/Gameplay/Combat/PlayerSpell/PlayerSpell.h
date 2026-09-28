@@ -4,15 +4,16 @@
 
 #include "CoreMinimal.h"
 
-#include "Abilities/GameplayAbility.h"
 #include "Gameplay/Combat/Ability/AbilityEnums.h"
 #include "Gameplay/GameTeam.h"
+#include "Gameplay/LordGameplayTags.h"
 
 #include "PlayerSpell.generated.h"
 
 class UTexture2D;
 class UCombatComponent;
 class ALordPlayerController;
+class UPlayerSpellGameplayAbility;
 class UVMPlayerSpell;
 
 UCLASS(Blueprintable)
@@ -29,7 +30,7 @@ public:
     UTexture2D* GetSpellIcon() const { return SpellIcon; }
     ESpellTargetType GetTargetType() const { return TargetType; }
     bool CanTargetBuildings() const { return bCanTargetBuildings; }
-    TSubclassOf<UGameplayAbility> GetCastAbility() const { return CastAbility; }
+    TSubclassOf<UPlayerSpellGameplayAbility> GetCastAbility() const { return CastAbility; }
 
 
     UFUNCTION(BlueprintPure, Category = "Spell")
@@ -53,6 +54,10 @@ public:
     bool CanCast(const ALordPlayerController* Caster, FVector At, UCombatComponent* Target) const;
     bool AttemptCast(ALordPlayerController* Source, FVector At, UCombatComponent* Target);
 
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR  
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spell|Definition")
@@ -65,7 +70,10 @@ protected:
     TObjectPtr<UTexture2D> SpellIcon;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spell|Definition")
-    TSubclassOf<UGameplayAbility> CastAbility;
+    TSubclassOf<UPlayerSpellGameplayAbility> CastAbility;
+
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Spell|Definition")
+    FGameplayTag TriggerTag;
 
     UPROPERTY(EditDefaultsOnly, Category = "Spell|Definition")
     int BaseGoldCost;

@@ -77,4 +77,9 @@ public:
     MAKE_TAG(UnitClassifierBeast, "Unit.Classifier.Dead");
     UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Unit|Classifier")
     static FGameplayTag K2_UnitClassifierBeast() { return UnitClassifierBeast(); }
+
+    MAKE_TAG(AbilityTriggerInvalid, "Ability.Trigger.Invalid");
+    UFUNCTION(BlueprintPure, Category = "Gameplay Tags|Ability|Trigger")
+    static FGameplayTag K2_AbilityTriggerInvalid() { return AbilityTriggerInvalid(); }
+
 };

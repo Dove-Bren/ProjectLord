@@ -6,6 +6,7 @@
 
 #include "Gameplay/LordPlayerController.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Combat/PlayerSpell/PlayerSpellGameplayAbility.h"
 #include "Gameplay/Buildings/Building.h"
 #include "UI/ViewModels/PlayerSpellViewModel.h"
 
@@ -25,6 +26,7 @@ UVMPlayerSpell* UPlayerSpell::MakeViewModel(const UObject* WorldContextObject)
 	ViewModel->SetSpellName(GetSpellName());
 	ViewModel->SetDescription(GetSpellDescription());
 	ViewModel->SetIcon(GetSpellIcon());
+	ViewModel->SetBaseCost(GetBaseGoldCost());
 	ViewModel->SetSpellToCast(this);
 	return ViewModel;
 }
@@ -147,6 +149,11 @@ bool UPlayerSpell::AttemptCast(ALordPlayerController* Source, FVector At, UComba
 		return false;
 	}
 
+	if (!HasValidTarget(Source)) // might be double checking with this
+	{
+		return false;
+	}
+
 	// Check ability
 	if (ensure(CastAbility))
 	{
@@ -156,13 +163,10 @@ bool UPlayerSpell::AttemptCast(ALordPlayerController* Source, FVector At, UComba
 			return false;
 		}
 
-		auto AbilityHandle = ASC->FindAbilitySpecFromClass(CastAbility);
-		if (!AbilityHandle)
-		{
-			return false;
-		}
-
-		if (!ASC->TryActivateAbilityByClass(CastAbility))
+		FGameplayAbilitySpec AbilitySpec(CastAbility);
+		FGameplayEventData Payload = UPlayerSpellGameplayAbility::MakeEventPayload(Source, At, Target, this);
+		auto Handle = ASC->GiveAbilityAndActivateOnce(AbilitySpec, &Payload);
+		if (!Handle.IsValid())
 		{
 			return false;
 		}
@@ -173,3 +177,30 @@ bool UPlayerSpell::AttemptCast(ALordPlayerController* Source, FVector At, UComba
 
 	return true;
 }
+
+#if WITH_EDITOR
+void UPlayerSpell::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, CastAbility))
+	{
+		// Extract activation tag from ability
+		FGameplayTag Tag = ULordGameplayTags::AbilityTriggerInvalid();
+		if (CastAbility)
+		{
+			for (const auto& Trigger : CastAbility.GetDefaultObject()->GetAbilityTriggers())
+			{
+				if (Trigger.TriggerSource == EGameplayAbilityTriggerSource::GameplayEvent)
+				{
+					Tag = Trigger.TriggerTag;
+					break;
+				}
+			}
+		}
+
+		TriggerTag = Tag;
+	}
+}
+#endif // WITH_EDITOR
