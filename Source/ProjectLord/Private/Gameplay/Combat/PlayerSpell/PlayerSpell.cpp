@@ -113,25 +113,17 @@ bool UPlayerSpell::CanCast(const ALordPlayerController* Source, FVector At, UCom
 	}
 
 	// Check ability
-	if (ensure(CastAbility))
+	// SNIP nevermind; we don't grant ability, so can't check.
+	// Instead, we'll just accept that we may return true while there's a cooldown in effect
+	/*if (ensure(CastAbility))
 	{
-		auto ASC = Source->GetAbilitySystemComponent();
-		if (!ensure(ASC))
-		{
-			return false;
-		}
+		
+	}*/
 
-		auto AbilityHandle = ASC->FindAbilitySpecFromClass(CastAbility);
-		if (!AbilityHandle)
-		{
-			return false;
-		}
-
-		auto ActorInfo = ASC->AbilityActorInfo.Get();
-		if (!CastAbility.GetDefaultObject()->CanActivateAbility(AbilityHandle->Handle, ActorInfo))
-		{
-			return false;
-		}
+	// Check target
+	if (!HasValidTarget(Source))
+	{
+		return false;
 	}
 
 	if (!CheckCost(Source, At))

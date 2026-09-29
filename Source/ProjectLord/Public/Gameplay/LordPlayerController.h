@@ -23,6 +23,7 @@ class UCombatComponent;
 class UAbilitySystemComponent;
 class UPlayerSpell;
 class UPlayerSpellCastingComponent;
+class ULordCursorWidget;
 
 struct FStaticSelection;
 struct FToastNotification;
@@ -107,6 +108,9 @@ public:
     FVector GetWorldPositionUnderMouse() const;
 
     UAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystemComponent; }
+
+    UFUNCTION(BlueprintCallable, Category = "Cursor")
+    void SetCursorMode(EMouseCursor::Type Mode);
 
 protected:
 

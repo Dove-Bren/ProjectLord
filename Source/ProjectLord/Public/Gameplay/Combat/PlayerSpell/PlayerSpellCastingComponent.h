@@ -8,6 +8,7 @@
 
 class UPlayerSpell;
 class ALordPlayerController;
+class UVMPlayerSpellCasting;
 
 DECLARE_MULTICAST_DELEGATE(FOnSpellChanged);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSpellCast, UPlayerSpell* /*Spell*/);
@@ -31,10 +32,25 @@ public:
     bool IsCasting() const { return !!CurrentSpell; }
     int GetCastCost() const;
 
+    UFUNCTION(BlueprintCallable, Category = "SpellCasting")
+    UVMPlayerSpellCasting* GetViewModel() const { return ViewModel; }
+
+    virtual void BeginPlay() override;
+    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 
 protected:
 
-    UPlayerSpell* CurrentSpell;
     ALordPlayerController* GetPlayerController() const;
+    bool CanAfford(int CurrentCost) const;
+    bool CanAfford() const { return CanAfford(GetCastCost()); }
+
+    UPROPERTY()
+    TObjectPtr<UPlayerSpell> CurrentSpell;
+
+    UPROPERTY()
+    TObjectPtr<UVMPlayerSpellCasting> ViewModel;
+
+
 
 };

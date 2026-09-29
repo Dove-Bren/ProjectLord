@@ -250,6 +250,14 @@ FVector ALordPlayerController::GetWorldPositionUnderMouse() const
 	return {};
 }
 
+void ALordPlayerController::SetCursorMode(EMouseCursor::Type Mode)
+{
+	CurrentMouseCursor = Mode;
+	
+	// Have to refocus the viewport to update :(
+	FSlateApplication::Get().SetAllUserFocusToGameViewport();
+}
+
 void ALordPlayerController::OnMouseClick(bool bRightButton)
 {
 	if (bRightButton)

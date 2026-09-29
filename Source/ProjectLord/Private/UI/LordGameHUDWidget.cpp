@@ -3,6 +3,7 @@
 #include "UI/LordGameHUDWidget.h"
 
 #include "UI/ToastNotification.h"
+#include "UI/LordCursorWidget.h"
 
 void ULordGameHUDWidget::AddToastNotification_Implementation(FToastNotification Notification)
 {

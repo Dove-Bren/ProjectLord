@@ -8,6 +8,7 @@
 
 struct FToastNotification;
 class UVMToast;
+class ULordCursorWidget;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ULordGameHUDWidget : public UUserWidget
@@ -19,11 +20,9 @@ public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD|Toast")
     void AddToastNotification(FToastNotification Notification);
 
-
 protected:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD|Toast")
     void PushToastNotification(UVMToast* Notification);
-
     
 };
