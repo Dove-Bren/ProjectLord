@@ -59,21 +59,6 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 	State->OnTeamFlagsChanged.AddWeakLambda(this, UpdateFlags);
 	UpdateFlags();
 
-	auto UpdateSpells = [this]()
-		{
-			TArray<UVMPlayerSpell*> VMs;
-			if (auto TeamState = ParentState.Pin())
-			{
-				for (auto Spell : TeamState->GetCurrentSpells())
-				{
-					VMs.Add(Spell->MakeViewModel(this));
-				}
-			}
-			UpdateTeamSpells(MoveTemp(VMs));
-		};
-	State->OnTeamSpellsChanged.AddWeakLambda(this, UpdateSpells);
-	UpdateSpells();
-
 	auto UpdateSpellPricing = [this](int NewGold)
 		{
 			for (auto SpellVM : GetTeamSpells())
@@ -83,6 +68,24 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 		};
 	State->OnTeamGoldChanged.AddWeakLambda(this, UpdateSpellPricing);
 	UpdateSpellPricing(State->GetGold());
+
+	auto UpdateSpells = [this, UpdateSpellPricing]()
+		{
+			TArray<UVMPlayerSpell*> VMs;
+			if (auto TeamState = ParentState.Pin())
+			{
+				const int Gold = TeamState->GetGold();
+				for (auto Spell : TeamState->GetCurrentSpells())
+				{
+					auto VM = Spell->MakeViewModel(this);
+					VM->SetCanAfford(VM->GetBaseCost() <= Gold);
+					VMs.Add(VM);
+				}
+			}
+			UpdateTeamSpells(MoveTemp(VMs));
+		};
+	State->OnTeamSpellsChanged.AddWeakLambda(this, UpdateSpells);
+	UpdateSpells();
 }
 
 void UVMGameTeamState::SelectCastle()
