@@ -126,6 +126,9 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Selection|Action")
     bool DeductGoldCost();
+
+    UFUNCTION(BlueprintCallable, Category = "Selection|Action")
+    void SetGoldCost(int InCost);
 };
 
 // A purchase action that's on a unit directly. Note these are NOT actions on

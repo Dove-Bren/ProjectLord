@@ -89,6 +89,20 @@ bool USelectionPurchase::DeductGoldCost()
 	return false;
 }
 
+void USelectionPurchase::SetGoldCost(int InCost)
+{
+	if (GoldCost != InCost)
+	{
+		GoldCost = InCost;
+		ViewModel->SetGoldCost(InCost);
+		{
+			ESelectionActionFailureReason Reason;
+			bool bEnabled = CanPerform(Reason);
+			ViewModel->SetEnabled(bEnabled, Reason);
+		}
+	}
+}
+
 AUnit* UUnitBasedPurchase::GetUnitInner() const
 {
 	return Cast<AUnit>(Context.Selection->GetOwner());

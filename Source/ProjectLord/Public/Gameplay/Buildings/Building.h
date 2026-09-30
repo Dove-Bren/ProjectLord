@@ -79,8 +79,12 @@ public:
     UFUNCTION(BlueprintPure)
     bool IsMaxLevel() const { return GetBuildingLevel() >= GetBuildingMaxLevel(); }
 
+    // Does not do cost-checking
     UFUNCTION(BlueprintPure)
     bool CanLevelUp() const;
+
+    UFUNCTION(BlueprintPure)
+    int GetLevelUpCost() const;
 
     UFUNCTION(BlueprintCallable)
     void StartLevelUp();
@@ -221,6 +225,13 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TArray<UDataTable*> BuildingLevelAttributeValues;
+
+    // Upgrade cost to go from level [index+1] -> [index+2].
+    // For example, the first element is for the cost from building lvl 1 to 2.
+    // If a value for the specific upgrade a building is trying to make isn't in here, defaults to
+    // 500 gold.
+    UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
+    TArray<int> BuildingUpgradeCosts;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bIndestructible = false;

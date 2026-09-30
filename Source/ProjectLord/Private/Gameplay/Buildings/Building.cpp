@@ -122,6 +122,15 @@ bool ABuilding::CanLevelUp() const
         && GetBuildingHealth() >= GetBuildingMaxHealth();
 }
 
+int ABuilding::GetLevelUpCost() const
+{
+    // 1->2 is index 0. 2->3 is index 1.
+    const int Index = FMath::Max(0, GetBuildingLevel() - 1);
+    return BuildingUpgradeCosts.Num() > Index
+        ? BuildingUpgradeCosts[Index]
+        : 500;
+}
+
 void ABuilding::StartLevelUp()
 {
     if (ensure(CanLevelUp()))
