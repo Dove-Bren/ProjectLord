@@ -1,7 +1,10 @@
 Key,SourceString,Comment
 
-Spell.Heal.Name,"Heal",
-Spell.Heal.Desc,"Heals",
+Spell.Heal.Name,"Sacred Heal",
+Spell.Heal.Desc,"Restores 300 health to a friendly target",
+
+Spell.EagleEye.Name,"Eagle's Eye",
+Spell.EagleEye.Desc,"Temporarily increases the range of view of Rangers",
 
 
  
