@@ -439,6 +439,27 @@ void UPlaceBuildingPurchase::PostInitProperties()
 		Description = BuildingType->BuildingDescription;
 		Icon = BuildingType->BuildingIcon;
 	}
+
+	// Also capture base price, since we're going to adjust the normal cost
+	BaseCost = GetGoldCost();
+}
+
+void UPlaceBuildingPurchase::Setup(const FSelectionActionContext& InContext)
+{
+	Super::Setup(InContext);
+
+	auto AdjustCost = [this, InContext]() {
+		// Adjust cost based on number of the same buildings on the team
+		// CostExponentBase^(n-1) * Cost
+		const int Count = InContext.TeamState->GetTeamBuildingsOfType(GetBuildingType()).Num() + 1; // + 1 because this is the price for adding 1
+		const float RawCost = FMath::Pow(CostExponentBase, Count - 1) * BaseCost;
+		int AdjCost = FMath::FloorToInt(RawCost);
+		AdjCost -= AdjCost % 10; // round down to nearest 10
+		SetGoldCost(AdjCost);
+	};
+	InContext.TeamState->OnTeamBuildingsChanged.AddWeakLambda(this, AdjustCost);
+	AdjustCost();
+
 }
 
 bool UPlaceBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const

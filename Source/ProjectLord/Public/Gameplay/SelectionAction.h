@@ -250,10 +250,18 @@ public:
     UBuildingType* GetBuildingType() const { return BuildingType; }
 
     virtual void PostInitProperties() override;
+    virtual void Setup(const FSelectionActionContext& Context) override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Place")
     TObjectPtr<UBuildingType> BuildingType;
+
+    // Cost is actually CostExponentBase^(n-1) * Cost
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Place")
+    float CostExponentBase = 1.5f;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Selection|Action|Place")
+    int BaseCost;
 };
 
 UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
