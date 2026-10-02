@@ -7,6 +7,7 @@
 #include "GameGoodViewModel.generated.h"
 
 class UTexture2D;
+class UVMStatModifiers;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMGameGood : public UVMLordBase
@@ -24,6 +25,9 @@ public:
     UTexture2D* GetIcon() const { return Icon; }
     void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
 
+    UVMStatModifiers* GetModifiers() const { return Modifiers; }
+    void SetModifiers(UVMStatModifiers* InVM) { UE_MVVM_SET_PROPERTY_VALUE(Modifiers, InVM); }
+
 protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Good")
@@ -34,5 +38,8 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Good")
     TObjectPtr<UTexture2D> Icon;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Good")
+    TObjectPtr<UVMStatModifiers> Modifiers;
 
 };

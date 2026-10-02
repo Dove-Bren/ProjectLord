@@ -15,6 +15,7 @@ class UVMGameGood;
 // A "Good" that can be sold and purchased to heroes.
 // Was going to name this "HeroGood" but that felt confusing -- especially
 // to live outside the Units/ directory.
+// Note that goods are basically either an item, or an ability
 UCLASS(BlueprintType)
 class PROJECTLORD_API UGameGood : public UPrimaryDataAsset
 {
@@ -31,10 +32,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game Good")
 	UTexture2D* GetIcon() const { return Icon; }
 
-	UFUNCTION(BlueprintPure, Category = "Game Good")
+	UFUNCTION(BlueprintPure, Category = "Game Good", meta = (EditCondition = "Item == nullptr"))
 	TSubclassOf<UCombatAbility> GetAbility() const { return Ability; }
 
-	UFUNCTION(BlueprintPure, Category = "Game Good")
+	UFUNCTION(BlueprintPure, Category = "Game Good", meta = (EditCondition = "Ability == nullptr"))
 	const UHeroItemDef* GetItemDef() const { return Item; }
 
 	UFUNCTION(BlueprintPure, Category = "Game Good")
