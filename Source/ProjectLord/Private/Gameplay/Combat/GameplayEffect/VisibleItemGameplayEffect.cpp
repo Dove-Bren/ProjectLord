@@ -13,5 +13,6 @@ void UVisibleItemGameplayEffect::PostInitProperties()
 		EffectName = ItemDef->GetItemName();
 		EffectDescription = ItemDef->GetItemDescription();
 		Icon = ItemDef->GetItemIcon();
+		VisibleModifiers = ItemDef->GetPreviewModifiers();
 	}
 }

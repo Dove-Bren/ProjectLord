@@ -13,4 +13,5 @@ void UVMGameplayEffect::Setup(const UVisibleGameplayEffect* Effect)
 	SetName(Effect->GetName());
 	SetDescription(Effect->GetDescription());
 	SetIcon(Effect->GetIcon());
+	SetModifiers(UVMStatModifiers::Make(this, Effect->GetModifierVM()));
 }

@@ -7,6 +7,7 @@
 #include "GameplayEffectVM.generated.h"
 
 class UVisibleGameplayEffect;
+class UVMStatModifiers;
 
 UCLASS(BlueprintType)
 class PROJECTLORD_API UVMGameplayEffect : public UVMLordBase
@@ -27,6 +28,9 @@ public:
 	UTexture2D* GetIcon() const { return Icon; }
 	void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
 
+	UVMStatModifiers* GetModifiers() const { return Modifiers; }
+	void SetModifiers(UVMStatModifiers* InVM) { UE_MVVM_SET_PROPERTY_VALUE(Modifiers, InVM); }
+
 
 protected:
 	UPROPERTY(FieldNotify, Getter, BlueprintReadOnly, Category = "Visible Effect")
@@ -37,4 +41,7 @@ protected:
 
 	UPROPERTY(FieldNotify, Getter, BlueprintReadOnly, Category = "Visible Effect")
 	TObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Ability|Definition")
+	TObjectPtr<UVMStatModifiers> Modifiers;
 };

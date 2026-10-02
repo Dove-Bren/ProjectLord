@@ -39,6 +39,7 @@ UVMCombatAbility* UCombatAbility::GetOrCreateViewModel()
 		VM->SetAbilityName(GetAbilityName());
 		VM->SetDescription(GetAbilityDescription());
 		VM->SetIcon(GetAbilityIcon());
+		VM->SetModifiers(UVMStatModifiers::Make(this, GetAbilityModifierPreview()));
 	}
 
 	return VM;

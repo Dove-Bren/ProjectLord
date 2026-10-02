@@ -7,6 +7,7 @@
 #include "Abilities/GameplayAbility.h"
 #include "Gameplay/Combat/CombatTypes.h"
 #include "Gameplay/Combat/Ability/AbilityEnums.h"
+#include "UI/ViewModels/Generic/StatModifiersViewModel.h"
 
 #include "CombatAbility.generated.h"
 
@@ -37,6 +38,7 @@ public:
     TOptional<ECreatureCategory> GetRequiredTargetCategory() const { return bRequireCreatureCategory ? TOptional<ECreatureCategory>(TargetCategory) : NullOpt; }
     int GetPriority() const { return Priority; }
     bool CanTargetBuildings() const { return bCanTargetBuildings; }
+    const FStatModifiers& GetAbilityModifierPreview() const { return PreviewModifiers; }
 
     UFUNCTION(BlueprintPure, Category = "Ability|Combat")
     EAbilityAnimType GetAbilityAnimation() const { return AnimType; }
@@ -78,6 +80,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition", meta = (EditCondition = "bRequireCreatureCategory", EditConditionHides))
     ECreatureCategory TargetCategory;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
+    FStatModifiers PreviewModifiers;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability|Definition")
     int Priority;

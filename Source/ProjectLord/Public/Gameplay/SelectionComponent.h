@@ -21,6 +21,7 @@ class UVMSelectionActionTree;
 class UVMCreatureCategory;
 class UVMAppealMetrics;
 class UVMInspectable;
+class UVMStatModifiers;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnSelected);
@@ -142,6 +143,10 @@ public:
     UVMInspectable* GetInspectVM() const { return InspectVM; }
     void SetInspectVM(UVMInspectable* InVM) { InspectVM = InVM; }
 
+    UFUNCTION(BlueprintPure)
+    UVMStatModifiers* GetStatModsVM() const { return StatModsVM; }
+    void SetStatModsVM(UVMStatModifiers* InVM) { StatModsVM = InVM; }
+
 protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
@@ -207,4 +212,7 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMInspectable> InspectVM;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    TObjectPtr<UVMStatModifiers> StatModsVM;
 };

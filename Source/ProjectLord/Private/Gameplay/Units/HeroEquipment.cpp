@@ -16,6 +16,7 @@ void UHeroItemStack::Init(const UHeroItemDef* InItemDef, int InCount)
 	ViewModel->SetDescription(ItemDef->GetItemDescription());
 	ViewModel->SetIcon(ItemDef->GetItemIcon());
 	ViewModel->SetStacks(ItemDef->GetCanStack());
+	ViewModel->SetPreviewModifiers(UVMStatModifiers::Make(this, ItemDef->GetPreviewModifiers()));
 
 	SetCount(InCount);
 }

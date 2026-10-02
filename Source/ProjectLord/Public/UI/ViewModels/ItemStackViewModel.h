@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/ViewModels/LordViewModelBase.h"
+#include "UI/ViewModels/Generic/StatModifiersViewModel.h"
 #include "ItemStackViewModel.generated.h"
 
 class UTexture2D;
@@ -29,6 +30,9 @@ public:
 
     bool DoesStack() const { return bStacks; }
     void SetStacks(bool bInStacks) { UE_MVVM_SET_PROPERTY_VALUE(bStacks, bInStacks); }
+
+    UVMStatModifiers* GetPreviewModifiers() const { return PreviewModifiers; }
+    void SetPreviewModifiers(UVMStatModifiers* InVM) { UE_MVVM_SET_PROPERTY_VALUE(PreviewModifiers, InVM); }
     
 
 protected:
@@ -40,6 +44,9 @@ protected:
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Item|Definition")
     TObjectPtr<UTexture2D> Icon;
+
+    UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Item|Definition")
+    TObjectPtr<UVMStatModifiers> PreviewModifiers;
 
     UPROPERTY(FieldNotify, BlueprintReadOnly, Getter, Category = "Item|Definition")
     int Count;

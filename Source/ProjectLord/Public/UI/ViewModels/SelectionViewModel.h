@@ -21,6 +21,7 @@ class UVMSelectionActionTree;
 class UVMCreatureCategory;
 class UVMAppealMetrics;
 class UVMInspectable;
+class UVMStatModifiers;
 
 struct FSelectionActionContext;
 
@@ -41,6 +42,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     ESelectionActionFailureReason Failure;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TObjectPtr<UVMStatModifiers> StatMods;
 };
 
 UCLASS(BlueprintType)
@@ -103,6 +107,9 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMInspectable> InspectVM;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    TObjectPtr<UVMStatModifiers> StatModsVM;
 
     // Represent whether there's data in this VM or not.
     // Set to false when the VM is cleared, including between selections

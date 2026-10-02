@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 
 #include "GameplayEffect.h"
+#include "UI/ViewModels/Generic/StatModifiersViewModel.h"
 
 #include "VisibleGameplayEffect.generated.h"
+
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API UVisibleGameplayEffect : public UGameplayEffect
@@ -23,6 +25,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	UTexture2D* GetIcon() const { return Icon; }
 
+	UFUNCTION(BlueprintPure)
+	const FStatModifiers& GetModifierVM() const { return VisibleModifiers; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VisibleEffect")
 	FText EffectName;
@@ -32,4 +37,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VisibleEffect")
 	TObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VisibleEffect")
+	FStatModifiers VisibleModifiers;
 };

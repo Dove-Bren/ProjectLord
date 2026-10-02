@@ -26,6 +26,7 @@ void UVMSelection::Reset(bool bTriggerUpdate)
 	CategoryVM = nullptr;
 	AppealVM = nullptr;
 	InspectVM = nullptr;
+	StatModsVM = nullptr;
 
     if (bTriggerUpdate)
     {
@@ -54,6 +55,7 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, bool b
 		CategoryVM = Selection->GetCategoryVM();
 		AppealVM = Selection->GetAppealVM();
 		InspectVM = Selection->GetInspectVM();
+		StatModsVM = Selection->GetStatModsVM();
 		//TargetVM = Selection->GetTargetVM();
 
 		SetPresent(true);
@@ -71,6 +73,7 @@ void UVMSelection::SetFromStaticElement(FStaticSelection StaticElement, bool bTr
 	SetSelectionName(StaticElement.Name);
 	SetSelectionDescription(StaticElement.Description);
 	SetFailureReason(StaticElement.Failure);
+	StatModsVM = StaticElement.StatMods;
 
 	SetPresent(true);
 

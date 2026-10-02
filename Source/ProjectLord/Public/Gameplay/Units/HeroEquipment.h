@@ -6,6 +6,7 @@
 
 #include "GameplayEffect.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
+#include "UI/ViewModels/Generic/StatModifiersViewModel.h"
 
 #include "HeroEquipment.generated.h"
 
@@ -70,6 +71,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Item|Definition")
     TSubclassOf<UCombatAbility> GetUseAbility() const { return UseAbility; }
 
+    UFUNCTION(BlueprintPure, Category = "Item|Definition")
+    const FStatModifiers& GetPreviewModifiers() const { return PreviewModifiers; }
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     FText ItemName;
@@ -89,6 +93,9 @@ protected:
     // Ability to use on a unit when it uses this item
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     TSubclassOf<UCombatAbility> UseAbility;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
+    FStatModifiers PreviewModifiers;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item|Definition")
     bool bCanStack;
