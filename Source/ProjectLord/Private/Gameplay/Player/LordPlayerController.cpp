@@ -1,16 +1,17 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "NavigationSystem.h"
 #include "AbilitySystemComponent.h"
 
-#include "Gameplay/LordCameraPawn.h"
+#include "Gameplay/GameTeamState.h"
+#include "Gameplay/Player/LordCameraPawn.h"
 #include "Gameplay/LordGameState.h"
-#include "Gameplay/LordPlayerState.h"
-#include "Gameplay/PlacementComponent.h"
+#include "Gameplay/Player/LordPlayerState.h"
+#include "Gameplay/Player/PlacementComponent.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Combat/CombatComponent.h"

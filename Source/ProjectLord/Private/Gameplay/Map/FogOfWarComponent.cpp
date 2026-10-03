@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/FogOfWarComponent.h"
+#include "Gameplay/Map/FogOfWarComponent.h"
 
-#include "Gameplay/FogOfWarSubsystem.h"
+#include "Gameplay/Map/FogOfWarSubsystem.h"
 
 /*static*/ UFogOfWarSubsystem* UFogOfWarComponent::GetSubsystem(const UObject* WorldContext)
 {

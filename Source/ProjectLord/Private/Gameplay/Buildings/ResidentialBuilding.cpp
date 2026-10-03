@@ -3,7 +3,7 @@
 #include "Gameplay/Buildings/ResidentialBuilding.h"
 
 #include "Gameplay/Combat/CombatComponent.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Units/Creature.h"
 #include "Gameplay/Units/UnitTypes.h"
 #include "UI/ViewModels/Buildings/BuildingViewModel.h"

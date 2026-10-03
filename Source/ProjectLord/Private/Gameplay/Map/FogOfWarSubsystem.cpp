@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/FogOfWarSubsystem.h"
+#include "Gameplay/Map/FogOfWarSubsystem.h"
 
 #include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/KismetRenderingLibrary.h"
@@ -11,9 +11,9 @@
 #include "Engine/PostProcessVolume.h"
 
 #include "LordLogging.h"
-#include "Gameplay/FogOfWar.h"
-#include "Gameplay/FogOfWarComponent.h"
-#include "Gameplay/Map.h"
+#include "Gameplay/Map/FogOfWar.h"
+#include "Gameplay/Map/FogOfWarComponent.h"
+#include "Gameplay/Map/Map.h"
 
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Location = TEXT("Location");
 /*static*/ FName UFogOfWarSubsystem::BrushParam_Radius = TEXT("Radius");

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/FogOfWar.h"
+#include "Gameplay/Map/FogOfWar.h"
 
-#include "Gameplay/FogOfWarSubsystem.h"
+#include "Gameplay/Map/FogOfWarSubsystem.h"
 
 void AFogOfWar::BeginPlay()
 {

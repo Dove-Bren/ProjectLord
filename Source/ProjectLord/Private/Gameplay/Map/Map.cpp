@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/Map.h"
+#include "Gameplay/Map/Map.h"
 
 #include "Components/SceneCaptureComponent2D.h"
 #include "Engine/TextureRenderTarget2D.h"
@@ -9,7 +9,7 @@
 #include "Landscape.h"
 
 #include "LordLogging.h"
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 
 /*static*/ AMap* AMap::GetMap(const UObject* WorldContext)
 {

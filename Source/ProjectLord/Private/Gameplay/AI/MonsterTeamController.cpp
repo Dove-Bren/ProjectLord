@@ -2,7 +2,8 @@
 
 #include "Gameplay/AI/MonsterTeamController.h"
 
-#include "Gameplay/GameLevelSettings.h"
+#include "Gameplay/Map/GameLevelSettings.h"
+#include "Gameplay/GameTeamState.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"

@@ -2,7 +2,7 @@
 
 #include "Gameplay/Units/MonsterBase.h"
 
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
 AMonsterBase::AMonsterBase() : ACreature()

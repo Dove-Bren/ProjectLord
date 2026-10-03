@@ -6,7 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 
-#include "Gameplay/GameLevelSettings.h"
+#include "Gameplay/Map/GameLevelSettings.h"
+#include "Gameplay/GameTeamState.h"
 #include "UI/ViewModels/LordGameStateViewModel.h"
 
 ALordGameState::ALordGameState()

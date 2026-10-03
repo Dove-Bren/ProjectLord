@@ -3,7 +3,7 @@
 #include "UI/ViewModels/Generic/InspectableViewModel.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "UI/InspectWidget.h"
 
 /*static*/ UVMInspectable* UVMInspectable::Make(UObject* Outer, TSubclassOf<UInspectWidget> InspectWidgetClass, FGetInspectVM VMGetter)

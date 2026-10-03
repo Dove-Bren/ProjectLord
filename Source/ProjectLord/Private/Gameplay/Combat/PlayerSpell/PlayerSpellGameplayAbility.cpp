@@ -2,7 +2,7 @@
 
 #include "Gameplay/Combat/PlayerSpell/PlayerSpellGameplayAbility.h"
 
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 

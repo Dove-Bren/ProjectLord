@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/LandscapePainter.h"
+#include "Gameplay/Map/LandscapePainter.h"
 
 #include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/GameplayStatics.h"
@@ -8,7 +8,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Landscape.h"
 
-#include "Gameplay/Map.h"
+#include "Gameplay/Map/Map.h"
 
 /*static*/ FName ALandscapePainter::BrushParam_Location = TEXT("Location");
 /*static*/ FName ALandscapePainter::BrushParam_Radius = TEXT("Radius");

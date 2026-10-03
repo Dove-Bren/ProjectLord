@@ -2,8 +2,8 @@
 
 #include "UI/ViewModels/GameTeamStateViewModel.h"
 
-#include "Gameplay/LordPlayerController.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Player/LordPlayerController.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/Castle.h"
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"

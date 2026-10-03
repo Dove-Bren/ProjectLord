@@ -10,6 +10,7 @@
 #include "BuildingViewModel.generated.h"
 
 class UTexture2D;
+class ABuilding;
 class UVMLevel;
 class UVMGold;
 class UVMCombatData;

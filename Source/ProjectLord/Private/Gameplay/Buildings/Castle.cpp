@@ -2,8 +2,9 @@
 
 #include "Gameplay/Buildings/Castle.h"
 
+#include "Gameplay/GameTeamState.h"
 #include "Gameplay/LordGameState.h"
-#include "Gameplay/PlacementActor.h"
+#include "Gameplay/Player/PlacementActor.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
 #include "Gameplay/Buildings/SpawningBuilding.h"

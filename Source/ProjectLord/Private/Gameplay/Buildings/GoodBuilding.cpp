@@ -3,7 +3,7 @@
 #include "Gameplay/Buildings/GoodBuilding.h"
 
 #include "Gameplay/GameGood.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 #include "Gameplay/Buildings/QueuedAction.h"
 #include "UI/ViewModels/GameGoodViewModel.h"

@@ -2,7 +2,7 @@
 
 #include "UI/ViewModels/LordPlayerStateViewModel.h"
 
-#include "Gameplay/LordPlayerState.h"
+#include "Gameplay/Player/LordPlayerState.h"
 
 UVMLordPlayerState::UVMLordPlayerState()
 {

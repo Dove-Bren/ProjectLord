@@ -4,8 +4,9 @@
 
 #include "LordLogging.h"
 #include "Gameplay/GameTeam.h"
+#include "Gameplay/GameTeamState.h"
 #include "Gameplay/LordGameState.h"
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Buildings/GoodBuilding.h"
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 #include "Gameplay/Units/UnitTypes.h"

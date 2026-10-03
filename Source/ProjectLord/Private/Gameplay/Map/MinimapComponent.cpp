@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/MinimapComponent.h"
+#include "Gameplay/Map/MinimapComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Gameplay/Map.h"
+#include "Gameplay/Map/Map.h"
 #include "UI/ViewModels/MinimapIconViewModel.h"
 
 UMinimapComponent::UMinimapComponent()

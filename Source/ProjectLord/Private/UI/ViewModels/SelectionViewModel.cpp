@@ -2,8 +2,8 @@
 
 #include "UI/ViewModels/SelectionViewModel.h"
 
-#include "Gameplay/SelectionAction.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionAction.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 
 void UVMSelection::Reset(bool bTriggerUpdate)
 {

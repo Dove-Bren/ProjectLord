@@ -10,6 +10,7 @@
 #include "LordGameState.generated.h"
 
 class AGameLevelSettings;
+class AGameTeamState;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameDayChange, int, GameDays);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameTimeChange, double, GameDays);

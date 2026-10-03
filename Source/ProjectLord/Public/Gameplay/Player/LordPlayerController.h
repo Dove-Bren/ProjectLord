@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/PlayerController.h"
-#include "Gameplay/SelectionComponent.h"
-#include "Gameplay/SelectionAction.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionAction.h"
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/RewardFlag.h"
 
@@ -24,6 +24,7 @@ class UAbilitySystemComponent;
 class UPlayerSpell;
 class UPlayerSpellCastingComponent;
 class ULordCursorWidget;
+class AGameTeamState;
 
 struct FStaticSelection;
 struct FToastNotification;

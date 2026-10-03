@@ -26,6 +26,7 @@ class USelectionComponent;
 class UUnitType;
 class UAnimMontage;
 class UStaticMeshComponent;
+class AGameTeamState;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 
 #include "Gameplay/Combat/Ability/AbilityEnums.h"
-#include "Gameplay/GameTeam.h"
 #include "Gameplay/LordGameplayTags.h"
 
 #include "PlayerSpell.generated.h"

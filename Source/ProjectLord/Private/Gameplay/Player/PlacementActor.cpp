@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/PlacementActor.h"
+#include "Gameplay/Player/PlacementActor.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"

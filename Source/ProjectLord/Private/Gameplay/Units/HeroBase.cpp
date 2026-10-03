@@ -4,8 +4,9 @@
 
 #include "GameplayEffect.h"
 #include "Gameplay/GameGood.h"
-#include "Gameplay/LordPlayerController.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/GameTeamState.h"
+#include "Gameplay/Player/LordPlayerController.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Attributes/AttributeListener.h"

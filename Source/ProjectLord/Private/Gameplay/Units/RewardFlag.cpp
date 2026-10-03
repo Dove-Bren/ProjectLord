@@ -4,10 +4,11 @@
 
 #include "Net/UnrealNetwork.h"
 
-#include "Gameplay/MinimapComponent.h"
-#include "Gameplay/FogOfWarSubsystem.h"
+#include "Gameplay/GameTeamState.h"
+#include "Gameplay/Map/MinimapComponent.h"
+#include "Gameplay/Map/FogOfWarSubsystem.h"
 #include "Gameplay/LordGameState.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroBase.h"
 #include "Gameplay/Units/Unit.h"

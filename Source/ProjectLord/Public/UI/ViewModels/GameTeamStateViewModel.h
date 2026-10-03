@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Gameplay/GameTeam.h"
+#include "Gameplay/GameTeamState.h"
 #include "UI/ViewModels/LordViewModelBase.h"
 
 #include "GameTeamStateViewModel.generated.h"

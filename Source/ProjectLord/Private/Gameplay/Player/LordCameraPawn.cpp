@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/LordCameraPawn.h"
+#include "Gameplay/Player/LordCameraPawn.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/SphereComponent.h"

@@ -12,6 +12,7 @@
 #include "MonsterTeamController.generated.h"
 
 class UBehaviorTree;
+class AGameTeamState;
 
 UCLASS(Blueprintable, Abstract)
 class PROJECTLORD_API AMonsterTeamController : public AAIController

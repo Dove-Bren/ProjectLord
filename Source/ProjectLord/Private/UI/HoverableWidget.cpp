@@ -4,7 +4,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 
 UHoverableWidget::UHoverableWidget()

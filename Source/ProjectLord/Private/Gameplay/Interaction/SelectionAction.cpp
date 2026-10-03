@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/SelectionAction.h"
+#include "Gameplay/Interaction/SelectionAction.h"
 
 #include "Kismet/GameplayStatics.h"
 
 #include "Gameplay/GameTeam.h"
-#include "Gameplay/LordPlayerController.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/GameTeamState.h"
+#include "Gameplay/Player/LordPlayerController.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Buildings/Building.h"

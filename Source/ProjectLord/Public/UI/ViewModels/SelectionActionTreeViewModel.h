@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "UI/ViewModels/LordViewModelBase.h"
-#include "Gameplay/SelectionAction.h"
+#include "Gameplay/Interaction/SelectionAction.h"
 
 #include "SelectionActionTreeViewModel.generated.h"
 

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Gameplay/SelectionAction.h"
+#include "Gameplay/Interaction/SelectionAction.h"
 #include "Gameplay/LordGameState.h"
-#include "Gameplay/LordPlayerState.h"
+#include "Gameplay/Player/LordPlayerState.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"

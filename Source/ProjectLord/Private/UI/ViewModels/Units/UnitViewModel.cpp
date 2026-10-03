@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "AbilitySystemComponent.h"
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Units/Unit.h"
 

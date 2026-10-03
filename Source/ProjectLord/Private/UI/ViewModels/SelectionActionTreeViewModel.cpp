@@ -3,7 +3,7 @@
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
 
 #include "LordLogging.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
 const FString UVMSelectionActionTree::RootPageName = TEXT("");

@@ -4,7 +4,8 @@
 
 #include "AbilitySystemComponent.h"
 
-#include "Gameplay/LordPlayerController.h"
+#include "Gameplay/GameTeamState.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 #include "UI/ViewModels/PlayerSpellCastingViewModel.h"
 

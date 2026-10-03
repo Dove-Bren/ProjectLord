@@ -4,8 +4,8 @@
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Gameplay/LordPlayerController.h"
-#include "Gameplay/SelectionComponent.h"
+#include "Gameplay/Player/LordPlayerController.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
 
 void UVMPlayerSpell::StartCasting(const UObject* WorldContextObject)
 {

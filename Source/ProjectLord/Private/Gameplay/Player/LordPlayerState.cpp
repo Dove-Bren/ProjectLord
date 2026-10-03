@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/LordPlayerState.h"
+#include "Gameplay/Player/LordPlayerState.h"
 
 #include "Net/UnrealNetwork.h"
 

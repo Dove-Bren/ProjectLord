@@ -2,7 +2,7 @@
 
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
-#include "Gameplay/SelectionAction.h"
+#include "Gameplay/Interaction/SelectionAction.h"
 
 #include "Kismet/GameplayStatics.h"
 

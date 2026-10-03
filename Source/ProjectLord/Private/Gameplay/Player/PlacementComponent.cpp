@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Project Contributors. All Rights Reserved.
 
-#include "Gameplay/PlacementComponent.h"
+#include "Gameplay/Player/PlacementComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
-#include "Gameplay/FogOfWarSubsystem.h"
-#include "Gameplay/PlacementActor.h"
+#include "Gameplay/Map/FogOfWarSubsystem.h"
+#include "Gameplay/Player/PlacementActor.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
 
