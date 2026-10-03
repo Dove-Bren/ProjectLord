@@ -26,3 +26,25 @@ UVMGameGood* UGameGood::GetOrCreateViewModel()
 	}
 	return ViewModel;
 }
+
+#if WITH_EDITOR
+void UGameGood::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, Item) && Item != nullptr)
+	{
+		Name = Item->GetItemName();
+		Description = Item->GetItemDescription();
+		Icon = Item->GetItemIcon();
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, Ability) && Ability != nullptr)
+	{
+		auto CDO = Ability.GetDefaultObject();
+		Name = CDO->GetAbilityName();
+		Description = CDO->GetAbilityDescription();
+		Icon = CDO->GetAbilityIcon();
+	}
+}
+#endif // WITH_EDITOR 

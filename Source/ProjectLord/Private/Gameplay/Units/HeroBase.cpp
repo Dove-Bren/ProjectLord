@@ -530,8 +530,9 @@ bool AHeroBase::CanApply(const UGameGood* Good) const
 	}
 
 	// Else check if we already have the ability
+	// Note: goods have to either have an item or ability with this check
 	auto Ability = Good->GetAbility();
-	if (IsValid(Ability))
+	if (!IsValid(Ability))
 	{
 		return false;
 	}
@@ -720,8 +721,7 @@ bool AHeroBase::PurchaseGood(FGoodOffer Offer)
 
 		if (auto Ability = Offer.Good->GetAbility())
 		{
-			FGameplayAbilitySpec Spec(Ability);
-			AbilitySystemComponent->GiveAbility(Spec);
+			CombatComponent->GiveCombatAbility(Ability);
 		}
 
 		return true;

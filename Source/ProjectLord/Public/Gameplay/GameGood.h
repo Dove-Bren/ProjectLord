@@ -32,10 +32,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game Good")
 	UTexture2D* GetIcon() const { return Icon; }
 
-	UFUNCTION(BlueprintPure, Category = "Game Good", meta = (EditCondition = "Item == nullptr"))
+	UFUNCTION(BlueprintPure, Category = "Game Good")
 	TSubclassOf<UCombatAbility> GetAbility() const { return Ability; }
 
-	UFUNCTION(BlueprintPure, Category = "Game Good", meta = (EditCondition = "Ability == nullptr"))
+	UFUNCTION(BlueprintPure, Category = "Game Good")
 	const UHeroItemDef* GetItemDef() const { return Item; }
 
 	UFUNCTION(BlueprintPure, Category = "Game Good")
@@ -44,28 +44,31 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game Good")
 	UVMGameGood* GetOrCreateViewModel();
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR  
 
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good", meta = (EditCondition = "Ability == nullptr && Item == nullptr"))
 	FText Name;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good", meta = (EditCondition = "Ability == nullptr && Item == nullptr"))
 	FText Description;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good", meta = (EditCondition = "Ability == nullptr && Item == nullptr"))
 	TObjectPtr<UTexture2D> Icon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good", meta = (EditCondition = "Ability == nullptr"))
 	TObjectPtr<const UHeroItemDef> Item;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good", meta = (EditCondition = "Item == nullptr"))
 	TSubclassOf<UCombatAbility> Ability;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Good")
 	TObjectPtr<const UUnitType> UnitTypeRestriction;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Game Good")
+	UPROPERTY(BlueprintReadOnly, Category = "Game Good")
 	TObjectPtr<UVMGameGood> ViewModel;
 };
 
