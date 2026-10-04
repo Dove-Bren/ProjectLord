@@ -34,10 +34,11 @@ public:
 
     AGameTeamState();
 
-    static AGameTeamState* Make(UObject* WorldContext, EGameTeam Team)
+    static AGameTeamState* Make(UObject* WorldContext, EGameTeam Team, TOptional<FVector> CenterLocation = NullOpt)
     {
         AGameTeamState* State = WorldContext->GetWorld()->SpawnActor<AGameTeamState>();
         State->SetTeam(Team);
+        if (CenterLocation) State->SetTeamCenterLocation(CenterLocation.GetValue());
         return State;
     }
 
@@ -49,6 +50,7 @@ public:
 
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual void PostInitProperties() override;
 
     UFUNCTION(BlueprintPure, Category = "Team")
     EGameTeam GetTeam() const { return Team; }
@@ -67,6 +69,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Team")
     void SetCastle(ACastle* Castle);
+
+    UFUNCTION(BlueprintPure, Category = "Team")
+    TOptional<FVector> GetTeamCenterLocation() const { return TeamCenterLocation; }
+
+    UFUNCTION(BlueprintCallable, Category = "Team")
+    void SetTeamCenterLocation(FVector Center);
 
     UFUNCTION(BlueprintPure, Category = "Team")
     ALordPlayerController* GetPrimaryPlayerController() const { return PrimaryController.IsValid() ? PrimaryController.Get() : nullptr; }
@@ -192,6 +200,10 @@ protected:
     TMap<ABuilding*, TArray<AUnit*>> TaxWorkers;
 
     TArray<UPlayerSpell*> CurrentSpells;
+
+    // Mostly useful for spacing players out. Optionally signifies the locational 'center'
+    // of a team, which prevents new players from spawning too close.
+    TOptional<FVector> TeamCenterLocation;
 
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;

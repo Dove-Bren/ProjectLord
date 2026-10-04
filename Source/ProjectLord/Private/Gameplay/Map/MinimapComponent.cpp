@@ -50,7 +50,7 @@ void UMinimapComponent::RegisterWithMinimap()
 	if (ensure(Map))
 	{
 		bRegistered = true;
-		Map->AddMapComponent(this);
+		Map->AddMinimapComponent(this);
 	}
 }
 
@@ -61,7 +61,7 @@ void UMinimapComponent::UnregisterFromMinimap()
 		auto Map = AMap::GetMap(this);
 		if (Map) // No ensure, as map may also have been removed on level teardown
 		{
-			Map->RemoveMapComponent(this);
+			Map->RemoveMinimapComponent(this);
 			bRegistered = false;
 		}
 	}

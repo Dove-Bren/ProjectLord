@@ -4,6 +4,7 @@
 
 #include "Components/SceneCaptureComponent2D.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetRenderingLibrary.h"
 #include "Landscape.h"
@@ -93,20 +94,20 @@ void AMap::CaptureMapTexture()
 	SceneCaptureComponent->CaptureScene();
 }
 
-void AMap::AddMapComponent(UMinimapComponent* Component)
+void AMap::AddMinimapComponent(UMinimapComponent* Component)
 {
-	if (!MapComponents.Contains(Component))
+	if (!MinimapComponents.Contains(Component))
 	{
-		MapComponents.AddUnique(Component);
-		OnComponentsChange.Broadcast();
+		MinimapComponents.AddUnique(Component);
+		OnMinimapComponentsChange.Broadcast();
 	}
 }
 
-void AMap::RemoveMapComponent(UMinimapComponent* Component)
+void AMap::RemoveMinimapComponent(UMinimapComponent* Component)
 {
-	if (MapComponents.Remove(Component))
+	if (MinimapComponents.Remove(Component))
 	{
-		OnComponentsChange.Broadcast();
+		OnMinimapComponentsChange.Broadcast();
 	}
 }
 
@@ -134,4 +135,17 @@ TArray<FVector2D> AMap::GetCameraBoundPoints() const
 	}
 
 	return Points;
+}
+
+TArray<APlayerStart*> AMap::FindPlayerStarts() const
+{
+	TArray<APlayerStart*> Starts;
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), Actors);
+	for (auto Actor : Actors)
+	{
+		auto Start = Cast<APlayerStart>(Actor);
+		if (Start) Starts.Add(Start);
+	}
+	return Starts;
 }

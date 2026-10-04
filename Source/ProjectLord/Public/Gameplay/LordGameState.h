@@ -11,6 +11,19 @@
 
 class AGameLevelSettings;
 class AGameTeamState;
+class ACastle;
+
+USTRUCT(BlueprintType)
+struct PROJECTLORD_API FTeamStartClaim
+{
+    GENERATED_BODY()
+
+public:
+
+    EGameTeam Team;
+
+    FTransform StartTransform;
+};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameDayChange, int, GameDays);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameTimeChange, double, GameDays);
@@ -57,6 +70,12 @@ public:
     UFUNCTION(BlueprintPure, Category = "UI")
     class UVMLordGameState* GetViewModel() const { return ViewModel; }
 
+    UFUNCTION(BlueprintCallable, Category = "GameTeam")
+    TOptional<FTeamStartClaim> ClaimNextPlayerTeam();
+
+    UFUNCTION(BlueprintCallable, Category = "GameTeam")
+    ACastle* SpawnTeamCastle(const FTeamStartClaim& InClaim, TSubclassOf<ACastle> CastleType);
+
 protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing=OnRep_GameDays, Category = "GameTime")
     double GameDays;
@@ -86,6 +105,8 @@ protected:
     void OnRep_GameTeams(TArray<AGameTeamState*> PrevTeams);
 
     void SetGlobalTimeDilation(float Rate);
+
+    TArray<FTransform> GetPlayerStarts() const;
 
     void Setup();
     bool bSetupComplete;

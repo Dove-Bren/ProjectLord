@@ -10,8 +10,9 @@ class UTextureRenderTarget2D;
 class USceneCaptureComponent2D;
 
 DECLARE_DELEGATE(FOnMapReady);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComponentsChange);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMinimapComponentsChange);
 
+// Holds global 'map' (game level) data as well as minimap data.
 UCLASS(BlueprintType)
 class PROJECTLORD_API AMap : public AActor
 {
@@ -36,7 +37,7 @@ public:
     }
 
     UPROPERTY(BlueprintAssignable)
-    FOnComponentsChange OnComponentsChange;
+    FOnMinimapComponentsChange OnMinimapComponentsChange;
 
     UFUNCTION(BlueprintPure, Category = "Map")
     bool IsReady() const { return bReady; }
@@ -45,10 +46,10 @@ public:
     bool IsReadyChecked() const { check(IsReady()); return true; }
 
     UFUNCTION(BlueprintCallable, Category = "Map")
-    void AddMapComponent(UMinimapComponent* Component);
+    void AddMinimapComponent(UMinimapComponent* Component);
 
     UFUNCTION(BlueprintCallable, Category = "Map")
-    void RemoveMapComponent(UMinimapComponent* Component);
+    void RemoveMinimapComponent(UMinimapComponent* Component);
 
     UFUNCTION(BlueprintPure, Category = "Map")
     double GetMapWidth() const { return MapWidth; }
@@ -60,13 +61,16 @@ public:
     FVector GetMapMinPoint() const { return MapMinPoint; }
 
     UFUNCTION(BlueprintPure, Category = "Map")
-    const TArray<UMinimapComponent*>& GetMapComponents() const { return MapComponents; }
+    const TArray<UMinimapComponent*>& GetMinimapComponents() const { return MinimapComponents; }
 
     UFUNCTION(BlueprintPure, Category = "Map")
     UTextureRenderTarget2D* GetMapTexture() const { return MapTexture; }
 
     UFUNCTION(BlueprintCallable, Category = "Map")
     TArray<FVector2D> GetCameraBoundPoints() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Map|Scan")
+    TArray<APlayerStart*> FindPlayerStarts() const;
 
 protected:
 
@@ -91,7 +95,7 @@ protected:
     int MapTextureCaptureHeight = 500;
 
     UPROPERTY(VisibleInstanceOnly, Category = "Map")
-    TArray<UMinimapComponent*> MapComponents;
+    TArray<UMinimapComponent*> MinimapComponents;
 
     UPROPERTY(VisibleInstanceOnly, Category = "Map")
     TObjectPtr<UTextureRenderTarget2D> MapTexture;

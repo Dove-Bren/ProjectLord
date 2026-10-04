@@ -21,12 +21,17 @@ AGameTeamState::AGameTeamState()
 	Gold = 0;
 }
 
-void AGameTeamState::BeginPlay()
+void AGameTeamState::PostInitProperties()
 {
-    Super::BeginPlay();
+    Super::PostInitProperties();
 
     ViewModel = CreateLordVM<UVMGameTeamState>(this);
     ViewModel->Setup(this);
+}
+
+void AGameTeamState::BeginPlay()
+{
+    Super::BeginPlay();
 
     auto GameState = GetWorld()->GetGameState<ALordGameState>();
     const auto Settings = GameState->GetLevelSettings();
@@ -49,7 +54,11 @@ void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void AGameTeamState::SetTeam(EGameTeam InTeam)
 {
     Team = InTeam;
-    ViewModel->SetTeam(InTeam);
+    if (ViewModel)
+    {
+        ViewModel->SetTeam(InTeam);
+    }
+    // else BeginPlay hasn't been hit yet and it will be picked up later
 }
 
 int AGameTeamState::AddGold(int InChange)
@@ -70,6 +79,11 @@ void AGameTeamState::SetCastle(ACastle* Castle)
     {
         AddBuilding(Castle);
     }
+}
+
+void AGameTeamState::SetTeamCenterLocation(FVector Center)
+{
+    TeamCenterLocation = Center;
 }
 
 void AGameTeamState::SetPrimaryPlayerController(ALordPlayerController* InController)

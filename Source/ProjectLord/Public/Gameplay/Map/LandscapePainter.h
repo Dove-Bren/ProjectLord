@@ -65,7 +65,11 @@ protected:
     UPROPERTY(VisibleInstanceOnly, Category = "LandscapePainting")
     bool bReady = false;
 
+    TArray<TTuple<ELandscapePaint, FVector, float>> DeferredPaints;
+
     void SetupLayers();
+    void DeferPaint(ELandscapePaint Type, FVector Location, float Radius);
+    void ProcessDeferredPaints();
 
     static FName BrushParam_Location;
     static FName BrushParam_Radius;

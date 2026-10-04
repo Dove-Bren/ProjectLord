@@ -11,6 +11,9 @@ enum class EGameTeam : uint8
     Monster,
     Player1,
     Player2,
+
+    // Note: If adding more players, also change ALordGameState::ClaimNextPlayerTeam
+
     Neutral,
 
     MAX UMETA(Hidden)

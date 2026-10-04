@@ -26,6 +26,8 @@ public:
     UFUNCTION(BlueprintPure)
     EGameTeam GetPlayerTeam() const { return PlayerTeam; }
 
+    void SetPlayerTeam(EGameTeam InTeam) { PlayerTeam = InTeam; }
+
     UFUNCTION(BlueprintPure)
     UVMLordPlayerState* GetViewModel() const { return ViewModel; }
 

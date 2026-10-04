@@ -9,6 +9,7 @@
 #include "Landscape.h"
 
 #include "Gameplay/Map/Map.h"
+#include "LordLogging.h"
 
 /*static*/ FName ALandscapePainter::BrushParam_Location = TEXT("Location");
 /*static*/ FName ALandscapePainter::BrushParam_Radius = TEXT("Radius");
@@ -43,6 +44,8 @@ void ALandscapePainter::Tick(float DeltaSeconds)
 		{
 			SetupLayers();
 			bReady = true;
+
+			ProcessDeferredPaints();
 		}
 
 	}
@@ -51,7 +54,18 @@ void ALandscapePainter::Tick(float DeltaSeconds)
 
 void ALandscapePainter::Paint(ELandscapePaint Type, FVector Location, float Radius)
 {
-	ensure(bReady);
+	if (!bReady)
+	{
+		static bool bLogged = false;
+		if (!bLogged)
+		{
+			UE_LOG(LordMap, Display, TEXT("Some landscape painting is happening early; deferring until painter is ready"));
+			bLogged = true;
+		}
+		DeferPaint(Type, Location, Radius);
+		return;
+	}
+	
 
 	auto LayerTex = DynamicLandscapeLayers[Type];
 	check(LayerTex);
@@ -109,5 +123,20 @@ void ALandscapePainter::SetupLayers()
 				}
 			}
 		}
+	}
+}
+
+void ALandscapePainter::DeferPaint(ELandscapePaint Type, FVector Location, float Radius)
+{
+	check(!bReady);
+	DeferredPaints.Emplace(Type, Location, Radius);
+}
+
+void ALandscapePainter::ProcessDeferredPaints()
+{
+	check(bReady);
+	for (auto Deferred : DeferredPaints)
+	{
+		Paint(Deferred.Get<0>(), Deferred.Get<1>(), Deferred.Get<2>());
 	}
 }
