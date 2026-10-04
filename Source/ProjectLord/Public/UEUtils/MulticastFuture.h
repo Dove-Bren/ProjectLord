@@ -7,10 +7,17 @@
 template<typename FutureType>
 class TMulticastFuture
 {
+private:
+    DECLARE_MULTICAST_DELEGATE_OneParam(FOnFutureCompleteParam, FutureType);
+    DECLARE_MULTICAST_DELEGATE(FOnFutureCompleteVoid);
+
 public:
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnFutureComplete, FutureType);
-	using FDelegateType = typename FOnFutureComplete::FDelegate;
+	
+	using FDelegateType = std::conditional_t<std::is_void_v<FutureType>,
+        typename FOnFutureCompleteVoid::FDelegate,
+        typename FOnFutureCompleteParam::FDelegate
+    >;
 
     // 1. Raw Lambda / Static Function binding
     template <typename FuncType>
@@ -44,7 +51,14 @@ public:
 	{
 		if (FutureValue.IsSet())
 		{
-			Callback.ExecuteIfBound(FutureValue.GetValue());
+            if constexpr (std::is_void_v<FutureType>)
+            {
+                Callback.ExecuteIfBound();
+            }
+            else
+            {
+                Callback.ExecuteIfBound(FutureValue.GetValue());
+            }
 		}
 		else
 		{
@@ -52,15 +66,24 @@ public:
 		}
 	}
 
-	void Complete(FutureType Value)
+	void Complete(std::conditional_t<std::is_void_v<FutureType>, bool, FutureType> Value)
 	{
 		check(!FutureValue.IsSet());
 		FutureValue = Value;
-		Event.Broadcast(Value);
+
+        if constexpr (std::is_void_v<FutureType>)
+        {
+            Event.Broadcast();
+        }
+        else
+        {
+            Event.Broadcast(Value);
+        }
 	}
 
 protected:
 
-	FOnFutureComplete Event;
-	TOptional<FutureType> FutureValue = NullOpt;
+	std::conditional_t<std::is_void_v<FutureType>, FOnFutureCompleteVoid, FOnFutureCompleteParam> Event;
+	TOptional<std::conditional_t<std::is_void_v<FutureType>, bool, FutureType>> FutureValue = NullOpt;
+    // Note: bool future when doing void just so we have something although bool value means nothing
 };
