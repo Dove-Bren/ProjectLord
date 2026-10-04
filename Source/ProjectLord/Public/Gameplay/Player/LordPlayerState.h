@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Player")
     EGameTeam PlayerTeam;
 
     UPROPERTY(VisibleInstanceOnly)

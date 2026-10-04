@@ -24,7 +24,7 @@ void ALordGameMode::PostLogin(APlayerController* NewController)
 	// Attempt to claim and spawn player team before
 	// controller is created so that its beginplay can assume it's there.
 	auto Claim = State->ClaimNextPlayerTeam();
-	if (Claim)
+	if (ensure(Claim)) // ensure for now, because spectator isn't really set up
 	{
 		State->SpawnTeamCastle(Claim.GetValue(), GetCastleForPlayer(NewController));
 		auto LordController = Cast<ALordPlayerController>(NewController);

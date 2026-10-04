@@ -58,9 +58,12 @@ void ALordPlayerController::BeginPlay()
 	}
 
 	// Set up HUD
-	HUDWidget = ConstructHUD();
-	check(IsValid(HUDWidget));
-	HUDWidget->AddToViewport();
+	if (IsLocalPlayerController())
+	{
+		HUDWidget = ConstructHUD();
+		check(IsValid(HUDWidget));
+		HUDWidget->AddToViewport();
+	}
 
 	// TODO: Wait for team states to be set up instead of assuming they are
 	auto TeamState = GetTeamState();

@@ -247,7 +247,7 @@ void ALordGameState::OnRep_GameTeams(TArray<AGameTeamState*> PrevTeams)
 	// Fix up map
 	for (auto Team : GameTeamsArray)
 	{
-		GameTeams[Team->GetTeam()] = Team;
+		GameTeams.Add(Team->GetTeam(), Team);
 	}
 }
 
