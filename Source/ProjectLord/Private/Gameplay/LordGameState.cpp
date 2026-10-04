@@ -116,7 +116,12 @@ TArray<FTransform> ALordGameState::GetPlayerStarts() const
 	{
 		for (auto Start : Map->FindPlayerStarts())
 		{
-			StartLocations.Add(Start->GetActorTransform());
+			auto Transform = Start->GetActorTransform();
+			// For better or worse, player starts need +90 yaw for buildings
+			auto Rot = Transform.Rotator();
+			Rot.Yaw += 90;
+			Transform.SetRotation(Rot.Quaternion());
+			StartLocations.Add(Transform);
 		}
 	}
 
