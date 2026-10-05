@@ -116,117 +116,129 @@ void UVMSelectionActionTree::RefreshPage()
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(CurrentActions);
 }
 
-bool UTreePageAction::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+UVMSelectionAction* UTreePageAction::ConstructBaseVM(UObject* Outer) const
 {
-	/*auto TreeVM = Context.ActionTree;
-	return TreeVM && TreeVM->HasPage(GetPage());*/
-	return true;
+	auto VM = CreateLordVM<UVMTreePageAction>(Outer);
+	VM->Init(this);
+	VM->Page = GetPage();
+	// Should be setting name and desc?
+	return VM;
 }
 
-bool UTreePageAction::Perform_Implementation()
+void UVMTreePageAction::Perform()
 {
-	auto TreeVM = Context.ActionTree;
-	return TreeVM->GoToPage(GetPage());
+	// Don't need to call super / actually call action. Operate on tree.
+	ActionTree->GoToPage(Page);
 }
 
-bool UTreeBackAction::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+UVMSelectionAction* UTreeBackAction::ConstructBaseVM(UObject* Outer) const
 {
-	/*auto TreeVM = Context.ActionTree;
-	return TreeVM && !TreeVM->IsAtRoot();*/
-	return true;
+	auto VM = CreateLordVM<UVMTreeBackAction>(Outer);
+	VM->Init(this);
+	// Should be setting name and desc?
+	return VM;
 }
 
-bool UTreeBackAction::Perform_Implementation()
+void UVMTreeBackAction::Perform()
 {
-	auto TreeVM = Context.ActionTree;
-	return TreeVM->GoBack();
+	// Don't need to call super / actually call action. Operate on tree.
+	ActionTree->GoBack();
 }
 
-void UTreeCompositeBuildingPurchase::Setup(const FSelectionActionContext& InContext)
+UVMSelectionAction* UTreeCompositeBuildingPurchase::ConstructBaseVM(UObject* Outer) const
 {
-	Super::Setup(InContext);
-
-	for (auto ActionClass : Actions)
-	{
-		auto Action = NewObject<UBuildingBasedPurchase>(this, ActionClass);
-		Action->Setup(Context);
-		ActionInstances.Add(Action);
-	}
-
-	RefreshToShow();
+	auto VM = CreateLordVM<UVMCompositeSelectionAction>(Outer);
+	VM->Init(this);
+	// Should be setting name and desc?
+	return VM;
 }
 
-bool UTreeCompositeBuildingPurchase::IsHidden_Implementation() const
+UVMSelectionAction* UTreeCompositeBuildingPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	auto Action = GetCurrentAction();
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer, InContext);
+
+	// Almost wish this func could visit each action and register a callback for when it thinks its VM should refresh at all.
+
+	return ViewModel;
+}
+
+bool UTreeCompositeBuildingPurchase::IsHidden_Implementation(const FSelectionActionContext& InContext) const
+{
+	auto Action = GetCurrentAction(InContext);
 	if (Action)
 	{
-		return Action->IsHidden();
+		return Action->IsHidden(InContext);
 	}
 	return true;
 }
 
-bool UTreeCompositeBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool UTreeCompositeBuildingPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
-	auto Action = GetCurrentAction();
+	auto Action = GetCurrentAction(InContext);
 	if (Action)
 	{
-		return Action->CanPerform(ReasonOut);
+		return Action->CanPerform(InContext, ReasonOut);
 	}
 	return false;
 }
 
-bool UTreeCompositeBuildingPurchase::Perform_Implementation()
+bool UTreeCompositeBuildingPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
-	auto Action = GetCurrentAction();
+	auto Action = GetCurrentAction(InContext);
 	if (Action)
 	{
-		return Action->Perform();
+		return Action->Perform(InContext);
 	}
 	return false;
 }
 
-void UTreeCompositeBuildingPurchase::RefreshToShow_Implementation()
+USelectionAction* UTreeCompositeBuildingPurchase::GetCurrentAction(const FSelectionActionContext& InContext) const
 {
-	CurrentAction = nullptr;
-	for (auto Action : ActionInstances)
+	for (auto Action : Actions)
 	{
-		if (!Action->IsHidden())
+		if (!Action->IsHidden(InContext))
 		{
-			CurrentAction = Action;
-
-			// Update our values
-			Name = CurrentAction->GetName();
-			Description = CurrentAction->GetDescription();
-			Icon = CurrentAction->GetIcon();
-
-			// Update VM (ugly code dupe from VM internal)
-			ESelectionActionFailureReason Reason;
-			bool bEnabled = CanPerform(Reason);
-			ViewModel->SetName(Name);
-			ViewModel->SetDescription(Description);
-			ViewModel->SetEnabled(bEnabled, Reason);
-			ViewModel->SetHidden(false); // Wouldn't be in this block otherwise
-			if (auto CostAction = Cast<USelectionPurchase>(CurrentAction))
-			{
-				ViewModel->SetGoldCost(CostAction->GetGoldCost());
-			}
-
-			ViewModel->SetIcon(CurrentAction->GetIcon());
-			ViewModel->OverrideAction(CurrentAction);
-
-			break;
+			return Action;
 		}
 	}
 
-	if (!CurrentAction)
-	{
-		ViewModel->SetHidden(true);
-	}
-	Super::RefreshToShow_Implementation();
+	return nullptr;
 }
 
-USelectionAction* UTreeCompositeBuildingPurchase::GetCurrentAction() const
+void UVMCompositeSelectionAction::Perform()
 {
-	return CurrentAction;
+	Super::Perform();
+
+	OnShown();
+}
+
+void UVMCompositeSelectionAction::OnShown()
+{
+	// Manually poll and refresh since base action doesn't have listeners
+	// Update our values
+	auto Context = GetContext();
+	auto RealAction = Cast<UTreeCompositeBuildingPurchase>(Action)->GetCurrentAction(Context);
+
+	if (!RealAction)
+	{
+		SetHidden(true);
+	}
+	else
+	{
+		ESelectionActionFailureReason Reason;
+		bool bInEnabled = RealAction->CanPerform(Context, Reason);
+		SetName(RealAction->GetName());
+		SetDescription(RealAction->GetDescription());
+		SetEnabled(bInEnabled, Reason);
+		SetHidden(false); // Wouldn't be in this block otherwise
+		if (auto CostAction = Cast<USelectionPurchase>(RealAction))
+		{
+			SetGoldCost(CostAction->GetGoldCost());
+		}
+
+		SetIcon(RealAction->GetIcon());
+		OverrideAction(RealAction);
+	}
+
+	Super::OnShown();
 }

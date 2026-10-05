@@ -18,6 +18,7 @@
 #include "Gameplay/Combat/PlayerSpell/PlayerSpellCastingComponent.h"
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
+#include "Gameplay/Interaction/SelectionAction.h"
 #include "UI/InspectWidget.h"
 #include "UI/LordGameHUDWidget.h"
 #include "UI/ToastNotification.h"
@@ -126,6 +127,15 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 	{
 		OnSelectionChange();
 	}
+}
+
+FSelectionActionContext ALordPlayerController::MakeSelectionContext(USelectionComponent* InSelection) const
+{
+	FSelectionActionContext Context;
+	Context.Selection = InSelection ? InSelection : GetSelection();
+	Context.PlayerState = GetPlayerState<ALordPlayerState>();
+	Context.TeamState = GetTeamState();
+	return Context;
 }
 
 void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost)

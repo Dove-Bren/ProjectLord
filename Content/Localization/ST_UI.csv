@@ -29,6 +29,7 @@ Action.Error.NeedLevel2,"building lvl. 2",
 Action.Error.NeedLevel3,"building lvl. 3",
 Action.Error.BuildingInProgress,"building in progress",
 Action.Error.RepairInProgress,"is being repaired",
+Action.Error.CantAfford,"cannot afford",
 
 Menu.Tab.HeroInventory.Title,"Inventory",
 Menu.Tab.HeroInventory.Tooltip,"Hero's Inventory",

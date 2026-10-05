@@ -37,7 +37,7 @@ struct PROJECTLORD_API FActionArray
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-    TArray<TSubclassOf<USelectionAction>> Array;
+    TArray<USelectionAction*> Array;
 };
 
 UCLASS(BlueprintType, meta=(BlueprintSpawnableComponent))
@@ -126,10 +126,13 @@ public:
     UVMSummarySlots* GetSlotsVM() const { return SlotsVM; }
     void SetSlotsVM(UVMSummarySlots* InVM) { SlotsVM = InVM; }
 
-    UFUNCTION(BlueprintCallable)
+    /*UFUNCTION(BlueprintCallable)
     UVMSelectionActionTree* GetActionTreeVM() const { return ActionTreeVM; }
     void OverrideActionTreeVM(UVMSelectionActionTree* InVM) { ActionTreeVM = InVM; }
-    UVMSelectionActionTree* BuildDefaultActionTree();
+    UVMSelectionActionTree* BuildDefaultActionTree();*/
+
+    UFUNCTION(BlueprintCallable)
+    UVMSelectionActionTree* MakeActionTreeVM(UObject* Outer) const;
 
     UFUNCTION(BlueprintPure)
     UVMCreatureCategory* GetCategoryVM() const { return CategoryVM; }
@@ -153,14 +156,10 @@ protected:
     TObjectPtr<UTexture2D> Icon;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
-    TArray<TSubclassOf<USelectionAction>> Actions;
+    TArray<USelectionAction*> Actions;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection")
     TMap<FString, FActionArray> ActionTree;
-
-    // Spawned action instances, which are owned by us. We don't use directly, but need to keep alive.
-    UPROPERTY(VisibleInstanceOnly, Category = "Selection")
-    TArray<USelectionAction*> ActionInstances;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection")
     bool bSelectable;
@@ -200,9 +199,6 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMSummarySlots> SlotsVM;
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
-    TObjectPtr<UVMSelectionActionTree> ActionTreeVM;
 
     UPROPERTY(BlueprintReadWrite, Category = "Selection")
     TObjectPtr<UVMCreatureCategory> CategoryVM;

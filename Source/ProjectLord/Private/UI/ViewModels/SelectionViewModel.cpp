@@ -51,7 +51,7 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, bool b
 		LevelVM = Selection->GetLevelVM();
 		ProgressQueueVM = Selection->GetQueueVM();
 		SlotsVM = Selection->GetSlotsVM();
-		ActionTreeVM = Selection->GetActionTreeVM();
+		ActionTreeVM = Selection->MakeActionTreeVM(this);
 		CategoryVM = Selection->GetCategoryVM();
 		AppealVM = Selection->GetAppealVM();
 		InspectVM = Selection->GetInspectVM();

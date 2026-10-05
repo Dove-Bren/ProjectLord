@@ -28,6 +28,7 @@ class AGameTeamState;
 
 struct FStaticSelection;
 struct FToastNotification;
+struct FSelectionActionContext;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
@@ -67,6 +68,9 @@ public:
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName="OnSelectionChange"))
     void BP_OnSelectionChange();
+
+    UFUNCTION(BlueprintCallable, Category = "Selection")
+    FSelectionActionContext MakeSelectionContext(USelectionComponent* Selection = nullptr) const;
 
     UFUNCTION(BlueprintPure, Category = "Hover")
     bool HasHover() const { return bHasHoverInfo; };

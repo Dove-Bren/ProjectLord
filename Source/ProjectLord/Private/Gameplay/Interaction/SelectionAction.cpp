@@ -17,114 +17,124 @@
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
-void USelectionAction::Setup(const FSelectionActionContext& InContext)
+UVMSelectionAction* USelectionAction::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	Context = InContext;
+	auto ViewModel = ConstructBaseVM(Outer);
+
+	// Automatically set up first enabled/hidden state so that
+	// subclasses just need to register listeners for changes
 
 	ESelectionActionFailureReason Reason;
-	bool bEnabled = CanPerform(Reason);
-	ViewModel = UVMSelectionAction::Make(this, this);
+	const bool bEnabled = CanPerform(InContext, Reason);
+	const bool bHidden = IsHidden(InContext);
 	ViewModel->SetEnabled(bEnabled, Reason);
-	ViewModel->SetHidden(IsHidden());
+	ViewModel->SetHidden(bHidden);
+
+	return ViewModel;
 }
 
-bool USelectionAction::IsHidden_Implementation() const
+UVMSelectionAction* USelectionAction::ConstructBaseVM(UObject* Outer) const
+{
+	auto VM = CreateLordVM<UVMSelectionAction>(Outer);
+	VM->Init(this);
+	return VM;
+}
+
+bool USelectionAction::IsHidden_Implementation(const FSelectionActionContext& InContext) const
 {
 	return false;
 }
 
-bool USelectionAction::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool USelectionAction::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
 	ensureMsgf(false, TEXT("Selection Action did not implement CanPerform"));
 	ReasonOut = ESelectionActionFailureReason::None;
 	return false;
 }
 
-bool USelectionAction::Perform_Implementation()
+bool USelectionAction::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
 	ensureMsgf(false, TEXT("Selection Action did not implement Perform"));
 	return false;
 }
 
-void USelectionAction::RefreshToShow_Implementation()
+UVMSelectionAction* USelectionPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	; // Nothing that needs doing
-}
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
-void USelectionPurchase::Setup(const FSelectionActionContext& InContext)
-{
-	Super::Setup(InContext);
-
-	if (ALordPlayerController* PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0)))
+	if (InContext.TeamState)
 	{
-		ESelectionActionFailureReason Reason;
-		bool bEnabled = CanPerform(Reason);
-		ViewModel->SetEnabled(bEnabled, Reason);
-		if (ensure(Context.TeamState))
-		{
-			Context.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, InContext](int Gold)
-				{
-					ESelectionActionFailureReason Reason;
-					bool bEnabled = CanPerform(Reason);
-					ViewModel->SetEnabled(bEnabled, Reason);
-				});
-		}
+		InContext.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, InContext, ViewModel](int Gold)
+			{
+				ESelectionActionFailureReason Reason;
+				bool bEnabled = CanPerform(InContext, Reason);
+				ViewModel->SetEnabled(bEnabled, Reason);
+			});
 	}
+
+	return ViewModel;
 }
 
-bool USelectionPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool USelectionPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
-	// Gold failure is communicated with red text on gold in the tooltip...
-	// TODO
-	return Context.TeamState->GetGold() >= GetGoldCost();
+	if (!InContext.TeamState)
+	{
+		ReasonOut = ESelectionActionFailureReason::None;
+		return false;
+	}
+
+	if (InContext.TeamState->GetGold() < GetGoldCost())
+	{
+		ReasonOut = ESelectionActionFailureReason::CantAfford;
+		return false;
+	}
+	
+	return true;
 }
 
-bool USelectionPurchase::DeductGoldCost()
+bool USelectionPurchase::DeductGoldCost(const FSelectionActionContext& InContext) const
 {
 	const int Cost = GetGoldCost();
-	if (Context.TeamState && Context.TeamState->GetGold() >= Cost)
+	if (InContext.TeamState && InContext.TeamState->GetGold() >= Cost)
 	{
-		Context.TeamState->AddGold(-Cost);
+		InContext.TeamState->AddGold(-Cost);
 		return true;
 	}
 	return false;
 }
 
-void USelectionPurchase::SetGoldCost(int InCost)
+//void USelectionPurchase::SetGoldCost(int InCost)
+//{
+//	if (GoldCost != InCost)
+//	{
+//		GoldCost = InCost;
+//		ViewModel->SetGoldCost(InCost);
+//		{
+//			ESelectionActionFailureReason Reason;
+//			bool bEnabled = CanPerform(Reason);
+//			ViewModel->SetEnabled(bEnabled, Reason);
+//		}
+//	}
+//} MOVE dynamic cost to viewmodel ?
+
+AUnit* UUnitBasedPurchase::GetUnit(const FSelectionActionContext& InContext) const
 {
-	if (GoldCost != InCost)
-	{
-		GoldCost = InCost;
-		ViewModel->SetGoldCost(InCost);
-		{
-			ESelectionActionFailureReason Reason;
-			bool bEnabled = CanPerform(Reason);
-			ViewModel->SetEnabled(bEnabled, Reason);
-		}
-	}
+	return Cast<AUnit>(InContext.Selection->GetOwner());
 }
 
-AUnit* UUnitBasedPurchase::GetUnitInner() const
+UVMSelectionAction* UUnitBasedPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	return Cast<AUnit>(Context.Selection->GetOwner());
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
+
+	//AUnit* UnitOwner = GetUnitInner(); // ? This was doing nothing
+
+	return ViewModel;
 }
 
-AUnit* UUnitBasedPurchase::GetUnit() const
-{
-	return GetUnitInner();
-}
-
-void UUnitBasedPurchase::Setup(const FSelectionActionContext& InContext)
-{
-	Super::Setup(InContext);
-
-	AUnit* UnitOwner = GetUnitInner();
-}
-
-bool UUnitBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool UUnitBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
 	// Must have a unit performing us
-	AUnit* UnitOwner = GetUnit();
+	AUnit* UnitOwner = GetUnit(InContext);
 	if (!IsValid(UnitOwner))
 	{
 		// Not sure what to put here...
@@ -132,77 +142,71 @@ bool UUnitBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason
 		return false;
 	}
 
-	return Super::CanPerform_Implementation(ReasonOut);
+	return Super::CanPerform_Implementation(InContext, ReasonOut);
 }
 
-ARewardFlag* UFlagBasedPurchase::GetFlagInner() const
+ARewardFlag* UFlagBasedPurchase::GetFlag(const FSelectionActionContext& InContext) const
 {
-	return Cast<ARewardFlag>(Context.Selection->GetOwner());
+	return Cast<ARewardFlag>(InContext.Selection->GetOwner());
 }
 
-ARewardFlag* UFlagBasedPurchase::GetFlag() const
+UVMSelectionAction* UFlagBasedPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	return GetFlagInner();
-}
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
-void UFlagBasedPurchase::Setup(const FSelectionActionContext& InContext)
-{
-	Super::Setup(InContext);
-
-	ARewardFlag* FlagOwner = GetFlagInner();
+	ARewardFlag* FlagOwner = GetFlag(InContext);
 	//TODO:
 	// FlagOwner->OnDeath.AddWeakLambda()...
+
+	return ViewModel;
 }
 
-bool UFlagBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool UFlagBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
 	// Must have a unit performing us
-	ARewardFlag* FlagOwner = GetFlag();
+	ARewardFlag* FlagOwner = GetFlag(InContext);
 	if (!IsValid(FlagOwner))
 	{
 		ReasonOut = ESelectionActionFailureReason::None;
 		return false;
 	}
 
-	return Super::CanPerform_Implementation(ReasonOut);
+	return Super::CanPerform_Implementation(InContext, ReasonOut);
 }
 
-ABuilding* UBuildingBasedPurchase::GetBuildingInner() const
+ABuilding* UBuildingBasedPurchase::GetBuilding(const FSelectionActionContext& InContext) const
 {
-	auto ActionOwner = Context.Selection->GetOwner();
+	auto ActionOwner = InContext.Selection->GetOwner();
 	return Cast<ABuilding>(ActionOwner);
 }
 
-ABuilding* UBuildingBasedPurchase::GetBuilding() const
+UVMSelectionAction* UBuildingBasedPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	return GetBuildingInner();
-}
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
-void UBuildingBasedPurchase::Setup(const FSelectionActionContext& InContext)
-{
-	Super::Setup(InContext);
-
-	auto BuildingOwner = GetBuildingInner();
+	auto BuildingOwner = GetBuilding(InContext);
 	if (ensure(BuildingOwner))
 	{
 		// TODO building destruction
-		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(this, [this, InContext](int NewLevel) {
+		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(this, [this, InContext, ViewModel](int NewLevel) {
 			ESelectionActionFailureReason Reason;
-			bool bEnabled = CanPerform(Reason);
+			bool bEnabled = CanPerform(InContext, Reason);
 			ViewModel->SetEnabled(bEnabled, Reason);
 		});
-		BuildingOwner->OnBuildingHealthChanged.AddWeakLambda(this, [this, InContext](int Health, int MaxHealth) {
+		BuildingOwner->OnBuildingHealthChanged.AddWeakLambda(this, [this, InContext, ViewModel](int Health, int MaxHealth) {
 			ESelectionActionFailureReason Reason;
-			bool bEnabled = CanPerform(Reason);
+			bool bEnabled = CanPerform(InContext, Reason);
 			ViewModel->SetEnabled(bEnabled, Reason);
 			});
 	}
+
+	return ViewModel;
 }
 
-bool UBuildingBasedPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
 	// Must have a building performing us
-	ABuilding* BuildingOwner = GetBuilding();
+	ABuilding* BuildingOwner = GetBuilding(InContext);
 	if (!IsValid(BuildingOwner))
 	{
 		ReasonOut = ESelectionActionFailureReason::None;
@@ -218,7 +222,7 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(ESelectionActionFailureRe
 		return false;
 	}
 
-	return Super::CanPerform_Implementation(ReasonOut);
+	return Super::CanPerform_Implementation(InContext, ReasonOut);
 }
 
 void UResearchGoodPurchase::PostInitProperties()
@@ -234,41 +238,43 @@ void UResearchGoodPurchase::PostInitProperties()
 	}
 }
 
-void UResearchGoodPurchase::Setup(const FSelectionActionContext& InContext)
+UVMSelectionAction* UResearchGoodPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	Super::Setup(InContext);
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
-	auto BuildingOwner = GetBuildingInner();
+	auto BuildingOwner = GetBuilding(InContext);
 	auto GoodBuilding = Cast<AGoodBuilding>(BuildingOwner);
 	if (ensure(GoodBuilding))
 	{
-		GoodBuilding->OnBuildingGoodsChanged.AddWeakLambda(this, [this, InContext]()
+		GoodBuilding->OnBuildingGoodsChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
 		{
-			ViewModel->SetHidden(IsHidden());
+			ViewModel->SetHidden(IsHidden(InContext));
 		});
-		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext]()
+		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
 		{
 			ESelectionActionFailureReason Reason;
-			bool bEnabled = CanPerform(Reason);
+			bool bEnabled = CanPerform(InContext, Reason);
 			ViewModel->SetEnabled(bEnabled, Reason);
 		});
 	}
+
+	return ViewModel;
 }
 
-bool UResearchGoodPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool UResearchGoodPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
-	if (!Super::CanPerform_Implementation(ReasonOut))
+	if (!Super::CanPerform_Implementation(InContext, ReasonOut))
 	{
 		return false;
 	}
 
-	if (IsHidden())
+	if (IsHidden(InContext))
 	{
 		return false;
 	}
 
 	// Check if building has good already
-	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(IsValid(BuildingOwner)))
 	{
 		ReasonOut = ESelectionActionFailureReason::None;
@@ -286,10 +292,10 @@ bool UResearchGoodPurchase::CanPerform_Implementation(ESelectionActionFailureRea
 	return true;
 }
 
-bool UResearchGoodPurchase::IsHidden_Implementation() const
+bool UResearchGoodPurchase::IsHidden_Implementation(const FSelectionActionContext& InContext) const
 {
 	// Check if building has good already
-	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(IsValid(BuildingOwner)))
 	{
 		return false;
@@ -298,9 +304,9 @@ bool UResearchGoodPurchase::IsHidden_Implementation() const
 	return BuildingOwner->HasGood(GetGood().Good);
 }
 
-bool UResearchGoodPurchase::Perform_Implementation()
+bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
-	AGoodBuilding* Building = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* Building = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(Building))
 	{
 		return false;
@@ -310,7 +316,7 @@ bool UResearchGoodPurchase::Perform_Implementation()
 	auto Action = NewObject<UQueuedGoodAction>(Queue);
 	Action->Init(GetGoldCost(), GetGood());
 
-	DeductGoldCost();
+	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
 
 	return true;
@@ -329,41 +335,43 @@ void UResearchPlayerSpellPurchase::PostInitProperties()
 	}
 }
 
-void UResearchPlayerSpellPurchase::Setup(const FSelectionActionContext& InContext)
+UVMSelectionAction* UResearchPlayerSpellPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	Super::Setup(InContext);
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
-	auto BuildingOwner = GetBuildingInner();
+	auto BuildingOwner = GetBuilding(InContext);
 	auto GoodBuilding = Cast<AGoodBuilding>(BuildingOwner);
 	if (ensure(GoodBuilding))
 	{
-		GoodBuilding->OnBuildingSpellsChanged.AddWeakLambda(this, [this, InContext]()
+		GoodBuilding->OnBuildingSpellsChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
 			{
-				ViewModel->SetHidden(IsHidden());
+				ViewModel->SetHidden(IsHidden(InContext));
 			});
-		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext]()
+		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
 			{
 				ESelectionActionFailureReason Reason;
-				bool bEnabled = CanPerform(Reason);
+				bool bEnabled = CanPerform(InContext, Reason);
 				ViewModel->SetEnabled(bEnabled, Reason);
 			});
 	}
+
+	return ViewModel;
 }
 
-bool UResearchPlayerSpellPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool UResearchPlayerSpellPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
-	if (!Super::CanPerform_Implementation(ReasonOut))
+	if (!Super::CanPerform_Implementation(InContext, ReasonOut))
 	{
 		return false;
 	}
 
-	if (IsHidden())
+	if (IsHidden(InContext))
 	{
 		return false;
 	}
 
 	// Check if building has spell already
-	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(IsValid(BuildingOwner)))
 	{
 		ReasonOut = ESelectionActionFailureReason::None;
@@ -399,10 +407,10 @@ bool UResearchPlayerSpellPurchase::CanPerform_Implementation(ESelectionActionFai
 	return true;
 }
 
-bool UResearchPlayerSpellPurchase::IsHidden_Implementation() const
+bool UResearchPlayerSpellPurchase::IsHidden_Implementation(const FSelectionActionContext& InContext) const
 {
 	// Check if building has spell already
-	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(IsValid(BuildingOwner)))
 	{
 		return false;
@@ -411,9 +419,9 @@ bool UResearchPlayerSpellPurchase::IsHidden_Implementation() const
 	return BuildingOwner->GetBuildingPlayerSpells().Contains(GetSpell());
 }
 
-bool UResearchPlayerSpellPurchase::Perform_Implementation()
+bool UResearchPlayerSpellPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
-	AGoodBuilding* Building = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* Building = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(Building))
 	{
 		return false;
@@ -423,7 +431,7 @@ bool UResearchPlayerSpellPurchase::Perform_Implementation()
 	auto Action = NewObject<UQueuedSpellAction>(Queue);
 	Action->Init(GetGoldCost(), GetSpell());
 
-	DeductGoldCost();
+	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
 
 	return true;
@@ -445,25 +453,36 @@ void UPlaceBuildingPurchase::PostInitProperties()
 	BaseCost = GetGoldCost();
 }
 
-void UPlaceBuildingPurchase::Setup(const FSelectionActionContext& InContext)
+int UPlaceBuildingPurchase::CalculatePrice(const FSelectionActionContext& InContext) const
 {
-	Super::Setup(InContext);
-
-	auto AdjustCost = [this, InContext]() {
-		// Adjust cost based on number of the same buildings on the team
-		// CostExponentBase^(n-1) * Cost
-		const int Count = InContext.TeamState->GetTeamBuildingsOfType(GetBuildingType()).Num() + 1; // + 1 because this is the price for adding 1
-		const float RawCost = FMath::Pow(CostExponentBase, Count - 1) * BaseCost;
-		int AdjCost = FMath::FloorToInt(RawCost);
-		AdjCost -= AdjCost % 10; // round down to nearest 10
-		SetGoldCost(AdjCost);
-	};
-	InContext.TeamState->OnTeamBuildingsChanged.AddWeakLambda(this, AdjustCost);
-	AdjustCost();
-
+	// Adjust cost based on number of the same buildings on the team
+	// CostExponentBase^(n) * Cost
+	const int Count = InContext.TeamState
+		? InContext.TeamState->GetTeamBuildingsOfType(GetBuildingType()).Num()
+		: 0;
+	const float RawCost = FMath::Pow(CostExponentBase, Count) * BaseCost;
+	int AdjCost = FMath::FloorToInt(RawCost);
+	AdjCost -= AdjCost % 10; // round down to nearest 10
+	
+	return AdjCost;
 }
 
-bool UPlaceBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+UVMSelectionAction* UPlaceBuildingPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
+{
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
+
+	// Override cost with cost based on number of buildings.
+	auto AdjustCost = [this, InContext, ViewModel]() {
+		const int RealCost = CalculatePrice(InContext);
+		ViewModel->SetGoldCost(RealCost);
+	};
+	if (InContext.TeamState) InContext.TeamState->OnTeamBuildingsChanged.AddWeakLambda(this, AdjustCost);
+	AdjustCost();
+
+	return ViewModel;
+}
+
+bool UPlaceBuildingPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
 	// TODO: check building requirements
 
@@ -473,10 +492,10 @@ bool UPlaceBuildingPurchase::CanPerform_Implementation(ESelectionActionFailureRe
 		return false;
 	}
 
-	return Super::CanPerform_Implementation(ReasonOut);
+	return Super::CanPerform_Implementation(InContext, ReasonOut);
 }
 
-bool UPlaceBuildingPurchase::Perform_Implementation()
+bool UPlaceBuildingPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
 	ALordPlayerController* Controller = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (!Controller)
@@ -502,35 +521,37 @@ void URecruitUnitPurchase::PostInitProperties()
 	}
 }
 
-void URecruitUnitPurchase::Setup(const FSelectionActionContext& InContext)
+UVMSelectionAction* URecruitUnitPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	Super::Setup(InContext);
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
-	auto ResidentOwner = Cast<AResidentialBuilding>(GetBuildingInner());
+	auto ResidentOwner = Cast<AResidentialBuilding>(GetBuilding(InContext));
 	if (ensure(ResidentOwner))
 	{
-		ResidentOwner->OnResidentsChanged.AddWeakLambda(this, [this, InContext]()
+		ResidentOwner->OnResidentsChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
 			{
 				ESelectionActionFailureReason Reason;
-				bool bEnabled = CanPerform(Reason);
+				bool bEnabled = CanPerform(InContext, Reason);
 				ViewModel->SetEnabled(bEnabled, Reason);
 			});
 		auto GoodOwner = Cast<AGoodBuilding>(ResidentOwner);
 		if (ensure(GoodOwner))
 		{
-			GoodOwner->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext]()
+			GoodOwner->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
 				{
 					ESelectionActionFailureReason Reason;
-					bool bEnabled = CanPerform(Reason);
+					bool bEnabled = CanPerform(InContext, Reason);
 					ViewModel->SetEnabled(bEnabled, Reason);
 				});
 		}
 	}
+
+	return ViewModel;
 }
 
-bool URecruitUnitPurchase::CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const
+bool URecruitUnitPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
 {
-	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* BuildingOwner = Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(IsValid(BuildingOwner)))
 	{
 		ReasonOut = ESelectionActionFailureReason::None;
@@ -551,12 +572,12 @@ bool URecruitUnitPurchase::CanPerform_Implementation(ESelectionActionFailureReas
 		return false;
 	}
 
-	return Super::CanPerform_Implementation(ReasonOut);
+	return Super::CanPerform_Implementation(InContext, ReasonOut);
 }
 
-bool URecruitUnitPurchase::Perform_Implementation()
+bool URecruitUnitPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
-	AGoodBuilding* Building= Cast<AGoodBuilding>(GetBuilding());
+	AGoodBuilding* Building= Cast<AGoodBuilding>(GetBuilding(InContext));
 	if (!ensure(Building))
 	{
 		return false;
@@ -567,7 +588,7 @@ bool URecruitUnitPurchase::Perform_Implementation()
 	auto Action = NewObject<UQueuedRecruitAction>(Queue);
 	Action->Init(GetGoldCost(), GetUnitType());
 
-	DeductGoldCost();
+	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
 
 	return true;

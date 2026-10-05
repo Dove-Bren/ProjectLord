@@ -3,28 +3,30 @@
 #include "UI/ViewModels/SelectionActionViewModel.h"
 
 #include "Gameplay/Interaction/SelectionAction.h"
+#include "Gameplay/Player/LordPlayerController.h"
 
 #include "Kismet/GameplayStatics.h"
 
-/*static*/ UVMSelectionAction* UVMSelectionAction::Make(UObject* Outer, USelectionAction* Action)
+void UVMSelectionAction::Init(const USelectionAction* InAction)
 {
-	auto VM = CreateLordVM<UVMSelectionAction>(Outer);
-
-	VM->SetName(Action->GetName());
-	VM->SetDescription(Action->GetDescription());
+	SetName(Action->GetName());
+	SetDescription(Action->GetDescription());
 
 	if (auto CostAction = Cast<USelectionPurchase>(Action))
 	{
-		VM->SetGoldCost(CostAction->GetGoldCost());
+		SetGoldCost(CostAction->GetGoldCost());
 	}
 
-	VM->SetIcon(Action->GetIcon());
-	VM->Action = Action;
-
-	return VM;
+	SetIcon(Action->GetIcon());
+	Action = Action;
 }
 
-void UVMSelectionAction::OverrideAction(USelectionAction* NewAction)
+void UVMSelectionAction::SetParentTree(UVMSelectionActionTree* Tree)
+{
+	ActionTree = Tree;
+}
+
+void UVMSelectionAction::OverrideAction(const USelectionAction* NewAction)
 {
 	Action = NewAction;
 }
@@ -36,13 +38,26 @@ void UVMSelectionAction::Perform()
 		return;
 	}
 
-	Action.Get()->Perform();
+	Action.Get()->Perform(GetContext());
 }
 
 void UVMSelectionAction::OnShown()
 {
-	if (Action.IsValid())
+	// TODO remove
+	/*if (Action.IsValid())
 	{
 		Action->RefreshToShow();
+	}*/
+}
+
+FSelectionActionContext UVMSelectionAction::GetContext() const
+{
+	auto PC = UGameplayStatics::GetPlayerController(this, 0);
+	auto LordPC = Cast<ALordPlayerController>(PC);
+	if (ensure(LordPC))
+	{
+		return LordPC->MakeSelectionContext();
 	}
+
+	return {};
 }

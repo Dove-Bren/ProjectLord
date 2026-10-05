@@ -107,10 +107,10 @@ void AGoodBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent
     InSelectionComponent->SetQueueVM(QueueComponent->GetViewModel());
     OnBuildingGoodsChanged.AddWeakLambda(this, [this, InSelectionComponent]()
     {
-        if (auto Tree = InSelectionComponent->GetActionTreeVM())
+        /*if (auto Tree = InSelectionComponent->GetActionTreeVM())
         {
             Tree->RefreshPage();
-        }
+        }*/
     });
 }
 

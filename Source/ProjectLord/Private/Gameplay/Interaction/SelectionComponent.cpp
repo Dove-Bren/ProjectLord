@@ -5,10 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Gameplay/Interaction/SelectionAction.h"
-#include "Gameplay/LordGameState.h"
-#include "Gameplay/Player/LordPlayerState.h"
-#include "UI/ViewModels/SelectionViewModel.h"
-#include "UI/ViewModels/SelectionActionViewModel.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
 
 USelectionComponent::USelectionComponent()
@@ -22,7 +19,7 @@ void USelectionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ActionTreeVM = BuildDefaultActionTree();
+	//ActionTreeVM = BuildDefaultActionTree();
 
 	//ViewModel = CreateLordVM<UVMSelection>(this);
 	//ViewModel->SetName(GetName(GetOwner()));
@@ -39,14 +36,14 @@ void USelectionComponent::Select()
 {
 	bSelected = true;
 
-	// Reset action tree
-	ActionTreeVM->GoToRoot();
+	//// Reset action tree
+	//ActionTreeVM->GoToRoot();
 
-	// Refresh actions
-	for (auto Action : ActionInstances)
-	{
-		Action->RefreshToShow();
-	}
+	//// Refresh actions
+	//for (auto Action : ActionInstances)
+	//{
+	//	Action->RefreshToShow();
+	//}
 
 	OnSelected.Broadcast();
 }
@@ -72,43 +69,31 @@ void USelectionComponent::Unhover()
 void USelectionComponent::SetTeam(EGameTeam InTeam)
 {
 	Team = InTeam;
-
-	// Actions bind to things driven from the team, so regenerate
-	ActionTreeVM = BuildDefaultActionTree();
 }
 
-UVMSelectionActionTree* USelectionComponent::BuildDefaultActionTree()
+UVMSelectionActionTree* USelectionComponent::MakeActionTreeVM(UObject* Outer) const
 {
-	UVMSelectionActionTree* VM = CreateLordVM<UVMSelectionActionTree>(this);
-	auto GameState = Cast<ALordGameState>(UGameplayStatics::GetGameState(this));
-	auto RawState = UGameplayStatics::GetPlayerState(this, 0);
-	FSelectionActionContext Context;
-	Context.Selection = this;
-	Context.PlayerState = Cast<ALordPlayerState>(RawState);
-	Context.TeamState = GameState ? GameState->GetTeam(Team) : nullptr;
-	Context.ActionTree = VM;
+	auto PC = GetWorld()->GetFirstPlayerController<ALordPlayerController>();
+	check(PC);
 
-	ActionInstances.Empty();
+	auto Context = PC->MakeSelectionContext();
+	UVMSelectionActionTree* VM = CreateLordVM<UVMSelectionActionTree>(Outer);
 
 	for (auto& Page : ActionTree)
 	{
 		TArray<UVMSelectionAction*> ActionVMs;
 
-		for (auto& ActionClass : Page.Value.Array)
+		for (auto& Action : Page.Value.Array)
 		{
 			UVMSelectionAction* AvailableActionVM;
 			
-			if (!IsValid(ActionClass))
+			if (!IsValid(Action))
 			{
 				AvailableActionVM = nullptr;
 			}
 			else
 			{
-				auto Action = NewObject<USelectionAction>(this, ActionClass);
-				Action->Setup(Context);
-				ActionInstances.Add(Action);
-
-				AvailableActionVM = Action->GetViewModel();
+				AvailableActionVM = Action->MakeViewModel(Outer, Context);
 			}
 			ActionVMs.Add(AvailableActionVM);
 		}

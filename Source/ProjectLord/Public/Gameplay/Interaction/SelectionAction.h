@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+#include "Engine/DataAsset.h"
+
 #include "Gameplay/GameGood.h"
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 
@@ -19,7 +21,6 @@ class UBuildingType;
 class UVMSelectionaction;
 class AGameTeamState;
 class ARewardFlag;
-class UVMSelectionActionTree;
 
 UENUM(BlueprintType)
 enum class ESelectionActionFailureReason : uint8
@@ -31,7 +32,7 @@ enum class ESelectionActionFailureReason : uint8
     NeedLevel3,
     BuildingInProgress,
     RepairInProgress,
-
+    CantAfford,
 };
 
 USTRUCT(BlueprintType)
@@ -49,31 +50,28 @@ public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
     TObjectPtr<USelectionComponent> Selection;
-
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
-    TObjectPtr<UVMSelectionActionTree> ActionTree;
 };
 
 UCLASS(Blueprintable, Abstract)
-class PROJECTLORD_API USelectionAction : public UObject
+class PROJECTLORD_API USelectionAction : public UPrimaryDataAsset
 {
     GENERATED_BODY()
 
 public:
 
-    virtual void Setup(const FSelectionActionContext& Context);
+    //virtual void Setup(const FSelectionActionContext& Context);
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Selection|Action")
-    bool IsHidden() const;
+    bool IsHidden(const FSelectionActionContext& Context) const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Selection|Action")
-    bool CanPerform(ESelectionActionFailureReason& ReasonOut) const;
+    bool CanPerform(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
-    bool Perform();
+    bool Perform(const FSelectionActionContext& Context) const;
 
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
-    void RefreshToShow();
+    //UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
+    //void RefreshToShow();
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     FText GetName() const { return Name; }
@@ -84,8 +82,8 @@ public:
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     UTexture2D* GetIcon() const { return Icon; }
 
-    UFUNCTION(BlueprintPure, Category = "Selection|Action")
-    UVMSelectionAction* GetViewModel() const { return ViewModel; }
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
+    UVMSelectionAction* MakeViewModel(UObject* Outer, const FSelectionActionContext& Context) const;
 
 protected:
 
@@ -98,11 +96,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Basic")
     TObjectPtr<UTexture2D> Icon;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Selection|Action")
-    FSelectionActionContext Context;
-
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Selection|Action")
-    TObjectPtr<UVMSelectionAction> ViewModel;
+    virtual UVMSelectionAction* ConstructBaseVM(UObject* Outer) const;
 };
 
 UCLASS(Blueprintable, Abstract)
@@ -112,8 +106,8 @@ class PROJECTLORD_API USelectionPurchase : public USelectionAction
 
 public:
 
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
     int GetGoldCost() const { return GoldCost; }
@@ -125,10 +119,10 @@ protected:
     int GoldCost;
 
     UFUNCTION(BlueprintCallable, Category = "Selection|Action")
-    bool DeductGoldCost();
+    bool DeductGoldCost(const FSelectionActionContext& Context) const;
 
-    UFUNCTION(BlueprintCallable, Category = "Selection|Action")
-    void SetGoldCost(int InCost);
+    /*UFUNCTION(BlueprintCallable, Category = "Selection|Action")
+    void SetGoldCost(int InCost);*/ // TODO remove
 };
 
 // A purchase action that's on a unit directly. Note these are NOT actions on
@@ -140,13 +134,11 @@ class PROJECTLORD_API UUnitBasedPurchase : public USelectionPurchase
 
 public:
 
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
-    AUnit* GetUnit() const;
-
-    AUnit* GetUnitInner() const;
+    AUnit* GetUnit(const FSelectionActionContext& Context) const;
 };
 
 // A purchase action that's on a reward flag.
@@ -157,13 +149,11 @@ class PROJECTLORD_API UFlagBasedPurchase: public USelectionPurchase
 
 public:
 
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
-    ARewardFlag* GetFlag() const;
-
-    ARewardFlag* GetFlagInner() const;
+    ARewardFlag* GetFlag(const FSelectionActionContext& Context) const;
 };
 
 UCLASS(Blueprintable, Abstract)
@@ -173,20 +163,18 @@ class PROJECTLORD_API UBuildingBasedPurchase : public USelectionPurchase
 
 public:
 
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
-    ABuilding* GetBuilding() const;
-
-    ABuilding* GetBuildingInner() const;
+    ABuilding* GetBuilding(const FSelectionActionContext& Context) const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Purchase")
     int RequiredBuildingLevel = 0;
 };
 
-UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
+UCLASS(Blueprintable, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API UResearchGoodPurchase : public UBuildingBasedPurchase
 {
     GENERATED_BODY()
@@ -194,11 +182,11 @@ class PROJECTLORD_API UResearchGoodPurchase : public UBuildingBasedPurchase
 public:
 
     // Make sure building doesn't already have it
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
-    virtual bool IsHidden_Implementation() const;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
+    virtual bool IsHidden_Implementation(const FSelectionActionContext& Context) const;
 
-    virtual bool Perform_Implementation() override;
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
     FGoodOffer GetGood() const { return Good; }
@@ -210,7 +198,7 @@ protected:
     FGoodOffer Good;
 };
 
-UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
+UCLASS(Blueprintable, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API UResearchPlayerSpellPurchase : public UBuildingBasedPurchase
 {
     GENERATED_BODY()
@@ -218,11 +206,11 @@ class PROJECTLORD_API UResearchPlayerSpellPurchase : public UBuildingBasedPurcha
 public:
 
     // Make sure building doesn't already have it
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
-    virtual bool IsHidden_Implementation() const;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
+    virtual bool IsHidden_Implementation(const FSelectionActionContext& Context) const;
 
-    virtual bool Perform_Implementation() override;
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
     UPlayerSpell* GetSpell() const { return Spell; }
@@ -234,7 +222,7 @@ protected:
     TObjectPtr<UPlayerSpell> Spell;
 };
 
-UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
+UCLASS(Blueprintable, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API UPlaceBuildingPurchase : public USelectionPurchase
 {
     GENERATED_BODY()
@@ -242,15 +230,18 @@ class PROJECTLORD_API UPlaceBuildingPurchase : public USelectionPurchase
 public:
 
     // Check for any special reqirements based on the building type
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
-    virtual bool Perform_Implementation() override;
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Place")
     UBuildingType* GetBuildingType() const { return BuildingType; }
 
+    UFUNCTION(BlueprintCallable, Category = "Selection|Action|Place")
+    int CalculatePrice(const FSelectionActionContext& Context) const;
+
     virtual void PostInitProperties() override;
-    virtual void Setup(const FSelectionActionContext& Context) override;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Place")
@@ -264,7 +255,7 @@ protected:
     int BaseCost;
 };
 
-UCLASS(Blueprintable, Abstract, HideCategories = ("Selection|Action|Basic"))
+UCLASS(Blueprintable, HideCategories = ("Selection|Action|Basic"))
 class PROJECTLORD_API URecruitUnitPurchase : public UBuildingBasedPurchase
 {
     GENERATED_BODY()
@@ -272,10 +263,10 @@ class PROJECTLORD_API URecruitUnitPurchase : public UBuildingBasedPurchase
 public:
 
     // Make sure building has room
-    virtual void Setup(const FSelectionActionContext& Context) override;
-    virtual bool CanPerform_Implementation(ESelectionActionFailureReason& ReasonOut) const override;
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
-    virtual bool Perform_Implementation() override;
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Recruit")
     UUnitType* GetUnitType() const { return UnitType; }

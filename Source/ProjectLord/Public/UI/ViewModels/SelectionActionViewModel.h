@@ -9,6 +9,7 @@
 #include "SelectionActionViewModel.generated.h"
 
 class USelectionAction;
+class UVMSelectionActionTree;
 enum class ESelectionActionFailureReason : uint8;
 
 UCLASS(BlueprintType)
@@ -37,16 +38,18 @@ public:
 
     ESelectionActionFailureReason GetDisableReason() const { return DisableReason; }
 
-    static UVMSelectionAction* Make(UObject* Outer, USelectionAction* Action);
+    void SetParentTree(UVMSelectionActionTree* Tree);
 
     // Not part of normal use
-    void OverrideAction(USelectionAction* NewAction);
+    void OverrideAction(const USelectionAction* NewAction);
 
     UFUNCTION(BlueprintCallable)
-    void Perform();
+    virtual void Perform();
 
     UFUNCTION(BlueprintCallable)
-    void OnShown();
+    virtual void OnShown();
+
+    void Init(const USelectionAction* InAction);
 
 
 protected:
@@ -73,5 +76,11 @@ protected:
     bool bHidden;
 
     UPROPERTY()
-    TWeakObjectPtr<USelectionAction> Action;
+    TWeakObjectPtr<const USelectionAction> Action;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
+    TObjectPtr<UVMSelectionActionTree> ActionTree;
+
+    UFUNCTION(BlueprintCallable, Category = "Selection|Action")
+    FSelectionActionContext GetContext() const;
 };

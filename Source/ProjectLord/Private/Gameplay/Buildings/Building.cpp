@@ -484,10 +484,11 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
 
     OnBuildingLevelChanged.AddWeakLambda(this, [this, InSelectionComponent](int NewLevel)
         {
-            if (auto Tree = InSelectionComponent->GetActionTreeVM())
+            // TODO: Want to issue selection refreshes
+            /*if (auto Tree = InSelectionComponent->GetActionTreeVM())
             {
                 Tree->RefreshPage();
-            }
+            }*/
         });
 }
 
