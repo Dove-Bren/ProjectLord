@@ -94,6 +94,7 @@ UVMSelectionActionTree* USelectionComponent::MakeActionTreeVM(UObject* Outer) co
 			else
 			{
 				AvailableActionVM = Action->MakeViewModel(Outer, Context);
+				AvailableActionVM->SetParentTree(VM);
 			}
 			ActionVMs.Add(AvailableActionVM);
 		}

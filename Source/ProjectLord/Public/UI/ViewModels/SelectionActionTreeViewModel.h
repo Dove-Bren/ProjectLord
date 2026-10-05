@@ -78,6 +78,11 @@ public:
 
     FString GetPage() const { return PageName; }
 
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const override
+    {
+        return true;
+    }
+
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Tree")
     FString PageName;
@@ -91,6 +96,12 @@ class PROJECTLORD_API UTreeBackAction : public USelectionAction
     GENERATED_BODY()
 
 public:
+
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const override
+    {
+        return true;
+    }
+
 
 protected:
 
@@ -155,5 +166,8 @@ public:
 
     virtual void Perform() override;
     virtual void OnShown() override;
+
+    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+    TObjectPtr<const UTreeCompositeBuildingPurchase> CompositeAction;
 
 };

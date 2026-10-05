@@ -110,7 +110,7 @@ public:
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
 
     UFUNCTION(BlueprintPure, Category = "Selection|Action")
-    int GetGoldCost() const { return GoldCost; }
+    virtual int GetGoldCost(const FSelectionActionContext& Context) const { return GoldCost; }
 
 
 protected:
@@ -191,7 +191,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
     FGoodOffer GetGood() const { return Good; }
 
-    virtual void PostInitProperties() override;
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
@@ -215,11 +217,29 @@ public:
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Research")
     UPlayerSpell* GetSpell() const { return Spell; }
 
-    virtual void PostInitProperties() override;
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Research")
     TObjectPtr<UPlayerSpell> Spell;
+};
+
+UCLASS(Blueprintable)
+class PROJECTLORD_API UUpgradeBuildingPurchase : public UBuildingBasedPurchase
+{
+    GENERATED_BODY()
+
+public:
+
+    virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
+    virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;
+    virtual bool IsHidden_Implementation(const FSelectionActionContext& Context) const;
+
+    virtual bool Perform_Implementation(const FSelectionActionContext& Context) const override;
+    virtual int GetGoldCost(const FSelectionActionContext& Context) const override;
+
 };
 
 UCLASS(Blueprintable, HideCategories = ("Selection|Action|Basic"))
@@ -240,7 +260,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Selection|Action|Place")
     int CalculatePrice(const FSelectionActionContext& Context) const;
 
-    virtual void PostInitProperties() override;
+    virtual int GetGoldCost(const FSelectionActionContext& Context) const override { return CalculatePrice(Context); }
+
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
     virtual UVMSelectionAction* MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& Context) const override;
 
 protected:
@@ -271,7 +295,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Selection|Action|Recruit")
     UUnitType* GetUnitType() const { return UnitType; }
 
-    virtual void PostInitProperties() override;
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Recruit")

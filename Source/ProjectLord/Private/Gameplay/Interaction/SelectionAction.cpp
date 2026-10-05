@@ -62,6 +62,8 @@ UVMSelectionAction* USelectionPurchase::MakeViewModel_Implementation(UObject* Ou
 {
 	auto ViewModel = Super::MakeViewModel_Implementation(Outer,  InContext);
 
+	ViewModel->SetGoldCost(GetGoldCost(InContext));
+
 	if (InContext.TeamState)
 	{
 		InContext.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, InContext, ViewModel](int Gold)
@@ -83,18 +85,19 @@ bool USelectionPurchase::CanPerform_Implementation(const FSelectionActionContext
 		return false;
 	}
 
-	if (InContext.TeamState->GetGold() < GetGoldCost())
+	if (InContext.TeamState->GetGold() < GetGoldCost(InContext))
 	{
 		ReasonOut = ESelectionActionFailureReason::CantAfford;
 		return false;
 	}
 	
+	ReasonOut = ESelectionActionFailureReason::None;
 	return true;
 }
 
 bool USelectionPurchase::DeductGoldCost(const FSelectionActionContext& InContext) const
 {
-	const int Cost = GetGoldCost();
+	const int Cost = GetGoldCost(InContext);
 	if (InContext.TeamState && InContext.TeamState->GetGold() >= Cost)
 	{
 		InContext.TeamState->AddGold(-Cost);
@@ -225,18 +228,20 @@ bool UBuildingBasedPurchase::CanPerform_Implementation(const FSelectionActionCon
 	return Super::CanPerform_Implementation(InContext, ReasonOut);
 }
 
-void UResearchGoodPurchase::PostInitProperties()
+#if WITH_EDITOR
+void UResearchGoodPurchase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::PostInitProperties();
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	// Get name, desc, icon from the linked good
-	if (Good.Good)
+	FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, Good) && Good.Good)
 	{
 		Name = Good.Good->GetName();
 		Description = Good.Good->GetDescription();
 		Icon = Good.Good->GetIcon();
 	}
 }
+#endif // WITH_EDITOR
 
 UVMSelectionAction* UResearchGoodPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
@@ -314,7 +319,7 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 	auto Queue = Building->GetQueueComponent();
 
 	auto Action = NewObject<UQueuedGoodAction>(Queue);
-	Action->Init(GetGoldCost(), GetGood());
+	Action->Init(GetGoldCost(InContext), GetGood());
 
 	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
@@ -322,18 +327,20 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 	return true;
 }
 
-void UResearchPlayerSpellPurchase::PostInitProperties()
+#if WITH_EDITOR
+void UResearchPlayerSpellPurchase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::PostInitProperties();
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	// Get name, desc, icon from the linked good
-	if (Spell)
+	FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, Spell) && Spell)
 	{
 		Name = Spell->GetSpellName();
 		Description = Spell->GetSpellDescription();
 		Icon = Spell->GetSpellIcon();
 	}
 }
+#endif // WITH_EDITOR
 
 UVMSelectionAction* UResearchPlayerSpellPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
@@ -429,7 +436,7 @@ bool UResearchPlayerSpellPurchase::Perform_Implementation(const FSelectionAction
 	auto Queue = Building->GetQueueComponent();
 
 	auto Action = NewObject<UQueuedSpellAction>(Queue);
-	Action->Init(GetGoldCost(), GetSpell());
+	Action->Init(GetGoldCost(InContext), GetSpell());
 
 	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
@@ -437,21 +444,94 @@ bool UResearchPlayerSpellPurchase::Perform_Implementation(const FSelectionAction
 	return true;
 }
 
-void UPlaceBuildingPurchase::PostInitProperties()
+UVMSelectionAction* UUpgradeBuildingPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
-	Super::PostInitProperties();
+	auto ViewModel = Super::MakeViewModel_Implementation(Outer, InContext);
 
-	// Get name, desc, icon from the building type
-	if (IsValid(BuildingType))
+	auto BuildingOwner = GetBuilding(InContext);
+	if (ensure(BuildingOwner))
+	{
+		BuildingOwner->OnBuildingAvailableLevelChanged.AddWeakLambda(this, [this, InContext, ViewModel](int AvailableLevel)
+			{
+				ViewModel->SetHidden(IsHidden(InContext));
+			});
+	}
+
+	return ViewModel;
+}
+
+bool UUpgradeBuildingPurchase::CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const
+{
+	auto BuildingOwner = GetBuilding(InContext);
+	if (!BuildingOwner)
+	{
+		ReasonOut = ESelectionActionFailureReason::None;
+		return false;
+	}
+
+	if (!BuildingOwner->CanLevelUp())
+	{
+		ReasonOut = BuildingOwner->IsUnderConstruction()
+			? ESelectionActionFailureReason::BuildingInProgress
+			: ESelectionActionFailureReason::RepairInProgress;
+		return false;
+	}
+
+	return Super::CanPerform_Implementation(InContext, ReasonOut);
+}
+
+bool UUpgradeBuildingPurchase::IsHidden_Implementation(const FSelectionActionContext& InContext) const
+{
+	auto BuildingOwner = GetBuilding(InContext);
+	if (!BuildingOwner)
+	{
+		return true;
+	}
+
+	return BuildingOwner->GetBuildingAvailableLevel() >= BuildingOwner->GetBuildingMaxLevel();
+}
+
+bool UUpgradeBuildingPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
+{
+	auto BuildingOwner = GetBuilding(InContext);
+	if (!ensure(BuildingOwner))
+	{
+		return false;
+	}
+
+	if (!DeductGoldCost(InContext))
+	{
+		return false;
+	}
+
+	BuildingOwner->StartLevelUp();
+	return true;
+}
+
+int UUpgradeBuildingPurchase::GetGoldCost(const FSelectionActionContext& InContext) const
+{
+	auto BuildingOwner = GetBuilding(InContext);
+	return BuildingOwner ? BuildingOwner->GetLevelUpCost() : 500;
+}
+
+#if WITH_EDITOR
+void UPlaceBuildingPurchase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, BuildingType) && IsValid(BuildingType))
 	{
 		Name = BuildingType->BuildingName;
 		Description = BuildingType->BuildingDescription;
 		Icon = BuildingType->BuildingIcon;
 	}
-
-	// Also capture base price, since we're going to adjust the normal cost
-	BaseCost = GetGoldCost();
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, GoldCost))
+	{
+		BaseCost = GoldCost;
+	}
 }
+#endif // WITH_EDITOR
 
 int UPlaceBuildingPurchase::CalculatePrice(const FSelectionActionContext& InContext) const
 {
@@ -497,29 +577,31 @@ bool UPlaceBuildingPurchase::CanPerform_Implementation(const FSelectionActionCon
 
 bool UPlaceBuildingPurchase::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
-	ALordPlayerController* Controller = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	// Note: not using 'this' for world context, because 'this' is a data asset and has no world
+	ALordPlayerController* Controller = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(InContext.Selection, 0));
 	if (!Controller)
 	{
 		return false;
 	}
 
-	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost());
+	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost(InContext));
 	return true;
 }
 
-void URecruitUnitPurchase::PostInitProperties()
+#if WITH_EDITOR
+void URecruitUnitPurchase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::PostInitProperties();
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	// Get name, desc, icon from the unit type
-	auto Type = GetUnitType();
-	if (IsValid(Type))
+	FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ThisClass, UnitType) && IsValid(UnitType))
 	{
-		Name = Type->UnitName;
-		Description = Type->UnitDescription;
-		Icon = Type->UnitIcon;
+		Name = UnitType->UnitName;
+		Description = UnitType->UnitDescription;
+		Icon = UnitType->UnitIcon;
 	}
 }
+#endif // WITH_EDITOR
 
 UVMSelectionAction* URecruitUnitPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
@@ -586,7 +668,7 @@ bool URecruitUnitPurchase::Perform_Implementation(const FSelectionActionContext&
 	auto Queue = Building->GetQueueComponent();
 
 	auto Action = NewObject<UQueuedRecruitAction>(Queue);
-	Action->Init(GetGoldCost(), GetUnitType());
+	Action->Init(GetGoldCost(InContext), GetUnitType());
 
 	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);

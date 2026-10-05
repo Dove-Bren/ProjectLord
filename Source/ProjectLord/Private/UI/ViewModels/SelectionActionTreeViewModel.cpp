@@ -128,7 +128,10 @@ UVMSelectionAction* UTreePageAction::ConstructBaseVM(UObject* Outer) const
 void UVMTreePageAction::Perform()
 {
 	// Don't need to call super / actually call action. Operate on tree.
-	ActionTree->GoToPage(Page);
+	if (ensure(ActionTree))
+	{
+		ActionTree->GoToPage(Page);
+	}
 }
 
 UVMSelectionAction* UTreeBackAction::ConstructBaseVM(UObject* Outer) const
@@ -142,7 +145,10 @@ UVMSelectionAction* UTreeBackAction::ConstructBaseVM(UObject* Outer) const
 void UVMTreeBackAction::Perform()
 {
 	// Don't need to call super / actually call action. Operate on tree.
-	ActionTree->GoBack();
+	if (ensure(ActionTree))
+	{
+		ActionTree->GoBack();
+	}
 }
 
 UVMSelectionAction* UTreeCompositeBuildingPurchase::ConstructBaseVM(UObject* Outer) const
@@ -156,6 +162,8 @@ UVMSelectionAction* UTreeCompositeBuildingPurchase::ConstructBaseVM(UObject* Out
 UVMSelectionAction* UTreeCompositeBuildingPurchase::MakeViewModel_Implementation(UObject* Outer, const FSelectionActionContext& InContext) const
 {
 	auto ViewModel = Super::MakeViewModel_Implementation(Outer, InContext);
+
+	Cast<UVMCompositeSelectionAction>(ViewModel)->CompositeAction = this;
 
 	// Almost wish this func could visit each action and register a callback for when it thinks its VM should refresh at all.
 
@@ -217,7 +225,7 @@ void UVMCompositeSelectionAction::OnShown()
 	// Manually poll and refresh since base action doesn't have listeners
 	// Update our values
 	auto Context = GetContext();
-	auto RealAction = Cast<UTreeCompositeBuildingPurchase>(Action)->GetCurrentAction(Context);
+	auto RealAction = CompositeAction->GetCurrentAction(Context);
 
 	if (!RealAction)
 	{
@@ -233,7 +241,7 @@ void UVMCompositeSelectionAction::OnShown()
 		SetHidden(false); // Wouldn't be in this block otherwise
 		if (auto CostAction = Cast<USelectionPurchase>(RealAction))
 		{
-			SetGoldCost(CostAction->GetGoldCost());
+			SetGoldCost(CostAction->GetGoldCost(Context));
 		}
 
 		SetIcon(RealAction->GetIcon());

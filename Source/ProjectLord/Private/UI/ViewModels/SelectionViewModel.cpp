@@ -51,12 +51,16 @@ void UVMSelection::SetFromSelection(const USelectionComponent* Selection, bool b
 		LevelVM = Selection->GetLevelVM();
 		ProgressQueueVM = Selection->GetQueueVM();
 		SlotsVM = Selection->GetSlotsVM();
-		ActionTreeVM = Selection->MakeActionTreeVM(this);
 		CategoryVM = Selection->GetCategoryVM();
 		AppealVM = Selection->GetAppealVM();
 		InspectVM = Selection->GetInspectVM();
 		StatModsVM = Selection->GetStatModsVM();
 		//TargetVM = Selection->GetTargetVM();
+
+		if (bIncludeActions)
+		{
+			ActionTreeVM = Selection->MakeActionTreeVM(Selection->GetWorld());
+		}
 
 		SetPresent(true);
 

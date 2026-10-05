@@ -9,16 +9,11 @@
 
 void UVMSelectionAction::Init(const USelectionAction* InAction)
 {
+	Action = InAction;
 	SetName(Action->GetName());
 	SetDescription(Action->GetDescription());
 
-	if (auto CostAction = Cast<USelectionPurchase>(Action))
-	{
-		SetGoldCost(CostAction->GetGoldCost());
-	}
-
 	SetIcon(Action->GetIcon());
-	Action = Action;
 }
 
 void UVMSelectionAction::SetParentTree(UVMSelectionActionTree* Tree)
