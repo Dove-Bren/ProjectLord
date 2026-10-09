@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
 
 #include "Gameplay/Units/HeroEquipment.h"
 
@@ -12,7 +13,7 @@ DECLARE_MULTICAST_DELEGATE(FOnInventoryItemsChanged);
 DECLARE_MULTICAST_DELEGATE(FOnInventoryGoldChanged);
 
 UCLASS(BlueprintType)
-class PROJECTLORD_API UHeroInventory : public UObject
+class PROJECTLORD_API UHeroInventory : public UActorComponent
 {
     GENERATED_BODY()
 
