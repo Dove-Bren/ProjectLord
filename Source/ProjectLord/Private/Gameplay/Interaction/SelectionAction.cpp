@@ -66,9 +66,9 @@ UVMSelectionAction* USelectionPurchase::MakeViewModel_Implementation(UObject* Ou
 
 	if (InContext.TeamState)
 	{
-		InContext.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, InContext, ViewModel](int Gold)
+		InContext.TeamState->OnTeamGoldChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel](int Gold)
 			{
-				if (IsValid(ViewModel))
+				if (IsValid(this))
 				{
 					ESelectionActionFailureReason Reason;
 					bool bEnabled = CanPerform(InContext, Reason);
@@ -194,12 +194,14 @@ UVMSelectionAction* UBuildingBasedPurchase::MakeViewModel_Implementation(UObject
 	if (ensure(BuildingOwner))
 	{
 		// TODO building destruction
-		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(this, [this, InContext, ViewModel](int NewLevel) {
+		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel](int NewLevel) {
+			if (!IsValid(this)) return;
 			ESelectionActionFailureReason Reason;
 			bool bEnabled = CanPerform(InContext, Reason);
 			ViewModel->SetEnabled(bEnabled, Reason);
 		});
-		BuildingOwner->OnBuildingHealthChanged.AddWeakLambda(this, [this, InContext, ViewModel](int Health, int MaxHealth) {
+		BuildingOwner->OnBuildingHealthChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel](int Health, int MaxHealth) {
+			if (!IsValid(this)) return;
 			ESelectionActionFailureReason Reason;
 			bool bEnabled = CanPerform(InContext, Reason);
 			ViewModel->SetEnabled(bEnabled, Reason);
@@ -254,12 +256,14 @@ UVMSelectionAction* UResearchGoodPurchase::MakeViewModel_Implementation(UObject*
 	auto GoodBuilding = Cast<AGoodBuilding>(BuildingOwner);
 	if (ensure(GoodBuilding))
 	{
-		GoodBuilding->OnBuildingGoodsChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
+		GoodBuilding->OnBuildingGoodsChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel]()
 		{
+			if (!IsValid(this)) return;
 			ViewModel->SetHidden(IsHidden(InContext));
 		});
-		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
+		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel]()
 		{
+			if (!IsValid(this)) return;
 			ESelectionActionFailureReason Reason;
 			bool bEnabled = CanPerform(InContext, Reason);
 			ViewModel->SetEnabled(bEnabled, Reason);
@@ -353,12 +357,14 @@ UVMSelectionAction* UResearchPlayerSpellPurchase::MakeViewModel_Implementation(U
 	auto GoodBuilding = Cast<AGoodBuilding>(BuildingOwner);
 	if (ensure(GoodBuilding))
 	{
-		GoodBuilding->OnBuildingSpellsChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
+		GoodBuilding->OnBuildingSpellsChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel]()
 			{
+				if (!IsValid(this)) return;
 				ViewModel->SetHidden(IsHidden(InContext));
 			});
-		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
+		GoodBuilding->OnBuildingQueueChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel]()
 			{
+				if (!IsValid(this)) return;
 				ESelectionActionFailureReason Reason;
 				bool bEnabled = CanPerform(InContext, Reason);
 				ViewModel->SetEnabled(bEnabled, Reason);
@@ -454,8 +460,9 @@ UVMSelectionAction* UUpgradeBuildingPurchase::MakeViewModel_Implementation(UObje
 	auto BuildingOwner = GetBuilding(InContext);
 	if (ensure(BuildingOwner))
 	{
-		BuildingOwner->OnBuildingAvailableLevelChanged.AddWeakLambda(this, [this, InContext, ViewModel](int AvailableLevel)
+		BuildingOwner->OnBuildingAvailableLevelChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel](int AvailableLevel)
 			{
+				if (!IsValid(this)) return;
 				ViewModel->SetHidden(IsHidden(InContext));
 			});
 	}
@@ -556,10 +563,11 @@ UVMSelectionAction* UPlaceBuildingPurchase::MakeViewModel_Implementation(UObject
 
 	// Override cost with cost based on number of buildings.
 	auto AdjustCost = [this, InContext, ViewModel]() {
+		if (!IsValid(this)) return;
 		const int RealCost = CalculatePrice(InContext);
 		ViewModel->SetGoldCost(RealCost);
 	};
-	if (InContext.TeamState) InContext.TeamState->OnTeamBuildingsChanged.AddWeakLambda(this, AdjustCost);
+	if (InContext.TeamState) InContext.TeamState->OnTeamBuildingsChanged.AddWeakLambda(ViewModel, AdjustCost);
 	AdjustCost();
 
 	return ViewModel;
@@ -613,7 +621,7 @@ UVMSelectionAction* URecruitUnitPurchase::MakeViewModel_Implementation(UObject* 
 	auto ResidentOwner = Cast<AResidentialBuilding>(GetBuilding(InContext));
 	if (ensure(ResidentOwner))
 	{
-		ResidentOwner->OnResidentsChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
+		ResidentOwner->OnResidentsChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel]()
 			{
 				ESelectionActionFailureReason Reason;
 				bool bEnabled = CanPerform(InContext, Reason);
@@ -622,7 +630,7 @@ UVMSelectionAction* URecruitUnitPurchase::MakeViewModel_Implementation(UObject* 
 		auto GoodOwner = Cast<AGoodBuilding>(ResidentOwner);
 		if (ensure(GoodOwner))
 		{
-			GoodOwner->OnBuildingQueueChanged.AddWeakLambda(this, [this, InContext, ViewModel]()
+			GoodOwner->OnBuildingQueueChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel]()
 				{
 					ESelectionActionFailureReason Reason;
 					bool bEnabled = CanPerform(InContext, Reason);
