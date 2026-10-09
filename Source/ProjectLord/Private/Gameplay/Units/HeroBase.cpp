@@ -14,6 +14,7 @@
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroEquipment.h"
+#include "Gameplay/Units/HeroInventory.h"
 #include "UI/InspectWidget.h"
 #include "UI/ToastNotification.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
