@@ -58,21 +58,29 @@ void ALordPlayerController::BeginPlay()
 		GetWorld()->bIsCameraMoveableWhenPaused = true;
 	}
 
-	// Set up HUD
-	if (IsLocalPlayerController())
-	{
-		HUDWidget = ConstructHUD();
-		check(IsValid(HUDWidget));
-		HUDWidget->AddToViewport();
-	}
+	const auto State = GetWorld()->GetGameState<ALordGameState>();
 
-	// TODO: Wait for team states to be set up instead of assuming they are
-	auto TeamState = GetTeamState();
-	if (ensure(TeamState))
-	{
-		// TODO need authority check? Auth || isServer or something?
-		TeamState->SetPrimaryPlayerController(this);
-	}
+	// Rest of initialization needs to wait for playerstate and gamestate
+	TArray<TMulticastFuture<void>*> Futures = { &this->PlayerStateReadyVoid, &State->OnGameStateReady, &this->TeamStateReady };
+	TMulticastFuture<void>::AllVoid(TDelegate<void()>::CreateWeakLambda(this, [this]() {
+		UE_LOG(LogTemp, Display, TEXT("PlayerState and GameState ready"));
+
+		// Set up HUD
+		if (IsLocalPlayerController())
+		{
+			HUDWidget = ConstructHUD();
+			check(IsValid(HUDWidget));
+			HUDWidget->AddToViewport();
+		}
+
+		// TODO: Wait for team states to be set up instead of assuming they are
+		auto TeamState = GetTeamState();
+		if (ensure(TeamState))
+		{
+			// TODO need authority check? Auth || isServer or something?
+			TeamState->SetPrimaryPlayerController(this);
+		}
+	}), Futures);
 }
 
 ALordPlayerState* ALordPlayerController::GetLordPlayerState() const
@@ -375,7 +383,17 @@ void ALordPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!TeamStateReady.IsComplete())
+	{
+		// Checking GetLordPlayerState() first to avoid an ensure
+		if (GetLordPlayerState() && GetTeamState())
+		{
+			TeamStateReady.Complete(true);
+		}
+	}
+
 	// Update hover state
+	if (IsLocalPlayerController())
 	{
 		// Hover can either be a component, or a static set value from the UI.
 		// Do some careful edge detection here.
@@ -399,6 +417,28 @@ bool ALordPlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate
 		return true;
 	}
 	return false;
+}
+
+void ALordPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	auto State = GetLordPlayerState();
+	check(State);
+	PlayerStateReady.Complete(State);
+	PlayerStateReadyVoid.Complete(true);
+}
+
+void ALordPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	auto State = GetLordPlayerState();
+	if (State && !PlayerStateReady.IsComplete())
+	{
+		PlayerStateReady.Complete(State);
+		PlayerStateReadyVoid.Complete(true);
+	}
 }
 
 ULordGameHUDWidget* ALordPlayerController::ConstructHUD_Implementation()

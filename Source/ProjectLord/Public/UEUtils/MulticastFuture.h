@@ -82,6 +82,8 @@ public:
         }
 	}
 
+    bool IsComplete() const { return FutureValue.IsSet(); }
+
     template<typename T>
     static void All(TDelegate<void(TArray<T>)> OnComplete, const TArray<TMulticastFuture<T>>& Futures)
     {
@@ -106,14 +108,15 @@ public:
         }
     }
 
-    static void AllVoid(TDelegate<void()> OnComplete, const TArray<TMulticastFuture<void>>& Futures)
+    static void AllVoid(TDelegate<void()> OnComplete, const TArray<TMulticastFuture<void>*>& Futures)
     {
         check(Futures.Num() > 1);
 
         int* Count = new int(); // not thread safe!
+        *Count = 0;
         const int Expected = Futures.Num();
-        auto Check = [&Count, Expected, OnComplete = MoveTemp(OnComplete)]() {
-            *Count++;
+        auto Check = [Count, Expected, OnComplete = MoveTemp(OnComplete)]() mutable {
+            (*Count)++;
 
             if (*Count >= Expected)
             {
@@ -124,7 +127,7 @@ public:
 
         for (auto Future : Futures)
         {
-            Future.OnComplete(Check);
+            Future->OnComplete(Check);
         }
     }
 

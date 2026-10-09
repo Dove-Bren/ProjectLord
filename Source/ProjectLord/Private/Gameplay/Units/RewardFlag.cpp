@@ -63,20 +63,23 @@ void ARewardFlag::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	switch (GetFlagType())
+	if (HasAuthority())
 	{
-	case ERewardFlagType::Explore:
-		ExploreTick(DeltaSeconds);
-		break;
-	case ERewardFlagType::Attack:
-		AttackTick(DeltaSeconds);
-		break;
-	case ERewardFlagType::Defend:
-		DefendTick(DeltaSeconds);
-		break;
-	case ERewardFlagType::Fear:
-		FearTick(DeltaSeconds);
-		break;
+		switch (GetFlagType())
+		{
+		case ERewardFlagType::Explore:
+			ExploreTick(DeltaSeconds);
+			break;
+		case ERewardFlagType::Attack:
+			AttackTick(DeltaSeconds);
+			break;
+		case ERewardFlagType::Defend:
+			DefendTick(DeltaSeconds);
+			break;
+		case ERewardFlagType::Fear:
+			FearTick(DeltaSeconds);
+			break;
+		}
 	}
 }
 

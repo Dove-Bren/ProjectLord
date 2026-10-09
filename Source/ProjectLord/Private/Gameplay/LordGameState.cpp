@@ -17,10 +17,13 @@ ALordGameState::ALordGameState()
 {
 	GameSpeed = 1.0f;
 	GameDays = 0;
-	bSetupComplete = false;
+	bStartComplete = false;
+	bStartReceived = false;
+	bTeamsSetup = false;
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+	bReplicates = true;
 }
 
 void ALordGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -39,17 +42,27 @@ void ALordGameState::BeginPlay()
 	ViewModel = CreateLordVM<UVMLordGameState>(this);
 	ViewModel->Setup(this);
 
-	Setup();
+	if (HasAuthority())
+	{
+		bStartReceived = true;
+		SetupTeams();
+	}
+	// else will finish setup once replicated
 }
 
-void ALordGameState::Setup()
+void ALordGameState::PostNetInit()
 {
-	if (bSetupComplete)
+	Super::PostNetInit();
+	bStartReceived = true;
+}
+
+void ALordGameState::SetupTeams()
+{
+	if (bTeamsSetup)
 	{
 		return;
 	}
-
-	bSetupComplete = true;
+	bTeamsSetup = true;
 
 	// Find game settings, or make default
 	{
@@ -77,16 +90,59 @@ void ALordGameState::Setup()
 	}
 }
 
+void ALordGameState::CheckTeamSetup()
+{
+	check(!bTeamsSetup);
+
+	// Non-replicated teams show up as null in the replicated teams array.
+	// So iterate it and see if there aren't any more nulls (all have been resolved)
+	for (auto Team : GameTeamsArray)
+	{
+		if (!Team)
+		{
+			return;
+		}
+	}
+
+	// No nulls detected
+	bTeamsSetup = true;
+}
+
 void ALordGameState::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Advance game time
+	if (!bStartComplete)
 	{
-		constexpr double SECONDS_PER_GAME_DAY = 60 * 1;
-		const double OldTime = GameDays;
-		GameDays += (DeltaTime / SECONDS_PER_GAME_DAY);
-		OnRep_GameDays(OldTime);
+		if (!bTeamsSetup && !HasAuthority())
+		{
+			// Clients tick and wait for teams to finish replicating
+			CheckTeamSetup();
+		}
+
+		if (bStartReceived && bTeamsSetup)
+		{
+			bStartComplete = true;
+			OnGameStateReady.Complete(true);
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	// begin normal tick
+
+	// server tick
+	if (HasAuthority())
+	{
+		// Advance game time
+		{
+			constexpr double SECONDS_PER_GAME_DAY = 60 * 1;
+			const double OldTime = GameDays;
+			GameDays += (DeltaTime / SECONDS_PER_GAME_DAY);
+			OnRep_GameDays(OldTime);
+		}
 	}
 }
 
@@ -104,7 +160,7 @@ void ALordGameState::SetGamePaused(bool bPaused)
 
 AGameTeamState* ALordGameState::GetTeam(EGameTeam Team)
 {
-	Setup();
+	//Setup();
 	return Team < EGameTeam::MAX ? GameTeams.FindRef(Team) : nullptr;
 }
 
@@ -247,6 +303,7 @@ void ALordGameState::OnRep_GameTeams(TArray<AGameTeamState*> PrevTeams)
 	// Fix up map
 	for (auto Team : GameTeamsArray)
 	{
+		if (!Team) continue; // Array can replicate out of order
 		GameTeams.Add(Team->GetTeam(), Team);
 	}
 }

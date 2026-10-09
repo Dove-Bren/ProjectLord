@@ -381,6 +381,18 @@ void ABuilding::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+    if (HasAuthority())
+    {
+        ServerTick(DeltaSeconds);
+    }
+    else
+    {
+        ClientTick(DeltaSeconds);
+    }
+}
+
+void ABuilding::ServerTick(float DeltaSeconds)
+{
     // TODO: This doesn't need to happen every frame
     auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
     if (FogSubsystem)
@@ -390,6 +402,13 @@ void ABuilding::Tick(float DeltaSeconds)
             SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
         }
     }
+
+    BP_ServerTick(DeltaSeconds);
+}
+
+void ABuilding::ClientTick(float DeltaSeconds)
+{
+    BP_ClientTick(DeltaSeconds);
 }
 
 void ABuilding::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

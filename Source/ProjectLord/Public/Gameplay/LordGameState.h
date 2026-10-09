@@ -6,6 +6,7 @@
 
 #include "GameFramework/GameStateBase.h"
 #include "Gameplay/GameTeam.h"
+#include "UEUtils/MulticastFuture.h"
 
 #include "LordGameState.generated.h"
 
@@ -45,6 +46,8 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category = "GameTime")
     FOnGameSpeedChange OnGameSpeedChange;
+
+    TMulticastFuture<void> OnGameStateReady;
 
     UFUNCTION(BlueprintPure, Category = "GameTime")
     double GetGameDays() const { return GameDays; }
@@ -108,11 +111,17 @@ protected:
 
     TArray<FTransform> GetPlayerStarts() const;
 
-    void Setup();
-    bool bSetupComplete;
+    void SetupTeams(); // Server
+    void CheckTeamSetup(); // Clients
+
+private:
+    bool bStartComplete; // Ready for gameplay (all dependent data set up or replicated)
+    bool bStartReceived; // BeginPlay or PostNetInit received // Setup() (for server) or all teams received
+    bool bTeamsSetup; // Teams set up or replicated
 
 public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual void PostNetInit() override;
 };

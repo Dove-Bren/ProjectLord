@@ -97,9 +97,9 @@ void ACreature::EndPlay(EEndPlayReason::Type Reason)
     }
 }
 
-void ACreature::Tick(float DeltaTime)
+void ACreature::ServerTick(float DeltaTime)
 {
-    Super::Tick(DeltaTime);
+    Super::ServerTick(DeltaTime);
 
     if (IsDead())
     {
@@ -206,8 +206,11 @@ void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
     GetMesh()->SetVisibility(false, true);
     GetCharacterMovement()->SetAvoidanceEnabled(false);
     SetActorLocation(Building->GetBuildingEntrance());
-    auto VisitEffect = NewObject<UGEVisitingBuilding>(this, TEXT("Visiting Effect"));
-    AbilitySystemComponent->ApplyGameplayEffectToSelf(VisitEffect, 1, AbilitySystemComponent->MakeEffectContext());
+    FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEVisitingBuilding::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+    if (SpecHandle.IsValid())
+    {
+        AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+    }
 
     BP_OnEnterBuilding(Building);
 }

@@ -51,6 +51,7 @@ public:
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void PostInitProperties() override;
+    virtual void PostNetInit() override;
 
     UFUNCTION(BlueprintPure, Category = "Team")
     EGameTeam GetTeam() const { return Team; }
@@ -169,31 +170,31 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Team, Category = "Team")
     EGameTeam Team;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Gold, Category = "Team")
     int Gold;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_DeadHeroCount, Category = "Team")
     int DeadHeroCount;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_TeamCastle, Category = "Team")
     TWeakObjectPtr<ACastle> TeamCastle;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Team")
     TWeakObjectPtr<ALordPlayerController> PrimaryController;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Team")
     TWeakObjectPtr<AMonsterTeamController> MonsterController;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_TeamUnits, Category = "Team")
     TArray<AUnit*> TeamUnits;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_TeamBuildings, Category = "Team")
     TArray<ABuilding*> TeamBuildings;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_TeamFlags, Category = "Team")
     TArray<ARewardFlag*> TeamFlags;
 
     TMap<ABuilding*, TArray<AUnit*>> RepairWorkers;
@@ -207,6 +208,21 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly)
     TObjectPtr<UVMGameTeamState> ViewModel;
+
+    UFUNCTION()
+    void OnRep_Team();
+    UFUNCTION()
+    void OnRep_Gold();
+    UFUNCTION()
+    void OnRep_DeadHeroCount();
+    UFUNCTION()
+    void OnRep_TeamCastle();
+    UFUNCTION()
+    void OnRep_TeamUnits();
+    UFUNCTION()
+    void OnRep_TeamBuildings();
+    UFUNCTION()
+    void OnRep_TeamFlags();
 
     UFUNCTION()
     void OnUnitFinalDeath(AUnit* Unit);

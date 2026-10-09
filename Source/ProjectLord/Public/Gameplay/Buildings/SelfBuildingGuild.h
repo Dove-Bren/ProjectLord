@@ -20,7 +20,7 @@ public:
     virtual bool WantsRepair() const override { return false; }
 
     virtual void BeginPlay() override;
-    virtual void Tick(float DeltaSeconds) override;
+    virtual void ServerTick(float DeltaSeconds) override;
 
 protected:
     double NextRepairTime;

@@ -19,7 +19,7 @@ class PROJECTLORD_API ASpawningBuilding : public AResidentialBuilding
 public:
     ASpawningBuilding();
     virtual void BeginPlay() override;
-    virtual void Tick(float DeltaSeconds) override;
+    virtual void ServerTick(float DeltaSeconds) override;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawner")
     bool DoSpawn();

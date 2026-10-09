@@ -90,6 +90,15 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
 
+    virtual void ServerTick(float DeltaSeconds);
+    virtual void ClientTick(float DeltaSeconds);
+
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "ServerTick"))
+    void BP_ServerTick(float DeltaSeconds);
+
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "ClientTick"))
+    void BP_ClientTick(float DeltaSeconds);
+
     // Tag Interface
     virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
     virtual bool HasMatchingGameplayTag(FGameplayTag Tag) const override;

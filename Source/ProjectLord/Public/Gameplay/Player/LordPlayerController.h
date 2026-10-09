@@ -9,6 +9,7 @@
 #include "Gameplay/Interaction/SelectionAction.h"
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/Units/RewardFlag.h"
+#include "UEUtils/MulticastFuture.h"
 
 #include "LordPlayerController.generated.h"
 
@@ -41,6 +42,12 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
     virtual bool SetPause(bool bPause, FCanUnpause CanUnpauseDelegate) override;
+    virtual void OnRep_PlayerState() override;
+    virtual void OnPossess(APawn* Pawn) override;
+
+    TMulticastFuture<ALordPlayerState*> PlayerStateReady;
+    TMulticastFuture<void> PlayerStateReadyVoid;
+    TMulticastFuture<void> TeamStateReady;
 
     UFUNCTION(BlueprintPure)
     ALordPlayerState* GetLordPlayerState() const;

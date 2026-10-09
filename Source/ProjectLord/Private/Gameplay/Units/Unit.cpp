@@ -136,6 +136,25 @@ void AUnit::EndPlay(EEndPlayReason::Type Reason)
 void AUnit::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    
+    if (HasAuthority())
+    {
+        ServerTick(DeltaSeconds);
+    }
+    else
+    {
+        ClientTick(DeltaSeconds);
+    }
+}
+
+void AUnit::ServerTick(float DeltaSeconds)
+{
+    BP_ServerTick(DeltaSeconds);
+}
+
+void AUnit::ClientTick(float DeltaSeconds)
+{
+    BP_ClientTick(DeltaSeconds);
 }
 
 void AUnit::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

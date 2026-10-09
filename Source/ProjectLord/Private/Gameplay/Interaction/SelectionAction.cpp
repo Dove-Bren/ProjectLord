@@ -68,9 +68,12 @@ UVMSelectionAction* USelectionPurchase::MakeViewModel_Implementation(UObject* Ou
 	{
 		InContext.TeamState->OnTeamGoldChanged.AddWeakLambda(this, [this, InContext, ViewModel](int Gold)
 			{
-				ESelectionActionFailureReason Reason;
-				bool bEnabled = CanPerform(InContext, Reason);
-				ViewModel->SetEnabled(bEnabled, Reason);
+				if (IsValid(ViewModel))
+				{
+					ESelectionActionFailureReason Reason;
+					bool bEnabled = CanPerform(InContext, Reason);
+					ViewModel->SetEnabled(bEnabled, Reason);
+				}
 			});
 	}
 

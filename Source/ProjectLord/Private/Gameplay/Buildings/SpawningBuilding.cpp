@@ -3,6 +3,7 @@
 #include "Gameplay/Buildings/SpawningBuilding.h"
 
 #include "Gameplay/LordGameState.h"
+#include "Gameplay/GameTeamState.h"
 #include "Gameplay/AI/MonsterTeamController.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Units/Creature.h"
@@ -26,9 +27,9 @@ void ASpawningBuilding::BeginPlay()
     }
 }
 
-void ASpawningBuilding::Tick(float DeltaSeconds)
+void ASpawningBuilding::ServerTick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
+    Super::ServerTick(DeltaSeconds);
 
     // Don't do any spawning while still being constructed to lvl 1
     if (GetBuildingLevel() >= 1)

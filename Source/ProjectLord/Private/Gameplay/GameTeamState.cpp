@@ -18,6 +18,9 @@
 
 AGameTeamState::AGameTeamState()
 {
+    bReplicates = true;
+    bAlwaysRelevant = true;
+
 	Gold = 0;
 }
 
@@ -33,11 +36,28 @@ void AGameTeamState::BeginPlay()
 {
     Super::BeginPlay();
 
-    auto GameState = GetWorld()->GetGameState<ALordGameState>();
-    const auto Settings = GameState->GetLevelSettings();
-    AddGold(Settings->GetStartingGold());
-
     OnTeamBuildingsChanged.AddUObject(this, &ThisClass::RefreshSpells);
+
+    if (HasAuthority())
+    {
+        auto GameState = GetWorld()->GetGameState<ALordGameState>();
+        const auto Settings = GameState->GetLevelSettings();
+        if (ensureMsgf(Settings, TEXT("No LevelSettings found in world. Add one!")))
+        {
+            AddGold(Settings->GetStartingGold());
+        }
+    }
+}
+
+void AGameTeamState::PostNetInit()
+{
+    Super::PostNetInit();
+
+    UE_LOG(LogTemp, Display, TEXT("GameTeamState PostNetInit"));
+    if (Gold > 5000)
+    {
+        GetBuildings()[0]->HandleBuildingPlacement();
+    }
 }
 
 void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -46,25 +66,26 @@ void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
     DOREPLIFETIME(ThisClass, Team);
     DOREPLIFETIME(ThisClass, Gold);
+    DOREPLIFETIME(ThisClass, DeadHeroCount);
     DOREPLIFETIME(ThisClass, TeamCastle);
     DOREPLIFETIME(ThisClass, TeamUnits);
+    DOREPLIFETIME(ThisClass, TeamBuildings);
     DOREPLIFETIME(ThisClass, TeamFlags);
 }
 
 void AGameTeamState::SetTeam(EGameTeam InTeam)
 {
-    Team = InTeam;
-    if (ViewModel)
+    if (InTeam != Team)
     {
-        ViewModel->SetTeam(InTeam);
+        Team = InTeam;
+        OnRep_Team();
     }
-    // else BeginPlay hasn't been hit yet and it will be picked up later
 }
 
 int AGameTeamState::AddGold(int InChange)
 {
     Gold = FMath::Clamp(Gold + InChange, 0, 9999999);
-    OnTeamGoldChanged.Broadcast(Gold);
+    OnRep_Gold();
     return Gold;
 }
 
@@ -75,6 +96,7 @@ void AGameTeamState::SetCastle(ACastle* Castle)
         RemoveBuilding(TeamCastle.Get());
     }
     TeamCastle = Castle;
+    OnRep_TeamCastle();
     if (Castle)
     {
         AddBuilding(Castle);
@@ -102,7 +124,8 @@ void AGameTeamState::AddUnit(AUnit* Unit)
     {
         TeamUnits.Add(Unit);
         Unit->OnUnitFinalDeath.AddDynamic(this, &AGameTeamState::OnUnitFinalDeath);
-        OnTeamUnitsChanged.Broadcast();
+
+        OnRep_TeamUnits();
     }
 }
 
@@ -110,7 +133,7 @@ void AGameTeamState::RemoveUnit(AUnit* Unit)
 {
     if (TeamUnits.Remove(Unit))
     {
-        OnTeamUnitsChanged.Broadcast();
+        OnRep_TeamUnits();
         Unit->OnUnitFinalDeath.RemoveAll(this);
 
         // Clean up worker maps
@@ -125,7 +148,7 @@ void AGameTeamState::AddBuilding(ABuilding* Building)
         TeamBuildings.Add(Building);
         Building->OnBuildingDestroyed.AddUObject(this, &ThisClass::RemoveBuilding);
         Building->OnBuildingSpellsChanged.AddUObject(this, &ThisClass::RefreshSpells);
-        OnTeamBuildingsChanged.Broadcast();
+        OnRep_TeamBuildings();
     }
 }
 
@@ -133,7 +156,7 @@ void AGameTeamState::RemoveBuilding(ABuilding* Building)
 {
     if (TeamBuildings.Remove(Building))
     {
-        OnTeamBuildingsChanged.Broadcast();
+        OnRep_TeamBuildings();
         Building->OnBuildingDestroyed.RemoveAll(this);
         Building->OnBuildingSpellsChanged.RemoveAll(this);
 
@@ -145,14 +168,14 @@ void AGameTeamState::RemoveBuilding(ABuilding* Building)
 void AGameTeamState::AddFlag(ARewardFlag* Flag)
 {
     TeamFlags.Add(Flag);
-    OnTeamFlagsChanged.Broadcast();
+    OnRep_TeamFlags();
 }
 
 void AGameTeamState::RemoveFlag(ARewardFlag* Flag)
 {
     if (TeamFlags.Remove(Flag))
     {
-        OnTeamFlagsChanged.Broadcast();
+        OnRep_TeamFlags();
     }
 }
 
@@ -352,8 +375,48 @@ TSet<UPlayerSpell*> AGameTeamState::DiscoverSpellsFromBuildings() const
     TSet<UPlayerSpell*> Spells;
     for (const auto Building : TeamBuildings)
     {
+        if (!Building) continue;
         Spells.Append(Building->GetBuildingPlayerSpells());
     }
     return Spells;
+}
+
+void AGameTeamState::OnRep_Team()
+{
+    if (ViewModel)
+    {
+        ViewModel->SetTeam(Team);
+    }
+    // else BeginPlay hasn't been hit yet and it will be picked up later
+}
+
+void AGameTeamState::OnRep_Gold()
+{
+    OnTeamGoldChanged.Broadcast(Gold);
+}
+
+void AGameTeamState::OnRep_DeadHeroCount()
+{
+
+}
+
+void AGameTeamState::OnRep_TeamCastle()
+{
+
+}
+
+void AGameTeamState::OnRep_TeamUnits()
+{
+    OnTeamUnitsChanged.Broadcast();
+}
+
+void AGameTeamState::OnRep_TeamBuildings()
+{
+    OnTeamBuildingsChanged.Broadcast();
+}
+
+void AGameTeamState::OnRep_TeamFlags()
+{
+    OnTeamFlagsChanged.Broadcast();
 }
 

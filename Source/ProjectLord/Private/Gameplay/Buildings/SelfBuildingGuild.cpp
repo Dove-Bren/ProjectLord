@@ -12,9 +12,9 @@ void ASelfBuildingGuild::BeginPlay()
 	RepairEffectHandle = AbilitySystemComponent->MakeOutgoingSpec(UGESelfRepair::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
 }
 
-void ASelfBuildingGuild::Tick(float DeltaSeconds)
+void ASelfBuildingGuild::ServerTick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
+	Super::ServerTick(DeltaSeconds);
 
 	// Repair self
 	if (!AtFullHealth())

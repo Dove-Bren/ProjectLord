@@ -19,7 +19,7 @@ class PROJECTLORD_API ACastle : public ASpawningBuilding
 
 public:
     virtual void BeginPlay() override;
-    virtual void Tick(float DeltaSeconds) override;
+    virtual void ServerTick(float DeltaSeconds) override;
 
     virtual bool WantsTaxCollection() const override;
 

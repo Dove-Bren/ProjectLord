@@ -20,9 +20,9 @@ void ACastle::BeginPlay()
 	bCanAcceptTaxes = true;
 }
 
-void ACastle::Tick(float DeltaSeconds)
+void ACastle::ServerTick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
+	Super::ServerTick(DeltaSeconds);
 
 	float Time = GetGameTimeSinceCreation();
 	if (Time > NextSpawnTime)

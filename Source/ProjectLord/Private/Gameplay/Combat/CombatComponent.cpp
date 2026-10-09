@@ -27,6 +27,12 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+    // Need to sort out which things should be visible on client...
+    if (!GetOwner()->HasAuthority())
+    {
+        return;
+    }
+
 	auto AbilitySystemComponent = GetAbilitySubsystemComponent();
 	if (ensure(AbilitySystemComponent))
 	{
