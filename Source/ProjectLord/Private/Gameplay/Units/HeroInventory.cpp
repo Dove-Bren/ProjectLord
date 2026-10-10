@@ -2,6 +2,8 @@
 
 #include "Gameplay/Units/HeroInventory.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "UI/ViewModels/HeroInventoryViewModel.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
@@ -9,6 +11,17 @@ UHeroInventory::UHeroInventory()
 {
 	GuildGold = 0;
 	PersonalGold = 0;
+
+	SetIsReplicatedByDefault(true);
+	bReplicateUsingRegisteredSubObjectList = true;
+}
+
+void UHeroInventory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, GuildGold);
+	DOREPLIFETIME(ThisClass, PersonalGold);
 }
 
 void UHeroInventory::InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor)
@@ -54,9 +67,16 @@ void UHeroInventory::SetWeapon(UHeroItemStack* InWeapon)
 {
 	if (InWeapon != Weapon)
 	{
+		if (Weapon)
+		{
+			RemoveReplicatedSubObject(Weapon);
+		}
+
 		Weapon = InWeapon;
-		ViewModel->SetWeapon(Weapon->GetViewModel());
-		OnInventoryItemsChanged.Broadcast();
+		AddReplicatedSubObject(Weapon);
+
+		ViewModel->SetWeapon(Weapon->MakeViewModel());
+		OnRep_Item();
 	}
 }
 
@@ -64,17 +84,30 @@ void UHeroInventory::SetArmor(UHeroItemStack* InArmor)
 {
 	if (InArmor != Armor)
 	{
+		if (Armor)
+		{
+			RemoveReplicatedSubObject(Armor);
+		}
+
 		Armor = InArmor;
-		ViewModel->SetArmor(Armor->GetViewModel());
-		OnInventoryItemsChanged.Broadcast();
+		AddReplicatedSubObject(Armor);
+		ViewModel->SetArmor(Armor->MakeViewModel());
+		OnRep_Item();
 	}
 }
 
 void UHeroInventory::SetHealthPotions(UHeroItemStack* InHealthPotions)
 {
+	if (HealthPotions)
+	{
+		RemoveReplicatedSubObject(HealthPotions);
+	}
+
 	HealthPotions = InHealthPotions;
-	ViewModel->SetHealthPotion(InHealthPotions->GetViewModel());
-	OnInventoryItemsChanged.Broadcast();
+	AddReplicatedSubObject(HealthPotions);
+
+	ViewModel->SetHealthPotion(InHealthPotions->MakeViewModel());
+	OnRep_Item();
 }
 
 void UHeroInventory::DeductHealthPotion()
@@ -82,15 +115,15 @@ void UHeroInventory::DeductHealthPotion()
 	if (ensure(HealthPotions && HealthPotions->GetCount() > 0))
 	{
 		HealthPotions->SetCount(HealthPotions->GetCount() - 1);
-		OnInventoryItemsChanged.Broadcast();
+		OnRep_Item();
 	}
 }
 
 void UHeroInventory::SetManaPotions(UHeroItemStack* InManaPotions)
 {
 	ManaPotions = InManaPotions;
-	ViewModel->SetManaPotion(InManaPotions->GetViewModel());
-	OnInventoryItemsChanged.Broadcast();
+	ViewModel->SetManaPotion(InManaPotions->MakeViewModel());
+	OnRep_Item();
 }
 
 void UHeroInventory::DeductManaPotion()
@@ -98,7 +131,7 @@ void UHeroInventory::DeductManaPotion()
 	if (ensure(ManaPotions && ManaPotions->GetCount() > 0))
 	{
 		ManaPotions->SetCount(ManaPotions->GetCount() - 1);
-		OnInventoryItemsChanged.Broadcast();
+		OnRep_Item();
 	}
 }
 
@@ -106,7 +139,7 @@ int UHeroInventory::AddPersonalGold(int Amount)
 {
 	PersonalGold = FMath::Max(0, PersonalGold + Amount);
 	ViewModel->GetGoldVM()->SetGold(GetPersonalGold());
-	OnInventoryGoldChanged.Broadcast();
+	OnRep_Gold();
 	return PersonalGold;
 }
 
@@ -114,7 +147,7 @@ int UHeroInventory::AddGuildGold(int Amount)
 {
 	GuildGold = FMath::Max(0, GuildGold + Amount);
 	ViewModel->GetGoldVM()->SetTaxGold(GetGuildGold());
-	OnInventoryGoldChanged.Broadcast();
+	OnRep_Gold();
 	return GuildGold;
 }
 
@@ -141,7 +174,7 @@ bool UHeroInventory::Add(UHeroItemStack* Item)
 		else
 		{
 			HealthPotions->AddCount(Item->GetCount());
-			OnInventoryItemsChanged.Broadcast();
+			OnRep_Item();
 		}
 		return true;
 	case EItemType::ManaPotion:
@@ -152,7 +185,7 @@ bool UHeroInventory::Add(UHeroItemStack* Item)
 		else
 		{
 			ManaPotions->AddCount(Item->GetCount());
-			OnInventoryItemsChanged.Broadcast();
+			OnRep_Item();
 		}
 		return true;
 	case EItemType::Other:
@@ -195,12 +228,12 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly)
 			{
 				if (Stack && !Stack->IsEmpty())
 				{
-					ExtraItemVMs.Add(Stack->GetViewModel());
+					ExtraItemVMs.Add(Stack->MakeViewModel());
 				}
 			}
 			ViewModel->SetExtraItems(ExtraItemVMs);
 		}
-		OnInventoryItemsChanged.Broadcast();
+		OnRep_Item();
 	}
 	return true;
 }
@@ -208,5 +241,15 @@ bool UHeroInventory::AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly)
 bool UHeroInventory::CanFit(UHeroItemStack* Item)
 {
 	return AddExtraItem(Item, true);
+}
+
+void UHeroInventory::OnRep_Item()
+{
+	OnInventoryItemsChanged.Broadcast();
+}
+
+void UHeroInventory::OnRep_Gold()
+{
+	OnInventoryGoldChanged.Broadcast();
 }
 

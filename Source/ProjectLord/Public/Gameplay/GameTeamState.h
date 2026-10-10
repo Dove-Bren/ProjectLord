@@ -89,6 +89,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     void SetPrimaryMonsterController(AMonsterTeamController* Controller);
 
+    // Warning: Units may not have replicated yet when calling this,
+    // so make sure to IsValid check each item before using!
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<AUnit*>& GetUnits() const { return TeamUnits; }
 
@@ -98,6 +100,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     void RemoveUnit(AUnit* Unit);
 
+    // Get all buildings associated with this team.
+    // Warning: Buildings may not have replicated yet when calling this,
+    // so make sure to IsValid check each item before using!
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<ABuilding*>& GetBuildings() const { return TeamBuildings; }
 
@@ -107,6 +112,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Team")
     void RemoveBuilding(ABuilding* Building);
 
+    // Warning: Flags may not have replicated yet when calling this,
+    // so make sure to IsValid check each item before using!
     UFUNCTION(BlueprintPure, Category = "Team")
     const TArray<ARewardFlag*>& GetFlags() const { return TeamFlags; }
 

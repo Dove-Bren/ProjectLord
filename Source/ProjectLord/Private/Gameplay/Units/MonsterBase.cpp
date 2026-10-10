@@ -2,6 +2,8 @@
 
 #include "Gameplay/Units/MonsterBase.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "Gameplay/Interaction/SelectionComponent.h"
 #include "UI/ViewModels/Generic/GoldViewModel.h"
 
@@ -13,36 +15,46 @@ AMonsterBase::AMonsterBase() : ACreature()
 	bEvacuatesOnAttack = true;
 }
 
+void AMonsterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Gold);
+}
+
 void AMonsterBase::OnDeath_Implementation()
 {
-	// If we have any gold
-	if (Gold)
+	if (HasAuthority())
 	{
-		int Leftover = 0;
-		int Distribute = Gold;
-		if (Gold >= 25) // Not sure how this is actually decided in game
+		// If we have any gold
+		if (Gold)
 		{
-			Leftover = FMath::FloorToInt((float)Gold / 5.0f);
-			Distribute = Gold - Leftover;
-		}
+			int Leftover = 0;
+			int Distribute = Gold;
+			if (Gold >= 25) // Not sure how this is actually decided in game
+			{
+				Leftover = FMath::FloorToInt((float)Gold / 5.0f);
+				Distribute = Gold - Leftover;
+			}
 
-		// Award gold, noting if we didn't hand out any
-		if (!AwardGoldToNearbyHeroes(Distribute))
-		{
-			// If none was awarded, put it all back in leftover
-			Leftover = Gold;
-		}
+			// Award gold, noting if we didn't hand out any
+			if (!AwardGoldToNearbyHeroes(Distribute))
+			{
+				// If none was awarded, put it all back in leftover
+				Leftover = Gold;
+			}
 
-		// Remember how much we have leftover for our grave
-		SetGold(Leftover);
+			// Remember how much we have leftover for our grave
+			SetGold(Leftover);
+		}
 	}
 
 	Super::OnDeath_Implementation();
 }
 
-void AMonsterBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
+void AMonsterBase::Client_SetupSelectionData(USelectionComponent* InSelectionComponent)
 {
-	Super::SetupSelectionData(InSelectionComponent);
+	Super::Client_SetupSelectionData(InSelectionComponent);
 
 	auto GoldVM = CreateLordVM<UVMGold>(this);
 	OnGoldChanged.AddWeakLambda(this, [this, GoldVM](int InGold) {

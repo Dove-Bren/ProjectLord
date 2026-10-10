@@ -9,6 +9,7 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Engine/OverlapResult.h"
+#include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
 #include "Gameplay/Map/FogOfWarComponent.h"
@@ -409,6 +410,14 @@ void ABuilding::ServerTick(float DeltaSeconds)
 void ABuilding::ClientTick(float DeltaSeconds)
 {
     BP_ClientTick(DeltaSeconds);
+}
+
+void ABuilding::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ThisClass, Team);
+    DOREPLIFETIME(ThisClass, BuildingEntranceOffset);
 }
 
 void ABuilding::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const

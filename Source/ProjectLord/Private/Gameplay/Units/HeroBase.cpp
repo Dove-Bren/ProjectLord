@@ -2,6 +2,8 @@
 
 #include "Gameplay/Units/HeroBase.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "GameplayEffect.h"
 #include "Gameplay/GameGood.h"
 #include "Gameplay/GameTeamState.h"
@@ -36,6 +38,16 @@ AHeroBase::AHeroBase() : ACreature()
 	bEvacuatesOnAttack = true;
 }
 
+void AHeroBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Inventory);
+	DOREPLIFETIME(ThisClass, HeroXP);
+	DOREPLIFETIME(ThisClass, HeroName);
+	DOREPLIFETIME(ThisClass, CurrentFlagTarget);
+}
+
 int AHeroBase::GetHeroMaxXP() const
 {
 	const int Level = FMath::Clamp(GetHeroLevel(), 1, 9999);
@@ -59,13 +71,13 @@ void AHeroBase::NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* 
 	Super::NotifyResidenceAttacked(Building, AttackingActor, AttackingCombatComponent);
 }
 
-void AHeroBase::SetupBaseAttributes()
+void AHeroBase::Server_SetupBaseAttributes()
 {
 	// Make sure to set up association early
 	LordHeroAttributeSet->Init(CombatAttributeSet);
 
 	// Let base class take care of setting up base values
-	Super::SetupBaseAttributes();
+	Super::Server_SetupBaseAttributes();
 
 	// Make sure to prompt attribute set to recalc dependent attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
@@ -152,9 +164,9 @@ void AHeroBase::SetupBaseAttributes()
 	}
 }
 
-void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
+void AHeroBase::Client_SetupSelectionData(USelectionComponent* InSelectionComponent)
 {
-	Super::SetupSelectionData(InSelectionComponent);
+	Super::Client_SetupSelectionData(InSelectionComponent);
 
 	InSelectionComponent->SetCustomName(GetHeroName());
 
@@ -190,7 +202,7 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 			SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(0) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[0]) : UVMSummarySlot::MakeEmpty(this));
 			SlotsVM->SetSlot(3, UVMSummarySlot::MakeItem(this, Inventory->GetArmor()));
 			SlotsVM->SetSlot(4, UVMSummarySlot::MakeItem(this, Inventory->GetManaPotions()));
-			SlotsVM->SetSlot(2, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));
+			SlotsVM->SetSlot(5, Inventory->GetExtraSlots().IsValidIndex(1) ? UVMSummarySlot::MakeItem(this, Inventory->GetExtraSlots()[1]) : UVMSummarySlot::MakeEmpty(this));
 		});
 
 	const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
@@ -206,14 +218,14 @@ void AHeroBase::SetupSelectionData(USelectionComponent* InSelectionComponent)
 	InSelectionComponent->SetSlotsVM(SlotsVM);
 }
 
-UVMUnit* AHeroBase::ConstructUnitVM()
+UVMUnit* AHeroBase::Client_ConstructUnitVM()
 {
 	return UVMHero::Make(this);
 }
 
-void AHeroBase::InitUnitVM()
+void AHeroBase::Client_InitUnitVM()
 {
-	Super::InitUnitVM();
+	Super::Client_InitUnitVM();
 
 	auto HeroVM = Cast<UVMHero>(GetUnitVM());
 	HeroVM->SetHeroName(GetHeroName());
@@ -336,7 +348,7 @@ void AHeroBase::AddHeroXP(int Amount)
 	{
 		DoLevelUp();
 	}
-	OnXPChange.Broadcast();
+	OnRep_HeroXP();
 }
 
 void AHeroBase::DoLevelUp()
@@ -485,13 +497,26 @@ bool AHeroBase::ShouldFlee() const
 	return false;
 }
 
-void AHeroBase::HandleUnitRecruited()
+void AHeroBase::Server_HandleUnitRecruited()
 {
-	Super::HandleUnitRecruited();
+	Super::Server_HandleUnitRecruited();
 
 	HeroName = GenerateHeroName();
-	Cast<UVMHero>(GetUnitVM())->SetHeroName(HeroName);
-	SelectionComponent->SetCustomName(GetHeroName());
+	OnRep_HeroName();
+}
+
+void AHeroBase::OnRep_HeroName()
+{
+	if (GetUnitVM())
+	{
+		Cast<UVMHero>(GetUnitVM())->SetHeroName(HeroName);
+	}
+		SelectionComponent->SetCustomName(GetHeroName());
+}
+
+void AHeroBase::OnRep_HeroXP()
+{
+	OnXPChange.Broadcast();
 }
 
 FText AHeroBase::GenerateHeroName_Implementation() const

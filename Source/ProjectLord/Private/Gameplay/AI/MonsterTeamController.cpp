@@ -69,6 +69,8 @@ ABuilding* AMonsterTeamController::GetNearestPlayerBuilding(FVector From) const
 		{
 			for (auto Building : PlayerTeamState->GetBuildings())
 			{
+				if (!Building) continue;
+
 				const double DistSqr = FVector::DistSquaredXY(Building->GetActorLocation(), From);
 				if (!Closest || DistSqr < ClosestDistSqr)
 				{
@@ -125,6 +127,8 @@ void AMonsterTeamController::ActivateSpawners(int GameDays)
 
 	for (ABuilding* Building : TeamState->GetBuildings())
 	{
+		if (!Building) continue;
+
 		if (auto Spawner = Cast<ASpawningBuilding>(Building))
 		{
 			if (Spawner->IsActivated())

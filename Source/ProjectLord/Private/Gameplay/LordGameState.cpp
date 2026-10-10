@@ -39,6 +39,9 @@ void ALordGameState::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Dedicated server not supported; lots of stuff will unconditionally make UI and view models.
+	check(GetNetMode() != ENetMode::NM_DedicatedServer);
+
 	ViewModel = CreateLordVM<UVMLordGameState>(this);
 	ViewModel->Setup(this);
 
@@ -270,6 +273,7 @@ ACastle* ALordGameState::SpawnTeamCastle(const FTeamStartClaim& InClaim, TSubcla
 		}
 
 		Castle->SetTeam(InClaim.Team);
+		Castle->SetSpawnTeam(InClaim.Team);
 		Castle->ClearFoliageAround();
 		Castle->PaintFoundation();
 	}

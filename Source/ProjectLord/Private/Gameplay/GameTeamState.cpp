@@ -54,10 +54,6 @@ void AGameTeamState::PostNetInit()
     Super::PostNetInit();
 
     UE_LOG(LogTemp, Display, TEXT("GameTeamState PostNetInit"));
-    if (Gold > 5000)
-    {
-        GetBuildings()[0]->HandleBuildingPlacement();
-    }
 }
 
 void AGameTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

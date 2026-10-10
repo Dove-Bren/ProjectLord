@@ -109,28 +109,28 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|Equipment")
     UHeroItemStack* Weapon;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|Equipment")
     UHeroItemStack* Armor;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|Equipment")
     UHeroItemStack* HealthPotions;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Equipment")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|Equipment")
     UHeroItemStack* ManaPotions;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Gold")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Gold, Category = "Inventory|Gold")
     int PersonalGold;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|Gold")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Gold, Category = "Inventory|Gold")
     int GuildGold;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|ExtraItems")
     TObjectPtr<UVMHeroInventory> ViewModel;
 
     bool AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly = false);
@@ -148,4 +148,14 @@ private:
         }
         return EEquipmentTier::Starter;
     }
+
+    UFUNCTION()
+    void OnRep_Item();
+
+    UFUNCTION()
+    void OnRep_Gold();
+
+public:
+
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

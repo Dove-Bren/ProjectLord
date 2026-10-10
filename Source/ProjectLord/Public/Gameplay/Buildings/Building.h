@@ -217,7 +217,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     TArray<UStaticMesh*> BuildingConstructionMeshes;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Building|Definition")
     FVector BuildingEntranceOffset;
 
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
@@ -245,7 +245,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bCanAcceptTaxes;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Team")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
     EGameTeam Team;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
@@ -327,6 +327,7 @@ public:
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void OnConstruction(const FTransform& Transform) override;
     virtual void Tick(float DeltaSeconds) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     // Tag Interface
     virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;

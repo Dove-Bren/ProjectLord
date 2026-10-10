@@ -178,7 +178,7 @@ void ACastle::AttemptSpawnRound()
 	if (GetHouseCount() < GetDesiredHouseCount() && ensure(HouseTypes.Num() > 0))
 	{
 		const int RandIdx = FMath::RandRange(0, HouseTypes.Num() - 1);
-		if (SpawnNearby(HouseTypes[RandIdx]))
+		if (SpawnNearby(HouseTypes[RandIdx], true))
 		{
 			return;
 		}
@@ -187,7 +187,7 @@ void ACastle::AttemptSpawnRound()
 	if (GetSewerCount() < GetDesiredSewerCount() && ensure(SewerTypes.Num() > 0))
 	{
 		const int RandIdx = FMath::RandRange(0, SewerTypes.Num() - 1);
-		if (SpawnNearby(SewerTypes[RandIdx]))
+		if (SpawnNearby(SewerTypes[RandIdx], false))
 		{
 			return;
 		}
@@ -196,7 +196,7 @@ void ACastle::AttemptSpawnRound()
 	if (GetCemeteryCount() < GetDesiredCemeteryCount() && ensure(CemeteryTypes.Num() > 0))
 	{
 		const int RandIdx = FMath::RandRange(0, CemeteryTypes.Num() - 1);
-		if (SpawnNearby(CemeteryTypes[RandIdx]))
+		if (SpawnNearby(CemeteryTypes[RandIdx], false))
 		{
 			return;
 		}
@@ -205,7 +205,7 @@ void ACastle::AttemptSpawnRound()
 	// TODO spawn windmills
 }
 
-bool ACastle::SpawnNearby(const UBuildingType* Type)
+bool ACastle::SpawnNearby(const UBuildingType* Type, bool bFriendly)
 {
 	auto TeamState = GetTeamState();
 	if (!ensure(TeamState))
@@ -214,11 +214,14 @@ bool ACastle::SpawnNearby(const UBuildingType* Type)
 	}
 
 	// Going to iterate all buildings, moving out from the castle and attempting random spots around each.
-	auto TeamBuildings = TeamState->GetBuildings();
+	TArray<ABuilding*> TeamBuildings = TeamState->GetBuildings(); // COPY
 	if (!ensure(!TeamBuildings.IsEmpty())) // Castle should be there
 	{
 		return false;
 	}
+
+	// Remove nullptrs (may not have replicated yet)
+	TeamBuildings.RemoveAll([](const ABuilding* Building) {return !Building; });
 
 	auto CastlePos = GetActorLocation();
 	TeamBuildings.Sort([CastlePos](const ABuilding& Left, const ABuilding& Right)
@@ -265,7 +268,7 @@ bool ACastle::SpawnNearby(const UBuildingType* Type)
 				continue;
 			}
 
-			if (AutoPlaceBuilding(Type, WorldPos))
+			if (AutoPlaceBuilding(Type, WorldPos, bFriendly))
 			{
 				bSuccess = true;
 				break;
@@ -282,7 +285,7 @@ bool ACastle::SpawnNearby(const UBuildingType* Type)
 	return bSuccess;
 }
 
-bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At)
+bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At, bool bFriendly)
 {
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -300,12 +303,11 @@ bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At)
 
 	if (auto SpawningBuilding = Cast<ASpawningBuilding>(Building))
 	{
-		auto NewType = SpawningBuilding->GetBuildingType();
-		if (SewerTypes.Contains(NewType) || CemeteryTypes.Contains(NewType))
-		{
-			EGameTeam NewSpawnTeam = (GetTeam() == EGameTeam::Monster) ? EGameTeam::Neutral : EGameTeam::Monster;
-			SpawningBuilding->SetSpawnTeam(NewSpawnTeam);
-		}
+		// if bFriendly, make spawn team be our team.
+		// Else, make it either monsters or neutral depending on if WE are monsters
+		EGameTeam NewSpawnTeam = bFriendly ? GetTeam()
+			: ((GetTeam() == EGameTeam::Monster) ? EGameTeam::Neutral : EGameTeam::Monster);
+		SpawningBuilding->SetSpawnTeam(NewSpawnTeam);
 	}
 
 	return true;

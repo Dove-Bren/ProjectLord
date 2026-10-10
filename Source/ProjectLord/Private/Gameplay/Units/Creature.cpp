@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Gameplay/Map/FogOfWarComponent.h"
 #include "Gameplay/Map/FogOfWarSubsystem.h"
@@ -40,8 +41,20 @@ ACreature::ACreature()
     MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
 }
 
-void ACreature::RegisterAttributes()
+void ACreature::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ThisClass, HomeBuilding);
+    DOREPLIFETIME(ThisClass, CurrentVisitingBuilding);
+    DOREPLIFETIME(ThisClass, DeadTime);
+    DOREPLIFETIME(ThisClass, Action);
+}
+
+void ACreature::Sided_RegisterAttributes()
+{
+    Super::Sided_RegisterAttributes();
+
     bool bIgnored;
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CreatureAttributeSet->GetMovementAttribute())
         .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
@@ -57,9 +70,9 @@ void ACreature::RegisterAttributes()
     FogOfWarComponent->SetRevealRadius(AbilitySystemComponent->GetGameplayAttributeValue(CombatAttributeSet->GetSightAttribute(), bIgnored));
 }
 
-void ACreature::SetupSelectionData(USelectionComponent* InSelectionComponent)
+void ACreature::Client_SetupSelectionData(USelectionComponent* InSelectionComponent)
 {
-    Super::SetupSelectionData(InSelectionComponent);
+    Super::Client_SetupSelectionData(InSelectionComponent);
 
     UVMAction* VM = CreateLordVM<UVMAction>(this);
     OnCreatureActionChanged.AddWeakLambda(this, [VM](ECreatureAction Action)
@@ -152,7 +165,7 @@ void ACreature::SetAction(ECreatureAction InAction)
     if (Action != InAction)
     {
         Action = InAction;
-        OnCreatureActionChanged.Broadcast(Action);
+        OnRep_Action();
     }
 }
 
@@ -166,12 +179,22 @@ bool ACreature::ShouldFlee() const
     return CombatComponent->GetHealth() < CombatComponent->GetMaxHealth() / 4;
 }
 
-void ACreature::SetTeam(EGameTeam InTeam)
+void ACreature::OnRep_Team(EGameTeam OldTeam)
 {
-    Super::SetTeam(InTeam);
+    Super::OnRep_Team(OldTeam);
 
-    FogOfWarComponent->SetTeam(InTeam);
-    MinimapComponent->SetTeam(InTeam);
+    FogOfWarComponent->SetTeam(Team);
+    MinimapComponent->SetTeam(Team);
+}
+
+void ACreature::OnRep_Action()
+{
+    OnCreatureActionChanged.Broadcast(Action);
+}
+
+void ACreature::OnRep_DeadTime()
+{
+
 }
 
 void ACreature::NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)

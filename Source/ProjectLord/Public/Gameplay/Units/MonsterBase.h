@@ -26,12 +26,16 @@ public:
 protected:
 
     // How much treasure this monster is carrying
-    UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta=(ClampMin=0))
+    UPROPERTY(EditDefaultsOnly, Category = "Resources", Meta=(ClampMin=0), ReplicatedUsing = OnRep_Gold)
     int Gold;
-    void SetGold(int InGold) { if (Gold != InGold) { Gold = InGold; OnGoldChanged.Broadcast(Gold); } }
+    void SetGold(int InGold) { if (Gold != InGold) { Gold = InGold; OnRep_Gold(); } }
+
+    UFUNCTION()
+    void OnRep_Gold() { OnGoldChanged.Broadcast(Gold); }
 
     virtual void OnDeath_Implementation() override;
-    virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
+    virtual void Client_SetupSelectionData(USelectionComponent* SelectionComponent) override;
     virtual bool ShouldHaveGravestone() const { return Gold > 0; }
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };

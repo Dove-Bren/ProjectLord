@@ -103,7 +103,7 @@ bool ASpawningBuilding::SpawnOneUnit_Implementation()
     {
         if (SpawnTeam != Team)
         {
-            Recruit->SetTeam(SpawnTeam);
+            Recruit->Server_SetTeam(SpawnTeam);
         }
 
         if (bAutoAttackSpawns)

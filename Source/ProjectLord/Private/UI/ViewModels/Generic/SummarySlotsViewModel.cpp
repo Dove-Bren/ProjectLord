@@ -22,7 +22,7 @@ void UVMSummarySlots::Init()
 	Slots.Add(UVMSummarySlot::MakeEmpty(this));
 }
 
-/*static*/ UVMSummarySlot* UVMSummarySlot::MakeItem(UObject* Outer, const UHeroItemStack* Stack)
+/*static*/ UVMSummarySlot* UVMSummarySlot::MakeItem(UObject* Outer, UHeroItemStack* Stack)
 {
 	if (!IsValid(Stack))
 	{
@@ -30,7 +30,7 @@ void UVMSummarySlots::Init()
 	}
 
 	UVMSummarySlot* VM = CreateLordVM<UVMSummarySlot>(Outer);
-	auto StackVM = Stack->GetViewModel();
+	auto StackVM = Stack->MakeViewModel();
 	StackVM->AddFieldValueChangedDelegate(UVMItemStack::FFieldNotificationClassDescriptor::Icon, FFieldValueChangedDelegate::CreateWeakLambda(VM, [VM, StackVM](auto Emitter, auto Field)
 	{
 		VM->SetIcon(StackVM->GetIcon());

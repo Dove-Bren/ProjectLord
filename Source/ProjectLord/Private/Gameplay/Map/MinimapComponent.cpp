@@ -80,7 +80,10 @@ FVector UMinimapComponent::GetWorldLocation() const
 void UMinimapComponent::SetTeam(EGameTeam InTeam)
 {
 	Team = InTeam;
-	ViewModel->SetTeam(GetTeam());
+	if (ViewModel)
+	{
+		ViewModel->SetTeam(GetTeam());
+	}
 }
 
 void UMinimapComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

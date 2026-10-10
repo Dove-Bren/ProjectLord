@@ -61,7 +61,7 @@ public:
     EGameTeam GetTeam() const { return Team; }
 
     UFUNCTION(BlueprintCallable)
-    virtual void SetTeam(EGameTeam InTeam);
+    virtual void Server_SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure)
     AGameTeamState* GetTeamState() const;
@@ -76,7 +76,7 @@ public:
     void FaceActor(AActor* OtherActor);
 
     UFUNCTION(BlueprintCallable, Category = "Actor")
-    virtual void HandleUnitRecruited();
+    virtual void Server_HandleUnitRecruited();
 
     UFUNCTION(BlueprintPure)
     UCombatAttributeSet* GetCombatAttributeSet() const { return CombatAttributeSet; }
@@ -89,6 +89,7 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     virtual void ServerTick(float DeltaSeconds);
     virtual void ClientTick(float DeltaSeconds);
@@ -108,7 +109,6 @@ public:
 
 protected:
 
-    // REMOVE
     UFUNCTION(BlueprintNativeEvent)
     void OnDeath();
 
@@ -137,7 +137,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TObjectPtr<UUnitType> UnitType;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Unit")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Team, Category = "Unit")
     EGameTeam Team;
 
     UPROPERTY(EditDefaultsOnly, Category = "Unit|Definition|Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
@@ -163,14 +163,17 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TObjectPtr<UAnimMontage> DeathAnimation;
 
-    virtual void RegisterAttributes();
-    virtual void SetupBaseAttributes();
-    virtual void SetupSelectionData(USelectionComponent* SelectionComponent);
+    virtual void Sided_RegisterAttributes();
+    virtual void Server_SetupBaseAttributes();
+    virtual void Client_SetupSelectionData(USelectionComponent* SelectionComponent);
 
-    void ApplyLevelDamageMod(int Level);
+    void Server_ApplyLevelDamageMod(int Level);
 
-    virtual void InitUnitVM();
-    virtual UVMUnit* ConstructUnitVM();
+    virtual void Client_InitUnitVM();
+    virtual UVMUnit* Client_ConstructUnitVM();
+
+    UFUNCTION()
+    virtual void OnRep_Team(EGameTeam OldTeam);
 
 private:
     void AddHealthbarWidget();
@@ -182,10 +185,10 @@ private:
     TObjectPtr<UVMUnit> UnitVM;
 
     UFUNCTION()
-    void HandleDeath();
+    void Sided_HandleDeath();
 
     UFUNCTION()
-    void HandleAttack(AActor* Target, UCombatComponent* TargetComponent);
+    void Server_HandleAttack(AActor* Target, UCombatComponent* TargetComponent);
 
 public:
     UFUNCTION(BlueprintPure, Category="UI|ViewModels")

@@ -66,16 +66,14 @@ public:
     UFUNCTION(BlueprintPure)
     virtual bool ShouldFlee() const;
 
-    virtual void SetTeam(EGameTeam InTeam) override;
-
     virtual void NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
 
 
 protected:
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Creature")
     TWeakObjectPtr<AResidentialBuilding> HomeBuilding;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Creature")
     TWeakObjectPtr<AResidentialBuilding> CurrentVisitingBuilding;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -90,10 +88,10 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Map")
     TObjectPtr<UMinimapComponent> MinimapComponent;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_DeadTime, Category = "Creature")
     float DeadTime;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Action, Category = "Creature")
     ECreatureAction Action;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
@@ -104,8 +102,8 @@ protected:
 
     virtual bool ShouldEvacuate() const;
 
-    virtual void RegisterAttributes() override;
-    virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
+    virtual void Sided_RegisterAttributes() override;
+    virtual void Client_SetupSelectionData(USelectionComponent* SelectionComponent) override;
 
     virtual void OnDeath_Implementation() override;
     virtual void OnFinalDeath() override;
@@ -160,6 +158,14 @@ protected:
     virtual void OnEnterBuilding(AResidentialBuilding* Building);
     virtual void OnExitBuilding(AResidentialBuilding* Building);
 
+    virtual void OnRep_Team(EGameTeam OldTeam) override;
+
+    UFUNCTION()
+    virtual void OnRep_Action();
+
+    UFUNCTION()
+    virtual void OnRep_DeadTime();
+
 private:
 
     // Fading
@@ -179,6 +185,7 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void ServerTick(float TimeElapsed) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
 };

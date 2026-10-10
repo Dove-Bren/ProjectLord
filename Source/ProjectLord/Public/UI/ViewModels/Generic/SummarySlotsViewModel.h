@@ -60,7 +60,7 @@ public:
     void SetMaxCount(int InMaxCount) { UE_MVVM_SET_PROPERTY_VALUE(MaxCount, InMaxCount); }
 
     static UVMSummarySlot* MakeEmpty(UObject* Outer) { return CreateLordVM<UVMSummarySlot>(Outer); }
-    static UVMSummarySlot* MakeItem(UObject* Outer, const UHeroItemStack* Stack);
+    static UVMSummarySlot* MakeItem(UObject* Outer, UHeroItemStack* Stack);
     static UVMSummarySlot* MakeUnitTypeCount(UObject* Outer, UUnitType* Type);
     static UVMSummarySlot* MakeVisitorCount(UObject* Outer);
 

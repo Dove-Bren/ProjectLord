@@ -156,16 +156,26 @@ public:
     UFUNCTION(BlueprintCallable, Category = "ItemStack")
     int SetCount(int NewCount);
 
-    UFUNCTION(BlueprintPure, Category = "ItemStack")
-    UVMItemStack* GetViewModel() const { return ViewModel; }
+    UFUNCTION(BlueprintCallable, Category = "ItemStack")
+    UVMItemStack* MakeViewModel();
+
+    virtual bool IsSupportedForNetworking() const override { return true; }
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Def, Category = "ItemStack")
     TObjectPtr<const UHeroItemDef> ItemDef;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Count, Category = "ItemStack")
     int Count;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ItemStack")
     TObjectPtr<UVMItemStack> ViewModel;
+
+private:
+    UFUNCTION()
+    void OnRep_Def();
+
+    UFUNCTION()
+    void OnRep_Count();
 };

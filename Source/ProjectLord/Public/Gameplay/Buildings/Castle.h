@@ -49,10 +49,10 @@ protected:
     void AttemptSpawnRound();
 
     UFUNCTION(BlueprintCallable, Category = "Town")
-    bool SpawnNearby(const UBuildingType* Type);
+    bool SpawnNearby(const UBuildingType* Type, bool bFriendly = true);
 
     UFUNCTION(BlueprintCallable, Category = "Town")
-    bool AutoPlaceBuilding(const UBuildingType* Type, FVector At);
+    bool AutoPlaceBuilding(const UBuildingType* Type, FVector At, bool bFriendly);
 
     UFUNCTION(BlueprintPure, Category = "Town")
     int GetHouseCount() const;

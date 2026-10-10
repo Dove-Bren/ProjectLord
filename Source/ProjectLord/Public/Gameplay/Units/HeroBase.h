@@ -126,9 +126,10 @@ public:
 
     virtual bool ShouldFlee() const override;
 
-    virtual void HandleUnitRecruited() override;
+    virtual void Server_HandleUnitRecruited() override;
 
     virtual void BeginPlay() override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     virtual void NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent) override;
 
@@ -157,21 +158,21 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
     TArray<FString> LastNames;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Inventory")
     TObjectPtr<UHeroInventory> Inventory;
 
     // How much XP this hero has accumulated so far this level
-    UPROPERTY(EditInstanceOnly, Category = "Hero", Meta = (ClampMin = 0))
+    UPROPERTY(EditInstanceOnly, Category = "Hero", ReplicatedUsing = OnRep_HeroXP, Meta = (ClampMin = 0))
     int HeroXP;
 
-    UPROPERTY(EditInstanceOnly, Category = "Hero")
+    UPROPERTY(EditInstanceOnly, ReplicatedUsing = OnRep_HeroName, Category = "Hero")
     FText HeroName;
 
-    virtual void SetupBaseAttributes() override;
-    virtual void SetupSelectionData(USelectionComponent* SelectionComponent) override;
+    virtual void Server_SetupBaseAttributes() override;
+    virtual void Client_SetupSelectionData(USelectionComponent* SelectionComponent) override;
     virtual bool ShouldHaveGravestone() const { return true; }
-    virtual void InitUnitVM() override;
-    virtual UVMUnit* ConstructUnitVM() override;
+    virtual void Client_InitUnitVM() override;
+    virtual UVMUnit* Client_ConstructUnitVM() override;
     virtual void OnDeath_Implementation() override;
     virtual void OnFinalDeath() override;
 
@@ -214,7 +215,7 @@ protected:
     UPROPERTY()
     FActiveGameplayEffectHandle ConfidenceLevelModHandle;
 
-    UPROPERTY()
+    UPROPERTY(Replicated)
     TWeakObjectPtr<ARewardFlag> CurrentFlagTarget;
 
     void UpdateAttributeDamageMod(FActiveGameplayEffectHandle& Handle, int Attribute);
@@ -234,5 +235,11 @@ private:
 
     UFUNCTION()
     void OnHealthChanged(int Health, int MaxHealth);
+
+    UFUNCTION()
+    void OnRep_HeroXP();
+
+    UFUNCTION()
+    void OnRep_HeroName();
 
 };

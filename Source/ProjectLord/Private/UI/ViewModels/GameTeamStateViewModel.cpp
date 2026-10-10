@@ -36,6 +36,7 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 			{
 				for (auto Unit : TeamState->GetUnits())
 				{
+					if (!Unit) continue;
 					VMs.Add(Unit->GetUnitVM());
 				}
 			}
@@ -51,6 +52,7 @@ void UVMGameTeamState::Setup(AGameTeamState* State)
 			{
 				for (auto Flag : TeamState->GetFlags())
 				{
+					if (!Flag) continue;
 					VMs.Add(Flag->GetViewModel());
 				}
 			}

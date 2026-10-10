@@ -112,10 +112,10 @@ ACreature* AResidentialBuilding::RecruitNewUnit(UUnitType* RecruitType, bool bSp
     ACreature* Recruit = World->SpawnActor<ACreature>(RecruitType->UnitClass, Location, Rotation, Params);
     if (IsValid(Recruit))
     {
-        Recruit->SetTeam(GetTeam());
+        Recruit->Server_SetTeam(GetTeam());
         AddResident(Recruit);
         Recruit->SetHomeBuilding(this);
-        Recruit->HandleUnitRecruited();
+        Recruit->Server_HandleUnitRecruited();
 
         if (!bSpawnOutside)
         {

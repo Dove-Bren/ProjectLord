@@ -7,6 +7,7 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
 #include "UI/Units/HealthBarBase.h"
@@ -62,6 +63,13 @@ AUnit::AUnit() : ACharacter()
     PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
+void AUnit::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ThisClass, Team);
+}
+
 void AUnit::FaceActor(AActor* OtherActor)
 {
     // Face target
@@ -70,7 +78,7 @@ void AUnit::FaceActor(AActor* OtherActor)
     SetActorRotation(Diff.Rotation());
 }
 
-void AUnit::HandleUnitRecruited()
+void AUnit::Server_HandleUnitRecruited()
 {
     // Register with team if not already done
     if (auto TeamState = GetTeamState())
@@ -99,28 +107,35 @@ void AUnit::BeginPlay()
         SelectionRingComponent->SetWorldScale3D(FVector(HScale, HScale, 1));
     }
     
-    RegisterAttributes();
-    SetupBaseAttributes();
+    Sided_RegisterAttributes();
 
-    // Set health and mana equal to their max
-    CombatAttributeSet->ResetHealthMana();
+    if (HasAuthority())
+    {
+        Server_SetupBaseAttributes();
 
-    CombatComponent->OnDeath.AddDynamic(this, &AUnit::HandleDeath);
-    CombatComponent->OnAttack.AddDynamic(this, &AUnit::HandleAttack);
+        // Set health and mana equal to their max
+        CombatAttributeSet->ResetHealthMana();
+    }
 
-    
-    SetupSelectionData(SelectionComponent);
+    CombatComponent->OnDeath.AddDynamic(this, &AUnit::Sided_HandleDeath);
+
+    if (HasAuthority())
+    {
+        CombatComponent->OnAttack.AddDynamic(this, &AUnit::Server_HandleAttack);
+
+        // Trigger a 'team change' to register with team
+        {
+            const EGameTeam RealTeam = GetTeam();
+            Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
+            Server_SetTeam(RealTeam);
+        }
+    }
+
+    Client_SetupSelectionData(SelectionComponent);
 
     // TODO: We can make it so this only shows up on mouseover (Issue #25)
     // Note: AFTER selection data so we can reuse VMs
     AddHealthbarWidget();
-
-    // Trigger a 'team change' to register with team
-    {
-        const EGameTeam RealTeam = GetTeam();
-        Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
-        SetTeam(RealTeam);
-    }
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
@@ -141,10 +156,9 @@ void AUnit::Tick(float DeltaSeconds)
     {
         ServerTick(DeltaSeconds);
     }
-    else
-    {
-        ClientTick(DeltaSeconds);
-    }
+
+    // Could check if not-dedicated-server but not supporting server mode
+    ClientTick(DeltaSeconds);
 }
 
 void AUnit::ServerTick(float DeltaSeconds)
@@ -194,11 +208,13 @@ bool AUnit::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagContainer
 
 AUnitController* AUnit::GetUnitController() const
 {
+    ensure(HasAuthority());
     return Cast<AUnitController>(GetController());
 }
 
-void AUnit::SetTeam(EGameTeam InTeam)
+void AUnit::Server_SetTeam(EGameTeam InTeam)
 {
+    ensure(HasAuthority());
     if (InTeam != Team)
     {
         // Remove from existing team before changing
@@ -207,9 +223,9 @@ void AUnit::SetTeam(EGameTeam InTeam)
             TeamState->RemoveUnit(this);
         }
 
+        const auto OldTeam = Team;
         Team = InTeam;
-        SelectionComponent->SetTeam(InTeam);
-        UnitVM->SetTeam(Team);
+        OnRep_Team(OldTeam);
 
         // Add to new team
         if (auto TeamState = GetTeamState())
@@ -246,12 +262,12 @@ void AUnit::PlayDeathAnimation()
     }
 }
 
-void AUnit::RegisterAttributes()
+void AUnit::Sided_RegisterAttributes()
 {
     ;
 }
 
-void AUnit::SetupBaseAttributes()
+void AUnit::Server_SetupBaseAttributes()
 {
     if (IsValid(ClassAttributeDefaults))
     {
@@ -322,7 +338,7 @@ void AUnit::SetupBaseAttributes()
     }
 }
 
-void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
+void AUnit::Client_SetupSelectionData(USelectionComponent* InSelectionComponent)
 {
     // All of this never changes
     InSelectionComponent->SetTeam(GetTeam());
@@ -344,32 +360,44 @@ void AUnit::SetupSelectionData(USelectionComponent* InSelectionComponent)
     });
 }
 
-void AUnit::HandleDeath()
+void AUnit::Sided_HandleDeath()
 {
-    GetUnitController()->NotifyPawnDied();
+    if (HasAuthority())
+    {
+        GetUnitController()->NotifyPawnDied();
+    }
 
     // Rebroadcast
     OnDeath();
 }
 
-void AUnit::HandleAttack(AActor* Target, UCombatComponent* TargetComponent)
+void AUnit::Server_HandleAttack(AActor* Target, UCombatComponent* TargetComponent)
 {
     FaceActor(Target);
 }
 
-UVMUnit* AUnit::ConstructUnitVM()
+void AUnit::OnRep_Team(EGameTeam OldTeam)
+{
+    SelectionComponent->SetTeam(Team);
+    if (UnitVM)
+    {
+        UnitVM->SetTeam(Team);
+    }
+}
+
+UVMUnit* AUnit::Client_ConstructUnitVM()
 {
     return UVMUnit::CreateForUnit(this);
 }
 
-void AUnit::InitUnitVM()
+void AUnit::Client_InitUnitVM()
 {
     if (IsValid(UnitVM))
     {
         return;
     }
 
-    UnitVM = ConstructUnitVM();
+    UnitVM = Client_ConstructUnitVM();
 
     // Note: For now, team is only ever set on construction of the AUnit.
     UnitVM->SetName(GetUnitName());
@@ -395,7 +423,7 @@ void AUnit::AddHealthbarWidget()
     }
 
     // If we're adding a healthbar, we're gonna need to make sure the VM is good to go.
-    InitUnitVM();
+    Client_InitUnitVM();
 
     HealthbarWidgetComponent = Cast<UWidgetComponent>(
         AddComponentByClass(UWidgetComponent::StaticClass(), true, FTransform::Identity, true));
@@ -429,7 +457,7 @@ void AUnit::RefreshHealthbarVisibility_Implementation()
     }
 }
 
-void AUnit::ApplyLevelDamageMod(int Level)
+void AUnit::Server_ApplyLevelDamageMod(int Level)
 {
     AbilitySystemComponent->SetActiveGameplayEffectLevel(LevelDamageModHandle, Level);
 }
