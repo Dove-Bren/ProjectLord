@@ -118,8 +118,12 @@ void ACreature::ServerTick(float DeltaTime)
     {
         DeadTime += DeltaTime;
         SetAction(ECreatureAction::Dead);
-        FadeTick();
     }
+}
+
+void ACreature::ClientTick(float DeltaTime)
+{
+    Super::ClientTick(DeltaTime);
 
     // TODO: This doesn't need to happen every frame
     auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
@@ -127,8 +131,16 @@ void ACreature::ServerTick(float DeltaTime)
     {
         if (auto PC = Cast<ALordPlayerController>(GetGameInstance()->GetFirstLocalPlayerController()))
         {
-            SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
+            if (PC->PlayerStateReady.IsComplete() && PC->TeamStateReady.IsComplete())
+            {
+                SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
+            }
         }
+    }
+
+    if (IsDead())
+    {
+        FadeTick();
     }
 }
 

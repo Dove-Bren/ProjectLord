@@ -19,6 +19,7 @@
 #include "Gameplay/Units/RewardFlag.h"
 #include "Gameplay/Units/Unit.h"
 #include "Gameplay/Interaction/SelectionAction.h"
+#include "Gameplay/Map/FogOfWarSubsystem.h"
 #include "UI/InspectWidget.h"
 #include "UI/LordGameHUDWidget.h"
 #include "UI/ToastNotification.h"
@@ -79,6 +80,16 @@ void ALordPlayerController::BeginPlay()
 		{
 			// TODO need authority check? Auth || isServer or something?
 			TeamState->SetPrimaryPlayerController(this);
+		}
+
+		// Set up FoW
+		if (IsLocalPlayerController())
+		{
+			auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
+			if (ensure(FogSubsystem))
+			{
+				FogSubsystem->SetWorldFogForTeam(GetTeam());
+			}
 		}
 	}), Futures);
 }
@@ -342,6 +353,9 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 	{
 		if (PlacementComponent->IsPlacing())
 		{
+			// TODO: Multiplayer! Send RPC to server! Maybe still
+			// attempt, and send on success + destroy client-only placed actor
+
 			if (auto Building = PlacementComponent->AttemptToPlace())
 			{
 				auto State = GetTeamState();
@@ -351,7 +365,7 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 				}
 				PlacementComponent->CancelPlacing();
 
-				Building->SetTeam(GetTeam());
+				Building->Server_SetTeam(GetTeam());
 				Building->HandleBuildingPlacement();
 			}
 		}

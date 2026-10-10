@@ -86,7 +86,7 @@ ABuilding::ABuilding()
     PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
-void ABuilding::SetTeam(EGameTeam InTeam)
+void ABuilding::Server_SetTeam(EGameTeam InTeam)
 {
     if (Team == InTeam)
     {
@@ -102,10 +102,9 @@ void ABuilding::SetTeam(EGameTeam InTeam)
         }
     }
 
+    const auto OldTeam = Team;
     Team = InTeam;
-    SelectionComponent->SetTeam(InTeam);
-    FogOfWarComponent->SetTeam(InTeam);
-    MinimapComponent->SetTeam(InTeam);
+    OnRep_Team(OldTeam);
 
     // relookup team state now that it's changed and add ourselves
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
@@ -133,13 +132,13 @@ int ABuilding::GetLevelUpCost() const
         : 500;
 }
 
-void ABuilding::StartLevelUp()
+void ABuilding::Server_StartLevelUp()
 {
     if (ensure(CanLevelUp()))
     {
         // We want to keep current health the same, so save it and restore it
         const int Health = GetBuildingHealth();
-        SetAvailableLevel(GetBuildingLevel() + 1); // Updates health values
+        Server_SetAvailableLevel(GetBuildingLevel() + 1); // Updates health values
 
         // restore
         AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
@@ -150,14 +149,14 @@ void ABuilding::StartLevelUp()
     }
 }
 
-void ABuilding::SetAvailableLevel(int InAvailableLevel)
+void ABuilding::Server_SetAvailableLevel(int InAvailableLevel)
 {
     BuildingAvailableLevel = InAvailableLevel;
-    SetupBaseAttributes();
-    OnBuildingAvailableLevelChanged.Broadcast(GetBuildingAvailableLevel());
+    Server_SetupBaseAttributes();
+    OnRep_BuildingAvailableLevel();
 }
 
-void ABuilding::AddBuildingPlayerSpell(UPlayerSpell* Spell)
+void ABuilding::Server_AddBuildingPlayerSpell(UPlayerSpell* Spell)
 {
     if (!BuildingPlayerSpells.Contains(Spell))
     {
@@ -166,21 +165,21 @@ void ABuilding::AddBuildingPlayerSpell(UPlayerSpell* Spell)
     }
 }
 
-void ABuilding::SetBuildingGold(int InGold)
+void ABuilding::Server_SetBuildingGold(int InGold)
 {
     BuildingGold = InGold;
-    GoldVM->SetGold(BuildingGold);
+    OnRep_BuildingGold();
 }
 
-void ABuilding::AddBuildingGold(int InGold)
+void ABuilding::Server_AddBuildingGold(int InGold)
 {
-    SetBuildingGold(FMath::Max(GetBuildingGold() + InGold));
+    Server_SetBuildingGold(FMath::Max(GetBuildingGold() + InGold));
 }
 
-int ABuilding::CollectBuildingGold()
+int ABuilding::Server_CollectBuildingGold()
 {
     const int Gold = GetBuildingGold();
-    SetBuildingGold(0);
+    Server_SetBuildingGold(0);
 
     // Notify of collection
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
@@ -194,7 +193,7 @@ int ABuilding::CollectBuildingGold()
     return Gold;
 }
 
-void ABuilding::PlaceExitingUnit(AUnit* Unit)
+void ABuilding::Server_PlaceExitingUnit(AUnit* Unit)
 {
     Unit->SetActorLocation(GetBuildingEntrance());
 }
@@ -273,8 +272,11 @@ void ABuilding::NotifyRepairComplete()
 
 void ABuilding::HandleBuildingUpgraded()
 {
-    // Update building level
-    SetLevel(BuildingAvailableLevel);
+    if (HasAuthority())
+    {
+        // Update building level
+        Server_SetLevel(BuildingAvailableLevel);
+    }
 
     if (bToastWhenConstructed)
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
@@ -302,16 +304,27 @@ void ABuilding::BeginPlay()
         AbilitySystemComponent->InitAbilityActorInfo(this, this);
     }
 
-    SetupBaseAttributes();
-
-    if (bIndestructible)
+    if (HasAuthority())
     {
-        CombatComponent->SetInvulnerable(true);
 
-        // Also make untargetable
-        auto* UntargetEffect = NewObject<UGEGenericGameplayTag>(this, TEXT("Untargetable Effect"));
-        UntargetEffect->AddTag(ULordGameplayTags::UnitStateUntargetable());
-        AbilitySystemComponent->ApplyGameplayEffectToSelf(UntargetEffect, 1, AbilitySystemComponent->MakeEffectContext());
+        Server_SetupBaseAttributes();
+
+        if (bIndestructible)
+        {
+            CombatComponent->SetInvulnerable(true);
+
+            // Also make untargetable
+            auto* UntargetEffect = NewObject<UGEGenericGameplayTag>(this, TEXT("Untargetable Effect"));
+            UntargetEffect->AddTag(ULordGameplayTags::UnitStateUntargetable());
+            AbilitySystemComponent->ApplyGameplayEffectToSelf(UntargetEffect, 1, AbilitySystemComponent->MakeEffectContext());
+        }
+
+        // Trigger a 'team change' to register with team
+        {
+            const EGameTeam RealTeam = GetTeam();
+            Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
+            Server_SetTeam(RealTeam);
+        }
     }
 
     bool bIgnored;
@@ -340,13 +353,6 @@ void ABuilding::BeginPlay()
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
     {
         State->OnGameDayChange.AddDynamic(this, &ABuilding::HandleGameDayChanged);
-    }
-
-    // Trigger a 'team change' to register with team
-    {
-        const EGameTeam RealTeam = GetTeam();
-        Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
-        SetTeam(RealTeam);
     }
 }
 
@@ -386,13 +392,16 @@ void ABuilding::Tick(float DeltaSeconds)
     {
         ServerTick(DeltaSeconds);
     }
-    else
-    {
-        ClientTick(DeltaSeconds);
-    }
+
+    ClientTick(DeltaSeconds);
 }
 
 void ABuilding::ServerTick(float DeltaSeconds)
+{
+    BP_ServerTick(DeltaSeconds);
+}
+
+void ABuilding::ClientTick(float DeltaSeconds)
 {
     // TODO: This doesn't need to happen every frame
     auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
@@ -400,15 +409,13 @@ void ABuilding::ServerTick(float DeltaSeconds)
     {
         if (auto PC = Cast<ALordPlayerController>(GetGameInstance()->GetFirstLocalPlayerController()))
         {
-            SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
+            if (PC->PlayerStateReady.IsComplete() && PC->TeamStateReady.IsComplete())
+            {
+                SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
+            }
         }
     }
 
-    BP_ServerTick(DeltaSeconds);
-}
-
-void ABuilding::ClientTick(float DeltaSeconds)
-{
     BP_ClientTick(DeltaSeconds);
 }
 
@@ -418,6 +425,31 @@ void ABuilding::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
     DOREPLIFETIME(ThisClass, Team);
     DOREPLIFETIME(ThisClass, BuildingEntranceOffset);
+    DOREPLIFETIME(ThisClass, BuildingGold);
+    DOREPLIFETIME(ThisClass, BuildingLevel);
+    DOREPLIFETIME(ThisClass, BuildingAvailableLevel);
+}
+
+void ABuilding::OnRep_Team(EGameTeam OldTeam)
+{
+    SelectionComponent->SetTeam(Team);
+    FogOfWarComponent->SetTeam(Team);
+    MinimapComponent->SetTeam(Team);
+}
+
+void ABuilding::OnRep_BuildingGold()
+{
+    GoldVM->SetGold(BuildingGold);
+}
+
+void ABuilding::OnRep_BuildingLevel()
+{
+    OnBuildingLevelChanged.Broadcast(BuildingLevel);
+}
+
+void ABuilding::OnRep_BuildingAvailableLevel()
+{
+    OnBuildingAvailableLevelChanged.Broadcast(GetBuildingAvailableLevel());
 }
 
 void ABuilding::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -455,7 +487,7 @@ bool ABuilding::HasAnyMatchingGameplayTags(const FGameplayTagContainer& TagConta
     return false;
 }
 
-void ABuilding::SetupBaseAttributes()
+void ABuilding::Server_SetupBaseAttributes()
 {
     // Note: using 'available' level here on purpose
     const int LevelIdx = FMath::Max(0, GetBuildingAvailableLevel() - 1);
@@ -615,12 +647,12 @@ void ABuilding::HandleDeath()
 
 void ABuilding::HandleGameDayChanged(int GameDay)
 {
-    if (GameDay > 0)
+    if (HasAuthority() && GameDay > 0)
     {
         const int Generated = GetGoldGeneratedPerDay();
         if (Generated > 0)
         {
-            SetBuildingGold(GetBuildingGold() + Generated);
+            Server_SetBuildingGold(GetBuildingGold() + Generated);
         }
     }
 }
@@ -636,10 +668,13 @@ void ABuilding::HandleHealthChanged(int Health, int MaxHealth)
 
 void ABuilding::HandleBuildingPlacement_Implementation()
 {
-    SetLevel(0);
-    SetAvailableLevel(1);
-    AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
-        (int) ((float) GetBuildingMaxHealth() * 0.1f));
+    if (HasAuthority())
+    {
+        Server_SetLevel(0);
+        Server_SetAvailableLevel(1);
+        AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
+            (int) ((float) GetBuildingMaxHealth() * 0.1f));
+    }
 
     FadeComponent->Activate();
     FadeComponent->Enable();

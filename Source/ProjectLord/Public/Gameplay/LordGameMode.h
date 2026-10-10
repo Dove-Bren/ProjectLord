@@ -23,6 +23,9 @@ public:
     ALordGameMode();
 
     virtual void PostLogin(APlayerController* NewController) override;
+    virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal) override;
+    virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+    virtual void FinishRestartPlayer(AController* NewPlayer, const FRotator& StartRotation) override;
 
     virtual TSubclassOf<ACastle> GetCastleForPlayer(const APlayerController* Controller) const;
 

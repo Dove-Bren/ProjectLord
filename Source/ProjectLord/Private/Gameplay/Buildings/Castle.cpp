@@ -31,7 +31,7 @@ void ACastle::ServerTick(float DeltaSeconds)
 		AttemptSpawnRound();
 	}
 
-	if (int Gold = CollectBuildingGold())
+	if (int Gold = Server_CollectBuildingGold())
 	{
 		// Deposit directly into team gold
 		if (auto TeamState = GetTeamState())
@@ -168,8 +168,9 @@ int ACastle::GetDesiredTaxCollectorCount() const
 
 int ACastle::GetDesiredRoyalGuardCount() const
 {
-	// This is either always 6, or 3+level (4, 5, 6)
-	return 3 + GetBuildingLevel();
+	// This is either always 6, or 3+level (4, 5, 6) in ref game
+	// Just going to do 0, 1, 2
+	return FMath::Max(0, GetBuildingLevel() - 1);//3 + GetBuildingLevel();
 }
 
 void ACastle::AttemptSpawnRound()
@@ -297,7 +298,7 @@ bool ACastle::AutoPlaceBuilding(const UBuildingType* Type, FVector At, bool bFri
 		return false;
 	}
 	
-	Building->SetTeam(GetTeam());
+	Building->Server_SetTeam(GetTeam());
 	Building->ClearFoliageAround();
 	Building->PaintFoundation();
 

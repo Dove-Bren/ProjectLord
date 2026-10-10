@@ -2,6 +2,8 @@
 
 #include "Gameplay/Buildings/ResidentialBuilding.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Units/Creature.h"
@@ -13,6 +15,15 @@
 
 AResidentialBuilding::AResidentialBuilding()
 {
+}
+
+void AResidentialBuilding::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ThisClass, Residents);
+    DOREPLIFETIME(ThisClass, Visitors);
+    DOREPLIFETIME(ThisClass, ResidentTypeLimits);
 }
 
 void AResidentialBuilding::BeginPlay()
@@ -31,7 +42,7 @@ bool AResidentialBuilding::RemoveResident(ACreature* Resident)
 {
     if (Residents.RemoveAll([Resident](ACreature* const InResident) { return Resident == InResident; }) > 0)
     {
-        OnResidentsChanged.Broadcast();
+        OnRep_Residents();
         OnResidentRemoved.Broadcast(Resident);
         return true;
     }
@@ -44,7 +55,7 @@ void AResidentialBuilding::RemoveAllResidents()
     auto Copy = Residents;
     Residents.Empty();
 
-    OnResidentsChanged.Broadcast();
+    OnRep_Residents();
     for (auto Resident : Copy)
     {
         OnResidentRemoved.Broadcast(Resident);
@@ -56,7 +67,7 @@ bool AResidentialBuilding::AddResident(ACreature* Resident)
     if (CanFitResidentType(Resident->GetUnitType()))
     {
         Residents.Add(Resident);
-        OnResidentsChanged.Broadcast();
+        OnRep_Residents();
         OnResidentAdded.Broadcast(Resident);
         return true;
     }
@@ -69,7 +80,7 @@ void AResidentialBuilding::RemoveAllVisitors()
     auto Copy = Visitors;
 	Visitors.Empty();
 
-    OnVisitorsChanged.Broadcast();
+    OnRep_Visitors();
     for (auto Visitor : Copy)
     {
         OnVisitorRemoved.Broadcast(Visitor);
@@ -84,7 +95,7 @@ void AResidentialBuilding::AddVisitor(ACreature* Visitor)
         return;
     }
 	Visitors.Add(Visitor);
-    OnVisitorsChanged.Broadcast();
+    OnRep_Visitors();
     OnVisitorAdded.Broadcast(Visitor);
 }
 
@@ -92,7 +103,7 @@ void AResidentialBuilding::RemoveVisitor(ACreature* Visitor)
 {
     if (Visitors.RemoveAll([Visitor](ACreature* const InVisitor) { return Visitor == InVisitor; }))
     {
-        OnVisitorsChanged.Broadcast();
+        OnRep_Visitors();
         OnVisitorRemoved.Broadcast(Visitor);
     }
 }
@@ -143,10 +154,10 @@ void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionCo
         }
         Slot->SetCount(GetResidentTypeCount(ResidentType, false));
         Slots.Add(Slot);
-        OnResidentsChanged.AddWeakLambda(this, [this, ResidentType, Slot]() {
+        OnResidentsChanged.AddWeakLambda(Slot, [this, ResidentType, Slot]() {
                 Slot->SetCount(GetResidentTypeCount(ResidentType, false));
             });
-        OnResidentLimitChanged.AddWeakLambda(this, [this, Slot](auto ResidentType) {
+        OnResidentLimitChanged.AddWeakLambda(Slot, [this, ResidentType, Slot]() {
             if (const int Limit = GetResidentTypeLimit(ResidentType))
             {
                 Slot->SetMaxCount(Limit);
@@ -157,7 +168,7 @@ void AResidentialBuilding::SetupSelectionData(USelectionComponent* InSelectionCo
     auto VisitorSlot = UVMSummarySlot::MakeVisitorCount(this);
     Slots.Add(VisitorSlot);
     VisitorSlot->SetCount(GetVisitorCount());
-    OnVisitorsChanged.AddWeakLambda(this, [this, VisitorSlot]() {
+    OnVisitorsChanged.AddWeakLambda(VisitorSlot, [this, VisitorSlot]() {
             VisitorSlot->SetCount(GetVisitorCount());
         });
     
@@ -182,7 +193,7 @@ void AResidentialBuilding::SetupViewModel()
     auto ResidentsVM = CreateLordVM<UVMResidents>(this);
     BuildingVM->SetResidentsVM(ResidentsVM);
 
-    OnResidentLimitChanged.AddWeakLambda(this, [this, ResidentsVM](auto ResidentType)
+    OnResidentLimitChanged.AddWeakLambda(ResidentsVM, [this, ResidentsVM]()
     {
         bool bAllowResidents = !ResidentTypeLimits.IsEmpty();
         ResidentsVM->SetCanHaveResidents(bAllowResidents);
@@ -267,9 +278,10 @@ int AResidentialBuilding::GetResidentTypeCount(const UUnitType* Type, bool bIncl
 
 int AResidentialBuilding::GetResidentTypeLimit(const UUnitType* Type) const
 {
-    if (ResidentTypeLimits.Contains(Type))
+    const FResidentLimit* Limit = ResidentTypeLimits.FindByPredicate([Type](const FResidentLimit& Limit) {return Limit.Type == Type; });
+    if (Limit)
     {
-        return ResidentTypeLimits[Type];
+        return Limit->Limit;
     }
 
     return 0;
@@ -283,8 +295,17 @@ bool AResidentialBuilding::CanFitResidentType(const UUnitType* Type) const
 
 void AResidentialBuilding::SetResidentTypeLimit(UUnitType* Type, int Limit)
 {
-    ResidentTypeLimits[Type] = Limit;
-    OnResidentLimitChanged.Broadcast(Type);
+    FResidentLimit* ResidentLimit = ResidentTypeLimits.FindByPredicate([Type](const FResidentLimit& Limit) {return Limit.Type == Type; });
+    if (!ResidentLimit)
+    {
+        ResidentTypeLimits.Emplace(Type, Limit);
+    }
+    else
+    {
+        ResidentLimit->Limit = Limit;
+    }
+
+    OnRep_ResidentLimits();
 }
 
 TSet<UUnitType*> AResidentialBuilding::GetAllResidentTypes() const
@@ -298,7 +319,7 @@ TSet<UUnitType*> AResidentialBuilding::GetAllResidentTypes() const
     // Include types with limits, too
     for (auto& TypeLimit : ResidentTypeLimits)
     {
-        Types.Add(TypeLimit.Key);
+        Types.Add(TypeLimit.Type);
     }
 
     return Types;
@@ -325,6 +346,21 @@ void AResidentialBuilding::HandleBuildingAttacked(AActor* AttackingActor, UComba
             Creature->NotifyResidenceAttacked(this, AttackingActor, AttackingCombatComponent);
         }
     }
+}
+
+void AResidentialBuilding::OnRep_Residents()
+{
+    OnResidentsChanged.Broadcast();
+}
+
+void AResidentialBuilding::OnRep_Visitors()
+{
+    OnVisitorsChanged.Broadcast();
+}
+
+void AResidentialBuilding::OnRep_ResidentLimits()
+{
+    OnResidentLimitChanged.Broadcast();
 }
 
 

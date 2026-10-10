@@ -60,7 +60,7 @@ void UQueuedGoodAction::Perform(AGoodBuilding* Building)
 void UQueuedSpellAction::Perform(AGoodBuilding* Building)
 {
 	auto SpellToAdd = GetSpell();
-	Building->AddBuildingPlayerSpell(SpellToAdd);
+	Building->Server_AddBuildingPlayerSpell(SpellToAdd);
 
 	// Toast!
 	if (auto State = GetWorld()->GetGameState<ALordGameState>())

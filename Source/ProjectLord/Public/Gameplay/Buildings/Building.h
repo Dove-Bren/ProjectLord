@@ -65,7 +65,7 @@ public:
     EGameTeam GetTeam() const { return Team; }
 
     UFUNCTION(BlueprintCallable)
-    void SetTeam(EGameTeam InTeam);
+    void Server_SetTeam(EGameTeam InTeam);
 
     UFUNCTION(BlueprintPure)
     int GetBuildingLevel() const { return BuildingLevel; }
@@ -87,19 +87,19 @@ public:
     int GetLevelUpCost() const;
 
     UFUNCTION(BlueprintCallable)
-    void StartLevelUp();
+    void Server_StartLevelUp();
 
     UFUNCTION(BlueprintPure)
     int GetBuildingGold() const { return BuildingGold; }
 
     UFUNCTION(BlueprintCallable)
-    virtual void SetBuildingGold(int InGold);
+    virtual void Server_SetBuildingGold(int InGold);
 
     UFUNCTION(BlueprintCallable)
-    virtual void AddBuildingGold(int InGold);
+    virtual void Server_AddBuildingGold(int InGold);
 
     UFUNCTION(BlueprintCallable)
-    int CollectBuildingGold();
+    int Server_CollectBuildingGold();
 
     UFUNCTION(BlueprintPure)
     bool CanDepositTaxesHere() const { return bCanAcceptTaxes; }
@@ -114,10 +114,10 @@ public:
     int GetGoldGeneratedPerDay() const;
 
     UFUNCTION(BlueprintCallable)
-    void PlaceExitingUnit(AUnit* Unit);
+    void Server_PlaceExitingUnit(AUnit* Unit);
 
     UFUNCTION(BlueprintCallable)
-    void AddBuildingPlayerSpell(UPlayerSpell* Spell);
+    void Server_AddBuildingPlayerSpell(UPlayerSpell* Spell);
 
 
 
@@ -217,7 +217,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     TArray<UStaticMesh*> BuildingConstructionMeshes;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Building|Definition")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Building|Definition")
     FVector BuildingEntranceOffset;
 
     UPROPERTY(EditDefaultsOnly, Category = "Building|Definition", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
@@ -245,7 +245,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bCanAcceptTaxes;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Team")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Team, Category = "Team")
     EGameTeam Team;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
@@ -263,16 +263,16 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Combat")
     TArray<UPlayerSpell*> BuildingPlayerSpells;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building|Contents")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_BuildingGold, Category = "Building|Contents")
     int BuildingGold;
 
     // Active, functioning level of the building.
     // Note: can be 0 when building hasn't been built yet.
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_BuildingLevel, Category = "Building")
     int BuildingLevel;
 
     // Level that the building can get to, if repaired enough
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Building")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_BuildingAvailableLevel, Category = "Building")
     int BuildingAvailableLevel;
 
     UPROPERTY()
@@ -287,13 +287,13 @@ protected:
     UPROPERTY()
     TObjectPtr<UVMCombatData> CombatVM;
 
-    virtual void SetupBaseAttributes();
+    virtual void Server_SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
     virtual void SetupViewModel();
     virtual void HandleBuildingUpgraded();
-    virtual void SetAvailableLevel(int InAvailableLevel);
+    virtual void Server_SetAvailableLevel(int InAvailableLevel);
 
-    void SetLevel(int InLevel) { BuildingLevel = InLevel; OnBuildingLevelChanged.Broadcast(BuildingLevel); }
+    void Server_SetLevel(int InLevel) { BuildingLevel = InLevel; OnRep_BuildingLevel(); }
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnRepairActionReceived();
@@ -321,6 +321,18 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "ClientTick"))
     void BP_ClientTick(float DeltaSeconds);
+
+    UFUNCTION()
+    void OnRep_Team(EGameTeam OldTeam);
+
+    UFUNCTION()
+    void OnRep_BuildingGold();
+
+    UFUNCTION()
+    void OnRep_BuildingLevel();
+
+    UFUNCTION()
+    void OnRep_BuildingAvailableLevel();
 
 public:
     virtual void BeginPlay() override;

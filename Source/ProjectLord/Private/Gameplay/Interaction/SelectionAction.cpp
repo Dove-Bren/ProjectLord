@@ -514,7 +514,7 @@ bool UUpgradeBuildingPurchase::Perform_Implementation(const FSelectionActionCont
 		return false;
 	}
 
-	BuildingOwner->StartLevelUp();
+	BuildingOwner->Server_StartLevelUp();
 	return true;
 }
 

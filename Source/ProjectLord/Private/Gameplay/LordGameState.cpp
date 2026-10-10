@@ -272,7 +272,7 @@ ACastle* ALordGameState::SpawnTeamCastle(const FTeamStartClaim& InClaim, TSubcla
 			return nullptr;
 		}
 
-		Castle->SetTeam(InClaim.Team);
+		Castle->Server_SetTeam(InClaim.Team);
 		Castle->SetSpawnTeam(InClaim.Team);
 		Castle->ClearFoliageAround();
 		Castle->PaintFoundation();

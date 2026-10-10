@@ -11,10 +11,26 @@
 class ACreature;
 class UUnitType;
 
+USTRUCT(BlueprintType)
+struct FResidentLimit
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    TObjectPtr<UUnitType> Type;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    int Limit;
+
+    FResidentLimit() { }
+    FResidentLimit(UUnitType* Type, int Limit)
+        : Type(Type), Limit(Limit) { }
+};
+
 DECLARE_MULTICAST_DELEGATE(FOnResidentsChanged);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnResidentAdded, ACreature*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnResidentRemoved, ACreature*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnResidentLimitChanged, UUnitType*);
+DECLARE_MULTICAST_DELEGATE(FOnResidentLimitChanged);
 
 DECLARE_MULTICAST_DELEGATE(FOnVisitorsChanged);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnVisitorAdded, ACreature*);
@@ -91,15 +107,15 @@ public:
 protected:
 
     // Creatures that consider this building their home
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Residents, Category = "Building|Contents")
     TArray<ACreature*> Residents;
 
     // Creatures that are actively inside this building instead of out on the map
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Visitors, Category = "Building|Contents")
     TArray<ACreature*> Visitors;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Residents")
-    TMap<UUnitType*, int> ResidentTypeLimits;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_ResidentLimits, Category = "Building|Residents")
+    TArray<FResidentLimit> ResidentTypeLimits;
 
     virtual void SetupViewModel() override;
     virtual void HandleDeath() override;
@@ -111,9 +127,19 @@ protected:
     UFUNCTION()
     virtual void HandleBuildingAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
 
+    UFUNCTION()
+    void OnRep_Residents();
+
+    UFUNCTION()
+    void OnRep_Visitors();
+
+    UFUNCTION()
+    void OnRep_ResidentLimits();
+
 
 public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };

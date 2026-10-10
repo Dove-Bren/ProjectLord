@@ -160,9 +160,9 @@ UUnitType* ASpawningBuilding::GetTypeToSpawn() const
     TArray<UUnitType*> EligibleTypes;
     for (auto& TypeLimit : ResidentTypeLimits)
     {
-        if (CanFitResidentType(TypeLimit.Key))
+        if (CanFitResidentType(TypeLimit.Type))
         {
-            EligibleTypes.Add(TypeLimit.Key);
+            EligibleTypes.Add(TypeLimit.Type);
         }
     }
 

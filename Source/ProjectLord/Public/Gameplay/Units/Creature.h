@@ -185,6 +185,7 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void ServerTick(float TimeElapsed) override;
+    virtual void ClientTick(float TimeElapsed) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
