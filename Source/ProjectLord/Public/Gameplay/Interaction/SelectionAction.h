@@ -260,6 +260,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Selection|Action|Place")
     int CalculatePrice(const FSelectionActionContext& Context) const;
 
+    int CalculatePriceDirect(const AGameTeamState* TeamState) const;
+
     virtual int GetGoldCost(const FSelectionActionContext& Context) const override { return CalculatePrice(Context); }
 
 #if WITH_EDITOR

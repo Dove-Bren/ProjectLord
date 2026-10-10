@@ -2,6 +2,8 @@
 
 #include "Gameplay/Buildings/GoodBuilding.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "Gameplay/GameGood.h"
 #include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/Buildings/BuildingActionQueue.h"
@@ -18,6 +20,13 @@ AGoodBuilding::AGoodBuilding()
     bToastWhenDestroyed = true;
 
     QueueComponent = CreateDefaultSubobject<UBuildingActionQueueComponent>(TEXT("Queue"));
+}
+
+void AGoodBuilding::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ThisClass, Goods);
 }
 
 void AGoodBuilding::BeginPlay()
@@ -62,7 +71,7 @@ void AGoodBuilding::AddGoodOffer(FGoodOffer InOffer)
     if (!HasGood(InOffer.Good))
     {
         Goods.Add(InOffer);
-        OnBuildingGoodsChanged.Broadcast();
+        OnRep_Goods();
     }
 }
 
@@ -72,7 +81,7 @@ void AGoodBuilding::SetupBaseGoods()
     {
         Goods.Add(Good);
     }
-    OnBuildingGoodsChanged.Broadcast();
+    OnRep_Goods();
 }
 
 void AGoodBuilding::SetupViewModel()
@@ -133,4 +142,9 @@ int AGoodBuilding::GetResidentsInQueue(const UUnitType* Type) const
         }
     }
     return Count;
+}
+
+void AGoodBuilding::OnRep_Goods()
+{
+    OnBuildingGoodsChanged.Broadcast();
 }

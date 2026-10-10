@@ -6,6 +6,7 @@
 
 #include "Gameplay/Map/FogOfWarSubsystem.h"
 #include "Gameplay/Player/PlacementActor.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Buildings/BuildingTypes.h"
 
@@ -15,11 +16,12 @@ UPlacementComponent::UPlacementComponent()
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 }
 
-void UPlacementComponent::StartPlacing(const UBuildingType* Type, int Cost)
+void UPlacementComponent::StartPlacing(const UBuildingType* Type, int Cost, const UPlaceBuildingPurchase* Action)
 {
 	check(!!Type);
 	PlaceType = Type;
 	PlaceCost = Cost;
+	PlaceAction = Action;
 
 	if (!ShadowActor)
 	{
@@ -39,23 +41,39 @@ void UPlacementComponent::CancelPlacing()
 	}
 }
 
-ABuilding* UPlacementComponent::AttemptToPlace()
+TOptional<FPlaceBuildingOperation> UPlacementComponent::AttemptToPlace()
 {
 	if (!IsPlacing())
 	{
-		return nullptr;
+		return NullOpt;
 	}
 
 	if (!CanPlace())
 	{
-		return nullptr;
+		return NullOpt;
 	}
+
+	const FVector At = ShadowActor->GetActorLocation();
 
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	FTransform Transform(ShadowActor->GetActorLocation());
+	FTransform Transform(At);
 	auto Building = GetWorld()->SpawnActor<ABuilding>(PlaceType->BuildingClass, Transform, Params);
-	return Building;
+
+	if (!Building)
+	{
+		return NullOpt;
+	}
+
+	// Capture what happened in an operation
+	FPlaceBuildingOperation Operation = {};
+	Operation.PlaceCost = PlaceCost;
+	Operation.BuildingType = PlaceType;
+	Operation.PurchaseAction = PlaceAction;
+	Operation.At = At;
+	Operation.PlacedBuilding = Building;
+
+	return Operation;
 }
 
 bool UPlacementComponent::CanPlace() const
@@ -75,13 +93,19 @@ bool UPlacementComponent::CanPlace() const
 		return false;
 	}
 
+	auto Controller = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (!Controller)
+	{
+		return false;
+	}
+
 	auto FogSubsystem = GetWorld()->GetSubsystem<UFogOfWarSubsystem>();
 	if (!ensure(FogSubsystem))
 	{
 		return false;
 	}
 
-	if (FogSubsystem->IsInFog(EGameTeam::Player1, ShadowActor->GetActorLocation()))
+	if (FogSubsystem->IsInFog(Controller->GetTeam(), ShadowActor->GetActorLocation()))
 	{
 		return false;
 	}

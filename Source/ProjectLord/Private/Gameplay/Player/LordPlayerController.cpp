@@ -7,6 +7,7 @@
 #include "NavigationSystem.h"
 #include "AbilitySystemComponent.h"
 
+#include "LordLogging.h"
 #include "Gameplay/GameTeamState.h"
 #include "Gameplay/Player/LordCameraPawn.h"
 #include "Gameplay/LordGameState.h"
@@ -157,10 +158,10 @@ FSelectionActionContext ALordPlayerController::MakeSelectionContext(USelectionCo
 	return Context;
 }
 
-void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost)
+void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost, const UPlaceBuildingPurchase* Action)
 {
 	if (SpellCastingComponent->IsCasting()) SpellCastingComponent->CancelCasting();
-	PlacementComponent->StartPlacing(Type, Cost);
+	PlacementComponent->StartPlacing(Type, Cost, Action);
 }
 
 void ALordPlayerController::CastSpell(UPlayerSpell* Spell)
@@ -195,7 +196,10 @@ void ALordPlayerController::PanTo_Implementation(FVector WorldPosition)
 
 void ALordPlayerController::AddToastNotification(FToastNotification Notification)
 {
-	GetHUDWidget()->AddToastNotification(MoveTemp(Notification));
+	if (IsLocalController())
+	{
+		GetHUDWidget()->AddToastNotification(MoveTemp(Notification));
+	}
 }
 
 void ALordPlayerController::SetHovered(USelectionComponent* InHovered)
@@ -353,27 +357,25 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 	{
 		if (PlacementComponent->IsPlacing())
 		{
-			// TODO: Multiplayer! Send RPC to server! Maybe still
-			// attempt, and send on success + destroy client-only placed actor
 
-			if (auto Building = PlacementComponent->AttemptToPlace())
+			if (auto PlaceOperation = PlacementComponent->AttemptToPlace())
 			{
-				auto State = GetTeamState();
-				if (ensure(State))
+				// If not authoritative, make sure to clean up the locally-spawned building
+				if (!HasAuthority() && PlaceOperation->PlacedBuilding)
 				{
-					State->AddGold(-PlacementComponent->GetPlaceCost());
+					PlaceOperation->PlacedBuilding->Destroy();
+					PlaceOperation->PlacedBuilding = nullptr;
 				}
-				PlacementComponent->CancelPlacing();
 
-				Building->Server_SetTeam(GetTeam());
-				Building->HandleBuildingPlacement();
+				Server_PlaceBuilding(MoveTemp(PlaceOperation.GetValue()));
+				PlacementComponent->CancelPlacing();
 			}
 		}
 		else if (SpellCastingComponent->IsCasting())
 		{
-			if (SpellCastingComponent->AttemptToCast())
+			if (auto CastOperation = SpellCastingComponent->AttemptToCast())
 			{
-				; // Anything to actually do?
+				Server_CastSpell(MoveTemp(CastOperation.GetValue()));
 
 				// Do not deselect spell, so it can be cast over and over
 			}
@@ -480,4 +482,99 @@ void ALordPlayerController::OnSelectionChange()
 void ALordPlayerController::OnHoverChange()
 {
 	BP_OnHoverChange();
+}
+
+void ALordPlayerController::Server_PlaceBuilding_Implementation(FPlaceBuildingOperation PlaceOperation)
+{
+	if (!ensure(PlaceOperation.BuildingType))
+	{
+		return;
+	}
+
+	if (!ensure(PlaceOperation.PurchaseAction))
+	{
+		return;
+	}
+
+	auto State = GetTeamState();
+	if (!ensure(State))
+	{
+		return;
+	}
+
+	// If called from an already-authoritative process, PlaceOperation is the direct output from
+	// a placement component and the data is accurate -- including the still-alive building.
+	// Otherwise, we have to replay a bit.
+	// PlacedBuilding is nulled out and not replicated from client->server,
+	// so this indicates if this came across the wire or not
+	if (PlaceOperation.PlacedBuilding)
+	{
+		// Trust our own price.
+		// Can't recalc either, since now there is +1 of those buildings
+		//PlaceOperation.PlaceCost = ...;
+
+
+	}
+	else
+	{
+		// Get the price, and compare to what we received
+		const int ServerPrice = PlaceOperation.PurchaseAction->CalculatePriceDirect(State);
+		if (!ServerPrice == PlaceOperation.PlaceCost)
+		{
+			UE_LOG(LordBuilding, Error, TEXT("Client submitted price for building does not match server calculation (Client: %d,  Server: %d)"),
+				PlaceOperation.PlaceCost, ServerPrice);
+
+			PlaceOperation.PlaceCost = ServerPrice;
+		}
+	}
+
+	// Now that we have cost, make sure we can afford it
+	if (State->GetGold() < PlaceOperation.PlaceCost)
+	{
+		UE_LOG(LordBuilding, Warning, TEXT("Could not afford building placement late in the placement process"));
+		return;
+	}
+
+	// Now do the actual placement
+
+	if (!PlaceOperation.PlacedBuilding)
+	{
+		// This is a dupe of what happens in PlacementComponent. Maybe better to make a func to expose this for one codepath?
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FTransform Transform(PlaceOperation.At);
+		PlaceOperation.PlacedBuilding = GetWorld()->SpawnActor<ABuilding>(PlaceOperation.BuildingType->BuildingClass, Transform, Params);
+		if (!ensure(PlaceOperation.PlacedBuilding))
+		{
+			return;
+		}
+	}
+
+	// Commit
+
+	State->AddGold(-PlaceOperation.PlaceCost);
+	PlaceOperation.PlacedBuilding->Server_SetTeam(GetTeam());
+	PlaceOperation.PlacedBuilding->HandleBuildingPlacement();
+}
+
+void ALordPlayerController::Server_PlaceFlag_Implementation(FVector At)
+{
+
+}
+
+void ALordPlayerController::Server_CastSpell_Implementation(FPlayerSpellCastOperation CastOperation)
+{
+	// Cost is part of the spell, so no need to get and then independently verify the cost here. Attempting to
+	// cast will do that automatically!
+
+	if (!ensure(CastOperation.Spell))
+	{
+		return;
+	}
+
+	if (!CastOperation.Spell->AttemptCast(this, CastOperation.TargetLocation, CastOperation.TargetComponent))
+	{
+		UE_LOG(LordCombat, Warning, TEXT("Got spell cast request but could not activate it"));
+		return;
+	}
 }

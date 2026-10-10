@@ -231,7 +231,7 @@ void AResidentialBuilding::PushVisitorsToVM()
         TArray<UVMUnit*> VisitorVMs;
         for (auto Visitor : Visitors)
         {
-            if (!ensure(Visitor))
+            if (!Visitor)
             {
                 continue;
             }
@@ -250,7 +250,8 @@ void AResidentialBuilding::PushResidentsToVM()
         TArray<UVMUnit*> ResidentVMs;
         for (auto Resident : Residents)
         {
-            ResidentVMs.Add(Resident->GetUnitVM());
+            if (Resident)
+                ResidentVMs.Add(Resident->GetUnitVM());
         }
 
         ResidentsVM->SetResidents(ResidentVMs);
@@ -313,7 +314,8 @@ TSet<UUnitType*> AResidentialBuilding::GetAllResidentTypes() const
     TSet<UUnitType*> Types;
     for (auto Resident : Residents)
     {
-        Types.Add(Resident->GetUnitType());
+        if (Resident)
+            Types.Add(Resident->GetUnitType());
     }
 
     // Include types with limits, too

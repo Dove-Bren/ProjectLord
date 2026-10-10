@@ -343,6 +343,9 @@ void ABuilding::BeginPlay()
 
     RefreshMesh();
 
+    FadeComponent->Activate();
+    FadeComponent->Enable();
+
     // Before selection data, so we can reuse VMs
     SetupViewModel();
 
@@ -354,6 +357,20 @@ void ABuilding::BeginPlay()
     {
         State->OnGameDayChange.AddDynamic(this, &ABuilding::HandleGameDayChanged);
     }
+
+    if (HasAuthority())
+    {
+        ClearFoliageAround();
+        PaintFoundation();
+    }
+}
+
+void ABuilding::PostNetInit()
+{
+    Super::PostNetInit();
+
+    ClearFoliageAround();
+    PaintFoundation();
 }
 
 void ABuilding::EndPlay(EEndPlayReason::Type Reason)
@@ -675,13 +692,6 @@ void ABuilding::HandleBuildingPlacement_Implementation()
         AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
             (int) ((float) GetBuildingMaxHealth() * 0.1f));
     }
-
-    FadeComponent->Activate();
-    FadeComponent->Enable();
-
-    ClearFoliageAround();
-    PaintFoundation();
-
 }
 
 void ABuilding::ClearFoliageAround()

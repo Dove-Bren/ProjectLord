@@ -30,6 +30,8 @@ class AGameTeamState;
 struct FStaticSelection;
 struct FToastNotification;
 struct FSelectionActionContext;
+struct FPlaceBuildingOperation;
+struct FPlayerSpellCastOperation;
 
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
@@ -98,7 +100,7 @@ public:
     void BP_OnHoverChange();
 
     UFUNCTION(BlueprintCallable, Category = "Placement")
-    void PlaceBuilding(UBuildingType* Type, int Cost);
+    void PlaceBuilding(UBuildingType* Type, int Cost, const UPlaceBuildingPurchase* Action);
 
     UFUNCTION(BlueprintCallable, Category = "SpellCasting")
     void CastSpell(UPlayerSpell* Spell);
@@ -169,6 +171,15 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "Selection", meta = (DisplayName = "OnSetPaused"))
     void BP_OnSetPaused(bool bPaused);
     bool CanSelect(const AActor* ClickedActor) const;
+
+    UFUNCTION(Server, Reliable)
+    void Server_PlaceBuilding(FPlaceBuildingOperation PlaceOperation);
+
+    UFUNCTION(Server, Reliable)
+    void Server_PlaceFlag(FVector At);
+
+    UFUNCTION(Server, Reliable)
+    void Server_CastSpell(FPlayerSpellCastOperation CastOperation);
 
     void OnSelectionChange();
     void OnHoverChange();

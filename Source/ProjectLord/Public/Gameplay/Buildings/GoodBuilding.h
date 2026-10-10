@@ -46,7 +46,7 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building")
     TObjectPtr<UBuildingActionQueueComponent> QueueComponent;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Contents")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Goods, Category = "Building|Contents")
     TArray<FGoodOffer> Goods;
 
     virtual void SetupBaseGoods();
@@ -56,6 +56,9 @@ protected:
     UFUNCTION()
     void OnQueueActionReady(UQueuedAction* Action);
 
+    UFUNCTION()
+    void OnRep_Goods();
+
     virtual int GetResidentsInQueue(const UUnitType* Type) const override;
 
     void PushGoodsToVM();
@@ -63,4 +66,5 @@ protected:
 public:
 
     virtual void BeginPlay() override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

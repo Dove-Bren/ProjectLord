@@ -9,6 +9,25 @@
 class UPlayerSpell;
 class ALordPlayerController;
 class UVMPlayerSpellCasting;
+class UCombatComponent;
+
+USTRUCT()
+struct PROJECTLORD_API FPlayerSpellCastOperation
+{
+    GENERATED_BODY()
+
+public:
+
+    UPROPERTY()
+    TObjectPtr<UPlayerSpell> Spell;
+
+    UPROPERTY()
+    FVector TargetLocation;
+
+    UPROPERTY()
+    TObjectPtr<UCombatComponent> TargetComponent;
+
+};
 
 DECLARE_MULTICAST_DELEGATE(FOnSpellChanged);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSpellCast, UPlayerSpell* /*Spell*/);
@@ -27,7 +46,7 @@ public:
     void StartCasting(UPlayerSpell* Spell);
     void CancelCasting();
     bool CanCast() const;
-    bool AttemptToCast();
+    TOptional<FPlayerSpellCastOperation> AttemptToCast();
 
     bool IsCasting() const { return !!CurrentSpell; }
     int GetCastCost() const;

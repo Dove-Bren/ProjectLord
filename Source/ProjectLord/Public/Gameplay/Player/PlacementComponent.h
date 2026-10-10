@@ -10,6 +10,29 @@
 class APlacementActor;
 class UBuildingType;
 class ABuilding;
+class UPlaceBuildingPurchase;
+
+USTRUCT()
+struct PROJECTLORD_API FPlaceBuildingOperation
+{
+    GENERATED_BODY()
+
+public:
+
+    UPROPERTY()
+    TObjectPtr<const UBuildingType> BuildingType;
+
+    UPROPERTY()
+    FVector At;
+
+    UPROPERTY()
+    int PlaceCost;
+
+    UPROPERTY()
+    const UPlaceBuildingPurchase* PurchaseAction;
+
+    ABuilding* PlacedBuilding;
+};
 
 UCLASS()
 class PROJECTLORD_API UPlacementComponent : public UActorComponent
@@ -23,13 +46,14 @@ public:
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-    void StartPlacing(const UBuildingType* Type, int Cost);
+    void StartPlacing(const UBuildingType* Type, int Cost, const UPlaceBuildingPurchase* Action);
     void CancelPlacing();
-    ABuilding* AttemptToPlace();
+    TOptional<FPlaceBuildingOperation> AttemptToPlace();
     bool CanPlace() const;
 
     bool IsPlacing() const { return !!PlaceType; }
     const UBuildingType* GetPlaceType() const { return PlaceType; }
+    const UPlaceBuildingPurchase* GetPlaceAction() const { return PlaceAction; }
     int GetPlaceCost() const { return PlaceCost; }
 
 protected:
@@ -40,6 +64,9 @@ private:
 
     UPROPERTY()
     TObjectPtr<const UBuildingType> PlaceType;
+
+    UPROPERTY()
+    TObjectPtr<const UPlaceBuildingPurchase> PlaceAction;
 
     UPROPERTY()
     int PlaceCost;

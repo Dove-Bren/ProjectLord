@@ -336,6 +336,7 @@ protected:
 
 public:
     virtual void BeginPlay() override;
+    virtual void PostNetInit();
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void OnConstruction(const FTransform& Transform) override;
     virtual void Tick(float DeltaSeconds) override;

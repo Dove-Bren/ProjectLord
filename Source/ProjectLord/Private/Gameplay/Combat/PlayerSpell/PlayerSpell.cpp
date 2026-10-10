@@ -54,21 +54,25 @@ bool UPlayerSpell::CanCastOn(const ALordPlayerController* Caster, UCombatCompone
 
 bool UPlayerSpell::HasValidTarget(const ALordPlayerController* Caster) const
 {
+	return IsValidTarget(Caster, Caster->GetWorldPositionUnderMouse(), Caster->GetCombatUnderMouse());
+	
+}
+
+bool UPlayerSpell::IsValidTarget(const ALordPlayerController* Caster, const FVector& TargetLoc, UCombatComponent* TargetComponent) const
+{
 	// depends on target type
 	if (ESpellTargetType::Ground == GetTargetType())
 	{
-		return CanCastAt(Caster, Caster->GetWorldPositionUnderMouse());
+		return CanCastAt(Caster, TargetLoc);
 	}
 
 	// else needs a combat target
-	auto Target = Caster->GetCombatUnderMouse();
-	if (!Target)
+	if (!TargetComponent)
 	{
 		return false;
 	}
 
-	return CanCastOn(Caster, Target);
-	
+	return CanCastOn(Caster, TargetComponent);
 }
 
 bool UPlayerSpell::CheckCost(const ALordPlayerController* Source, FVector At) const
@@ -122,7 +126,7 @@ bool UPlayerSpell::CanCast(const ALordPlayerController* Source, FVector At, UCom
 	}*/
 
 	// Check target
-	if (!HasValidTarget(Source))
+	if (!IsValidTarget(Source, At, Target))
 	{
 		return false;
 	}
@@ -141,8 +145,8 @@ bool UPlayerSpell::AttemptCast(ALordPlayerController* Source, FVector At, UComba
 	{
 		return false;
 	}
-
-	if (!HasValidTarget(Source)) // might be double checking with this
+	
+	if (!IsValidTarget(Source, At, Target)) // might be double checking with this
 	{
 		return false;
 	}

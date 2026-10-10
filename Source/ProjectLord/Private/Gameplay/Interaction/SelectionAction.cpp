@@ -545,10 +545,15 @@ void UPlaceBuildingPurchase::PostEditChangeProperty(FPropertyChangedEvent& Prope
 
 int UPlaceBuildingPurchase::CalculatePrice(const FSelectionActionContext& InContext) const
 {
+	return CalculatePriceDirect(InContext.TeamState);
+}
+
+int UPlaceBuildingPurchase::CalculatePriceDirect(const AGameTeamState* TeamState) const
+{
 	// Adjust cost based on number of the same buildings on the team
 	// CostExponentBase^(n) * Cost
-	const int Count = InContext.TeamState
-		? InContext.TeamState->GetTeamBuildingsOfType(GetBuildingType()).Num()
+	const int Count = TeamState
+		? TeamState->GetTeamBuildingsOfType(GetBuildingType()).Num()
 		: 0;
 	const float RawCost = FMath::Pow(CostExponentBase, Count) * BaseCost;
 	int AdjCost = FMath::FloorToInt(RawCost);
@@ -595,7 +600,7 @@ bool UPlaceBuildingPurchase::Perform_Implementation(const FSelectionActionContex
 		return false;
 	}
 
-	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost(InContext));
+	Controller->PlaceBuilding(GetBuildingType(), GetGoldCost(InContext), this);
 	return true;
 }
 

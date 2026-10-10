@@ -52,26 +52,35 @@ bool UPlayerSpellCastingComponent::CanCast() const
 	return CurrentSpell->CanCast(PC, PC->GetWorldPositionUnderMouse(), PC->GetCombatUnderMouse());
 }
 
-bool UPlayerSpellCastingComponent::AttemptToCast()
+TOptional<FPlayerSpellCastOperation> UPlayerSpellCastingComponent::AttemptToCast()
 {
 	if (!IsCasting())
 	{
-		return false;
+		return NullOpt;
 	}
 
 	auto PC = GetPlayerController();
 	if (!PC)
 	{
-		return false;
+		return NullOpt;
 	}
+	
+	const FVector AtLoc = PC->GetWorldPositionUnderMouse();
+	const auto AtComponent = PC->GetCombatUnderMouse();
 
-	if (!CurrentSpell->AttemptCast(PC, PC->GetWorldPositionUnderMouse(), PC->GetCombatUnderMouse()))
+	if (!CurrentSpell->CanCast(PC, AtLoc, AtComponent))
 	{
-		return false;
+		return NullOpt;
 	}
 
+	// Now I'm wondering if this should be here...
 	OnSpellCast.Broadcast(CurrentSpell);
-	return true;
+
+	FPlayerSpellCastOperation Operation = {};
+	Operation.Spell = CurrentSpell;
+	Operation.TargetComponent = AtComponent;
+	Operation.TargetLocation = AtLoc;
+	return Operation;
 }
 
 int UPlayerSpellCastingComponent::GetCastCost() const

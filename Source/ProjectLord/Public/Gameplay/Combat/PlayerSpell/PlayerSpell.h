@@ -47,6 +47,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Spell")
     bool HasValidTarget(const ALordPlayerController* Caster) const;
 
+    UFUNCTION(BlueprintPure, Category = "Spell")
+    bool IsValidTarget(const ALordPlayerController* Caster, const FVector& TargetLoc, UCombatComponent* TargetComponent) const;
+
     UFUNCTION(BlueprintCallable, Category = "Spell")
     UVMPlayerSpell* MakeViewModel(const UObject* WorldContextObject);
 

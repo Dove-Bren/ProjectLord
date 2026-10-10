@@ -8,6 +8,7 @@
 
 UPlayerSpellGameplayAbility::UPlayerSpellGameplayAbility()
 {
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 }
 
 void UPlayerSpellGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
