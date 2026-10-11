@@ -20,17 +20,17 @@ public:
     UTexture2D* GetIcon() const { return Icon; }
     void SetIcon(UTexture2D* InIcon) { UE_MVVM_SET_PROPERTY_VALUE(Icon, InIcon); }
 
-    static UVMQueuedAction* Make(UObject* Outer, UQueuedAction* Action)
+    static UVMQueuedAction* Make(UObject* Outer, const FQueuedAction& Action)
     {
         auto VM = CreateLordVM<UVMQueuedAction>(Outer);
-        VM->SetIcon(Action->GetIcon());
+        VM->SetIcon(Action.Icon);
         return VM;
     }
 
-    bool Matches(const UQueuedAction* Action) const
+    bool Matches(const FQueuedAction& Action) const
     {
         // We only actally care about the icon, so check that
-        return Action->GetIcon() == Icon;
+        return Action.Icon == Icon;
     }
 
 protected:
@@ -54,7 +54,7 @@ public:
 
     const TArray<UVMQueuedAction*>& GetQueue() const { return Queue; }
     void SetQueue(TArray<UVMQueuedAction*> InQueue) { UE_MVVM_SET_PROPERTY_VALUE(Queue, InQueue); }
-    void UpdateQueue(const TArray<UQueuedAction*>& InQueue);
+    void UpdateQueue(const TArray<FQueuedAction>& InQueue);
 
 protected:
 

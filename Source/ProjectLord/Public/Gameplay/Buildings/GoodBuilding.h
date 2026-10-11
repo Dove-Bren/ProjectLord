@@ -54,7 +54,7 @@ protected:
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent) override;
 
     UFUNCTION()
-    void OnQueueActionReady(UQueuedAction* Action);
+    void OnQueueActionReady(FQueuedAction& Action);
 
     UFUNCTION()
     void OnRep_Goods();

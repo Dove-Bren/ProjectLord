@@ -2,12 +2,25 @@
 
 #include "Gameplay/Buildings/BuildingActionQueue.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "Gameplay/Buildings/Building.h"
 #include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
 UBuildingActionQueueComponent::UBuildingActionQueueComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	SetIsReplicatedByDefault(true);
+	bReplicateUsingRegisteredSubObjectList = true;
+}
+
+void UBuildingActionQueueComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Queue);
+	DOREPLIFETIME(ThisClass, TimeRemaining);
 }
 
 void UBuildingActionQueueComponent::BeginPlay()
@@ -27,9 +40,13 @@ void UBuildingActionQueueComponent::TickComponent(float DeltaTime, enum ELevelTi
 		TimeRemaining -= DeltaTime;
 		if (TimeRemaining <= 0)
 		{
-			auto* Action = Queue[0];
+			auto Action = Queue[0]; // Copy
 			Queue.RemoveAt(0, EAllowShrinking::No);
 			PerformAction(Action);
+			if (Action.Execution)
+			{
+				RemoveReplicatedSubObject(Action.Execution);
+			}
 			ResetTimer();
 			NotifyQueueChange();
 		}
@@ -59,9 +76,13 @@ bool UBuildingActionQueueComponent::IsFull() const
 	return Queue.Num() >= 4;
 }
 
-void UBuildingActionQueueComponent::QueueAction(UQueuedAction* InAction)
+void UBuildingActionQueueComponent::QueueAction(FQueuedAction InAction)
 {
-	Queue.Add(InAction);
+	if (InAction.Execution)
+	{
+		AddReplicatedSubObject(InAction.Execution);
+	}
+	Queue.Add(MoveTemp(InAction));
 	if (Queue.Num() == 1)
 	{
 		ResetTimer();
@@ -77,17 +98,17 @@ void UBuildingActionQueueComponent::ResetTimer()
 	}
 }
 
-float UBuildingActionQueueComponent::GetTotalTimeFor(const UQueuedAction* Action) const
+float UBuildingActionQueueComponent::GetTotalTimeFor(const FQueuedAction* Action) const
 {
 	return 10.0f; // HARDCODED TIME
 }
 
-UQueuedAction* UBuildingActionQueueComponent::GetActiveAction() const
+const FQueuedAction* UBuildingActionQueueComponent::GetActiveAction() const
 {
-	return Queue.IsEmpty() ? nullptr : Queue[0];
+	return Queue.IsEmpty() ? nullptr : &Queue[0];
 }
 
-void UBuildingActionQueueComponent::PerformAction(UQueuedAction* Action)
+void UBuildingActionQueueComponent::PerformAction(FQueuedAction& Action)
 {
 	OnActionReady.Broadcast(Action);
 }
@@ -95,6 +116,19 @@ void UBuildingActionQueueComponent::PerformAction(UQueuedAction* Action)
 void UBuildingActionQueueComponent::NotifyQueueChange()
 {
 	// Update VM
-	ViewModel->UpdateQueue(Queue);
+	if (ViewModel)
+	{
+		ViewModel->UpdateQueue(Queue);
+	}
 	OnQueueChange.Broadcast();
+}
+
+void UBuildingActionQueueComponent::OnRep_Queue()
+{
+	NotifyQueueChange();
+}
+
+void UBuildingActionQueueComponent::OnRep_TimeRemaining()
+{
+
 }

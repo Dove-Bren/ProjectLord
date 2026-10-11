@@ -2,6 +2,8 @@
 
 #include "Gameplay/Buildings/QueuedAction.h"
 
+#include "Net/UnrealNetwork.h"
+
 #include "LordLogging.h"
 #include "Gameplay/GameTeam.h"
 #include "Gameplay/GameTeamState.h"
@@ -12,30 +14,43 @@
 #include "Gameplay/Units/UnitTypes.h"
 #include "UI/ToastNotification.h"
 
-void UQueuedGoodAction::Init(int InGold, FGoodOffer InOffer)
+FQueuedAction UQueuedGoodAction::Make(UObject* Outer, int InGold, FGoodOffer InOffer)
 {
-	Icon = InOffer.Good->GetIcon();
-	RefundGold = InGold;
-	Good = InOffer;
+	FQueuedAction Action;
+	Action.Icon = InOffer.Good->GetIcon();
+	Action.RefundGold = InGold;
+
+	auto Execution = NewObject<UQueuedGoodAction>(Outer);
+	Execution->Good = InOffer;
+	Action.Execution = Execution;
+
+	return Action;
 }
 
-void UQueuedSpellAction::Init(int InGold, UPlayerSpell* InSpell)
+FQueuedAction UQueuedSpellAction::Make(UObject* Outer, int InGold, UPlayerSpell* InSpell)
 {
-	Spell = InSpell;
-	Icon = Spell->GetSpellIcon();
-	RefundGold = InGold;
+	FQueuedAction Action;
+	Action.Icon = InSpell->GetSpellIcon();
+	Action.RefundGold = InGold;
+
+	auto Execution = NewObject<UQueuedSpellAction>(Outer);
+	Execution->Spell = InSpell;
+	Action.Execution = Execution;
+
+	return Action;
 }
 
-void UQueuedRecruitAction::Init(int InGold, UUnitType* InType)
+FQueuedAction UQueuedRecruitAction::Make(UObject* Outer, int InGold, UUnitType* InType)
 {
-	Icon = InType->UnitIcon;
-	RefundGold = InGold;
-	RecruitType = InType;
-}
+	FQueuedAction Action;
+	Action.Icon = InType->UnitIcon;
+	Action.RefundGold = InGold;
 
-void UQueuedAction::Perform(AGoodBuilding* Building)
-{
-	UE_LOG(LordBuilding, Error, TEXT("Queued Action does not have a Perform action bound"));
+	auto Execution = NewObject<UQueuedRecruitAction>(Outer);
+	Execution->RecruitType = InType;
+	Action.Execution = Execution;
+
+	return Action;
 }
 
 void UQueuedGoodAction::Perform(AGoodBuilding* Building)
@@ -78,4 +93,25 @@ void UQueuedSpellAction::Perform(AGoodBuilding* Building)
 void UQueuedRecruitAction::Perform(AGoodBuilding* Building)
 {
 	Building->RecruitNewUnit(GetRecruitType());
+}
+
+void UQueuedGoodAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Good);
+}
+
+void UQueuedSpellAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Spell);
+}
+
+void UQueuedRecruitAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, RecruitType);
 }

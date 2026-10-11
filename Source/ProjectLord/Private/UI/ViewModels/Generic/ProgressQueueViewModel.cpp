@@ -2,7 +2,7 @@
 
 #include "UI/ViewModels/Generic/ProgressQueueViewModel.h"
 
-void UVMProgressQueue::UpdateQueue(const TArray<UQueuedAction*>& InQueue)
+void UVMProgressQueue::UpdateQueue(const TArray<FQueuedAction>& InQueue)
 {
 	bool bAnyChanges = false;
 

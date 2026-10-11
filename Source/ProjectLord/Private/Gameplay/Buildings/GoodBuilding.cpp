@@ -53,7 +53,8 @@ bool AGoodBuilding::HasGood(UGameGood* GoodType, bool bCheckQueue) const
     {
         for (const auto Action : QueueComponent->GetQueue())
         {
-            if (auto GoodAction = Cast<UQueuedGoodAction>(Action))
+            if (!Action.Execution) continue;
+            if (auto GoodAction = Cast<UQueuedGoodAction>(Action.Execution))
             {
                 if (GoodAction->GetGood().Good == GoodType)
                 {
@@ -123,9 +124,12 @@ void AGoodBuilding::SetupSelectionData(USelectionComponent* InSelectionComponent
     });
 }
 
-void AGoodBuilding::OnQueueActionReady(UQueuedAction* Action)
+void AGoodBuilding::OnQueueActionReady(FQueuedAction& Action)
 {
-    Action->Perform(this);
+    if (HasAuthority() && Action.Execution)
+    {
+        Action.Execution->Perform(this);
+    }
 }
 
 int AGoodBuilding::GetResidentsInQueue(const UUnitType* Type) const
@@ -133,7 +137,8 @@ int AGoodBuilding::GetResidentsInQueue(const UUnitType* Type) const
     int Count = 0;
     for (const auto Action : QueueComponent->GetQueue())
     {
-        if (auto RecruitAction = Cast<UQueuedRecruitAction>(Action))
+        if (!Action.Execution) continue;
+        if (auto RecruitAction = Cast<UQueuedRecruitAction>(Action.Execution))
         {
             if (RecruitAction->GetRecruitType() == Type)
             {

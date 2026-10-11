@@ -11,7 +11,7 @@
 
 class UVMProgressQueue;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionReady, UQueuedAction*, ReadyAction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionReady, FQueuedAction&, ReadyAction);
 DECLARE_MULTICAST_DELEGATE(FOnQueueChange);
 
 UCLASS(BlueprintType)
@@ -32,7 +32,7 @@ public:
     FOnQueueChange OnQueueChange;
 
     UFUNCTION(BlueprintPure, Category = "Building|Queue")
-    TArray<UQueuedAction*> GetQueue() const { return Queue; }
+    const TArray<FQueuedAction>& GetQueue() const { return Queue; }
 
     UFUNCTION(BlueprintPure, Category = "Building|Queue")
     bool HasActionInProgress() const;
@@ -41,7 +41,7 @@ public:
     bool IsFull() const;
 
     UFUNCTION(BlueprintCallable, Category = "Building|Queue")
-    void QueueAction(UQueuedAction* InAction);
+    void QueueAction(FQueuedAction InAction);
 
     UFUNCTION(BlueprintPure, Category = "Building|Queue")
     float GetTimeRemaining() const { return TimeRemaining; }
@@ -55,10 +55,10 @@ public:
 
 
 protected:
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Queue")
-    TArray<UQueuedAction*> Queue;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Queue, Category = "Building|Queue")
+    TArray<FQueuedAction> Queue;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Building|Queue")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_TimeRemaining, Category = "Building|Queue")
     float TimeRemaining;
 
     UPROPERTY()
@@ -66,12 +66,18 @@ protected:
 
     void ResetTimer();
 
-    virtual float GetTotalTimeFor(const UQueuedAction* Action) const;
+    virtual float GetTotalTimeFor(const FQueuedAction* Action) const;
 
-    UQueuedAction* GetActiveAction() const;
+    const FQueuedAction* GetActiveAction() const;
 
-    void PerformAction(UQueuedAction* Action);
+    void PerformAction(FQueuedAction& Action);
 
     void NotifyQueueChange();
+
+    UFUNCTION()
+    void OnRep_Queue();
+
+    UFUNCTION()
+    void OnRep_TimeRemaining();
 
 };

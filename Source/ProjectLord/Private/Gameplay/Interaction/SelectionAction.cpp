@@ -343,8 +343,7 @@ bool UResearchGoodPurchase::Perform_Implementation(const FSelectionActionContext
 	}
 	auto Queue = Building->GetQueueComponent();
 
-	auto Action = NewObject<UQueuedGoodAction>(Queue);
-	Action->Init(GetGoldCost(InContext), GetGood());
+	auto Action = UQueuedGoodAction::Make(Queue, GetGoldCost(InContext), GetGood());
 
 	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
@@ -429,7 +428,8 @@ bool UResearchPlayerSpellPurchase::CanPerform_Implementation(const FSelectionAct
 	// Inspect queue
 	for (auto Action : Queue->GetQueue())
 	{
-		if (auto SpellAction = Cast<UQueuedSpellAction>(Action))
+		if (!Action.Execution) continue;
+		if (auto SpellAction = Cast<UQueuedSpellAction>(Action.Execution))
 		{
 			if (SpellAction->GetSpell() == GetSpell())
 			{
@@ -462,8 +462,7 @@ bool UResearchPlayerSpellPurchase::Perform_Implementation(const FSelectionAction
 	}
 	auto Queue = Building->GetQueueComponent();
 
-	auto Action = NewObject<UQueuedSpellAction>(Queue);
-	Action->Init(GetGoldCost(InContext), GetSpell());
+	auto Action = UQueuedSpellAction::Make(Queue, GetGoldCost(InContext), GetSpell());
 
 	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
@@ -701,8 +700,7 @@ bool URecruitUnitPurchase::Perform_Implementation(const FSelectionActionContext&
 
 	auto Queue = Building->GetQueueComponent();
 
-	auto Action = NewObject<UQueuedRecruitAction>(Queue);
-	Action->Init(GetGoldCost(InContext), GetUnitType());
+	auto Action = UQueuedRecruitAction::Make(Queue, GetGoldCost(InContext), GetUnitType());
 
 	DeductGoldCost(InContext);
 	Queue->QueueAction(Action);
