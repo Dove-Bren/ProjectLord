@@ -4,6 +4,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Map/Map.h"
 #include "UI/ViewModels/MinimapIconViewModel.h"
 
@@ -11,6 +12,7 @@ UMinimapComponent::UMinimapComponent()
 {
 	bRegistered = false;
 	bAutoRegister = true;
+	bOnlyVisibleToTeam = false;
 
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
@@ -67,9 +69,10 @@ void UMinimapComponent::UnregisterFromMinimap()
 	}
 }
 
-bool UMinimapComponent::IsVisible() const
+bool UMinimapComponent::IsVisible(EGameTeam TeamToCheck) const
 {
-	return !GetOwner()->IsHidden();
+	return !GetOwner()->IsHidden()
+		&& (!bOnlyVisibleToTeam || TeamToCheck == GetTeam());
 }
 
 FVector UMinimapComponent::GetWorldLocation() const
@@ -92,5 +95,10 @@ void UMinimapComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
 
 	auto WorldLocation = GetWorldLocation();
 	ViewModel->SetWorldLocation(WorldLocation);
-	ViewModel->SetVisible(IsVisible());
+
+	auto PC = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PC && PC->PlayerStateReady.IsComplete())
+	{
+		ViewModel->SetVisible(IsVisible(PC->GetTeam()));
+	}
 }

@@ -26,6 +26,8 @@ ARewardFlag::ARewardFlag()
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	bReplicates = true;
 }
 
 void ARewardFlag::BeginPlay()
@@ -182,7 +184,7 @@ void ARewardFlag::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ThisClass, Team);
 	DOREPLIFETIME(ThisClass, Reward);
 	DOREPLIFETIME(ThisClass, AttachedComponent);
-	DOREPLIFETIME(ThisClass, InterestedUnits);
+	DOREPLIFETIME(ThisClass, InterestedUnitCount);
 }
 
 void ARewardFlag::SetFlagType(ERewardFlagType InType)
@@ -190,9 +192,8 @@ void ARewardFlag::SetFlagType(ERewardFlagType InType)
 	if (InType != FlagType)
 	{
 		FlagType = InType;
-		ViewModel->SetType(InType);
+		OnRep_Type();
 	}
-	
 }
 
 void ARewardFlag::SetTeam(EGameTeam InTeam)
@@ -309,27 +310,47 @@ bool ARewardFlag::PayNearbyInterestedHeroes(int Amount, float Range)
 	return PayHeroes(Amount, Heroes);
 }
 
+void ARewardFlag::OnRep_Type()
+{
+	if (ViewModel)
+	{
+		ViewModel->SetType(FlagType);
+	}
+}
+
 void ARewardFlag::OnRep_Team(EGameTeam OldValue)
 {
-	ViewModel->SetTeam(GetTeam());
+	if (ViewModel)
+	{
+		ViewModel->SetTeam(GetTeam());
+	}
 	SelectionComponent->SetTeam(GetTeam());
 	MinimapComponent->SetTeam(GetTeam());
 }
 
 void ARewardFlag::OnRep_Reward(int OldValue)
 {
-	ViewModel->SetReward(GetReward());
+	if (ViewModel)
+	{
+		ViewModel->SetReward(GetReward());
+	}
 	OnRewardFlagRewardChanged.Broadcast(this, GetReward());
 }
 
 void ARewardFlag::OnRep_AttachedComponent(UCombatComponent* OldValue)
 {
-	ViewModel->SetAttachedCombatComponent(IsValid(GetAttachedComponent()) ? UVMCombatData::Make(this, GetAttachedComponent()) : nullptr);
+	if (ViewModel)
+	{
+		ViewModel->SetAttachedCombatComponent(IsValid(GetAttachedComponent()) ? UVMCombatData::Make(this, GetAttachedComponent()) : nullptr);
+	}
 }
 
 void ARewardFlag::OnRep_InterestedUnits(int OldValue)
 {
-	ViewModel->SetInterestedCount(GetNumInterestedUnits());
+	if (ViewModel)
+	{
+		ViewModel->SetInterestedCount(GetNumInterestedUnits());
+	}
 	OnRewardFlagInterestChanged.Broadcast(this, GetNumInterestedUnits());
 }
 

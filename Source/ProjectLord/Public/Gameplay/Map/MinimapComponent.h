@@ -33,7 +33,7 @@ public:
     UTexture2D* GetMapIcon() const { return MapIcon; }
 
     UFUNCTION(BlueprintPure, Category = "Minimap")
-    bool IsVisible() const;
+    bool IsVisible(EGameTeam TeamToCheck) const;
 
     UFUNCTION(BlueprintPure, Category = "Minimap")
     FVector GetWorldLocation() const;
@@ -57,6 +57,11 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Minimap")
     bool bAutoRegister;
+
+    // If this component should only show up on the minimap for
+    // players of the same team
+    UPROPERTY(EditDefaultsOnly, Category = "Minimap")
+    bool bOnlyVisibleToTeam;
 
     bool bRegistered;
     

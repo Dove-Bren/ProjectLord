@@ -6,6 +6,7 @@
 #include "InputMappingContext.h"
 #include "NavigationSystem.h"
 #include "AbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
 #include "Gameplay/GameTeamState.h"
@@ -36,6 +37,13 @@ ALordPlayerController::ALordPlayerController()
 	PlacementComponent = CreateDefaultSubobject<UPlacementComponent>("Placement");
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
 	SpellCastingComponent = CreateDefaultSubobject<UPlayerSpellCastingComponent>("PlayerSpellCasting");
+}
+
+void ALordPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, RecentFlag);
 }
 
 void ALordPlayerController::BeginPlay()
@@ -310,47 +318,28 @@ void ALordPlayerController::OnMouseClick(bool bRightButton)
 		else
 		{
 			// Flag!
-			ERewardFlagType FlagType = ERewardFlagType::Explore;
-			FVector At;
-			UCombatComponent* AttachComponent = nullptr;
-			bool bCanPlace = true;
+			FFlagPlaceOperation FlagOperation = {};
+			FlagOperation.Type = ERewardFlagType::Explore;
 			if (auto Over = GetSelectableUnderMouse())
 			{
 				// Defend or attack depending on team
-				FlagType = (Over->GetTeam() == GetTeam())
+				FlagOperation.Type = (Over->GetTeam() == GetTeam())
 					? ERewardFlagType::Defend
 					: ERewardFlagType::Attack;
-				AttachComponent = Over->GetOwner()->GetComponentByClass<UCombatComponent>();
-				At = Over->GetOwner()->GetActorLocation() + FVector(0, 0, 500);
+				FlagOperation.AttachComponent = Over->GetOwner()->GetComponentByClass<UCombatComponent>();
+				FlagOperation.LandLocation = Over->GetOwner()->GetActorLocation();
+				FlagOperation.FlagLocation = FlagOperation.LandLocation + FVector(0, 0, 500);
 			}
 			else
 			{
-				FlagType = ERewardFlagType::Explore;
-				auto AtDirect = GetWorldPositionUnderMouse();
-				At = AtDirect + FVector(0, 0, 500);
-
-				// Make sure we can actually place it
-				{
-					const UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-					const ANavigationData* NavData = NavSys->GetNavDataForProps(GetNavAgentPropertiesRef(), GetNavAgentLocation());
-					const FVector Start = GetTeamState()->GetCastle()->GetActorLocation();
-					bCanPlace = NavSys->TestPathSync(FPathFindingQuery(this, *NavData, Start, AtDirect, nullptr), EPathFindingMode::Hierarchical);
-				}
+				FlagOperation.Type = ERewardFlagType::Explore;
+				FlagOperation.LandLocation = GetWorldPositionUnderMouse();
+				FlagOperation.FlagLocation = FlagOperation.LandLocation + FVector(0, 0, 500);
 			}
 
-			if (bCanPlace)
-			{
-				ARewardFlag* Flag = ARewardFlag::Make(this, FlagClasses[FlagType], FlagType, At);
-				if (AttachComponent)
-				{
-					Flag->SetAttachedComponent(AttachComponent);
-				}
-				Flag->SetReward(0);
-				Flag->SetTeam(GetTeam());
-
-				GetTeamState()->AddFlag(Flag);
-				SetSelection(Flag->GetComponentByClass<USelectionComponent>());
-			}
+			RecentFlag = nullptr; // Clear out locally
+			bWaitingForFlag = true;
+			Server_PlaceFlag(MoveTemp(FlagOperation));
 		}
 	}
 	else
@@ -418,6 +407,15 @@ void ALordPlayerController::Tick(float DeltaTime)
 		{
 			// If either are true, update with any component under the mouse.
 			SetHovered(GetSelectableUnderMouse());
+		}
+
+		if (bWaitingForFlag)
+		{
+			if (IsValid(RecentFlag))
+			{
+				SetSelection(RecentFlag->GetComponentByClass<USelectionComponent>());
+				bWaitingForFlag = false;
+			}
 		}
 	}
 }
@@ -557,9 +555,47 @@ void ALordPlayerController::Server_PlaceBuilding_Implementation(FPlaceBuildingOp
 	PlaceOperation.PlacedBuilding->HandleBuildingPlacement();
 }
 
-void ALordPlayerController::Server_PlaceFlag_Implementation(FVector At)
+void ALordPlayerController::Server_PlaceFlag_Implementation(FFlagPlaceOperation FlagOperation)
 {
+	// Check flag requirements
+	switch (FlagOperation.Type)
+	{
+	case ERewardFlagType::Attack:
+	case ERewardFlagType::Defend:
+		// Need a target
+		if (!FlagOperation.AttachComponent)
+		{
+			UE_LOG(LordMap, Warning, TEXT("Attack/Defend flag came in with no componenet to attach to"));
+			return;
+		}
+		break;
+	case ERewardFlagType::Fear:
+	case ERewardFlagType::Explore:
+		// Make sure we can actually reach it
+		{
+			const UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+			const ANavigationData* NavData = NavSys->GetNavDataForProps(GetNavAgentPropertiesRef(), GetNavAgentLocation());
+			const FVector Start = GetTeamState()->GetCastle()->GetActorLocation();
+			if (!NavSys->TestPathSync(FPathFindingQuery(this, *NavData, Start, FlagOperation.LandLocation, nullptr), EPathFindingMode::Hierarchical))
+			{
+				UE_LOG(LordMap, Warning, TEXT("Fear/Explore flag came in but location is not navigatable to"));
+				return;
+			}
+		}
+		break;
+	}
 
+	ARewardFlag* Flag = ARewardFlag::Make(this, FlagClasses[FlagOperation.Type], FlagOperation.Type, FlagOperation.FlagLocation);
+	if (FlagOperation.AttachComponent)
+	{
+		Flag->SetAttachedComponent(FlagOperation.AttachComponent);
+	}
+	Flag->SetReward(0);
+	Flag->SetTeam(GetTeam());
+
+	GetTeamState()->AddFlag(Flag);
+	RecentFlag = Flag; // Put in replicated field to prompt remote clients to open it
+	/*SetSelection(Flag->GetComponentByClass<USelectionComponent>());*/
 }
 
 void ALordPlayerController::Server_CastSpell_Implementation(FPlayerSpellCastOperation CastOperation)

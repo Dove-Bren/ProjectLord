@@ -33,6 +33,26 @@ struct FSelectionActionContext;
 struct FPlaceBuildingOperation;
 struct FPlayerSpellCastOperation;
 
+USTRUCT()
+struct PROJECTLORD_API FFlagPlaceOperation
+{
+    GENERATED_BODY()
+
+public:
+
+    UPROPERTY()
+    ERewardFlagType Type;
+
+    UPROPERTY()
+    FVector FlagLocation;
+
+    UPROPERTY()
+    FVector LandLocation;
+
+    UPROPERTY()
+    UCombatComponent* AttachComponent;
+};
+
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
 {
@@ -46,6 +66,7 @@ public:
     virtual bool SetPause(bool bPause, FCanUnpause CanUnpauseDelegate) override;
     virtual void OnRep_PlayerState() override;
     virtual void OnPossess(APawn* Pawn) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     TMulticastFuture<ALordPlayerState*> PlayerStateReady;
     TMulticastFuture<void> PlayerStateReadyVoid;
@@ -144,6 +165,7 @@ protected:
     TOptional<USelectionComponent*> HoveredComponent;
 
     bool bHasHoverInfo;
+    bool bWaitingForFlag;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UVMSelection> SelectionVM;
@@ -163,6 +185,10 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<ULordGameHUDWidget> HUDWidget;
 
+    // Replicated and used for opening UI once flag has been placed remotely
+    UPROPERTY(Replicated)
+    TObjectPtr<ARewardFlag> RecentFlag;
+
     virtual void OnSetPaused(bool bPaused);
 
     UFUNCTION(BlueprintNativeEvent, Category = "HUD")
@@ -176,10 +202,10 @@ protected:
     void Server_PlaceBuilding(FPlaceBuildingOperation PlaceOperation);
 
     UFUNCTION(Server, Reliable)
-    void Server_PlaceFlag(FVector At);
+    void Server_CastSpell(FPlayerSpellCastOperation CastOperation);
 
     UFUNCTION(Server, Reliable)
-    void Server_CastSpell(FPlayerSpellCastOperation CastOperation);
+    void Server_PlaceFlag(FFlagPlaceOperation FlagOperation);
 
     void OnSelectionChange();
     void OnHoverChange();

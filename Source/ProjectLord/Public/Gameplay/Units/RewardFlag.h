@@ -95,7 +95,7 @@ public:
 
 protected:
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Reward Flag")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Type, Category = "Reward Flag")
     ERewardFlagType FlagType;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Team, Category = "Reward Flag")
@@ -130,6 +130,8 @@ protected:
 
     double LastPayTime = 0;
 
+    UFUNCTION()
+    void OnRep_Type();
     UFUNCTION()
     void OnRep_Team(EGameTeam OldValue);
     UFUNCTION()
