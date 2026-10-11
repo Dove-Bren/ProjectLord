@@ -33,7 +33,7 @@ void UVMSelectionAction::Perform()
 		return;
 	}
 
-	Action.Get()->Perform(GetContext());
+	Action.Get()->AttemptPerform(GetContext());
 }
 
 void UVMSelectionAction::OnShown()

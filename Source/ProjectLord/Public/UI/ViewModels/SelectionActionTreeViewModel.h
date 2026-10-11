@@ -76,6 +76,11 @@ class PROJECTLORD_API UTreePageAction : public USelectionAction
 
 public:
 
+    UTreePageAction() : USelectionAction()
+    {
+        bRunLocal = true;
+    }
+
     FString GetPage() const { return PageName; }
 
     virtual bool CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const override
@@ -96,6 +101,11 @@ class PROJECTLORD_API UTreeBackAction : public USelectionAction
     GENERATED_BODY()
 
 public:
+
+    UTreeBackAction() : USelectionAction()
+    {
+        bRunLocal = true;
+    }
 
     virtual bool CanPerform_Implementation(const FSelectionActionContext& InContext, ESelectionActionFailureReason& ReasonOut) const override
     {

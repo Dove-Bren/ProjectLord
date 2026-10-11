@@ -456,7 +456,10 @@ void ABuilding::OnRep_Team(EGameTeam OldTeam)
 
 void ABuilding::OnRep_BuildingGold()
 {
-    GoldVM->SetGold(BuildingGold);
+    if (GoldVM)
+    {
+        GoldVM->SetGold(BuildingGold);
+    }
 }
 
 void ABuilding::OnRep_BuildingLevel()

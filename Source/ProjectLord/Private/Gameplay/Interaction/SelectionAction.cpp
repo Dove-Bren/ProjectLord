@@ -52,6 +52,24 @@ bool USelectionAction::CanPerform_Implementation(const FSelectionActionContext& 
 	return false;
 }
 
+bool USelectionAction::AttemptPerform(const FSelectionActionContext& Context) const
+{
+	if (!ensure(Context.Player))
+	{
+		return false;
+	}
+
+	// If this is a local action, run locally
+	if (bRunLocal)
+	{
+		return Perform(Context);
+	}
+
+	// Otherwise, route through PlayerController and have server execute it
+	Context.Player->PerformSelectionAction(this, Context);
+	return true;
+}
+
 bool USelectionAction::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
 	ensureMsgf(false, TEXT("Selection Action did not implement Perform"));

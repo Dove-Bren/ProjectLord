@@ -12,6 +12,7 @@
 #include "SelectionAction.generated.h"
 
 class UTexture2D;
+class ALordPlayerController;
 class ALordPlayerState;
 class USelectionComponent;
 class AUnit;
@@ -43,6 +44,9 @@ struct PROJECTLORD_API FSelectionActionContext
 public:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
+    TObjectPtr<ALordPlayerController> Player;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
     TObjectPtr<AGameTeamState> TeamState;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Selection|Action")
@@ -66,6 +70,12 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Selection|Action")
     bool CanPerform(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const;
+
+    // Attempts to perform the action.
+    // Handles client/server interaction.
+    // Returns true if the action will be performed, or false if it failed safety checks
+    UFUNCTION(BlueprintCallable, Category = "Selection|Action")
+    bool AttemptPerform(const FSelectionActionContext& Context) const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Selection|Action")
     bool Perform(const FSelectionActionContext& Context) const;
@@ -95,6 +105,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Basic")
     TObjectPtr<UTexture2D> Icon;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Selection|Action|Behavior")
+    bool bRunLocal;
 
     virtual UVMSelectionAction* ConstructBaseVM(UObject* Outer) const;
 };
@@ -248,6 +261,11 @@ class PROJECTLORD_API UPlaceBuildingPurchase : public USelectionPurchase
     GENERATED_BODY()
 
 public:
+
+    UPlaceBuildingPurchase() : USelectionPurchase()
+    {
+        bRunLocal = true;
+    }
 
     // Check for any special reqirements based on the building type
     virtual bool CanPerform_Implementation(const FSelectionActionContext& Context, ESelectionActionFailureReason& ReasonOut) const override;

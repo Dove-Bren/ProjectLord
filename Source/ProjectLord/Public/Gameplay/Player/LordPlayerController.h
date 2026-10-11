@@ -53,6 +53,21 @@ public:
     UCombatComponent* AttachComponent;
 };
 
+USTRUCT()
+struct PROJECTLORD_API FSelectionActionOperation
+{
+    GENERATED_BODY()
+
+public:
+
+    UPROPERTY()
+    TObjectPtr<const USelectionAction> Action;
+
+    UPROPERTY()
+    FSelectionActionContext Context;
+
+};
+
 UCLASS(Blueprintable)
 class PROJECTLORD_API ALordPlayerController : public APlayerController
 {
@@ -100,7 +115,9 @@ public:
     void BP_OnSelectionChange();
 
     UFUNCTION(BlueprintCallable, Category = "Selection")
-    FSelectionActionContext MakeSelectionContext(USelectionComponent* Selection = nullptr) const;
+    FSelectionActionContext MakeSelectionContext(USelectionComponent* Selection = nullptr);
+
+    void PerformSelectionAction(const USelectionAction* Action, const FSelectionActionContext& Context);
 
     UFUNCTION(BlueprintPure, Category = "Hover")
     bool HasHover() const { return bHasHoverInfo; };
@@ -206,6 +223,9 @@ protected:
 
     UFUNCTION(Server, Reliable)
     void Server_PlaceFlag(FFlagPlaceOperation FlagOperation);
+
+    UFUNCTION(Server, Reliable)
+    void Server_PerformSelectionAction(FSelectionActionOperation Operation);
 
     void OnSelectionChange();
     void OnHoverChange();

@@ -157,13 +157,23 @@ void ALordPlayerController::ClearSelection(bool bBroadcast)
 	}
 }
 
-FSelectionActionContext ALordPlayerController::MakeSelectionContext(USelectionComponent* InSelection) const
+FSelectionActionContext ALordPlayerController::MakeSelectionContext(USelectionComponent* InSelection)
 {
 	FSelectionActionContext Context;
+	Context.Player = this;
 	Context.Selection = InSelection ? InSelection : GetSelection();
 	Context.PlayerState = GetPlayerState<ALordPlayerState>();
 	Context.TeamState = GetTeamState();
 	return Context;
+}
+
+void ALordPlayerController::PerformSelectionAction(const USelectionAction* Action, const FSelectionActionContext& Context)
+{
+	FSelectionActionOperation Operation = {};
+	Operation.Action = Action;
+	Operation.Context = Context; // Copy
+
+	Server_PerformSelectionAction(MoveTemp(Operation));
 }
 
 void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost, const UPlaceBuildingPurchase* Action)
@@ -519,7 +529,7 @@ void ALordPlayerController::Server_PlaceBuilding_Implementation(FPlaceBuildingOp
 		const int ServerPrice = PlaceOperation.PurchaseAction->CalculatePriceDirect(State);
 		if (!ServerPrice == PlaceOperation.PlaceCost)
 		{
-			UE_LOG(LordBuilding, Error, TEXT("Client submitted price for building does not match server calculation (Client: %d,  Server: %d)"),
+			UE_LOG(LordPlayer, Error, TEXT("Client submitted price for building does not match server calculation (Client: %d,  Server: %d)"),
 				PlaceOperation.PlaceCost, ServerPrice);
 
 			PlaceOperation.PlaceCost = ServerPrice;
@@ -529,7 +539,7 @@ void ALordPlayerController::Server_PlaceBuilding_Implementation(FPlaceBuildingOp
 	// Now that we have cost, make sure we can afford it
 	if (State->GetGold() < PlaceOperation.PlaceCost)
 	{
-		UE_LOG(LordBuilding, Warning, TEXT("Could not afford building placement late in the placement process"));
+		UE_LOG(LordPlayer, Warning, TEXT("Could not afford building placement late in the placement process"));
 		return;
 	}
 
@@ -565,7 +575,7 @@ void ALordPlayerController::Server_PlaceFlag_Implementation(FFlagPlaceOperation 
 		// Need a target
 		if (!FlagOperation.AttachComponent)
 		{
-			UE_LOG(LordMap, Warning, TEXT("Attack/Defend flag came in with no componenet to attach to"));
+			UE_LOG(LordPlayer, Warning, TEXT("Attack/Defend flag came in with no componenet to attach to"));
 			return;
 		}
 		break;
@@ -578,7 +588,7 @@ void ALordPlayerController::Server_PlaceFlag_Implementation(FFlagPlaceOperation 
 			const FVector Start = GetTeamState()->GetCastle()->GetActorLocation();
 			if (!NavSys->TestPathSync(FPathFindingQuery(this, *NavData, Start, FlagOperation.LandLocation, nullptr), EPathFindingMode::Hierarchical))
 			{
-				UE_LOG(LordMap, Warning, TEXT("Fear/Explore flag came in but location is not navigatable to"));
+				UE_LOG(LordPlayer, Warning, TEXT("Fear/Explore flag came in but location is not navigatable to"));
 				return;
 			}
 		}
@@ -610,7 +620,20 @@ void ALordPlayerController::Server_CastSpell_Implementation(FPlayerSpellCastOper
 
 	if (!CastOperation.Spell->AttemptCast(this, CastOperation.TargetLocation, CastOperation.TargetComponent))
 	{
-		UE_LOG(LordCombat, Warning, TEXT("Got spell cast request but could not activate it"));
+		UE_LOG(LordPlayer, Warning, TEXT("Got spell cast request but could not activate it"));
 		return;
+	}
+}
+
+void ALordPlayerController::Server_PerformSelectionAction_Implementation(FSelectionActionOperation Operation)
+{
+	if (!ensure(Operation.Action))
+	{
+		return;
+	}
+
+	if (!Operation.Action->Perform(Operation.Context))
+	{
+		UE_LOG(LordPlayer, Warning, TEXT("Failed to execute selection action on the server"));
 	}
 }
