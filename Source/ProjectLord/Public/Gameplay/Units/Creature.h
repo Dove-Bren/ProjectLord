@@ -17,6 +17,7 @@ class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UFogOfWarComponent;
 class UMinimapComponent;
+class UActorFadeComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCreatureActionChanged, ECreatureAction);
 
@@ -88,6 +89,9 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Map")
     TObjectPtr<UMinimapComponent> MinimapComponent;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Creature")
+    UActorFadeComponent* FadeComponent;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_DeadTime, Category = "Creature")
     float DeadTime;
 
@@ -120,9 +124,6 @@ protected:
     void OnBeginFadeOutBody();
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Death")
-    void OnUpdateFadeOutBody(float Percent);
-
-    UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Death")
     void OnFinishFadeOutBody();
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Death")
@@ -137,13 +138,7 @@ protected:
     UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Death")
     void OnFinishFadeOutGrave();
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Death")
-    void OnUpdateFadeGrave(float Percent);
-
     void StartDeathFade();
-    void StartFadingInGrave();
-    void StartFadingOutGrave();
-    void FadeTick();
 
     // Building enter/exit
     UFUNCTION(BlueprintImplementableEvent, Category = "Creature|Building", meta = (DisplayName = "OnEnterBuilding"))
@@ -169,17 +164,18 @@ protected:
 private:
 
     // Fading
-    float FadingBodyStartTime;
-    float FadingGraveStartTime;
-    TArray<UMaterialInstanceDynamic*> BodyFadeMaterials;
-    TArray<UMaterialInstanceDynamic*> GraveFadeMaterials;
-    FTimerHandle GraveTimer;
-    bool bFading = false;
+    enum class EDeathFadeState : uint8
+    {
+        Idle,
+        FadeBodyOut,
+        FadeGraveIn,
+        FadeGraveOut,
+    };
 
-    void CreateFadeMaterials();
-    void FadeBodyTo(float Percent);
-    void FadeGraveTo(float Percent);
-    
+    FTimerHandle GraveTimer;
+    EDeathFadeState FadeState = EDeathFadeState::Idle;
+
+    void OnFadeComplete();
 
 public:
     virtual void BeginPlay() override;

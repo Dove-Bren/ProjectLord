@@ -10,6 +10,7 @@
 
 #include "Gameplay/Map/FogOfWarComponent.h"
 #include "Gameplay/Map/FogOfWarSubsystem.h"
+#include "Gameplay/ActorFadeComponent.h"
 #include "Gameplay/GameplayUtils.h"
 #include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Map/MinimapComponent.h"
@@ -39,6 +40,7 @@ ACreature::ACreature()
 
     FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
     MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
+    FadeComponent = CreateDefaultSubobject<UActorFadeComponent>(TEXT("Fade"));
 }
 
 void ACreature::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -95,6 +97,7 @@ void ACreature::BeginPlay()
 
     FogOfWarComponent->SetTeam(GetTeam());
     MinimapComponent->SetTeam(GetTeam());
+    FadeComponent->FadeComplete.AddUObject(this, &ThisClass::OnFadeComplete);
 }
 
 void ACreature::EndPlay(EEndPlayReason::Type Reason)
@@ -136,11 +139,6 @@ void ACreature::ClientTick(float DeltaTime)
                 SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
             }
         }
-    }
-
-    if (IsDead())
-    {
-        FadeTick();
     }
 }
 
@@ -237,8 +235,9 @@ bool ACreature::ShouldEvacuate() const
 
 void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
 {
-    // TODO I think units actually fade when entering a building.
-    GetMesh()->SetVisibility(false, true);
+    FadeComponent->FadeOut(GetMesh(), 1.0f);
+    //// TODO I think units actually fade when entering a building.
+    //GetMesh()->SetVisibility(false, true);
     GetCharacterMovement()->SetAvoidanceEnabled(false);
     SetActorLocation(Building->GetBuildingEntrance());
     FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEVisitingBuilding::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
@@ -254,7 +253,8 @@ void ACreature::OnExitBuilding(AResidentialBuilding* Building)
 {
     AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UGEVisitingBuilding::StaticClass(), AbilitySystemComponent);
     GetCharacterMovement()->SetAvoidanceEnabled(true);
-    GetMesh()->SetVisibility(true, true);
+    FadeComponent->FadeIn(GetMesh(), 1.0f);
+    //GetMesh()->SetVisibility(true, true);
     BP_OnExitBuilding(Building);
 }
 
@@ -329,127 +329,59 @@ bool ACreature::AwardGoldToNearbyHeroes(int Gold)
     return true;
 }
 
+void ACreature::OnFadeComplete()
+{
+    // Note: We fade for multiple things including entering/
+    // leaving buildings as well as death
+    if (EDeathFadeState::Idle == FadeState)
+    {
+        return;
+    }
+
+    if (EDeathFadeState::FadeBodyOut == FadeState)
+    {
+        // Body finished fading out
+        OnFinishFadeOutBody();
+
+        if (!ShouldHaveGravestone())
+        {
+            OnFinalDeath();
+            return;
+        }
+
+        GetMesh()->SetVisibility(false, true);
+        //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+        GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+
+        FadeState = EDeathFadeState::FadeGraveIn;
+        GraveComponent->SetVisibility(true, true);
+        FadeComponent->FadeIn(GraveComponent, 2.0f);
+        OnBeginFadeInGrave();
+
+    }
+    else if (EDeathFadeState::FadeGraveIn == FadeState)
+    {
+        // Grave faded in. Start timer to do final death cleanup
+        OnFinishFadeInGrave();
+        GetWorld()->GetTimerManager().SetTimer(GraveTimer, FTimerDelegate::CreateWeakLambda(this, [this]() {
+            // Fade out grave
+            FadeComponent->FadeOut(GraveComponent, 2.0f);
+            OnBeginFadeOutGrave();
+        }), 60.0f, false);
+    } else if (EDeathFadeState::FadeGraveOut == FadeState)
+    {
+        // Final grave fadeout happened. Ready to perma-die
+        OnFinishFadeOutGrave();
+        OnFinalDeath();
+    }
+}
+
 void ACreature::StartDeathFade()
 {
-    if (ensure(FadingBodyStartTime == 0))
+    if (ensure(EDeathFadeState::Idle == FadeState))
     {
-        CreateFadeMaterials();
-        FadingBodyStartTime = DeadTime;
-        bFading = true;
+        FadeState = EDeathFadeState::FadeBodyOut;
+        FadeComponent->FadeOut(GetMesh(), 2.0f);
         OnBeginFadeOutBody();
-    }
-}
-
-void ACreature::StartFadingInGrave()
-{
-    if (ensure(FadingGraveStartTime == 0))
-    {
-        GraveComponent->SetVisibility(true, true);
-        FadingGraveStartTime = DeadTime;
-        OnBeginFadeInGrave();
-    }
-}
-
-void ACreature::StartFadingOutGrave()
-{
-    // Should not be called before fading in
-    if (ensure(FadingGraveStartTime != 0))
-    {
-        FadingGraveStartTime = -DeadTime;
-        OnBeginFadeOutGrave();
-    }
-}
-
-void ACreature::FadeTick()
-{
-    constexpr float FADE_TIME = 2.0f;
-    constexpr float GRAVE_TIME = 60.0f;
-
-    // Fading out grave?
-    if (FadingGraveStartTime < 0)
-    {
-        const float ActualTime = -FadingGraveStartTime;
-        const float Diff = DeadTime - ActualTime;
-        const float Percent = FMath::Clamp(Diff / FADE_TIME, 0.0f, 1.0f);
-        OnUpdateFadeGrave(Percent);
-        FadeGraveTo(1.0f - Percent);
-        if (Percent >= 1.0f)
-        {
-            OnFinishFadeOutGrave();
-            OnFinalDeath();
-        }
-    }
-    // Fading in grave?
-    else if (FadingGraveStartTime > 0)
-    {
-        if (!GraveTimer.IsValid())
-        {
-            const float Diff = DeadTime - FadingGraveStartTime;
-            const float Percent = FMath::Clamp(Diff / FADE_TIME, 0.0f, 1.0f);
-            OnUpdateFadeGrave(Percent);
-            FadeGraveTo(Percent);
-            if (Percent >= 1.0f)
-            {
-                OnFinishFadeInGrave();
-                GetWorld()->GetTimerManager().SetTimer(GraveTimer, FTimerDelegate::CreateWeakLambda(this, [this]() {
-                    StartFadingOutGrave();
-                    }), GRAVE_TIME, false);
-            }
-        }
-    }
-    // Fading body?
-    else if (bFading)
-    {
-        const float Diff = DeadTime - FadingBodyStartTime;
-        const float Percent = FMath::Clamp(Diff / FADE_TIME, 0.0f, 1.0f);
-        OnUpdateFadeOutBody(Percent);
-        FadeBodyTo(1.0f - Percent);
-        if (Percent >= 1.0f)
-        {
-            OnFinishFadeOutBody();
-
-            if (!ShouldHaveGravestone())
-            {
-                OnFinalDeath();
-                return;
-            }
-
-            GetMesh()->SetVisibility(false, true);
-            //GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-            GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
-            StartFadingInGrave();
-        }
-    }
-}
-
-void ACreature::CreateFadeMaterials()
-{
-    if (ensure(BodyFadeMaterials.IsEmpty()))
-    {
-        for (int i = 0; i < GetMesh()->GetNumMaterials(); i++)
-        {
-            BodyFadeMaterials.Add(GetMesh()->CreateAndSetMaterialInstanceDynamic(i));
-        }
-
-        for (int i = 0; i < GraveComponent->GetNumMaterials(); i++)
-        {
-            GraveFadeMaterials.Add(GraveComponent->CreateAndSetMaterialInstanceDynamic(i));
-        }
-    }
-}
-
-void ACreature::FadeBodyTo(float Percent)
-{
-    for (auto BodyMaterial : BodyFadeMaterials)
-    {
-        BodyMaterial->SetScalarParameterValue(TEXT("FadeAlpha"), Percent);
-    }
-}
-
-void ACreature::FadeGraveTo(float Percent)
-{
-    for (auto GraveMaterial : GraveFadeMaterials)
-    {
-        GraveMaterial->SetScalarParameterValue(TEXT("FadeAlpha"), Percent);
     }
 }

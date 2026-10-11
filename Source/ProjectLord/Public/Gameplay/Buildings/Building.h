@@ -23,7 +23,7 @@ class UVMGold;
 class UVMLevel;
 class UVMCombatData;
 class UUnitType;
-class UBuildingConstructionFadeComponent;
+class UActorFadeComponent;
 class UNavModifierComponent;
 class UBoxComponent;
 class UFogOfWarComponent;
@@ -185,7 +185,7 @@ protected:
     UNavModifierComponent* NavMeshMod;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
-    UBuildingConstructionFadeComponent* FadeComponent;
+    UActorFadeComponent* ConstructionFadeComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Fog of War")
     TObjectPtr<UFogOfWarComponent> FogOfWarComponent;
@@ -321,6 +321,9 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "ClientTick"))
     void BP_ClientTick(float DeltaSeconds);
+
+    void EnableBuildingFade();
+    void EndBuildingFade();
 
     UFUNCTION()
     void OnRep_Team(EGameTeam OldTeam);

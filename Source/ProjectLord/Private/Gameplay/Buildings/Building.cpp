@@ -25,7 +25,7 @@
 #include "Gameplay/AI/BuildingController.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
-#include "Gameplay/Buildings/BuildingConstructionFadeComponent.h"
+#include "Gameplay/ActorFadeComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Combat/GameplayEffect/GenericGameplayTagEffect.h"
 #include "Gameplay/Units/Unit.h"
@@ -74,7 +74,7 @@ ABuilding::ABuilding()
     SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
     SelectionComponent->SetSelectable(true);
 
-    FadeComponent = CreateDefaultSubobject<UBuildingConstructionFadeComponent>(TEXT("ConstructionFade"));
+    ConstructionFadeComponent = CreateDefaultSubobject<UActorFadeComponent>(TEXT("ConstructionFade"));
 
     FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
 
@@ -145,7 +145,7 @@ void ABuilding::Server_StartLevelUp()
             Health);
 
         // Start mesh blending again
-        FadeComponent->Enable();
+        EnableBuildingFade();
     }
 }
 
@@ -292,6 +292,8 @@ void ABuilding::HandleBuildingUpgraded()
         }
     }
 
+    EndBuildingFade();
+
     OnUpgradeComplete();
 }
 
@@ -343,8 +345,7 @@ void ABuilding::BeginPlay()
 
     RefreshMesh();
 
-    FadeComponent->Activate();
-    FadeComponent->Enable();
+    ConstructionFadeComponent->Activate();
 
     // Before selection data, so we can reuse VMs
     SetupViewModel();
@@ -434,6 +435,18 @@ void ABuilding::ClientTick(float DeltaSeconds)
     }
 
     BP_ClientTick(DeltaSeconds);
+}
+
+void ABuilding::EnableBuildingFade()
+{
+    ConstructionFadeComponent->FadeDynamic(GetBuildingMeshComponent(), [this]() -> float {
+        return (float)GetBuildingHealth() / (float)GetBuildingMaxHealth();
+    });
+}
+
+void ABuilding::EndBuildingFade()
+{
+    ConstructionFadeComponent->EndFade(1.0f);
 }
 
 void ABuilding::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -695,6 +708,7 @@ void ABuilding::HandleBuildingPlacement_Implementation()
         AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
             (int) ((float) GetBuildingMaxHealth() * 0.1f));
     }
+    EnableBuildingFade();
 }
 
 void ABuilding::ClearFoliageAround()
