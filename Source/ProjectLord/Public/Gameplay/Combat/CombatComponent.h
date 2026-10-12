@@ -251,6 +251,7 @@ protected:
     void AddRevengeTarget(UCombatComponent* RevengeTarget);
     void HandleAttackFrom(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
     void HandleLevelChange(int NewLevel);
+    inline bool HasAuthority() const { return GetOwner()->HasAuthority(); }
 
     void BroadcastDeath();
     void BroadcastHealthChange();
@@ -278,13 +279,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Hero")
     TMap<int, FCombatAbilityClassArray> LevelUpAbilities;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Combat")
     TObjectPtr<UCombatComponent> TargetComponent;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Combat")
     TArray<UCombatComponent*> RecentRevengeTargets;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Combat")
     double LastCombatTime;
 
     // If true, component will report that it can use mana even if no abilities
@@ -307,5 +308,6 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(EEndPlayReason::Type Reason) override;
     virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };

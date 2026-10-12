@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "GameplayEffect.h"
+#include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
 #include "Gameplay/GameplayUtils.h"
@@ -21,17 +22,21 @@ UCombatComponent::UCombatComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.bStartWithTickEnabled = true;
+    SetIsReplicatedByDefault(true);
+}
+
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ThisClass, TargetComponent);
+    DOREPLIFETIME(ThisClass, RecentRevengeTargets);
+    DOREPLIFETIME(ThisClass, LastCombatTime);
 }
 
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-    // Need to sort out which things should be visible on client...
-    if (!GetOwner()->HasAuthority())
-    {
-        return;
-    }
 
 	auto AbilitySystemComponent = GetAbilitySubsystemComponent();
 	if (ensure(AbilitySystemComponent))
@@ -122,14 +127,17 @@ void UCombatComponent::BeginPlay()
         }
 	}
 
-    if (auto OwnerPawn = Cast<APawn>(GetOwner()))
+    if (HasAuthority())
     {
-        OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UCombatComponent::OnOwnerPossessed);
-        if (auto OwnerController = OwnerPawn->GetController<ACombatControllerBase>())
+        if (auto OwnerPawn = Cast<APawn>(GetOwner()))
         {
-            OnOwnerPossessed(OwnerPawn, nullptr, OwnerController);
+            OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UCombatComponent::OnOwnerPossessed);
+            if (auto OwnerController = OwnerPawn->GetController<ACombatControllerBase>())
+            {
+                OnOwnerPossessed(OwnerPawn, nullptr, OwnerController);
+            }
+
         }
-        
     }
 
     LastCombatTime = 0;
@@ -144,23 +152,27 @@ void UCombatComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (TargetComponent)
+
+    if (HasAuthority())
     {
-        if (!IsValid(TargetComponent) || !TargetComponent->IsAlive())
+        if (TargetComponent)
         {
-            SetTarget(nullptr);
+            if (!IsValid(TargetComponent) || !TargetComponent->IsAlive())
+            {
+                SetTarget(nullptr);
+            }
         }
-    }
 
-    constexpr double CombatTimeoutSeconds = 10;
-    if (LastCombatTime != 0)
-    {
-        const auto TimeSince = GetTimeSinceLastCombatAction();
-
-        // If it's been long enough, clear
-        if (TimeSince > CombatTimeoutSeconds)
+        constexpr double CombatTimeoutSeconds = 10;
+        if (LastCombatTime != 0)
         {
-            ClearRecentCombatData();
+            const auto TimeSince = GetTimeSinceLastCombatAction();
+
+            // If it's been long enough, clear
+            if (TimeSince > CombatTimeoutSeconds)
+            {
+                ClearRecentCombatData();
+            }
         }
     }
 }
@@ -278,6 +290,11 @@ TArray<UCombatAbility*> UCombatComponent::GetCombatAbilities(bool bIncludeHidden
 
 void UCombatComponent::GiveCombatAbility(TSubclassOf<UCombatAbility> Ability)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return;
+    }
+
     auto AbilitySystemComponent = GetAbilitySubsystemComponent();
     if (ensure(AbilitySystemComponent) && !AbilitySystemComponent->FindAbilitySpecFromClass(Ability))
     {
@@ -432,6 +449,11 @@ bool UCombatComponent::CanAttack() const
 
 bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return false;
+    }
+
     bool bValid;
     FGameplayAbilitySpecHandle AttackAbility = GetPreferredAttackAbility(TargetCombatComponent->GetOwner(), bValid);
     if (bValid)
@@ -455,6 +477,11 @@ bool UCombatComponent::AttackUnit(UCombatComponent* TargetCombatComponent)
 
 bool UCombatComponent::HealUnit(UCombatComponent* TargetCombatComponent)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return false;
+    }
+
     bool bValid;
     FGameplayAbilitySpecHandle HealAbility = GetPreferredAbility(EAbilityTargetType::Heal, TargetCombatComponent->GetOwner(), bValid);
     if (bValid)
@@ -484,6 +511,11 @@ bool UCombatComponent::HealUnit(UCombatComponent* TargetCombatComponent)
 
 bool UCombatComponent::TrySelfBuff()
 {
+    if (!ensure(HasAuthority()))
+    {
+        return false;
+    }
+
     bool bValid;
     FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Self, GetOwner(), bValid);
     if (bValid)
@@ -505,6 +537,11 @@ bool UCombatComponent::TrySelfBuff()
 
 bool UCombatComponent::TryAllyBuff()
 {
+    if (!ensure(HasAuthority()))
+    {
+        return false;
+    }
+
     bool bValid;
     FGameplayAbilitySpecHandle BuffAbility = GetPreferredAbility(EAbilityTargetType::Ally, GetOwner(), bValid);
     if (bValid)
@@ -610,6 +647,11 @@ const int UCombatComponent::PickPreferredAttackAbility_Implementation(const TArr
 
 void UCombatComponent::SetTarget(UCombatComponent* InTarget)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return;
+    }
+
     if (TargetComponent != InTarget)
     {
         TargetComponent = InTarget;
@@ -624,6 +666,11 @@ bool UCombatComponent::IsInvulnerable() const
 
 void UCombatComponent::SetInvulnerable(bool bInvulnerable)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return;
+    }
+
     // Implementing with gameplay tags to make some integrations (gameplay abilities) a little easier.
     auto ASC = GetAbilitySubsystemComponent();
     if (bInvulnerable && !IsInvulnerable())
@@ -745,6 +792,11 @@ void UCombatComponent::BroadcastHeal(AActor* Target, UCombatComponent* TargetCom
 
 void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldController, AController* InNewController)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return;
+    }
+
     auto OldController = Cast<ACombatControllerBase>(InOldController);
     auto NewController = Cast<ACombatControllerBase>(InNewController);
     if (OldController)
@@ -759,6 +811,11 @@ void UCombatComponent::OnOwnerPossessed(APawn* Pawn, AController* InOldControlle
 
 void UCombatComponent::AddRevengeTarget(UCombatComponent* RevengeTarget)
 {
+    if (!ensure(HasAuthority()))
+    {
+        return;
+    }
+
     if (RevengeTarget && !RecentRevengeTargets.Contains(RevengeTarget))
     {
         RecentRevengeTargets.Add(RevengeTarget);
@@ -773,7 +830,10 @@ void UCombatComponent::AddRevengeTarget(UCombatComponent* RevengeTarget)
 
 void UCombatComponent::HandleAttackFrom(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
 {
-    AddRevengeTarget(AttackingCombatComponent);
+    if (HasAuthority()) // Can this even get received if not?
+    {
+        AddRevengeTarget(AttackingCombatComponent);
+    }
     BroadcastAttackReceived(AttackingActor, AttackingCombatComponent);
 }
 
@@ -909,11 +969,14 @@ TArray<const UVisibleGameplayEffect*> UCombatComponent::GetActiveVisibleEffects(
 
 void UCombatComponent::HandleLevelChange(int NewLevel)
 {
-    if (auto Abilities = LevelUpAbilities.Find(NewLevel))
+    if (HasAuthority())
     {
-        for (auto& Ability : Abilities->Array)
+        if (auto Abilities = LevelUpAbilities.Find(NewLevel))
         {
-            GiveCombatAbility(Ability);
+            for (auto& Ability : Abilities->Array)
+            {
+                GiveCombatAbility(Ability);
+            }
         }
     }
 }

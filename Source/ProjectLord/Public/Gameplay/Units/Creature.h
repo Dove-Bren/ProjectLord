@@ -74,7 +74,7 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Creature")
     TWeakObjectPtr<AResidentialBuilding> HomeBuilding;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Creature")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentBuilding, Category = "Creature")
     TWeakObjectPtr<AResidentialBuilding> CurrentVisitingBuilding;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -103,6 +103,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     bool bEvacuatesOnAttack = false;
+
+    // Local accound of what building we're in that lags behind the authoritative
+    // CurrentVisitingBuilding to help handle replication
+    TWeakObjectPtr<AResidentialBuilding> CurrentBuildingLocal;
 
     virtual bool ShouldEvacuate() const;
 
@@ -160,6 +164,9 @@ protected:
 
     UFUNCTION()
     virtual void OnRep_DeadTime();
+
+    UFUNCTION()
+    virtual void OnRep_CurrentBuilding();
 
 private:
 

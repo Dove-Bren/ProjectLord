@@ -372,6 +372,10 @@ void ABuilding::PostNetInit()
 
     ClearFoliageAround();
     PaintFoundation();
+    if (!AtFullHealth())
+    {
+        EnableBuildingFade();
+    }
 }
 
 void ABuilding::EndPlay(EEndPlayReason::Type Reason)

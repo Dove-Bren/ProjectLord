@@ -140,6 +140,17 @@ void ACreature::ClientTick(float DeltaTime)
             }
         }
     }
+
+    if (!CurrentBuildingLocal.IsValid() && CurrentVisitingBuilding.IsValid())
+    {
+        CurrentBuildingLocal = CurrentVisitingBuilding;
+        OnEnterBuilding(CurrentBuildingLocal.Get());
+    }
+    else if (CurrentBuildingLocal.IsValid() && !CurrentVisitingBuilding.IsValid())
+    {
+        OnExitBuilding(CurrentBuildingLocal.Get());
+        CurrentBuildingLocal.Reset();
+    }
 }
 
 void ACreature::SetHomeBuilding(AResidentialBuilding* Building)
@@ -154,6 +165,8 @@ void ACreature::LeaveCurrentBuilding()
     {
         CurrentVisitingBuilding = nullptr;
         Building->RemoveVisitor(this);
+
+        CurrentBuildingLocal.Reset(); // Fast-forward for authoritative games
         OnExitBuilding(Building);
     }
 }
@@ -167,6 +180,8 @@ void ACreature::EnterBuilding(AResidentialBuilding* Building)
 
     CurrentVisitingBuilding = Building;
     Building->AddVisitor(this);
+
+    CurrentBuildingLocal = Building; // Fast-forward for authoritative games
     OnEnterBuilding(Building);
 }
 
@@ -207,6 +222,12 @@ void ACreature::OnRep_DeadTime()
 
 }
 
+void ACreature::OnRep_CurrentBuilding()
+{
+    ; // Can't actually respond here, because building we're in may be nullptr
+    // when this is called an get filled in later
+}
+
 void ACreature::NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
 {
     if (bEvacuatesOnAttack && IsInsideBuilding() && GetVisitingBuilding() == Building)
@@ -235,26 +256,32 @@ bool ACreature::ShouldEvacuate() const
 
 void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
 {
-    FadeComponent->FadeOut(GetMesh(), 1.0f);
-    //// TODO I think units actually fade when entering a building.
-    //GetMesh()->SetVisibility(false, true);
-    GetCharacterMovement()->SetAvoidanceEnabled(false);
-    SetActorLocation(Building->GetBuildingEntrance());
-    FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEVisitingBuilding::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
-    if (SpecHandle.IsValid())
+    if (HasAuthority())
     {
-        AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+        GetCharacterMovement()->SetAvoidanceEnabled(false);
+        FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEVisitingBuilding::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+        if (SpecHandle.IsValid())
+        {
+            AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+        }
     }
+
+    FadeComponent->FadeOut(GetMesh(), 1.0f);
+    SetActorLocation(Building->GetBuildingEntrance());
 
     BP_OnEnterBuilding(Building);
 }
 
 void ACreature::OnExitBuilding(AResidentialBuilding* Building)
 {
-    AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UGEVisitingBuilding::StaticClass(), AbilitySystemComponent);
+    if (HasAuthority())
+    {
+        AbilitySystemComponent->RemoveActiveGameplayEffectBySourceEffect(UGEVisitingBuilding::StaticClass(), AbilitySystemComponent);
+    }
+    
     GetCharacterMovement()->SetAvoidanceEnabled(true);
     FadeComponent->FadeIn(GetMesh(), 1.0f);
-    //GetMesh()->SetVisibility(true, true);
+
     BP_OnExitBuilding(Building);
 }
 
