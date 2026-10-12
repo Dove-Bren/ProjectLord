@@ -144,8 +144,7 @@ void ABuilding::Server_StartLevelUp()
         AbilitySystemComponent->SetNumericAttributeBase(BuildingAttributeSet->GetHealthAttribute(),
             Health);
 
-        // Start mesh blending again
-        EnableBuildingFade();
+        HandleBuildingUpgradeStarted();
     }
 }
 
@@ -270,7 +269,7 @@ void ABuilding::NotifyRepairComplete()
     OnRepairComplete();
 }
 
-void ABuilding::HandleBuildingUpgraded()
+void ABuilding::HandleBuildingUpgraded_Implementation()
 {
     if (HasAuthority())
     {
@@ -293,8 +292,15 @@ void ABuilding::HandleBuildingUpgraded()
     }
 
     EndBuildingFade();
+    RefreshMesh();
 
     OnUpgradeComplete();
+}
+
+void ABuilding::HandleBuildingUpgradeStarted_Implementation()
+{
+    // Start mesh blending again
+    EnableBuildingFade();
 }
 
 void ABuilding::BeginPlay()
@@ -481,6 +487,7 @@ void ABuilding::OnRep_BuildingGold()
 
 void ABuilding::OnRep_BuildingLevel()
 {
+    RefreshMesh();
     OnBuildingLevelChanged.Broadcast(BuildingLevel);
 }
 

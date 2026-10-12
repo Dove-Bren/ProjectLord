@@ -290,10 +290,15 @@ protected:
     virtual void Server_SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
     virtual void SetupViewModel();
-    virtual void HandleBuildingUpgraded();
     virtual void Server_SetAvailableLevel(int InAvailableLevel);
 
     void Server_SetLevel(int InLevel) { BuildingLevel = InLevel; OnRep_BuildingLevel(); }
+
+    UFUNCTION(NetMulticast, Reliable)
+    void HandleBuildingUpgraded();
+
+    UFUNCTION(NetMulticast, Reliable)
+    void HandleBuildingUpgradeStarted();
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnRepairActionReceived();
