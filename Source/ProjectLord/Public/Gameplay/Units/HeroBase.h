@@ -14,6 +14,7 @@ class ULordHeroAttributeSet;
 class UHeroInventory;
 class UGameGood;
 class UGameplayAbility;
+class UGEHeroLevel;
 
 struct FActiveGameplayEffectHandle;
 
@@ -138,11 +139,14 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<ULordHeroAttributeSet> LordHeroAttributeSet;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    UHeroEquipmentDef* StarterWeapon;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+    TSubclassOf<UGEHeroLevel> HeroLevelGameplayEffect;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-    UHeroEquipmentDef* StarterArmor;
+    TObjectPtr<UHeroEquipmentDef> StarterWeapon;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+    TObjectPtr<UHeroEquipmentDef> StarterArmor;
 
     UPROPERTY(EditDefaultsOnly, Category = "Hero")
     EEquipmentArchtype EquipmentType;
@@ -168,6 +172,7 @@ protected:
     UPROPERTY(EditInstanceOnly, ReplicatedUsing = OnRep_HeroName, Category = "Hero")
     FText HeroName;
 
+    virtual void Sided_RegisterAttributes() override;
     virtual void Server_SetupBaseAttributes() override;
     virtual void Client_SetupSelectionData(USelectionComponent* SelectionComponent) override;
     virtual bool ShouldHaveGravestone() const { return true; }
@@ -215,13 +220,13 @@ protected:
     UPROPERTY()
     FActiveGameplayEffectHandle ConfidenceLevelModHandle;
 
+    UPROPERTY()
+    FActiveGameplayEffectHandle LevelModHandle;
+
     UPROPERTY(Replicated)
     TWeakObjectPtr<ARewardFlag> CurrentFlagTarget;
 
-    void UpdateAttributeDamageMod(FActiveGameplayEffectHandle& Handle, int Attribute);
     void UpdateConfidenceLevelMod();
-
-    static float DamageModPerAttribute;
 
 private:
     void UnapplyInventoryAttributes();

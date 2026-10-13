@@ -206,18 +206,18 @@ void UCombatAbility::PostEditChangeProperty(FPropertyChangedEvent& PropertyChang
 }
 #endif // WITH_EDITOR  
 
-/*static*/ UGameplayEffect* UCombatAbility::MakeManaCostGE(UObject* Outer, int Cost)
-{
-	UGameplayEffect* GE_ManaCost = NewObject<UGameplayEffect>(Outer, TEXT("ManaCostMod"));
-	GE_ManaCost->DurationPolicy = EGameplayEffectDurationType::Instant;
-
-	// Units heal while visiting
-	FGameplayModifierInfo Mod;
-	Mod.Attribute = UCombatAttributeSet::GetManaAttribute();
-	Mod.ModifierOp = EGameplayModOp::AddBase;
-	Mod.ModifierMagnitude = FScalableFloat(Cost);
-	GE_ManaCost->Modifiers.Add(Mod);
-
-	return GE_ManaCost;
-}
+///*static*/ UGameplayEffect* UCombatAbility::MakeManaCostGE(UObject* Outer, int Cost)
+//{
+//	UGameplayEffect* GE_ManaCost = NewObject<UGameplayEffect>(Outer, TEXT("ManaCostMod"));
+//	GE_ManaCost->DurationPolicy = EGameplayEffectDurationType::Instant;
+//
+//	// Units heal while visiting
+//	FGameplayModifierInfo Mod;
+//	Mod.Attribute = UCombatAttributeSet::GetManaAttribute();
+//	Mod.ModifierOp = EGameplayModOp::AddBase;
+//	Mod.ModifierMagnitude = FScalableFloat(Cost);
+//	GE_ManaCost->Modifiers.Add(Mod);
+//
+//	return GE_ManaCost;
+//}
 

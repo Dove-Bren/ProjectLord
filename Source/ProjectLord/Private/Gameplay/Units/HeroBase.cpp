@@ -4,7 +4,6 @@
 
 #include "Net/UnrealNetwork.h"
 
-#include "GameplayEffect.h"
 #include "Gameplay/GameGood.h"
 #include "Gameplay/GameTeamState.h"
 #include "Gameplay/Player/LordPlayerController.h"
@@ -15,6 +14,9 @@
 #include "Gameplay/Attributes/CreatureAttributeSet.h"
 #include "Gameplay/Attributes/LordHeroAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Combat/GameplayEffect/AttributeBasedDamageGameplayEffect.h"
+#include "Gameplay/Combat/GameplayEffect/HeroLevelGameplayEffect.h"
+#include "Gameplay/Combat/GameplayEffect/LevelBasedConfidenceGameplayEffect.h"
 #include "Gameplay/Units/HeroEquipment.h"
 #include "Gameplay/Units/HeroInventory.h"
 #include "UI/InspectWidget.h"
@@ -71,11 +73,16 @@ void AHeroBase::NotifyResidenceAttacked(AResidentialBuilding* Building, AActor* 
 	Super::NotifyResidenceAttacked(Building, AttackingActor, AttackingCombatComponent);
 }
 
-void AHeroBase::Server_SetupBaseAttributes()
+void AHeroBase::Sided_RegisterAttributes()
 {
+	Super::Sided_RegisterAttributes();
+
 	// Make sure to set up association early
 	LordHeroAttributeSet->Init(CombatAttributeSet);
+}
 
+void AHeroBase::Server_SetupBaseAttributes()
+{
 	// Let base class take care of setting up base values
 	Super::Server_SetupBaseAttributes();
 
@@ -84,83 +91,40 @@ void AHeroBase::Server_SetupBaseAttributes()
 
 	// Set up mod for attributes
 	{
-		auto HeroAttributeSet = LordHeroAttributeSet;
-
+		auto SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEStrengthBasedMeleeDamage::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+		if (ensure(SpecHandle.IsValid()))
 		{
-			UGameplayEffect* GE_StrMod = NewObject<UGameplayEffect>(this, TEXT("StrengthMod"));
-			GE_StrMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
-			auto StrengthAttribute = HeroAttributeSet->GetStrengthAttribute();
-			auto MeleeDmgAttribute = CombatAttributeSet->GetMeleeDamageAttribute();
-
-			FGameplayModifierInfo Mod;
-			Mod.Attribute = MeleeDmgAttribute;
-			Mod.ModifierOp = EGameplayModOp::AddFinal;
-			FAttributeBasedFloat Curve;
-			Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(StrengthAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
-			Curve.Coefficient = AHeroBase::DamageModPerAttribute;
-			Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
-			GE_StrMod->Modifiers.Add(MoveTemp(Mod));
-
-			FGameplayEffectSpec Spec(GE_StrMod, AbilitySystemComponent->MakeEffectContext(), 1);
-			StrengthDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+			StrengthDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 		}
 
+		SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEAgilityBasedRangedDamage::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+		if (ensure(SpecHandle.IsValid()))
 		{
-			UGameplayEffect* GE_AgiMod = NewObject<UGameplayEffect>(this, TEXT("AgilityMod"));
-			GE_AgiMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
-			auto AgilityAttribute = HeroAttributeSet->GetAgilityAttribute();
-			auto RangedDmgAttribute = CombatAttributeSet->GetRangedDamageAttribute();
-
-			FGameplayModifierInfo Mod;
-			Mod.Attribute = RangedDmgAttribute;
-			Mod.ModifierOp = EGameplayModOp::AddFinal;
-			FAttributeBasedFloat Curve;
-			Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(AgilityAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
-			Curve.Coefficient = AHeroBase::DamageModPerAttribute;
-			Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
-			GE_AgiMod->Modifiers.Add(MoveTemp(Mod));
-
-			FGameplayEffectSpec Spec(GE_AgiMod, AbilitySystemComponent->MakeEffectContext(), 1);
-			AgilityDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+			AgilityDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 		}
 
+		SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEIntelligenceBasedMagicDamage::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+		if (ensure(SpecHandle.IsValid()))
 		{
-			UGameplayEffect* GE_IntMod = NewObject<UGameplayEffect>(this, TEXT("IntelligenceMod"));
-			GE_IntMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
-			auto IntelligenceAttribute = HeroAttributeSet->GetIntelligenceAttribute();
-			auto MagicDmgAttribute = CombatAttributeSet->GetMagicDamageAttribute();
-
-			FGameplayModifierInfo Mod;
-			Mod.Attribute = MagicDmgAttribute;
-			Mod.ModifierOp = EGameplayModOp::AddFinal;
-			FAttributeBasedFloat Curve;
-			Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(IntelligenceAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
-			Curve.Coefficient = AHeroBase::DamageModPerAttribute;
-			Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
-			GE_IntMod->Modifiers.Add(MoveTemp(Mod));
-
-			FGameplayEffectSpec Spec(GE_IntMod, AbilitySystemComponent->MakeEffectContext(), 1);
-			IntelligenceDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+			IntelligenceDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 		}
-
 	}
 
 	// Set up confidence
+	auto SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGELevelBasedConfidence::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+	if (SpecHandle.IsValid())
 	{
-		auto HeroAttributeSet = LordHeroAttributeSet;
+		ConfidenceLevelModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+	}
 
-		UGameplayEffect* GE_ConfidenceMod = NewObject<UGameplayEffect>(this, TEXT("ConfidenceLevelMod"));
-		GE_ConfidenceMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
-		auto ConfidenceAttribute = HeroAttributeSet->GetConfidenceAttribute();
-
-		FGameplayModifierInfo Mod;
-		Mod.Attribute = ConfidenceAttribute;
-		Mod.ModifierOp = EGameplayModOp::AddBase;
-		Mod.ModifierMagnitude = FScalableFloat(1);
-		GE_ConfidenceMod->Modifiers.Add(MoveTemp(Mod));
-
-		FGameplayEffectSpec Spec(GE_ConfidenceMod, AbilitySystemComponent->MakeEffectContext(), GetHeroLevel());
-		ConfidenceLevelModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+	// And level-up stat modifier
+	if (ensure(HeroLevelGameplayEffect))
+	{
+		SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(HeroLevelGameplayEffect, 1, AbilitySystemComponent->MakeEffectContext());
+		if (SpecHandle.IsValid())
+		{
+			LevelModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+		}
 	}
 }
 
@@ -283,9 +247,12 @@ void AHeroBase::OnDeath_Implementation()
 
 void AHeroBase::OnFinalDeath()
 {
-	if (auto TeamState = GetTeamState())
+	if (HasAuthority())
 	{
-		TeamState->AddDeadHero(/*this*/);
+		if (auto TeamState = GetTeamState())
+		{
+			TeamState->AddDeadHero(/*this*/);
+		}
 	}
 
 	Super::OnFinalDeath();
@@ -297,25 +264,30 @@ void AHeroBase::HandleInventoryChange()
 	// change based on the changes? Like map effect handles to the item,
 	// get a list of changes, and then remove/apply as needed.
 
-	UnapplyInventoryAttributes();
-
-	// Cache inventory
-	LastAppliedInventoryDefs.Empty();
-	check(LastAppliedInventoryEffects.IsEmpty());
-
-	LastAppliedInventoryDefs.Add(Inventory->GetWeapon()->GetItemDef());
-	LastAppliedInventoryDefs.Add(Inventory->GetArmor()->GetItemDef());
-	for (const auto ExtraStack : Inventory->GetExtraSlots())
+	if (HasAuthority())
 	{
-		LastAppliedInventoryDefs.Add(ExtraStack->GetItemDef());
-	}
 
-	// Apply attributes
-	ApplyInventoryAttributes();
+		UnapplyInventoryAttributes();
+
+		// Cache inventory
+		LastAppliedInventoryDefs.Empty();
+		check(LastAppliedInventoryEffects.IsEmpty());
+
+		LastAppliedInventoryDefs.Add(Inventory->GetWeapon()->GetItemDef());
+		LastAppliedInventoryDefs.Add(Inventory->GetArmor()->GetItemDef());
+		for (const auto ExtraStack : Inventory->GetExtraSlots())
+		{
+			LastAppliedInventoryDefs.Add(ExtraStack->GetItemDef());
+		}
+
+		// Apply attributes
+		ApplyInventoryAttributes();
+	}
 }
 
 void AHeroBase::UnapplyInventoryAttributes()
 {
+	if (!ensure(HasAuthority())) return;
 	for (const auto Handle : LastAppliedInventoryEffects)
 	{
 		AbilitySystemComponent->RemoveActiveGameplayEffect(Handle);
@@ -325,19 +297,24 @@ void AHeroBase::UnapplyInventoryAttributes()
 
 void AHeroBase::ApplyInventoryAttributes()
 {
+	if (!ensure(HasAuthority())) return;
 	for (const auto Def : LastAppliedInventoryDefs)
 	{
 		auto Context = AbilitySystemComponent->MakeEffectContext();
 		for (auto& Effect : Def->GetItemEffects())
 		{
-			auto EffectInstance = NewObject<UGameplayEffect>(this, Effect);
-			LastAppliedInventoryEffects.Add(AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectInstance, 1, Context));
+			auto SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(Effect, 1, Context);
+			if (SpecHandle.IsValid())
+			{
+				LastAppliedInventoryEffects.Add(AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data));
+			}
 		}
 	}
 }
 
 void AHeroBase::AddHeroXP(int Amount)
 {
+	if (!ensure(HasAuthority())) return;
 	if (!ensure(Amount > 0))
 	{
 		return;
@@ -353,6 +330,7 @@ void AHeroBase::AddHeroXP(int Amount)
 
 void AHeroBase::DoLevelUp()
 {
+	if (!ensure(HasAuthority())) return;
 	HeroXP = 0;
 
 	const int Level = GetHeroLevel();
@@ -367,32 +345,40 @@ void AHeroBase::DoLevelUp()
 
 void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent)
 {
-	constexpr int BaseGain = 1;
-	AddHeroXP(BaseGain);
-
-	if (IsAlive() && ShouldUseManaPotion())
+	if (HasAuthority())
 	{
-		if (AttemptUseManaPotion())
+		constexpr int BaseGain = 1;
+		AddHeroXP(BaseGain);
+
+		if (IsAlive() && ShouldUseManaPotion())
 		{
-			OnManaPotionUsed();
+			if (AttemptUseManaPotion())
+			{
+				OnManaPotionUsed();
+			}
 		}
 	}
 }
 
 void AHeroBase::OnHealthChanged(int Health, int MaxHealth)
 {
-	// Check if we need to use a potion
-	if (IsAlive() && ShouldUseHealthPotion())
+	if (HasAuthority())
 	{
-		if (AttemptUseHealthPotion())
+		// Check if we need to use a potion
+		if (IsAlive() && ShouldUseHealthPotion())
 		{
-			OnHealthPotionUsed();
+			if (AttemptUseHealthPotion())
+			{
+				OnHealthPotionUsed();
+			}
 		}
 	}
 }
 
 bool AHeroBase::AttemptUseHealthPotion()
 {
+	if (!ensure(HasAuthority())) return false;
+
 	auto Potions = Inventory->GetHealthPotions();
 	if (!Potions || Potions->IsEmpty())
 	{
@@ -414,6 +400,7 @@ bool AHeroBase::AttemptUseHealthPotion()
 
 bool AHeroBase::AttemptUseManaPotion()
 {
+	if (!ensure(HasAuthority())) return false;
 	auto Potions = Inventory->GetManaPotions();
 	if (!Potions || Potions->IsEmpty())
 	{
@@ -574,6 +561,7 @@ bool AHeroBase::CanApply(const UGameGood* Good) const
 
 void AHeroBase::Apply(const UGameGood* Good)
 {
+	if (!ensure(HasAuthority())) return;
 	if (IsValid(Good->GetItemDef()))
 	{
 		auto Stack = UHeroItemStack::Make(this, Good->GetItemDef(), 1);
@@ -589,6 +577,7 @@ void AHeroBase::Apply(const UGameGood* Good)
 
 void AHeroBase::AwardGold(int Amount)
 {
+	if (!ensure(HasAuthority())) return;
 	const int Guild = Amount / 2;
 	const int Personal = Amount - Guild;
 	Inventory->AddPersonalGold(Personal);
@@ -725,18 +714,19 @@ bool AHeroBase::HasAbility(TSubclassOf<UGameplayAbility> AbilityClass) const
 	return !!AbilitySystemComponent->FindAbilitySpecFromClass(AbilityClass);
 }
 
-void AHeroBase::UpdateAttributeDamageMod(FActiveGameplayEffectHandle& AttributeHandle, int Level)
-{
-	AbilitySystemComponent->SetActiveGameplayEffectLevel(AttributeHandle, Level);
-}
-
 void AHeroBase::UpdateConfidenceLevelMod()
 {
-	AbilitySystemComponent->SetActiveGameplayEffectLevel(ConfidenceLevelModHandle, GetHeroLevel());
+	if (!ensure(HasAuthority())) return;
+	if (!ConfidenceLevelModHandle.IsValid()) return;
+
+	// TODO: delete after verifying this works the same.
+	// Used to have to be updated manually every level, but now I set the mod to be the level.
+	//AbilitySystemComponent->SetActiveGameplayEffectLevel(ConfidenceLevelModHandle, GetHeroLevel());
 }
 
 bool AHeroBase::PurchaseGood(FGoodOffer Offer)
 {
+	if (!ensure(HasAuthority())) return false;
 	if (ensure(Offer.Good))
 	{
 		Inventory->AddPersonalGold(-Offer.GoldCost);
@@ -792,6 +782,7 @@ int AHeroBase::ScoreFlag(ARewardFlag* Flag) const
 
 void AHeroBase::SetFlagTarget(ARewardFlag* Flag)
 {
+	if (!ensure(HasAuthority())) return;
 	if (CurrentFlagTarget.IsValid())
 	{
 		if (auto CurFlag = CurrentFlagTarget.Pin())
@@ -807,4 +798,3 @@ void AHeroBase::SetFlagTarget(ARewardFlag* Flag)
 	}
 }
 
-float AHeroBase::DamageModPerAttribute = (1.0f / 3.0f);

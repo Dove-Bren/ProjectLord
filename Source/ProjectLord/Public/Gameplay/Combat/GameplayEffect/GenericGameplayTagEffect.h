@@ -10,15 +10,14 @@
 
 class UTargetTagsGameplayEffectComponent;
 
-UCLASS(BlueprintType)
+UCLASS(Blueprintable, Abstract)
 class PROJECTLORD_API UGEGenericGameplayTag : public UGameplayEffect
 {
     GENERATED_BODY()
 
 public:
     UGEGenericGameplayTag();
-
-    void AddTag(FGameplayTag Tag);
+    UGEGenericGameplayTag(FGameplayTag Tag);
 
 protected:
     TObjectPtr<UTargetTagsGameplayEffectComponent> TagContainer;

@@ -27,7 +27,7 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/ActorFadeComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
-#include "Gameplay/Combat/GameplayEffect/GenericGameplayTagEffect.h"
+#include "Gameplay/Combat/GameplayEffect/UntargetableGameplayEffect.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/InspectWidget.h"
 #include "UI/ToastNotification.h"
@@ -322,9 +322,11 @@ void ABuilding::BeginPlay()
             CombatComponent->SetInvulnerable(true);
 
             // Also make untargetable
-            auto* UntargetEffect = NewObject<UGEGenericGameplayTag>(this, TEXT("Untargetable Effect"));
-            UntargetEffect->AddTag(ULordGameplayTags::UnitStateUntargetable());
-            AbilitySystemComponent->ApplyGameplayEffectToSelf(UntargetEffect, 1, AbilitySystemComponent->MakeEffectContext());
+            auto SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGEUntargetable::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+            if (ensure(SpecHandle.IsValid()))
+            {
+                AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+            }
         }
 
         // Trigger a 'team change' to register with team

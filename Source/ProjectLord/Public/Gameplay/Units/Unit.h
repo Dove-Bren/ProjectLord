@@ -143,19 +143,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Unit|Definition|Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
     TObjectPtr<UDataTable> ClassAttributeDefaults;
 
-    // Attributes to add for every level the unit gains.
-    // Typically, just set to 1 (or so) damage of the type relevant to the class.
-    UPROPERTY(EditDefaultsOnly, Category = "Unit|Definition|Attributes", meta = (RequiredAssetDataTags = "RowStructure=/Script/ProjectLord.AttributeBaseValue"))
-    TObjectPtr<UDataTable> ClassAttributeGrowth;
-
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
 
     UPROPERTY(EditInstanceOnly,BlueprintReadWrite, Category = "Selection")
     TObjectPtr<USelectionComponent> SelectionComponent;
-
-    UPROPERTY()
-    FActiveGameplayEffectHandle LevelDamageModHandle;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Unit|Definition")
     TMap<EAbilityAnimType, UAnimMontage*> AbilityAnimations;
@@ -166,8 +158,6 @@ protected:
     virtual void Sided_RegisterAttributes();
     virtual void Server_SetupBaseAttributes();
     virtual void Client_SetupSelectionData(USelectionComponent* SelectionComponent);
-
-    void Server_ApplyLevelDamageMod(int Level);
 
     virtual void Client_InitUnitVM();
     virtual UVMUnit* Client_ConstructUnitVM();

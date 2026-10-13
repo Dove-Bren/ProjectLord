@@ -295,47 +295,6 @@ void AUnit::Server_SetupBaseAttributes()
 
             });
     }
-
-    if (IsValid(ClassAttributeGrowth))
-    {
-        UGameplayEffect* GE_LevelMod = NewObject<UGameplayEffect>(this, TEXT("LevelMod"));
-        GE_LevelMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
-
-        auto LevelAttribute = GetCombatAttributeSet()->GetLevelAttribute();
-        FString Context = TEXT("ClassAttributeGrowth");
-        ClassAttributeGrowth->ForeachRow<FAttributeBaseValue>(Context, [this, LevelAttribute, GE_LevelMod](const FName& Key, const FAttributeBaseValue& Value)
-            {
-                if (!AbilitySystemComponent->HasAttributeSetForAttribute(Value.Attribute))
-                {
-                    UE_LOG(LordUnit, Error, TEXT("Unit [%s]'s growth attribute specifies a value for [%s]%s, but unit does not have that attribute"),
-                        *GetDebugName(this),
-                        *Key.ToString(),
-                        *Value.Attribute.AttributeName
-                    );
-                    return;
-                }
-
-                double AttributeValue = Value.BaseValue;
-                if (Value.Variation > 0)
-                {
-                    const int Variation = FMath::FloorToInt(Value.Variation);
-                    AttributeValue += FMath::RandRange(-Variation, Variation);
-                }
-
-                FGameplayModifierInfo Mod;
-                Mod.Attribute = Value.Attribute;
-                Mod.ModifierOp = EGameplayModOp::AddFinal;
-                FAttributeBasedFloat Curve;
-                Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(LevelAttribute, EGameplayEffectAttributeCaptureSource::Source, false);
-                Curve.Coefficient = FMath::Floor(AttributeValue);
-                Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
-                GE_LevelMod->Modifiers.Add(MoveTemp(Mod));
-
-            });
-
-        FGameplayEffectSpec Spec(GE_LevelMod, AbilitySystemComponent->MakeEffectContext(), 1);
-        LevelDamageModHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
-    }
 }
 
 void AUnit::Client_SetupSelectionData(USelectionComponent* InSelectionComponent)
@@ -455,11 +414,6 @@ void AUnit::RefreshHealthbarVisibility_Implementation()
     {
         HealthbarWidgetComponent->SetVisibility(SelectionComponent->IsSelected() || SelectionComponent->IsHovered());
     }
-}
-
-void AUnit::Server_ApplyLevelDamageMod(int Level)
-{
-    AbilitySystemComponent->SetActiveGameplayEffectLevel(LevelDamageModHandle, Level);
 }
 
 AGameTeamState* AUnit::GetTeamState() const

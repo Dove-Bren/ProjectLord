@@ -4,8 +4,6 @@
 
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 
-#include "Gameplay/LordGameplayTags.h"
-
 UGEGenericGameplayTag::UGEGenericGameplayTag()
 {
     DurationPolicy = EGameplayEffectDurationType::Infinite;
@@ -13,7 +11,8 @@ UGEGenericGameplayTag::UGEGenericGameplayTag()
     GEComponents.Add(TagContainer);
 }
 
-void UGEGenericGameplayTag::AddTag(FGameplayTag Tag)
+UGEGenericGameplayTag::UGEGenericGameplayTag(FGameplayTag Tag)
+    : UGEGenericGameplayTag()
 {
     FInheritedTagContainer AppliedTags = TagContainer->GetConfiguredTargetTagChanges(); // Copy what's there
     AppliedTags.AddTag(Tag);

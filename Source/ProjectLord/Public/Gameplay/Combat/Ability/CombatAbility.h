@@ -114,7 +114,7 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Ability|Combat")
     void ReportAbilityHit(UCombatComponent* HitComponent);
 
-    static UGameplayEffect* MakeManaCostGE(UObject* Outer, int Cost);
+    //static UGameplayEffect* MakeManaCostGE(UObject* Outer, int Cost);
 };
 
 // Exists because uprop containers cannot have other containers, so need a struct wrapper

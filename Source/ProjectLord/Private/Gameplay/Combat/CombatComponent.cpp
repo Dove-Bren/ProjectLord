@@ -4,7 +4,6 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
-#include "GameplayEffect.h"
 #include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
@@ -15,6 +14,7 @@
 #include "Gameplay/Attributes/AttributeBaseValue.h"
 #include "Gameplay/Buildings/Building.h"
 #include "Gameplay/Combat/GameplayEffect/InvulnerabilityGameplayEffect.h"
+#include "Gameplay/Combat/GameplayEffect/LevelBasedThreatGameplayEffect.h"
 #include "Gameplay/Combat/GameplayEffect/VisibleGameplayEffect.h"
 #include "Gameplay/Units/Unit.h"
 
@@ -108,22 +108,10 @@ void UCombatComponent::BeginPlay()
         // WAnt to listen for ability add/remove event, but there isn't one!
 
         // Set up modifier for threat based on level
+        auto SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(UGELevelBasedThreat::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+        if (SpecHandle.IsValid())
         {
-            UGameplayEffect* GE_ThreatMod = NewObject<UGameplayEffect>(this, TEXT("ThreatLevelMod"));
-            GE_ThreatMod->DurationPolicy = EGameplayEffectDurationType::Infinite;
-            auto ThreatAttribute = UCombatAttributeSet::GetThreatAttribute();
-
-            FGameplayModifierInfo Mod;
-            Mod.Attribute = ThreatAttribute;
-            Mod.ModifierOp = EGameplayModOp::AddBase;
-            FAttributeBasedFloat Curve;
-            Curve.BackingAttribute = FGameplayEffectAttributeCaptureDefinition(UCombatAttributeSet::GetLevelAttribute(), EGameplayEffectAttributeCaptureSource::Source, false);
-            Curve.Coefficient = 1;
-            Mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(Curve);
-            GE_ThreatMod->Modifiers.Add(MoveTemp(Mod));
-
-            FGameplayEffectSpec Spec(GE_ThreatMod, AbilitySystemComponent->MakeEffectContext(), 1);
-            /*ConfidenceLevelModHandle = */AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(Spec);
+            /*ConfidenceLevelModHandle = */AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
         }
 	}
 
@@ -675,9 +663,12 @@ void UCombatComponent::SetInvulnerable(bool bInvulnerable)
     auto ASC = GetAbilitySubsystemComponent();
     if (bInvulnerable && !IsInvulnerable())
     {
-        auto* InvulnEffect = NewObject<UGEInvulnerability>(this, TEXT("Invulnerability Effect"));
-        InvulnEffectHandle = ASC->ApplyGameplayEffectToSelf(InvulnEffect, 1, ASC->MakeEffectContext());
-        OnInvulnerabilityChange.Broadcast(true);
+        auto SpecHandle = ASC->MakeOutgoingSpec(UGEInvulnerability::StaticClass(), 1, ASC->MakeEffectContext());
+        if (ensure(SpecHandle.IsValid()))
+        {
+            InvulnEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+            OnInvulnerabilityChange.Broadcast(true);
+        }
     }
     else if (!bInvulnerable && IsInvulnerable())
     {
