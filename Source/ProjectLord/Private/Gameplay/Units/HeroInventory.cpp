@@ -20,8 +20,13 @@ void UHeroInventory::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(ThisClass, Weapon);
+	DOREPLIFETIME(ThisClass, Armor);
+	DOREPLIFETIME(ThisClass, HealthPotions);
+	DOREPLIFETIME(ThisClass, ManaPotions);
 	DOREPLIFETIME(ThisClass, GuildGold);
 	DOREPLIFETIME(ThisClass, PersonalGold);
+	DOREPLIFETIME(ThisClass, ExtraSlots);
 }
 
 void UHeroInventory::InitInventory(UHeroEquipmentDef* StarterWeapon, UHeroEquipmentDef* StarterArmor)

@@ -130,7 +130,7 @@ protected:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|ExtraItems")
     TArray<UHeroItemStack*> ExtraSlots;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, ReplicatedUsing = OnRep_Item, Category = "Inventory|ExtraItems")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Inventory|ExtraItems")
     TObjectPtr<UVMHeroInventory> ViewModel;
 
     bool AddExtraItem(UHeroItemStack* ExtraItem, bool bSimulateOnly = false);
