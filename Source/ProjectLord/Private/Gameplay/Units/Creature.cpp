@@ -400,6 +400,8 @@ void ACreature::OnFadeComplete()
         OnFinishFadeInGrave();
         GetWorld()->GetTimerManager().SetTimer(GraveTimer, FTimerDelegate::CreateWeakLambda(this, [this]() {
             // Fade out grave
+            UE_LOG(LogTemp, Display, TEXT("Timer Expired"));
+            FadeState = EDeathFadeState::FadeGraveOut;
             FadeComponent->FadeOut(GraveComponent, 2.0f);
             OnBeginFadeOutGrave();
         }), 60.0f, false);
