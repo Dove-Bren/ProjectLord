@@ -41,9 +41,12 @@ void UCombatComponent::BeginPlay()
 	auto AbilitySystemComponent = GetAbilitySubsystemComponent();
 	if (ensure(AbilitySystemComponent))
 	{
-        for (auto& Ability : DefaultAbilities)
+        if (HasAuthority())
         {
-            AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
+            for (auto& Ability : DefaultAbilities)
+            {
+                AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(Ability, 1, INDEX_NONE, this));
+            }
         }
         OnAbilitiesChange.Broadcast(this);
 

@@ -29,6 +29,10 @@
 		{
 			"Name": "ModelViewViewModel",
 			"Enabled": true
+		},
+		{
+			"Name": "SVGImporter",
+			"Enabled": true
 		}
 	]
 }
