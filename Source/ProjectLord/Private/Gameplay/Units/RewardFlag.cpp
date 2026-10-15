@@ -2,14 +2,16 @@
 
 #include "Gameplay/Units/RewardFlag.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 #include "Gameplay/GameTeamState.h"
+#include "Gameplay/LordGameState.h"
+#include "Gameplay/Combat/CombatComponent.h"
+#include "Gameplay/Interaction/SelectionComponent.h"
+#include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Map/MinimapComponent.h"
 #include "Gameplay/Map/FogOfWarSubsystem.h"
-#include "Gameplay/LordGameState.h"
-#include "Gameplay/Interaction/SelectionComponent.h"
-#include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Units/HeroBase.h"
 #include "Gameplay/Units/Unit.h"
 #include "UI/ViewModels/RewardFlagViewModel.h"
@@ -59,6 +61,7 @@ void ARewardFlag::BeginPlay()
 	SelectionComponent->SetAppealVM(AppealVM);
 
 	MinimapComponent->SetTeam(GetTeam());
+	OnRep_Team(GetTeam());
 }
 
 void ARewardFlag::Tick(float DeltaSeconds)
@@ -326,6 +329,13 @@ void ARewardFlag::OnRep_Team(EGameTeam OldValue)
 	}
 	SelectionComponent->SetTeam(GetTeam());
 	MinimapComponent->SetTeam(GetTeam());
+
+	// Every client should check if the flag should be visible for them
+	auto PC = Cast<ALordPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (ensure(PC && PC->IsLocalController()))
+	{
+		SetActorHiddenInGame(PC->GetTeam() != GetTeam());
+	}
 }
 
 void ARewardFlag::OnRep_Reward(int OldValue)
