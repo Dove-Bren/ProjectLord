@@ -477,7 +477,8 @@ ULordGameHUDWidget* ALordPlayerController::ConstructHUD_Implementation()
 
 bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
 {
-	return IsValid(ClickedActor->GetComponentByClass<USelectionComponent>());
+	return !ClickedActor->IsHidden()
+		&& IsValid(ClickedActor->GetComponentByClass<USelectionComponent>());
 }
 
 void ALordPlayerController::OnSelectionChange()
