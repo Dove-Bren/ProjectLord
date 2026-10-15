@@ -266,7 +266,7 @@ void ACreature::OnEnterBuilding(AResidentialBuilding* Building)
         }
     }
 
-    FadeComponent->FadeOut(GetMesh(), 1.0f);
+    FadeComponent->FadeOut(GetMesh(), 0.25f);
     SetActorLocation(Building->GetBuildingEntrance());
 
     BP_OnEnterBuilding(Building);
@@ -280,7 +280,7 @@ void ACreature::OnExitBuilding(AResidentialBuilding* Building)
     }
     
     GetCharacterMovement()->SetAvoidanceEnabled(true);
-    FadeComponent->FadeIn(GetMesh(), 1.0f);
+    FadeComponent->FadeIn(GetMesh(), 0.25f);
 
     BP_OnExitBuilding(Building);
 }
@@ -362,6 +362,14 @@ void ACreature::OnFadeComplete()
     // leaving buildings as well as death
     if (EDeathFadeState::Idle == FadeState)
     {
+        if (IsInsideBuilding())
+        {
+            GetMesh()->SetVisibility(false, true);
+        }
+        else
+        {
+            GetMesh()->SetVisibility(true, true);
+        }
         return;
     }
 

@@ -77,7 +77,8 @@ void UActorFadeComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 
 void UActorFadeComponent::FadeOut(UPrimitiveComponent* Mesh, float InDuration)
 {
-	ensure(EFadeOperation::Idle == FadeOperation);
+	//ensure(EFadeOperation::Idle == FadeOperation); Was happening fairly often with peasants \
+	// entering and leaving buildings frequently
 	SetupFor(Mesh);
 	FadeOperation = EFadeOperation::FadeIn;
 	FadeDuration = InDuration;
@@ -91,7 +92,8 @@ void UActorFadeComponent::FadeOut(UPrimitiveComponent* Mesh, float InDuration)
 
 void UActorFadeComponent::FadeIn(UPrimitiveComponent* Mesh, float InDuration)
 {
-	ensure(EFadeOperation::Idle == FadeOperation);
+	//ensure(EFadeOperation::Idle == FadeOperation); Was happening fairly often with peasants \
+	// entering and leaving buildings frequently
 	SetupFor(Mesh);
 	FadeOperation = EFadeOperation::FadeOut;
 	FadeDuration = InDuration;
