@@ -29,8 +29,8 @@ enum class EHeroDesireLevel : uint8
     StrongLike,
 };
 
-DECLARE_MULTICAST_DELEGATE(FOnXPChange);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelUp, int /*NewLevel*/);
+DECLARE_MULTICAST_DELEGATE(FOnHeroXPChange);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHeroLevelUp, int /*NewLevel*/);
 
 UCLASS(Blueprintable, meta = (PrioritizeCategories = "Hero Inventory"))
 class PROJECTLORD_API AHeroBase : public ACreature
@@ -40,8 +40,8 @@ class PROJECTLORD_API AHeroBase : public ACreature
 public:
     AHeroBase();
 
-    FOnXPChange OnXPChange;
-    FOnLevelUp OnLevelUp;
+    FOnHeroXPChange OnHeroXPChange;
+    FOnHeroLevelUp OnHeroLevelUp;
 
     UFUNCTION(BlueprintPure)
     int GetHeroLevel() const;
@@ -187,17 +187,29 @@ protected:
 
     void DoLevelUp();
 
+    UFUNCTION(NetMulticast, Unreliable)
+    void OnLevelUp();
+
     UFUNCTION(BlueprintImplementableEvent, Category = "Hero", meta = (DisplayName = "OnLevelUp"))
     void BP_OnLevelUp();
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    UFUNCTION(NetMulticast, Unreliable)
     void OnGoldAwarded(int Amount);
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero", meta = (DisplayName = "OnGoldAwarded"))
+    void BP_OnGoldAwarded(int Amount);
+
+    UFUNCTION(NetMulticast, Unreliable)
     void OnHealthPotionUsed();
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Hero")
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero", meta = (DisplayName = "OnHealthPotionUsed"))
+    void BP_OnHealthPotionUsed();
+
+    UFUNCTION(NetMulticast, Unreliable)
     void OnManaPotionUsed();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Hero", meta = (DisplayName = "OnManaPotionUsed"))
+    void BP_OnManaPotionUsed();
 
     UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Hero")
     bool ShouldUseHealthPotion() const;

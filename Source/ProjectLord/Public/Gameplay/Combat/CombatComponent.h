@@ -279,7 +279,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Hero")
     TMap<int, FCombatAbilityClassArray> LevelUpAbilities;
 
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Combat")
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_TargetComponent, Category = "Combat")
     TObjectPtr<UCombatComponent> TargetComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = "Combat")
@@ -298,6 +298,9 @@ protected:
 
     UFUNCTION()
     void OnOwnerPossessed(APawn* Pawn, AController* OldController, AController* NewController);
+
+    UFUNCTION()
+    void OnRep_TargetComponent();
 
 private:
 

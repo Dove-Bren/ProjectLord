@@ -643,7 +643,7 @@ void UCombatComponent::SetTarget(UCombatComponent* InTarget)
     if (TargetComponent != InTarget)
     {
         TargetComponent = InTarget;
-        OnTargetChange.Broadcast(TargetComponent);
+        OnRep_TargetComponent();
     }
 }
 
@@ -970,6 +970,11 @@ void UCombatComponent::HandleLevelChange(int NewLevel)
             }
         }
     }
+}
+
+void UCombatComponent::OnRep_TargetComponent()
+{
+    OnTargetChange.Broadcast(TargetComponent);
 }
 
 /*static*/ UCombatComponent* UCombatComponent::GetComponentForActor(AActor* Actor)

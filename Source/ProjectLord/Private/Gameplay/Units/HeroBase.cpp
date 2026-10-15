@@ -152,7 +152,7 @@ void AHeroBase::Client_SetupSelectionData(USelectionComponent* InSelectionCompon
 				LevelVM->SetLevel(static_cast<int>(ChangeData.NewValue));
 			});
 	LevelVM->SetLevel(AbilitySystemComponent->GetGameplayAttributeValue(LevelAttribute, bIgnored));
-	OnXPChange.AddWeakLambda(this, [this, LevelVM]() {
+	OnHeroXPChange.AddWeakLambda(this, [this, LevelVM]() {
 			LevelVM->SetProgress(GetHeroXPPercent());
 		});
 	LevelVM->SetProgress(GetHeroXPPercent());
@@ -339,8 +339,28 @@ void AHeroBase::DoLevelUp()
 	// Update derived attributes
 	LordHeroAttributeSet->UpdateDerivedUnitValues();
 	UpdateConfidenceLevelMod();
-	OnLevelUp.Broadcast(Level);
+	OnLevelUp();
+}
+
+void AHeroBase::OnLevelUp_Implementation()
+{
+	OnHeroLevelUp.Broadcast(GetHeroLevel());
 	BP_OnLevelUp();
+}
+
+void AHeroBase::OnGoldAwarded_Implementation(int InAmount)
+{
+	BP_OnGoldAwarded(InAmount);
+}
+
+void AHeroBase::OnHealthPotionUsed_Implementation()
+{
+	BP_OnHealthPotionUsed();
+}
+
+void AHeroBase::OnManaPotionUsed_Implementation()
+{
+	BP_OnManaPotionUsed();
 }
 
 void AHeroBase::OnAttack(AActor* TargetActor, UCombatComponent* TargetCombatComponent)
@@ -503,7 +523,7 @@ void AHeroBase::OnRep_HeroName()
 
 void AHeroBase::OnRep_HeroXP()
 {
-	OnXPChange.Broadcast();
+	OnHeroXPChange.Broadcast();
 }
 
 FText AHeroBase::GenerateHeroName_Implementation() const

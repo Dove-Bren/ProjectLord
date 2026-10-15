@@ -119,6 +119,12 @@ void AUnit::BeginPlay()
 
     CombatComponent->OnDeath.AddDynamic(this, &AUnit::Sided_HandleDeath);
 
+    Client_SetupSelectionData(SelectionComponent);
+
+    // TODO: We can make it so this only shows up on mouseover (Issue #25)
+    // Note: AFTER selection data so we can reuse VMs
+    AddHealthbarWidget();
+
     if (HasAuthority())
     {
         CombatComponent->OnAttack.AddDynamic(this, &AUnit::Server_HandleAttack);
@@ -130,12 +136,6 @@ void AUnit::BeginPlay()
             Server_SetTeam(RealTeam);
         }
     }
-
-    Client_SetupSelectionData(SelectionComponent);
-
-    // TODO: We can make it so this only shows up on mouseover (Issue #25)
-    // Note: AFTER selection data so we can reuse VMs
-    AddHealthbarWidget();
 }
 
 void AUnit::EndPlay(EEndPlayReason::Type Reason)
