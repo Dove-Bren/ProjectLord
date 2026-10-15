@@ -20,7 +20,7 @@ struct FResidentLimit
     TObjectPtr<UUnitType> Type;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    int Limit;
+    int Limit = 0;
 
     FResidentLimit() { }
     FResidentLimit(UUnitType* Type, int Limit)

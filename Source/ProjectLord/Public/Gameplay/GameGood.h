@@ -81,5 +81,5 @@ struct PROJECTLORD_API FGoodOffer
 	TObjectPtr<UGameGood> Good;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Good Offer")
-	int GoldCost;
+	int GoldCost = 0;
 };

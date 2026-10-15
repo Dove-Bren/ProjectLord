@@ -22,10 +22,10 @@ struct PROJECTLORD_API FStatModifierRow
 public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    float Value;
+    float Value = 0.0;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    EModifierType Type;
+    EModifierType Type = EModifierType::None;
 };
 
 USTRUCT(BlueprintType)

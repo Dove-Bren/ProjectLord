@@ -23,15 +23,15 @@ public:
     TObjectPtr<const UBuildingType> BuildingType;
 
     UPROPERTY()
-    FVector At;
+    FVector At = {};
 
     UPROPERTY()
-    int PlaceCost;
+    int PlaceCost = 0;
 
     UPROPERTY()
-    const UPlaceBuildingPurchase* PurchaseAction;
+    TObjectPtr<const UPlaceBuildingPurchase> PurchaseAction;
 
-    ABuilding* PlacedBuilding;
+    TObjectPtr<ABuilding> PlacedBuilding;
 };
 
 UCLASS()

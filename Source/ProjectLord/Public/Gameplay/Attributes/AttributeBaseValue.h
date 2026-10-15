@@ -19,9 +19,9 @@ public:
     FGameplayAttribute Attribute;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Attributes", Meta=(ClampMin=0))
-    double BaseValue;
+    double BaseValue = 0.0;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Attributes", Meta = (ClampMin = 0))
-    double Variation;
+    double Variation = 0.0;
 
 };

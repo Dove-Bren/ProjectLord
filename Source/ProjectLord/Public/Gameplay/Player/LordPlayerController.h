@@ -41,16 +41,16 @@ struct PROJECTLORD_API FFlagPlaceOperation
 public:
 
     UPROPERTY()
-    ERewardFlagType Type;
+    ERewardFlagType Type = ERewardFlagType::Explore;
 
     UPROPERTY()
-    FVector FlagLocation;
+    FVector FlagLocation = {};
 
     UPROPERTY()
-    FVector LandLocation;
+    FVector LandLocation = {};
 
     UPROPERTY()
-    UCombatComponent* AttachComponent;
+    TObjectPtr<UCombatComponent> AttachComponent;
 };
 
 USTRUCT()

@@ -22,7 +22,7 @@ public:
     TObjectPtr<UPlayerSpell> Spell;
 
     UPROPERTY()
-    FVector TargetLocation;
+    FVector TargetLocation = {};
 
     UPROPERTY()
     TObjectPtr<UCombatComponent> TargetComponent;

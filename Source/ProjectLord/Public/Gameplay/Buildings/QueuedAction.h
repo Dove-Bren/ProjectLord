@@ -22,7 +22,7 @@ public:
     TObjectPtr<UTexture2D> Icon;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Building|Queue|Action")
-    int RefundGold;
+    int RefundGold = 0;
 
     UPROPERTY()
     TObjectPtr<class UQueuedActionExecution> Execution;

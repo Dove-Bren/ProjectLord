@@ -41,7 +41,7 @@ public:
     FText Description;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    ESelectionActionFailureReason Failure;
+    ESelectionActionFailureReason Failure = {};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TObjectPtr<UVMStatModifiers> StatMods;
