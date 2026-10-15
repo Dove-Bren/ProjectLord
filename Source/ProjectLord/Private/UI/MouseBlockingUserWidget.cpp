@@ -6,3 +6,8 @@ FReply UMouseBlockingUserWidget::NativeOnMouseButtonDown(const FGeometry& InGeom
 {
 	return bBlockMouseClicks ? FReply::Handled() : FReply::Unhandled();
 }
+
+FReply UMouseBlockingUserWidget::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	return bBlockMouseClicks ? FReply::Handled() : FReply::Unhandled();
+}
