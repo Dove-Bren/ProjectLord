@@ -117,8 +117,11 @@ void ALandscapePainter::SetupLayers()
 			{
 				for (auto Layer : TEnumRange<ELandscapePaint>())
 				{
+					FString LayerName = UEnum::GetDisplayValueAsText(Layer).ToString();
+					LayerName.RemoveSpacesInline();
+
 					//DynLayer_Foundation
-					FName LayerParam = *FString::Printf(TEXT("DynLayer_%s"), *UEnum::GetDisplayValueAsText(Layer).ToString());
+					FName LayerParam = *FString::Printf(TEXT("DynLayer_%s"), *LayerName);
 					MatInst->SetTextureParameterValue(LayerParam, DynamicLandscapeLayers[Layer]);
 				}
 			}

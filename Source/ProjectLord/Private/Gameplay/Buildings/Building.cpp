@@ -44,6 +44,7 @@ ABuilding::ABuilding()
 {
     // Set up defaults
     Team = EGameTeam::Neutral;
+    FoundationType = ELandscapePaint::TownFoundation;
     MaxLevel = 1;
     BuildingLevel = 1; // This is for map buildings that are already built. Set back to 0 in placement logic.
     BuildingAvailableLevel = 1;
@@ -750,6 +751,6 @@ void ABuilding::PaintFoundation()
     auto LandscapePainter = ALandscapePainter::GetLandscapePainter(this);
     if (ensure(LandscapePainter))
     {
-        LandscapePainter->Paint(ELandscapePaint::Foundation, GetActorLocation(), BuildingMesh->GetBounds().SphereRadius * 1.5);
+        LandscapePainter->Paint(GetFoundationType(), GetActorLocation(), BuildingMesh->GetBounds().SphereRadius * 1.5);
     }
 }

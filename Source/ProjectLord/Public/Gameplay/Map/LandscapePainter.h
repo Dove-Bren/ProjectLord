@@ -12,7 +12,9 @@ class UMaterialInstanceDynamic;
 UENUM(BlueprintType)
 enum class ELandscapePaint : uint8
 {
-    Foundation,
+    TownFoundation,
+    WildFoundation,
+    Road,
 
     MAX UMETA(Hidden)
 };

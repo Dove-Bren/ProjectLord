@@ -31,6 +31,8 @@ class UMinimapComponent;
 class UPlayerSpell;
 class UVMBuilding;
 
+enum class ELandscapePaint : uint8;
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingDestroyed, ABuilding*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingLevelChanged, int);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingAvailableLevelChanged, int);
@@ -173,6 +175,9 @@ public:
     UFUNCTION(BlueprintPure)
     UVMBuilding* GetBuildingVM() const { return BuildingVM; }
 
+    UFUNCTION(BlueprintPure)
+    ELandscapePaint GetFoundationType() const { return FoundationType; }
+
 protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building|Definition")
@@ -244,6 +249,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bCanAcceptTaxes;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    ELandscapePaint FoundationType;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Team, Category = "Team")
     EGameTeam Team;
