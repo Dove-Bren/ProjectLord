@@ -105,10 +105,24 @@ bool UPlacementComponent::CanPlace() const
 		return false;
 	}
 
-	if (FogSubsystem->IsInFog(Controller->GetTeam(), ShadowActor->GetActorLocation()))
-	{
-		return false;
+	// Check the bounds of the building and see if it ends up in the fog
+	FVector Origin;
+	FVector Extent;
+	ShadowActor->GetActorBounds(true, Origin, Extent);
+
+	for (FVector At : {
+		Origin + Extent,
+		Origin + (Extent * FVector(-1, 1, 1)),
+		Origin + (Extent * FVector(-1, -1, 1)),
+		Origin + (Extent * FVector(1, -1, 1)),
+	}) {
+		if (FogSubsystem->IsInFog(Controller->GetTeam(), At))
+		{
+			return false;
+		}
 	}
+
+	
 
 	return true;
 }
