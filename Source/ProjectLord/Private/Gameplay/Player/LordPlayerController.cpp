@@ -182,6 +182,21 @@ void ALordPlayerController::PlaceBuilding(UBuildingType* Type, int Cost, const U
 	PlacementComponent->StartPlacing(Type, Cost, Action);
 }
 
+void ALordPlayerController::PlaceBuildingImmediately(UBuildingType* Type, FTransform At)
+{
+	// This is a dupe of what happens in PlacementComponent. Maybe better to make a func to expose this for one codepath?
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	auto Building = GetWorld()->SpawnActor<ABuilding>(Type->BuildingClass, At, Params);
+	if (!ensure(Building))
+	{
+		return;
+	}
+
+	Building->Server_SetTeam(GetTeam());
+	Building->HandleBuildingPlacement();
+}
+
 void ALordPlayerController::CastSpell(UPlayerSpell* Spell)
 {
 	if (PlacementComponent->IsPlacing()) PlacementComponent->CancelPlacing();
@@ -484,7 +499,11 @@ bool ALordPlayerController::CanSelect(const AActor* ClickedActor) const
 void ALordPlayerController::OnSelectionChange()
 {
 	// Update VM
-	SelectionVM->SetFromSelection(HasSelection() ? GetSelection() : nullptr, true, true);
+	const auto CurSelection = HasSelection() ? GetSelection() : nullptr;
+	const bool bShowActions = CurSelection && 
+		(CurSelection->GetTeam() == GetTeam() || EGameTeam::Neutral == CurSelection->GetTeam());
+
+	SelectionVM->SetFromSelection(CurSelection, bShowActions, true);
 	BP_OnSelectionChange();
 }
 

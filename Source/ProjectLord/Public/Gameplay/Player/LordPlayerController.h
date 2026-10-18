@@ -140,6 +140,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Placement")
     void PlaceBuilding(UBuildingType* Type, int Cost, const UPlaceBuildingPurchase* Action);
 
+    UFUNCTION(BlueprintCallable, Category = "Placement")
+    void PlaceBuildingImmediately(UBuildingType* Type, FTransform At);
+
     UFUNCTION(BlueprintCallable, Category = "SpellCasting")
     void CastSpell(UPlayerSpell* Spell);
 

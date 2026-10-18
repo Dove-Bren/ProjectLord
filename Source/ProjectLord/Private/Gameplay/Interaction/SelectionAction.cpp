@@ -211,7 +211,6 @@ UVMSelectionAction* UBuildingBasedPurchase::MakeViewModel_Implementation(UObject
 	auto BuildingOwner = GetBuilding(InContext);
 	if (ensure(BuildingOwner))
 	{
-		// TODO building destruction
 		BuildingOwner->OnBuildingLevelChanged.AddWeakLambda(ViewModel, [this, InContext, ViewModel](int NewLevel) {
 			if (!IsValid(this)) return;
 			ESelectionActionFailureReason Reason;
