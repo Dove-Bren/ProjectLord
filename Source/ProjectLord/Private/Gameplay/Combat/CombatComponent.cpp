@@ -2,12 +2,12 @@
 
 #include "Gameplay/Combat/CombatComponent.h"
 
-#include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
 #include "Gameplay/GameplayUtils.h"
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/LordGameplayTags.h"
 #include "Gameplay/AI/CombatControllerBase.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
@@ -49,6 +49,7 @@ void UCombatComponent::BeginPlay()
             }
         }
         OnAbilitiesChange.Broadcast(this);
+        AbilitySystemComponent->OnAbilitiesChanged.AddDynamic(this, &ThisClass::OnASCAbilitiesChanged);
 
         AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetCombatAttributeSet()->GetHealthAttribute())
             .AddWeakLambda(this, [this](const FOnAttributeChangeData& ChangeData)
@@ -203,10 +204,10 @@ EGameTeam UCombatComponent::GetTeam() const
     return EGameTeam::Monster;
 }
 
-UAbilitySystemComponent* UCombatComponent::GetAbilitySubsystemComponent() const
+ULordAbilitySystemComponent* UCombatComponent::GetAbilitySubsystemComponent() const
 {
     auto Owner = GetOwner();
-    return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner);
+    return Cast<ULordAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Owner));
 }
 
 //UCombatComponent* UCombatComponent::GetCombatTarget() const
@@ -978,6 +979,11 @@ void UCombatComponent::HandleLevelChange(int NewLevel)
 void UCombatComponent::OnRep_TargetComponent()
 {
     OnTargetChange.Broadcast(TargetComponent);
+}
+
+void UCombatComponent::OnASCAbilitiesChanged()
+{
+    OnAbilitiesChange.Broadcast(this);
 }
 
 /*static*/ UCombatComponent* UCombatComponent::GetComponentForActor(AActor* Actor)

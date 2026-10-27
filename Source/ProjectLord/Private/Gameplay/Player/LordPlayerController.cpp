@@ -5,11 +5,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "NavigationSystem.h"
-#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
 #include "Gameplay/GameTeamState.h"
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Player/LordCameraPawn.h"
 #include "Gameplay/LordGameState.h"
 #include "Gameplay/Player/LordPlayerState.h"
@@ -35,7 +35,7 @@ ALordPlayerController::ALordPlayerController()
 	bShouldPerformFullTickWhenPaused = true; // Allows camera to update when paused
 
 	PlacementComponent = CreateDefaultSubobject<UPlacementComponent>("Placement");
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent = CreateDefaultSubobject<ULordAbilitySystemComponent>("AbilitySystemComponent");
 	SpellCastingComponent = CreateDefaultSubobject<UPlayerSpellCastingComponent>("PlayerSpellCasting");
 }
 

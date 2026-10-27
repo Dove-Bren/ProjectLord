@@ -21,7 +21,7 @@ class UVMLordBase;
 class UInspectWidget;
 class ULordGameHUDWidget;
 class UCombatComponent;
-class UAbilitySystemComponent;
+class ULordAbilitySystemComponent;
 class UPlayerSpell;
 class UPlayerSpellCastingComponent;
 class ULordCursorWidget;
@@ -162,7 +162,7 @@ public:
     UCombatComponent* GetCombatUnderMouse() const;
     FVector GetWorldPositionUnderMouse() const;
 
-    UAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystemComponent; }
+    ULordAbilitySystemComponent* GetAbilitySystemComponent() const { return AbilitySystemComponent; }
 
     UFUNCTION(BlueprintCallable, Category = "Cursor")
     void SetCursorMode(EMouseCursor::Type Mode);
@@ -197,7 +197,7 @@ protected:
     TObjectPtr<UPlacementComponent> PlacementComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat|Abilities")
-    TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+    TObjectPtr<ULordAbilitySystemComponent> AbilitySystemComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TObjectPtr<UPlayerSpellCastingComponent> SpellCastingComponent;

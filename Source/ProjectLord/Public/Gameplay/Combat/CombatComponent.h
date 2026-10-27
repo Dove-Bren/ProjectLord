@@ -13,6 +13,7 @@
 
 class UCombatAttributeSet;
 class UVisibleGameplayEffect;
+class ULordAbilitySystemComponent;
 
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -161,7 +162,7 @@ public:
     EGameTeam GetTeam() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")
-    UAbilitySystemComponent* GetAbilitySubsystemComponent() const;
+    ULordAbilitySystemComponent* GetAbilitySubsystemComponent() const;
 
     UFUNCTION(BlueprintPure, Category = "Combat")
     UCombatComponent* GetCombatTarget() const { return TargetComponent; }
@@ -305,6 +306,10 @@ protected:
 private:
 
     TOptional<FActiveGameplayEffectHandle> InvulnEffectHandle;
+
+
+    UFUNCTION()
+    void OnASCAbilitiesChanged();
 
 public:
 

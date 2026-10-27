@@ -12,7 +12,7 @@
 #include "Building.generated.h"
 
 class UBuildingType;
-class UAbilitySystemComponent;
+class ULordAbilitySystemComponent;
 class UCombatComponent;
 class ABuildingController;
 class USelectionComponent;
@@ -257,7 +257,7 @@ protected:
     EGameTeam Team;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
-    TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+    TObjectPtr<ULordAbilitySystemComponent> AbilitySystemComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building|Definition|Attributes")
     TObjectPtr<UBuildingAttributeSet> BuildingAttributeSet;

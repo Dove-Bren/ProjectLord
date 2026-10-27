@@ -16,7 +16,7 @@
 #include "Unit.generated.h"
 
 class AUnitController;
-class UAbilitySystemComponent;
+class ULordAbilitySystemComponent;
 class UCombatComponent;
 class ULordUnitAttributeSet;
 class UCombatAttributeSet;
@@ -129,7 +129,7 @@ protected:
     TObjectPtr<UCombatComponent> CombatComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Combat|Abilities")
-    TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+    TObjectPtr<ULordAbilitySystemComponent> AbilitySystemComponent;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
     TObjectPtr<UStaticMeshComponent> SelectionRingComponent;

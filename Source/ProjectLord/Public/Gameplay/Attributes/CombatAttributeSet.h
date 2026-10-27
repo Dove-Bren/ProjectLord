@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
-#include "AbilitySystemComponent.h" // Needed for getter/setter macros
+#include "Gameplay/LordAbilitySystemComponent.h" // Needed for getter/setter macros
 #include "CombatAttributeSet.generated.h"
 
 #define DEF_REP_ATTRIBUTE(Class, Field) \

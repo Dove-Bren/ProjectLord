@@ -5,9 +5,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Map/FogOfWarComponent.h"
 #include "Gameplay/Map/FogOfWarSubsystem.h"
 #include "Gameplay/ActorFadeComponent.h"

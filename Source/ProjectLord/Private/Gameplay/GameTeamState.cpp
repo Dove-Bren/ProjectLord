@@ -203,7 +203,7 @@ TArray<ABuilding*> AGameTeamState::GetTeamBuildingsOfClass(TSubclassOf<ABuilding
     TArray<ABuilding*> Buildings;
     for (auto Building : TeamBuildings)
     {
-        if (Building->IsA(Type))
+        if (Building && Building->IsA(Type))
         {
             Buildings.Add(Building);
         }

@@ -2,9 +2,8 @@
 
 #include "Gameplay/Combat/PlayerSpell/PlayerSpell.h"
 
-#include "AbilitySystemComponent.h"
-
 #include "Gameplay/GameTeamState.h"
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Player/LordPlayerController.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Combat/PlayerSpell/PlayerSpellGameplayAbility.h"

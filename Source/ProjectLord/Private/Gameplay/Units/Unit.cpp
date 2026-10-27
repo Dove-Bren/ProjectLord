@@ -6,7 +6,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
@@ -15,6 +14,7 @@
 #include "UI/WidgetBlueprintClassRegistry.h"
 #include "Gameplay/GameTeamState.h"
 #include "Gameplay/LordGameState.h"
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Interaction/SelectionComponent.h"
 #include "Gameplay/AI/UnitController.h"
 #include "Gameplay/Attributes/AttributeBaseValue.h"
@@ -46,7 +46,7 @@ AUnit::AUnit() : ACharacter()
     SelectionRingComponent->SetCollisionProfileName(TEXT("NoCollision"));
 
     // GAS
-    AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
+    AbilitySystemComponent = CreateDefaultSubobject<ULordAbilitySystemComponent>(TEXT("AbilitySubsystem"));
     AbilitySystemComponent->SetIsReplicated(true);
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 

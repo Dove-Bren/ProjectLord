@@ -25,6 +25,7 @@ public class ProjectLord : ModuleRules
 			"Landscape",
 			"Slate",
 			"SlateCore",
+			"NetCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

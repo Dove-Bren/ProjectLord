@@ -2,9 +2,8 @@
 
 #include "Gameplay/Combat/Ability/CombatAbility.h"
 
-#include "AbilitySystemComponent.h"
-
 #include "LordLogging.h"
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Buildings/Building.h"

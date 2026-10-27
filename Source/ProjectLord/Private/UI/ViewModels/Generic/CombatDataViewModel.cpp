@@ -2,8 +2,7 @@
 
 #include "UI/ViewModels/Generic/CombatDataViewModel.h"
 
-#include "AbilitySystemComponent.h"
-
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Attributes/CombatAttributeSet.h"
 #include "Gameplay/Combat/CombatComponent.h"
 #include "Gameplay/Combat/GameplayEffect/VisibleGameplayEffect.h"

@@ -2,7 +2,6 @@
 
 #include "Gameplay/Buildings/Building.h"
 
-#include "AbilitySystemComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "NavModifierComponent.h"
 #include "Components/BoxComponent.h"
@@ -12,6 +11,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "LordLogging.h"
+#include "Gameplay/LordAbilitySystemComponent.h"
 #include "Gameplay/Map/FogOfWarComponent.h"
 #include "Gameplay/Map/FogOfWarSubsystem.h"
 #include "Gameplay/GameTeam.h"
@@ -64,7 +64,7 @@ ABuilding::ABuilding()
     NavMeshMod->SetAreaClass(UNavArea_Obstacle::StaticClass());
 
     // GAS
-    AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySubsystem"));
+    AbilitySystemComponent = CreateDefaultSubobject<ULordAbilitySystemComponent>(TEXT("AbilitySubsystem"));
     AbilitySystemComponent->SetIsReplicated(true);
     AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full); // I think full, because we want to see things everywhere?
 
