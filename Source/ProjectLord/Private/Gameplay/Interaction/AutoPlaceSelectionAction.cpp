@@ -32,8 +32,7 @@ bool UAutoPlaceSelectionAction::CanPerform_Implementation(const FSelectionAction
 
 bool UAutoPlaceSelectionAction::Perform_Implementation(const FSelectionActionContext& InContext) const
 {
-	// Note: not using 'this' for world context, because 'this' is a data asset and has no world
-	ALordPlayerController* Controller = Cast<ALordPlayerController>(UGameplayStatics::GetPlayerController(InContext.Selection, 0));
+	ALordPlayerController* Controller = InContext.Player;
 	if (!Controller)
 	{
 		return false;
