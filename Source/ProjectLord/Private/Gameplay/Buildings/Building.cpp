@@ -3,6 +3,7 @@
 #include "Gameplay/Buildings/Building.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "NavModifierComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -32,6 +33,7 @@
 #include "UI/InspectWidget.h"
 #include "UI/ToastNotification.h"
 #include "UI/WidgetBlueprintClassRegistry.h"
+#include "UI/Units/HealthBarBase.h"
 #include "UI/ViewModels/SelectionViewModel.h"
 #include "UI/ViewModels/SelectionActionTreeViewModel.h"
 #include "UI/ViewModels/Buildings/BuildingViewModel.h"
@@ -75,11 +77,21 @@ ABuilding::ABuilding()
     SelectionComponent = CreateDefaultSubobject<USelectionComponent>(TEXT("Selection"));
     SelectionComponent->SetSelectable(true);
 
+    SelectionRingComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Selection Ring"));
+    SelectionRingComponent->SetupAttachment(RootComponent);
+    SelectionRingComponent->SetVisibility(false);
+    SelectionRingComponent->SetCollisionProfileName(TEXT("NoCollision"));
+
     ConstructionFadeComponent = CreateDefaultSubobject<UActorFadeComponent>(TEXT("ConstructionFade"));
 
     FogOfWarComponent = CreateDefaultSubobject<UFogOfWarComponent>(TEXT("Fog of War"));
 
     MinimapComponent = CreateDefaultSubobject<UMinimapComponent>(TEXT("Minimap"));
+
+    HealthbarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Healthbar"));
+    HealthbarWidgetComponent->SetupAttachment(RootComponent);
+    HealthbarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+    HealthbarWidgetComponent->SetDrawAtDesiredSize(true);
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -231,6 +243,12 @@ void ABuilding::RefreshMesh()
             Collision->SetRelativeLocation(FVector(0, 0, Extent.Z));
             BuildingEntranceOffset = FVector(0, (Extent.X + 50), 0).RotateAngleAxis(BuildingRotation.Yaw, FVector(0, 0, 1));
             NavMeshMod->UpdateNavigationBounds();
+
+            // Want it to be 1x (+20 margin) the building and ring component mesh is expected to be 100x100 (so half-width is 50)
+            const float XScale = (Extent.X + 20) / 50.0f;
+            const float YScale = (Extent.Y + 20) / 50.0f;
+            SelectionRingComponent->SetRelativeLocation(FVector(0, 0, 1));
+            SelectionRingComponent->SetWorldScale3D(FVector(XScale, YScale, 1));
         }
     }
 }
@@ -362,6 +380,8 @@ void ABuilding::BeginPlay()
     // Set up selection Data
     SetupSelectionData(SelectionComponent);
 
+    SetupHealthbar();
+
     // Connect to game time
     if (auto State = GetWorld()->GetGameState<ALordGameState>())
     {
@@ -445,6 +465,18 @@ void ABuilding::ClientTick(float DeltaSeconds)
                 SetActorHiddenInGame(FogSubsystem->IsInFog(PC->GetTeam(), GetActorLocation()));
             }
         }
+    }
+
+    // Adjust healthbar position in world to be outside bounds.
+    // Felt easier than adjusting screen space offsets through widget params
+    if (auto PC = Cast<ALordPlayerController>(GetGameInstance()->GetFirstLocalPlayerController()))
+    {
+        auto Extent = BuildingMesh->GetBounds().BoxExtent;
+        auto Rot = FRotator(0, PC->GetControlRotation().Yaw, 0);
+        auto ToCamera = FRotationMatrix(Rot).GetUnitAxis(EAxis::X) * -1.0;
+        const auto MaxHExtent = FMath::Max(Extent.X, Extent.Y);
+        HealthbarWidgetComponent->SetRelativeLocation(ToCamera * (MaxHExtent + 20));
+
     }
 
     BP_ClientTick(DeltaSeconds);
@@ -597,6 +629,15 @@ void ABuilding::SetupSelectionData(USelectionComponent* InSelectionComponent)
                 Tree->RefreshPage();
             }*/
         });
+
+    InSelectionComponent->OnSelected.AddWeakLambda(this, [this]()
+        {
+            SelectionRingComponent->SetVisibility(true);
+        });
+    InSelectionComponent->OnDeselected.AddWeakLambda(this, [this]()
+        {
+            SelectionRingComponent->SetVisibility(false);
+        });
 }
 
 void ABuilding::SetupViewModel()
@@ -635,6 +676,47 @@ void ABuilding::SetupViewModel()
     BuildingVM->SetLevelVM(LevelVM);
     BuildingVM->SetGoldVM(GoldVM);
     BuildingVM->SetCombatVM(CombatVM);
+}
+
+void ABuilding::SetupHealthbar()
+{
+    if (!ensure(BuildingVM))
+    {
+        // Need building VM
+        return;
+    }
+
+    const UWidgetBlueprintClassRegistry* WidgetBlueprints = UWidgetBlueprintClassRegistry::Get();
+    const TSubclassOf<UHealthBarBase> HealthBarWidgetClass = WidgetBlueprints ? WidgetBlueprints->UnitMiniHealthBarWidget.LoadSynchronous() : nullptr;
+    if (!ensure(WidgetBlueprints) || !ensure(HealthBarWidgetClass))
+    {
+        return;
+    }
+
+    HealthbarWidgetComponent->SetWidgetClass(HealthBarWidgetClass);
+
+    //FinishAddComponent(HealthbarWidgetComponent, true, FTransform{ FVector{0.f, 0.f, -100.f} });
+    HealthbarWidgetComponent->Activate();
+
+    if (UHealthBarBase* Widget = Cast<UHealthBarBase>(HealthbarWidgetComponent->GetWidget()))
+    {
+        Widget->ReceiveTeam(GetTeam());
+        Widget->ReceiveCombatVM(BuildingVM->GetCombatVM());
+    }
+
+    SelectionComponent->OnHovered.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    SelectionComponent->OnUnhovered.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    SelectionComponent->OnSelected.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    SelectionComponent->OnDeselected.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);
+    RefreshHealthbarVisibility();
+}
+
+void ABuilding::RefreshHealthbarVisibility_Implementation()
+{
+    if (ensure(HealthbarWidgetComponent))
+    {
+        HealthbarWidgetComponent->SetVisibility(SelectionComponent->IsSelected() || SelectionComponent->IsHovered());
+    }
 }
 
 ABuildingController* ABuilding::GetBuildingController() const

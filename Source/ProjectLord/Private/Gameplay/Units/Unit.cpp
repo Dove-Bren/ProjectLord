@@ -342,6 +342,10 @@ void AUnit::OnRep_Team(EGameTeam OldTeam)
     {
         UnitVM->SetTeam(Team);
     }
+    if (UHealthBarBase* Widget = Cast<UHealthBarBase>(HealthbarWidgetComponent->GetWidget()))
+    {
+        Widget->ReceiveTeam(GetTeam());
+    }
 }
 
 UVMUnit* AUnit::Client_ConstructUnitVM()
@@ -398,7 +402,8 @@ void AUnit::AddHealthbarWidget()
 
     if (UHealthBarBase* Widget = Cast<UHealthBarBase>(HealthbarWidgetComponent->GetWidget()))
     {
-        Widget->ReceiveUnitVM(UnitVM);
+        Widget->ReceiveTeam(GetTeam());
+        Widget->ReceiveCombatVM(UnitVM->GetCombatVM());
     }
 
     SelectionComponent->OnHovered.AddUObject(this, &ThisClass::RefreshHealthbarVisibility);

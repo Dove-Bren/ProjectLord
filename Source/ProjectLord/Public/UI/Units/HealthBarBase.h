@@ -6,9 +6,11 @@
 
 #include "Blueprint/UserWidget.h"
 
+#include "Gameplay/GameTeam.h"
+
 #include "HealthBarBase.generated.h"
 
-class UVMUnit;
+class UVMCombatData;
 
 UCLASS()
 class PROJECTLORD_API UHealthBarBase : public UUserWidget
@@ -17,5 +19,8 @@ class PROJECTLORD_API UHealthBarBase : public UUserWidget
 
 public:
     UFUNCTION(BlueprintImplementableEvent)
-    void ReceiveUnitVM(UVMUnit* InViewModel);
+    void ReceiveCombatVM(UVMCombatData* InViewModel);
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void ReceiveTeam(EGameTeam InTeam);
 };

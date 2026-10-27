@@ -30,6 +30,7 @@ class UFogOfWarComponent;
 class UMinimapComponent;
 class UPlayerSpell;
 class UVMBuilding;
+class UWidgetComponent;
 
 enum class ELandscapePaint : uint8;
 
@@ -197,6 +198,12 @@ protected:
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Map")
     TObjectPtr<UMinimapComponent> MinimapComponent;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TObjectPtr<UWidgetComponent> HealthbarWidgetComponent;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Creature")
+    TObjectPtr<UStaticMeshComponent> SelectionRingComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     TObjectPtr<UBuildingType> BuildingType;
@@ -298,6 +305,7 @@ protected:
     virtual void Server_SetupBaseAttributes();
     virtual void SetupSelectionData(USelectionComponent* InSelectionComponent);
     virtual void SetupViewModel();
+    void SetupHealthbar();
     virtual void Server_SetAvailableLevel(int InAvailableLevel);
 
     void Server_SetLevel(int InLevel) { BuildingLevel = InLevel; OnRep_BuildingLevel(); }
@@ -316,6 +324,9 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnUpgradeComplete();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    void RefreshHealthbarVisibility();
 
     UFUNCTION()
     virtual void HandleDeath();
