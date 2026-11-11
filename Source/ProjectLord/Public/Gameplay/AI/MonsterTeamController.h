@@ -38,6 +38,8 @@ public:
 protected:
 
     void ActivateSpawners(int GameDays);
+    void DoEdgeSpawn(int GameDays);
+    //void DoSwarmSpawn(int GameDays); TODO
 
     UFUNCTION()
     void HandleDayChange(int GameDays);

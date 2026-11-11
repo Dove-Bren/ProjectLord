@@ -212,12 +212,13 @@ void AResidentialBuilding::HandleDeath()
     auto VisitorsCopy = Visitors;
     for (auto& Visitor : VisitorsCopy)
     {
+        if (!Visitor) continue;
         Visitor->LeaveCurrentBuilding();
     }
 
     for (auto& Resident : Residents)
     {
-
+        if (!Resident) continue;
     }
 
     Super::HandleDeath();
