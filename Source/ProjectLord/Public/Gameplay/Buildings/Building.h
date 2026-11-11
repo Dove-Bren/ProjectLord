@@ -246,6 +246,9 @@ protected:
     TArray<int> BuildingUpgradeCosts;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
+    TOptional<UBuildingType*> RubbleBuildingType;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
     bool bIndestructible = false;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building|Definition")
@@ -360,6 +363,9 @@ protected:
 
     UFUNCTION()
     void OnRep_BuildingAvailableLevel();
+
+private:
+    void HandleGameStateReady();
 
 public:
     virtual void BeginPlay() override;

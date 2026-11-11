@@ -348,11 +348,17 @@ void ABuilding::BeginPlay()
             }
         }
 
-        // Trigger a 'team change' to register with team
+        auto State = GetWorld()->GetGameState<ALordGameState>();
+        if (ensure(State))
         {
-            const EGameTeam RealTeam = GetTeam();
-            Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
-            Server_SetTeam(RealTeam);
+            if (State->OnGameStateReady.IsComplete())
+            {
+                HandleGameStateReady();
+            }
+            else
+            {
+                State->OnGameStateReady.OnCompleteUObject(this, &ThisClass::HandleGameStateReady);
+            }
         }
     }
 
@@ -510,6 +516,10 @@ void ABuilding::OnRep_Team(EGameTeam OldTeam)
     SelectionComponent->SetTeam(Team);
     FogOfWarComponent->SetTeam(Team);
     MinimapComponent->SetTeam(Team);
+    if (UHealthBarBase* Widget = Cast<UHealthBarBase>(HealthbarWidgetComponent->GetWidget()))
+    {
+        Widget->ReceiveTeam(GetTeam());
+    }
 }
 
 void ABuilding::OnRep_BuildingGold()
@@ -769,6 +779,19 @@ void ABuilding::HandleDeath()
         }
     }
 
+    if (RubbleBuildingType.IsSet() && HasAuthority())
+    {
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        FTransform Transform(GetActorTransform());
+        auto PlacedBuilding = GetWorld()->SpawnActor<ABuilding>(RubbleBuildingType.GetValue()->BuildingClass, Transform, Params);
+        if (ensure(PlacedBuilding))
+        {
+            // Rubble buildings are always neutral. Is that a safe assumption?
+            PlacedBuilding->Server_SetTeam(EGameTeam::Neutral);
+        }
+    }
+
     OnBuildingDestroyed.Broadcast(this);
 
     this->Destroy();
@@ -834,5 +857,15 @@ void ABuilding::PaintFoundation()
     if (ensure(LandscapePainter))
     {
         LandscapePainter->Paint(GetFoundationType(), GetActorLocation(), BuildingMesh->GetBounds().SphereRadius * 1.5);
+    }
+}
+
+void ABuilding::HandleGameStateReady()
+{
+    // Trigger a 'team change' to register with team
+    {
+        const EGameTeam RealTeam = GetTeam();
+        Team = EGameTeam::Neutral == RealTeam ? EGameTeam::Monster : EGameTeam::Neutral;
+        Server_SetTeam(RealTeam);
     }
 }
