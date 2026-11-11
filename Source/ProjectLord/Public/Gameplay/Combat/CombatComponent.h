@@ -24,6 +24,7 @@ DECLARE_MULTICAST_DELEGATE(FOnDeathLocal);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttack, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackLand, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttackReceived, AActor*, AttackingActor, UCombatComponent*, AttackingCombatComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAllyAttacked, AActor*, AttackingActor, UCombatComponent*, AttackingCombatComponent, AActor*, AllyActor, UCombatComponent*, AllyCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuff, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeal, AActor*, TargetActor, UCombatComponent*, TargetCombatComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChange, UCombatComponent*, NewTarget);
@@ -54,6 +55,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnAttackReceived OnAttackReceived;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnAllyAttacked OnAllyAttacked;
 
     UPROPERTY(BlueprintAssignable)
     FOnBuff OnBuff;
@@ -260,6 +264,7 @@ protected:
     void BroadcastAttack(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackLand(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastAttackReceived(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
+    void BroadcastAttackToAllies(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
     void BroadcastBuff(AActor* Target, UCombatComponent* TargetCombatComponent);
     void BroadcastHeal(AActor* Target, UCombatComponent* TargetCombatComponent);
 

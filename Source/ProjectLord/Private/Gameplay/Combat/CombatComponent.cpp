@@ -775,6 +775,16 @@ void UCombatComponent::BroadcastAttackReceived(AActor* AttackingActor, UCombatCo
     ReceiveOnAttackReceived(AttackingActor, AttackingCombatComponent);
 }
 
+void UCombatComponent::BroadcastAttackToAllies(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent)
+{
+    // Transmit to nearby allies
+    auto Allies = GetNearbyAllies();
+    for (auto Ally : Allies)
+    {
+        Ally->OnAllyAttacked.Broadcast(AttackingActor, AttackingCombatComponent, GetOwner(), this);
+    }
+}
+
 void UCombatComponent::BroadcastBuff(AActor* Target, UCombatComponent* TargetCombatComponent)
 {
     OnBuff.Broadcast(Target, TargetCombatComponent);
@@ -830,6 +840,7 @@ void UCombatComponent::HandleAttackFrom(AActor* AttackingActor, UCombatComponent
         AddRevengeTarget(AttackingCombatComponent);
     }
     BroadcastAttackReceived(AttackingActor, AttackingCombatComponent);
+    BroadcastAttackToAllies(AttackingActor, AttackingCombatComponent);
 }
 
 bool UCombatComponent::IsTargetableEnemy(const UCombatComponent* Other, bool bRequireAlive) const

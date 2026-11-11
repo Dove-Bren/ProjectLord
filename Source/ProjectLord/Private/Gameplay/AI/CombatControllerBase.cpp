@@ -27,6 +27,7 @@ void ACombatControllerBase::OnBehaviorTreeStarted()
 		if (ensure(Combat))
 		{
 			Combat->OnAttackReceived.AddDynamic(this, &ThisClass::OnPawnAttacked);
+			Combat->OnAllyAttacked.AddDynamic(this, &ThisClass::OnAllyAttacked);
 		}
 	}
 }
@@ -55,4 +56,10 @@ void ACombatControllerBase::OnPawnAttacked(AActor* AttackingActor, UCombatCompon
 {
 	auto BB = GetBlackboardComponent();
 	BB->SetValueAsObject(TEXT("RecentRevengeCombatComponent"), AttackingCombatComponent);
+}
+
+void ACombatControllerBase::OnAllyAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent, AActor* AllyActor, UCombatComponent* AllyCombatComponent)
+{
+	auto BB = GetBlackboardComponent();
+	BB->SetValueAsObject(TEXT("RecentCoopTargetCombatComponent"), AttackingCombatComponent);
 }

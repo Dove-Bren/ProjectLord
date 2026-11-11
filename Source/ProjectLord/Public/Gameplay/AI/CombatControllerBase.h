@@ -44,4 +44,7 @@ private:
 
     UFUNCTION()
     void OnPawnAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent);
+
+    UFUNCTION()
+    void OnAllyAttacked(AActor* AttackingActor, UCombatComponent* AttackingCombatComponent, AActor* AllyActor, UCombatComponent* AllyCombatComponent);
 };
